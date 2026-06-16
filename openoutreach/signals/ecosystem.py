@@ -39,7 +39,9 @@ def _level(score: int) -> str:
     return "Emerging"
 
 
-def build_ecosystem_overview(project, funding_readiness, government_readiness) -> EcosystemOverview:
+def build_ecosystem_overview(
+    project, funding_readiness, government_readiness, resource_readiness=None,
+) -> EcosystemOverview:
     organization = project.organization
     score = 20
 
@@ -59,7 +61,11 @@ def build_ecosystem_overview(project, funding_readiness, government_readiness) -
         score += 5
     if _has_values(organization.existing_partnerships):
         score += 5
-    score += round((funding_readiness.readiness_score + government_readiness.readiness_score) / 20)
+    readiness_scores = [funding_readiness.readiness_score, government_readiness.readiness_score]
+    if resource_readiness:
+        readiness_scores.append(resource_readiness.readiness_score)
+        score += 5
+    score += round(sum(readiness_scores) / (10 * len(readiness_scores)))
     score = max(0, min(score, 100))
 
     statuses = [
@@ -83,8 +89,12 @@ def build_ecosystem_overview(project, funding_readiness, government_readiness) -
         ),
         EcosystemStatus(
             "ResourceSignal",
-            "Coming Soon",
-            "Future module for non-funding resources, technical assistance, in-kind support, and capacity help.",
+            "Complete" if resource_readiness else "Coming Soon",
+            (
+                "Resource readiness, non-funding categories, recommendations, checklist, and actions are available."
+                if resource_readiness else
+                "Future module for non-funding resources, technical assistance, in-kind support, and capacity help."
+            ),
             "project-resources",
         ),
         EcosystemStatus(
@@ -95,8 +105,8 @@ def build_ecosystem_overview(project, funding_readiness, government_readiness) -
         ),
     ]
     roadmap = EcosystemRoadmap(
-        completed=["Mission Brief", "FundingSignal", "GovernmentSignal"],
-        coming_soon=["ResourceSignal", "PartnershipSignal"],
+        completed=["Mission Brief", "FundingSignal", "GovernmentSignal", "ResourceSignal"],
+        coming_soon=["PartnershipSignal"],
         future=["Opportunity Discovery Engine", "Monitoring Systems", "AI Opportunity Agents"],
     )
     return EcosystemOverview(

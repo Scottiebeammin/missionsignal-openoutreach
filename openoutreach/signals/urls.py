@@ -37,8 +37,7 @@ urlpatterns = [
     ),
     path(
         "projects/<int:pk>/resources/",
-        views.project_module_placeholder,
-        {"module": "resources"},
+        views.project_resource_dashboard,
         name="project-resources",
     ),
 ]

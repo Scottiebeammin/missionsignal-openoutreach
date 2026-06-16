@@ -9,6 +9,7 @@ from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
 from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.mission_brief import recommended_next_steps
+from openoutreach.signals.resources import build_resource_readiness
 from openoutreach.signals.services import create_organization_intake
 
 
@@ -27,14 +28,6 @@ MODULE_PLACEHOLDERS = {
         "summary": (
             "PartnershipSignal will surface mission-aligned collaborators, referral "
             "partners, and coalition opportunities. Matching logic is not enabled yet."
-        ),
-    },
-    "resources": {
-        "title": "ResourceSignal",
-        "heading": "ResourceSignal",
-        "summary": (
-            "ResourceSignal will help identify non-funding supports such as volunteers, "
-            "technical assistance, in-kind services, and capacity-building resources."
         ),
     },
 }
@@ -152,7 +145,10 @@ def project_ecosystem_dashboard(request, pk):
     funding_criteria = getattr(project, "funding_criteria", None)
     funding_readiness = build_funding_readiness(project, funding_criteria)
     government_readiness = build_government_readiness(project, funding_criteria)
-    ecosystem = build_ecosystem_overview(project, funding_readiness, government_readiness)
+    resource_readiness = build_resource_readiness(project, funding_criteria)
+    ecosystem = build_ecosystem_overview(
+        project, funding_readiness, government_readiness, resource_readiness,
+    )
     return render(
         request,
         "signals/project_ecosystem_dashboard.html",
@@ -160,6 +156,25 @@ def project_ecosystem_dashboard(request, pk):
             "project": project,
             "organization": project.organization,
             "ecosystem": ecosystem,
+        },
+    )
+
+
+@login_required
+def project_resource_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    readiness = build_resource_readiness(project, funding_criteria)
+    return render(
+        request,
+        "signals/project_resource_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "funding_criteria": funding_criteria,
+            "readiness": readiness,
         },
     )
 

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ResourceSignal - {{ organization.name }}</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #192a3a;
+      --muted: #667789;
+      --line: #d9e2e8;
+      --panel: #f6f8fa;
+      --accent: #0f766e;
+      --accent-soft: #e8f5f2;
+      --blue: #235789;
+      --blue-soft: #edf5fb;
+      --gold: #8a5b00;
+      --gold-soft: #fff7df;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef3f6; color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 24px auto; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; }
+    h2 { margin-bottom: 12px; font-size: 1rem; letter-spacing: .06em; text-transform: uppercase; }
+    h3 { margin-bottom: 6px; font-size: 1rem; }
+    a { color: inherit; }
+    .topbar, .hero, .panel, .category-card, .resource-card, .ecosystem-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: white;
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .hero { margin-bottom: 14px; padding: 24px; }
+    .eyebrow { margin-bottom: 6px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .subtitle, .muted { color: var(--muted); }
+    .score-grid { display: grid; grid-template-columns: minmax(170px, .35fr) minmax(0, .65fr); gap: 14px; margin-top: 18px; }
+    .score-box { padding: 18px; border-radius: 8px; background: var(--accent-soft); }
+    .score-box strong { display: block; font-size: clamp(3rem, 8vw, 5rem); line-height: .95; }
+    .score-box span { display: block; margin-top: 8px; font-weight: 800; }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .panel { padding: 18px; }
+    .dashboard { display: grid; grid-template-columns: 1fr .85fr; gap: 14px; align-items: start; }
+    .stack { display: grid; gap: 14px; }
+    .category-grid, .resource-grid, .ecosystem-grid { display: grid; gap: 10px; }
+    .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ecosystem-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .category-card, .resource-card, .ecosystem-card { padding: 14px; }
+    .resource-card header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .score-pill { min-width: 52px; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; text-align: center; }
+    .strength { padding: 12px; border-radius: 8px; background: var(--accent-soft); border-left: 4px solid var(--accent); }
+    .gap { padding: 12px; border-radius: 8px; background: var(--gold-soft); border-left: 4px solid var(--gold); }
+    .status { font-weight: 800; }
+    .status.complete { color: var(--accent); }
+    .status.missing { color: var(--gold); }
+    .check-row { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .check-row:last-child { border-bottom: 0; }
+    .actions-list { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    @media (max-width: 900px) {
+      .dashboard, .score-grid, .summary-grid, .category-grid, .resource-grid, .ecosystem-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="topbar" aria-label="ResourceSignal actions">
+      <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>
+      <div class="actions">
+        <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
+        <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
+        <a class="button" href="{% url 'project-ecosystem' project.pk %}">EcosystemSignal</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <p class="eyebrow">ResourceSignal V1</p>
+      <h1>ResourceSignal Dashboard</h1>
+      <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
+      <section class="score-grid" aria-label="Resource readiness">
+        <div class="score-box">
+          <h2>Resource Readiness Score</h2>
+          <strong>{{ readiness.readiness_score }}</strong>
+          <span>{{ readiness.readiness_level }}</span>
+        </div>
+        <div class="summary-grid">
+          <section class="panel">
+            <h2>Strengths</h2>
+            {% for strength in readiness.strengths %}
+              <p class="strength">{{ strength }}</p>
+            {% endfor %}
+          </section>
+          <section class="panel">
+            <h2>Resource Gaps</h2>
+            {% for gap in readiness.gaps %}
+              <p class="gap">{{ gap }}</p>
+            {% empty %}
+              <p class="strength">No major resource gaps were detected.</p>
+            {% endfor %}
+          </section>
+        </div>
+      </section>
+    </header>
+
+    <section class="panel">
+      <h2>Resource Ecosystem Snapshot</h2>
+      <p>Resources extend beyond funding and include training, technical assistance, volunteers, technology, facilities, equipment, capacity-building programs, and shared services.</p>
+      <div class="ecosystem-grid">
+        {% for item in readiness.ecosystem_items %}
+          <div class="ecosystem-card"><strong>{{ item }}</strong></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <div class="dashboard">
+      <div class="stack">
+        <section class="panel">
+          <h2>Resource Opportunity Categories</h2>
+          <div class="category-grid">
+            {% for category in readiness.categories %}
+              <article class="category-card">
+                <h3>{{ category.name }}</h3>
+                <p class="muted">{{ category.explanation }}</p>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Recommended Resource Types</h2>
+          <div class="resource-grid">
+            {% for resource in readiness.recommendations %}
+              <article class="resource-card">
+                <header>
+                  <h3>{{ resource.name }}</h3>
+                  <span class="score-pill">{{ resource.score }}</span>
+                </header>
+                <p>{{ resource.explanation }}</p>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+
+      <aside class="stack">
+        <section class="panel">
+          <h2>Resource Readiness Checklist</h2>
+          {% for item in readiness.checklist %}
+            <div class="check-row">
+              <span class="status {{ item.status_class }}">{{ item.status }}</span>
+              <strong>{{ item.label }}</strong>
+              <p class="muted">{{ item.detail }}</p>
+            </div>
+          {% endfor %}
+        </section>
+
+        <section class="panel">
+          <h2>Recommended Resource Actions</h2>
+          <ol class="actions-list">
+            {% for action in readiness.actions %}
+              <li>{{ action }}</li>
+            {% endfor %}
+          </ol>
+        </section>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>
