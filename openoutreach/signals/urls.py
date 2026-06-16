@@ -25,6 +25,11 @@ urlpatterns = [
         name="project-government",
     ),
     path(
+        "projects/<int:pk>/ecosystem/",
+        views.project_ecosystem_dashboard,
+        name="project-ecosystem",
+    ),
+    path(
         "projects/<int:pk>/partnerships/",
         views.project_module_placeholder,
         {"module": "partnerships"},

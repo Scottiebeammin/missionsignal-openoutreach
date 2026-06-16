@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EcosystemSignal - {{ organization.name }}</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #192a3a;
+      --muted: #667789;
+      --line: #d9e2e8;
+      --panel: #f6f8fa;
+      --accent: #0f766e;
+      --accent-soft: #e8f5f2;
+      --blue: #235789;
+      --blue-soft: #edf5fb;
+      --gold: #8a5b00;
+      --gold-soft: #fff7df;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef3f6; color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 24px auto; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; }
+    h2 { margin-bottom: 12px; font-size: 1rem; letter-spacing: .06em; text-transform: uppercase; }
+    h3 { margin-bottom: 6px; font-size: 1rem; }
+    a { color: inherit; }
+    .topbar, .hero, .panel, .status-card, .summary-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: white;
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .hero { margin-bottom: 14px; padding: 24px; }
+    .eyebrow { margin-bottom: 6px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .subtitle, .muted { color: var(--muted); }
+    .score-grid { display: grid; grid-template-columns: minmax(170px, .35fr) minmax(0, .65fr); gap: 14px; margin-top: 18px; }
+    .score-box { padding: 18px; border-radius: 8px; background: var(--accent-soft); }
+    .score-box strong { display: block; font-size: clamp(3rem, 8vw, 5rem); line-height: .95; }
+    .score-box span { display: block; margin-top: 8px; font-weight: 800; }
+    .panel { padding: 18px; }
+    .status-grid, .summary-grid, .roadmap-grid { display: grid; gap: 10px; }
+    .status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .summary-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .roadmap-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+    .status-card, .summary-card { padding: 14px; text-decoration: none; }
+    .status-card strong, .summary-card strong { display: block; margin-bottom: 4px; color: var(--accent); }
+    .status-pill { display: inline-block; margin-bottom: 8px; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    .status-pill.soon { background: var(--gold-soft); color: var(--gold); }
+    ul { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    @media (max-width: 900px) {
+      .score-grid, .status-grid, .summary-grid, .roadmap-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="topbar" aria-label="EcosystemSignal actions">
+      <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>
+      <div class="actions">
+        <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
+        <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <p class="eyebrow">EcosystemSignal V0</p>
+      <h1>Ecosystem Overview Dashboard</h1>
+      <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
+      <section class="score-grid" aria-label="Opportunity ecosystem score">
+        <div class="score-box">
+          <h2>Opportunity Ecosystem Score</h2>
+          <strong>{{ ecosystem.score }}</strong>
+          <span>{{ ecosystem.level }}</span>
+        </div>
+        <section class="panel">
+          <h2>Ecosystem Summary</h2>
+          <p>Organizations operate within an opportunity ecosystem consisting of funding, government, resources, partnerships, and capacity. EcosystemSignal V0 shows which foundations are active today and which systems are still coming online.</p>
+        </section>
+      </section>
+    </header>
+
+    <section class="panel">
+      <h2>Module Status</h2>
+      <div class="status-grid">
+        {% for item in ecosystem.statuses %}
+          <a class="status-card" href="{% url item.href_name project.pk %}">
+            <span class="status-pill{% if item.status == 'Coming Soon' %} soon{% endif %}">{{ item.status }}</span>
+            <strong>{{ item.name }}</strong>
+            <span class="muted">{{ item.detail }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Opportunity Ecosystem</h2>
+      <div class="summary-grid">
+        {% for item in ecosystem.summary_items %}
+          <div class="summary-card"><strong>{{ item }}</strong><span class="muted">Part of the MissionSignal opportunity ecosystem.</span></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Ecosystem Roadmap</h2>
+      <div class="roadmap-grid">
+        <div>
+          <h3>Completed</h3>
+          <ul>
+            {% for item in ecosystem.roadmap.completed %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h3>Coming Soon</h3>
+          <ul>
+            {% for item in ecosystem.roadmap.coming_soon %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h3>Future</h3>
+          <ul>
+            {% for item in ecosystem.roadmap.future %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -148,11 +148,13 @@ def test_mission_brief_links_to_future_modules(client, analyzed_project):
     content = response.content.decode()
 
     assert "Programs" in content
+    assert "EcosystemSignal" in content
     assert "FundingSignal" in content
     assert "GovernmentSignal" in content
     assert "PartnershipSignal" in content
     assert "ResourceSignal" in content
     assert reverse("project-programs", kwargs={"pk": project.pk}) in content
+    assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
     assert reverse("project-funding", kwargs={"pk": project.pk}) in content
     assert reverse("project-government", kwargs={"pk": project.pk}) in content
     assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content

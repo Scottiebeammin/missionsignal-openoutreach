@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from openoutreach.core.models import Project
 from openoutreach.funding.readiness import build_funding_readiness
 from openoutreach.signals.analysis_service import analyze_project
+from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
 from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.mission_brief import recommended_next_steps
@@ -139,6 +140,26 @@ def project_government_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "readiness": readiness,
+        },
+    )
+
+
+@login_required
+def project_ecosystem_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    funding_readiness = build_funding_readiness(project, funding_criteria)
+    government_readiness = build_government_readiness(project, funding_criteria)
+    ecosystem = build_ecosystem_overview(project, funding_readiness, government_readiness)
+    return render(
+        request,
+        "signals/project_ecosystem_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "ecosystem": ecosystem,
         },
     )
 
