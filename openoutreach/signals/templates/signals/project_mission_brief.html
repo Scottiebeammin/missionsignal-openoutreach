@@ -114,10 +114,12 @@
         <section class="panel">
           <h2>Organization Identity</h2>
           <div class="identity-grid">
+            <div class="datum"><h3>Organization Type</h3><p>{{ organization.organization_type|default:"Not provided yet." }}</p></div>
             <div class="datum"><h3>Focus areas</h3><p>{{ organization.focus_areas|join:", "|default:"No focus areas inferred yet." }}</p></div>
             <div class="datum"><h3>Beneficiaries</h3><p>{{ organization.beneficiaries|join:", "|default:"No beneficiaries inferred yet." }}</p></div>
-            <div class="datum"><h3>Service geography</h3><p>{% if organization.city or organization.county or organization.state %}{% if organization.city %}{{ organization.city }}{% endif %}{% if organization.county %}{% if organization.city %}, {% endif %}{{ organization.county }} County{% endif %}{% if organization.state %}{% if organization.city or organization.county %}, {% endif %}{{ organization.state }}{% endif %}{% else %}No location context provided.{% endif %}</p></div>
+            <div class="datum"><h3>Service Geography</h3><p>{% if organization.city or organization.county or organization.state %}{% if organization.city %}{{ organization.city }}{% endif %}{% if organization.county %}{% if organization.city %}, {% endif %}{{ organization.county }} County{% endif %}{% if organization.state %}{% if organization.city or organization.county %}, {% endif %}{{ organization.state }}{% endif %}{% else %}No location context provided.{% endif %}</p></div>
             <div class="datum"><h3>Capabilities</h3><p>{{ organization.capabilities|join:", "|default:"No capabilities inferred yet." }}</p></div>
+            <div class="datum"><h3>Outcomes / Impact</h3><p>{{ organization.outcomes_and_impact|join:", "|default:"Not provided yet." }}</p></div>
           </div>
         </section>
 
@@ -149,6 +151,15 @@
             {% else %}
               <p class="muted">A structured program database will be added later.</p>
             {% endif %}
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Funding Readiness Profile</h2>
+          <div class="identity-grid">
+            <div class="datum"><h3>Budget Range</h3><p>{{ organization.budget_range|default:"Not provided yet." }}</p></div>
+            <div class="datum"><h3>Current Funding Sources</h3><p>{{ organization.current_funding_sources|join:", "|default:"Not provided yet." }}</p></div>
+            <div class="datum"><h3>Existing Partnerships</h3><p>{{ organization.existing_partnerships|join:", "|default:"Not provided yet." }}</p></div>
           </div>
         </section>
       </div>

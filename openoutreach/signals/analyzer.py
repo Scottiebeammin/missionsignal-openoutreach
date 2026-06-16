@@ -8,10 +8,15 @@ class OrganizationAnalyzerInput(BaseModel):
     website: str
     mission: str
     programs: str
+    organization_type: str = ""
     city: str = ""
     county: str = ""
     state: str = ""
     service_area_notes: str = ""
+    outcomes_and_impact: list[str] = Field(default_factory=list)
+    budget_range: str = ""
+    current_funding_sources: list[str] = Field(default_factory=list)
+    existing_partnerships: list[str] = Field(default_factory=list)
 
 
 class FundingCriteriaAnalysis(BaseModel):
@@ -85,11 +90,19 @@ def _keywords(text: str, limit: int = 12) -> list[str]:
 
 def analyze_deterministically(data: OrganizationAnalyzerInput) -> OrganizationAnalyzerOutput:
     """Produce a repeatable analyzer result without external API calls."""
-    combined = f"{data.mission}\n{data.programs}".casefold()
+    combined = "\n".join([
+        data.mission,
+        data.programs,
+        data.organization_type,
+        "\n".join(data.outcomes_and_impact),
+        "\n".join(data.current_funding_sources),
+        "\n".join(data.existing_partnerships),
+    ]).casefold()
     focus_areas = _matches(combined, _FOCUS_RULES)
     beneficiaries = _matches(combined, _BENEFICIARY_RULES)
     capabilities = _matches(combined, _CAPABILITY_RULES)
     geographies = _unique([data.city, data.county, data.state, data.service_area_notes])
+    outcomes = _unique(data.outcomes_and_impact)
     warnings = []
 
     if not focus_areas:
@@ -98,7 +111,14 @@ def analyze_deterministically(data: OrganizationAnalyzerInput) -> OrganizationAn
         warnings.append("No clear beneficiary groups could be inferred from the mission and programs.")
     if not geographies:
         warnings.append("No optional location or service-area context was provided.")
-    warnings.append("Outcomes and impact require supporting evidence and were not inferred in deterministic mode.")
+    if not outcomes:
+        warnings.append("Outcomes and impact require supporting evidence and were not inferred in deterministic mode.")
+    if not data.budget_range:
+        warnings.append("Budget range was not provided.")
+    if not data.current_funding_sources:
+        warnings.append("Current funding sources were not provided.")
+    if not data.existing_partnerships:
+        warnings.append("Existing partnerships were not provided.")
 
     confidence = max(0.35, 0.9 - 0.12 * len(warnings))
     search_keywords = _unique([
@@ -108,7 +128,13 @@ def analyze_deterministically(data: OrganizationAnalyzerInput) -> OrganizationAn
         *geographies[:3],
     ])
     summary = f"{data.organization_name} advances {data.mission.strip()} through {data.programs.strip()}"
-    inclusion_parts = _unique([*focus_areas, *beneficiaries, *geographies])
+    inclusion_parts = _unique([
+        *focus_areas,
+        *beneficiaries,
+        *geographies,
+        data.organization_type,
+        *outcomes,
+    ])
 
     criteria = FundingCriteriaAnalysis(
         focus_areas=focus_areas,
@@ -126,7 +152,7 @@ def analyze_deterministically(data: OrganizationAnalyzerInput) -> OrganizationAn
         beneficiaries=beneficiaries,
         service_geographies=geographies,
         capabilities=capabilities,
-        outcomes_and_impact=[],
+        outcomes_and_impact=outcomes,
         search_keywords=search_keywords,
         analysis_warnings=warnings,
         analysis_confidence=confidence,

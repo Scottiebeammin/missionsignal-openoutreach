@@ -55,6 +55,9 @@ def test_organization_has_analyzer_first_defaults_and_optional_location_fields(o
     assert organization.county == "Wayne"
     assert organization.state == "Michigan"
     assert organization.service_area_notes == "Serves Wayne County."
+    assert organization.budget_range == ""
+    assert organization.current_funding_sources == []
+    assert organization.existing_partnerships == []
     assert str(organization) == "Mission Works"
 
 

@@ -4,10 +4,28 @@
 <body>
   <main>
     <h1>Create your MissionSignal profile</h1>
-    <p>Provide four details. MissionSignal will infer the rest.</p>
+    <p>Start with the four required fields. Optional profile details improve FundingSignal readiness.</p>
     <form method="post">
       {% csrf_token %}
-      {{ form.as_p }}
+      <fieldset>
+        <legend>Required</legend>
+        <p>{{ form.organization_name.label_tag }} {{ form.organization_name }}</p>
+        <p>{{ form.website.label_tag }} {{ form.website }}</p>
+        <p>{{ form.mission.label_tag }} {{ form.mission }}</p>
+        <p>{{ form.programs.label_tag }} {{ form.programs }}</p>
+      </fieldset>
+      <fieldset>
+        <legend>Optional FundingSignal readiness profile</legend>
+        <p>{{ form.organization_type.label_tag }} {{ form.organization_type }} <small>{{ form.organization_type.help_text }}</small></p>
+        <p>{{ form.city.label_tag }} {{ form.city }}</p>
+        <p>{{ form.county.label_tag }} {{ form.county }}</p>
+        <p>{{ form.state.label_tag }} {{ form.state }}</p>
+        <p>{{ form.service_area_notes.label_tag }} {{ form.service_area_notes }}</p>
+        <p>{{ form.outcomes_and_impact.label_tag }} {{ form.outcomes_and_impact }} <small>{{ form.outcomes_and_impact.help_text }}</small></p>
+        <p>{{ form.budget_range.label_tag }} {{ form.budget_range }}</p>
+        <p>{{ form.current_funding_sources.label_tag }} {{ form.current_funding_sources }} <small>{{ form.current_funding_sources.help_text }}</small></p>
+        <p>{{ form.existing_partnerships.label_tag }} {{ form.existing_partnerships }} <small>{{ form.existing_partnerships.help_text }}</small></p>
+      </fieldset>
       <button type="submit">Analyze Organization</button>
     </form>
   </main>

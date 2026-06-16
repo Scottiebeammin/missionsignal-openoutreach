@@ -76,6 +76,11 @@ def test_mission_brief_displays_profile_funding_criteria_and_next_steps(
     assert "Opportunity Snapshot" in content
     assert "Data Gaps &amp; Warnings" in content
     assert "Recommended Next Actions" in content
+    assert "Funding Readiness Profile" in content
+    assert "Organization Type" in content
+    assert "Budget Range" in content
+    assert "Current Funding Sources" in content
+    assert "Existing Partnerships" in content
     assert "Program Portfolio" in content
     assert "Preview only" in content
     assert "Analysis Review" in content
@@ -83,7 +88,56 @@ def test_mission_brief_displays_profile_funding_criteria_and_next_steps(
     assert "Start New Intake" in content
     assert "Review and confirm the inferred organization profile." in content
     assert "Prepare outcome and impact data to strengthen funding readiness." in content
+    assert "Add a budget range to improve award-size fit." in content
+    assert "Add current funding sources to clarify funding history." in content
+    assert "Add existing partnerships to support readiness review." in content
     assert "Use the generated funding themes for opportunity discovery." in content
+
+
+def test_mission_brief_displays_optional_readiness_profile_fields(client, db):
+    user = get_user_model().objects.create_user(
+        username="mission-brief-readiness",
+        password="password",
+    )
+    organization = Organization.objects.create(
+        name="Readiness Works",
+        website="https://readiness.example",
+        mission="Help youth build careers.",
+        organization_type="Nonprofit",
+        city="Detroit",
+        county="Wayne",
+        state="Michigan",
+        service_area_notes="Serves neighborhoods across Wayne County.",
+        outcomes_and_impact=["85% credential completion", "120 graduates placed"],
+        budget_range="$250K - $1M",
+        current_funding_sources=["Community Foundation", "City workforce grant"],
+        existing_partnerships=["Local College", "Employer Council"],
+    )
+    project = Project.objects.create(
+        organization=organization,
+        name="Primary Initiative",
+        programs="Career readiness and mentoring programs for youth.",
+    )
+    project.users.add(user)
+    analyze_project(project)
+    client.force_login(user)
+
+    response = client.get(reverse("project-mission-brief", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "Nonprofit" in content
+    assert "Detroit" in content
+    assert "Wayne" in content
+    assert "Michigan" in content
+    assert "85% credential completion, 120 graduates placed" in content
+    assert "$250K - $1M" in content
+    assert "Community Foundation, City workforce grant" in content
+    assert "Local College, Employer Council" in content
+    assert "Prepare outcome and impact data" not in content
+    assert "Add a budget range" not in content
+    assert "Add current funding sources" not in content
+    assert "Add existing partnerships" not in content
 
 
 def test_mission_brief_links_to_future_modules(client, analyzed_project):
@@ -128,6 +182,9 @@ def test_mission_brief_handles_missing_optional_location_fields(client, db):
     assert response.status_code == 200
     assert "No location context provided." in content
     assert "Confirm service geography to improve local funding matches." in content
+    assert "Budget range was not provided." in content
+    assert "Current funding sources were not provided." in content
+    assert "Existing partnerships were not provided." in content
 
 
 @pytest.mark.parametrize(

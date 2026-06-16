@@ -19,10 +19,15 @@ def analyze_project(project, *, mode="deterministic"):
         website=organization.website,
         mission=organization.mission,
         programs=project.programs,
+        organization_type=organization.organization_type or "",
         city=organization.city,
         county=organization.county,
         state=organization.state,
         service_area_notes=organization.service_area_notes,
+        outcomes_and_impact=organization.outcomes_and_impact,
+        budget_range=organization.budget_range,
+        current_funding_sources=organization.current_funding_sources,
+        existing_partnerships=organization.existing_partnerships,
     )
     run = (
         OrganizationAnalysisRun.objects.filter(

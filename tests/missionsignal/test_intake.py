@@ -11,10 +11,30 @@ from openoutreach.signals.models import OrganizationAnalysisRun
 pytestmark = pytest.mark.django_db
 
 
-def test_intake_form_exposes_only_four_required_fields():
+def test_intake_form_keeps_four_required_fields_and_optional_profile_fields():
     form = OrganizationIntakeForm()
-    assert list(form.fields) == ["organization_name", "website", "mission", "programs"]
-    assert all(field.required for field in form.fields.values())
+    assert list(form.fields) == [
+        "organization_name",
+        "website",
+        "mission",
+        "programs",
+        "organization_type",
+        "city",
+        "county",
+        "state",
+        "service_area_notes",
+        "outcomes_and_impact",
+        "budget_range",
+        "current_funding_sources",
+        "existing_partnerships",
+    ]
+    required_fields = ["organization_name", "website", "mission", "programs"]
+    assert all(form.fields[field].required for field in required_fields)
+    assert all(
+        not form.fields[field].required
+        for field in form.fields
+        if field not in required_fields
+    )
 
 
 def test_anonymous_intake_redirects_to_login(client):
@@ -71,6 +91,56 @@ def test_valid_intake_creates_owned_organization_project_and_pending_analysis_ru
     assert list(project.users.all()) == [user]
     assert run.status == OrganizationAnalysisRun.Status.PENDING
     assert run.input_snapshot["programs"] == "Career training."
+    assert organization.organization_type is None
+    assert organization.city == ""
+    assert organization.outcomes_and_impact == []
+    assert organization.budget_range == ""
+    assert organization.current_funding_sources == []
+    assert organization.existing_partnerships == []
+
+
+def test_optional_profile_fields_are_saved_from_intake(client):
+    user = User.objects.create_user("owner")
+    client.force_login(user)
+    response = client.post(
+        reverse("project-intake"),
+        {
+            "organization_name": "Mission Works",
+            "website": "https://mission.example.org",
+            "mission": "Improve economic mobility.",
+            "programs": "Career training.",
+            "organization_type": "Nonprofit",
+            "city": "Detroit",
+            "county": "Wayne",
+            "state": "Michigan",
+            "service_area_notes": "Serves Wayne County.",
+            "outcomes_and_impact": "85% completion rate\n120 graduates",
+            "budget_range": "$250K - $1M",
+            "current_funding_sources": "Community Foundation\nCity workforce grant",
+            "existing_partnerships": "Local College\nEmployer Council",
+        },
+    )
+
+    organization = Organization.objects.get()
+    run = OrganizationAnalysisRun.objects.get(organization=organization)
+    assert response.status_code == 302
+    assert organization.organization_type == "Nonprofit"
+    assert organization.city == "Detroit"
+    assert organization.county == "Wayne"
+    assert organization.state == "Michigan"
+    assert organization.service_area_notes == "Serves Wayne County."
+    assert organization.outcomes_and_impact == ["85% completion rate", "120 graduates"]
+    assert organization.budget_range == "$250K - $1M"
+    assert organization.current_funding_sources == [
+        "Community Foundation",
+        "City workforce grant",
+    ]
+    assert organization.existing_partnerships == ["Local College", "Employer Council"]
+    assert run.input_snapshot["budget_range"] == "$250K - $1M"
+    assert run.input_snapshot["existing_partnerships"] == [
+        "Local College",
+        "Employer Council",
+    ]
 
 
 def test_invalid_intake_does_not_create_partial_project(client):

@@ -49,6 +49,30 @@ def test_deterministic_analyzer_returns_structured_output():
     assert result.funding_criteria.focus_areas == result.focus_areas
 
 
+def test_deterministic_analyzer_uses_optional_readiness_profile_fields():
+    result = analyze_deterministically(OrganizationAnalyzerInput(
+        organization_name="Mission Works",
+        website="https://mission.example.org",
+        mission="Improve economic mobility for youth.",
+        programs="Career training and small business coaching.",
+        organization_type="Nonprofit",
+        city="Detroit",
+        state="Michigan",
+        outcomes_and_impact=["85% completion rate", "120 graduates"],
+        budget_range="$250K - $1M",
+        current_funding_sources=["Community Foundation"],
+        existing_partnerships=["Local College"],
+    ))
+
+    assert result.outcomes_and_impact == ["85% completion rate", "120 graduates"]
+    assert "Nonprofit" in result.funding_criteria.inclusion_criteria
+    assert "85% completion rate" in result.funding_criteria.inclusion_criteria
+    assert not any("Outcomes and impact require" in warning for warning in result.analysis_warnings)
+    assert not any("Budget range" in warning for warning in result.analysis_warnings)
+    assert not any("Current funding sources" in warning for warning in result.analysis_warnings)
+    assert not any("Existing partnerships" in warning for warning in result.analysis_warnings)
+
+
 def test_analysis_updates_organization_profile(project):
     output, _criteria, run = analyze_project(project)
     organization = project.organization
@@ -98,6 +122,9 @@ def test_missing_optional_location_fields_produce_warning_not_failure():
     output, criteria, run = analyze_project(project)
     assert output.service_geographies == []
     assert any("location" in warning for warning in output.analysis_warnings)
+    assert any("Budget range" in warning for warning in output.analysis_warnings)
+    assert any("Current funding sources" in warning for warning in output.analysis_warnings)
+    assert any("Existing partnerships" in warning for warning in output.analysis_warnings)
     assert output.analysis_confidence > 0
     assert criteria.eligible_geographies == []
     assert run.status == OrganizationAnalysisRun.Status.PARTIAL
