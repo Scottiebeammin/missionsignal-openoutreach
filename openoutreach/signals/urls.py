@@ -16,9 +16,14 @@ urlpatterns = [
     ),
     path(
         "projects/<int:pk>/funding/",
-        views.project_module_placeholder,
-        {"module": "funding"},
+        views.project_funding_dashboard,
         name="project-funding",
+    ),
+    path(
+        "projects/<int:pk>/government/",
+        views.project_module_placeholder,
+        {"module": "government"},
+        name="project-government",
     ),
     path(
         "projects/<int:pk>/partnerships/",

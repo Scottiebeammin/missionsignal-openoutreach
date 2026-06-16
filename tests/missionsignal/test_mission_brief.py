@@ -149,10 +149,12 @@ def test_mission_brief_links_to_future_modules(client, analyzed_project):
 
     assert "Programs" in content
     assert "FundingSignal" in content
+    assert "GovernmentSignal" in content
     assert "PartnershipSignal" in content
     assert "ResourceSignal" in content
     assert reverse("project-programs", kwargs={"pk": project.pk}) in content
     assert reverse("project-funding", kwargs={"pk": project.pk}) in content
+    assert reverse("project-government", kwargs={"pk": project.pk}) in content
     assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content
     assert reverse("project-resources", kwargs={"pk": project.pk}) in content
 
@@ -196,9 +198,9 @@ def test_mission_brief_handles_missing_optional_location_fields(client, db):
             "portfolio for funder alignment",
         ),
         (
-            "project-funding",
-            "FundingSignal",
-            "Discovery is not enabled yet.",
+            "project-government",
+            "GovernmentSignal",
+            "city, county, state, and federal public-sector",
         ),
         (
             "project-partnerships",
@@ -233,7 +235,7 @@ def test_project_member_can_view_placeholder_modules(
     "route_name",
     [
         "project-programs",
-        "project-funding",
+        "project-government",
         "project-partnerships",
         "project-resources",
     ],

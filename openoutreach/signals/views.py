@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from openoutreach.core.models import Project
+from openoutreach.funding.readiness import build_funding_readiness
 from openoutreach.signals.analysis_service import analyze_project
 from openoutreach.signals.forms import OrganizationIntakeForm
 from openoutreach.signals.mission_brief import recommended_next_steps
@@ -16,14 +17,6 @@ MODULE_PLACEHOLDERS = {
         "summary": (
             "Programs will organize the organization's initiatives into a concise "
             "portfolio for funder alignment, outcomes review, and opportunity scoping."
-        ),
-    },
-    "funding": {
-        "title": "FundingSignal",
-        "heading": "FundingSignal",
-        "summary": (
-            "FundingSignal will turn the Mission Brief profile into targeted funding "
-            "criteria and opportunity shortlists. Discovery is not enabled yet."
         ),
     },
     "partnerships": {
@@ -40,6 +33,14 @@ MODULE_PLACEHOLDERS = {
         "summary": (
             "ResourceSignal will help identify non-funding supports such as volunteers, "
             "technical assistance, in-kind services, and capacity-building resources."
+        ),
+    },
+    "government": {
+        "title": "GovernmentSignal",
+        "heading": "GovernmentSignal",
+        "summary": (
+            "GovernmentSignal will organize city, county, state, and federal public-sector "
+            "funding lanes. Grant search, crawling, and RFP ingestion are not enabled yet."
         ),
     },
 }
@@ -107,6 +108,25 @@ def project_mission_brief(request, pk):
             "recommended_next_steps": recommended_next_steps(
                 project.organization, funding_criteria,
             ),
+        },
+    )
+
+
+@login_required
+def project_funding_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    readiness = build_funding_readiness(project, funding_criteria)
+    return render(
+        request,
+        "signals/project_funding_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "funding_criteria": funding_criteria,
+            "readiness": readiness,
         },
     )
 
