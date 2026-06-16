@@ -33,6 +33,9 @@ INSTALLED_APPS = [
     "openoutreach.core.apps.CoreConfig",
     "openoutreach.linkedin.apps.LinkedInConfig",
     "openoutreach.emails.apps.EmailsConfig",
+    "openoutreach.signals.apps.SignalsConfig",
+    "openoutreach.sources.apps.SourcesConfig",
+    "openoutreach.funding.apps.FundingConfig",
 ]
 
 MIDDLEWARE = [

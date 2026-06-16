@@ -1,6 +1,7 @@
 # openoutreach/core/models.py
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -60,6 +61,77 @@ class Campaign(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Organization(models.Model):
+    """Organization identity and analyzer-owned profile."""
+
+    class AnalysisStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        FETCHING = "fetching", "Fetching"
+        ANALYZING = "analyzing", "Analyzing"
+        READY = "ready", "Ready"
+        PARTIAL = "partial", "Partial"
+        FAILED = "failed", "Failed"
+        NEEDS_REVIEW = "needs_review", "Needs Review"
+
+    name = models.CharField(max_length=255)
+    website = models.URLField(max_length=500)
+    mission = models.TextField()
+    users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="missionsignal_organizations",
+    )
+
+    organization_summary = models.TextField(blank=True, default="")
+    organization_type = models.JSONField(null=True, blank=True, default=None)
+    legal_structure = models.JSONField(null=True, blank=True, default=None)
+    nonprofit_status = models.JSONField(null=True, blank=True, default=None)
+    headquarters_location = models.JSONField(null=True, blank=True, default=None)
+    city = models.CharField(max_length=255, blank=True, default="")
+    county = models.CharField(max_length=255, blank=True, default="")
+    state = models.CharField(max_length=255, blank=True, default="")
+    service_area_notes = models.TextField(blank=True, default="")
+    service_geographies = models.JSONField(default=list, blank=True)
+    focus_areas = models.JSONField(default=list, blank=True)
+    beneficiaries = models.JSONField(default=list, blank=True)
+    capabilities = models.JSONField(default=list, blank=True)
+    outcomes_and_impact = models.JSONField(default=list, blank=True)
+    aliases = models.JSONField(default=list, blank=True)
+    search_keywords = models.JSONField(default=list, blank=True)
+
+    analysis_status = models.CharField(
+        max_length=20, choices=AnalysisStatus.choices, default=AnalysisStatus.PENDING,
+    )
+    analysis_confidence = models.FloatField(null=True, blank=True)
+    analysis_warnings = models.JSONField(default=list, blank=True)
+    analyzer_version = models.CharField(max_length=100, blank=True, default="")
+    last_analyzed_at = models.DateTimeField(null=True, blank=True)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Project(models.Model):
+    """An organization initiative used to scope FundingSignal work."""
+
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="projects",
+    )
+    name = models.CharField(max_length=255)
+    programs = models.TextField()
+    program_summaries = models.JSONField(default=list, blank=True)
+    users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="missionsignal_projects",
+    )
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.organization} — {self.name}"
 
 
 class TaskQuerySet(models.QuerySet):

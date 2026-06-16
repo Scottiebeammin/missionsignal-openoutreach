@@ -124,6 +124,103 @@ Then open:
 - **Django Admin:** http://localhost:8000/admin/
 
 ---
+
+## MissionSignal Local Demo Setup
+
+MissionSignal's deterministic demo does not require an LLM API key, LinkedIn
+credentials, Playwright, website crawling, or any external service. It uses the
+repository's SQLite database at `data/db.sqlite3`.
+
+### Requirements and dependency management
+
+- **Python:** 3.12 or newer. The Docker image and recommended local environment
+  use Python 3.12.
+- **Dependency manager:** pip-compatible requirement files under
+  `requirements/`. `requirements/local.txt` includes `requirements/base.txt`
+  plus pytest and the other development/test dependencies.
+- **Installer:** the Makefile uses `uv pip`. There is no `pyproject.toml`,
+  Poetry, or Pipenv configuration.
+
+### Fresh-clone setup
+
+```bash
+git clone https://github.com/eracle/OpenOutreach.git
+cd OpenOutreach
+
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install uv
+uv pip install -r requirements/local.txt
+
+python manage.py migrate --no-input
+python manage.py setup_crm
+python manage.py seed_missionsignal_demo --password demo-password
+```
+
+The seed command prints the project ID and paths for the Analysis Review and
+Mission Brief. It is idempotent: rerunning it refreshes the same demo user,
+organization, and Primary Initiative project, then reruns deterministic
+analysis.
+
+The current application uses Django Admin's login page as its only login route,
+and Django Admin accepts staff users only. To use the seeded demo user in a
+browser, grant that local-only user staff access:
+
+```bash
+python manage.py shell -c "from django.contrib.auth import get_user_model; u=get_user_model().objects.get(username='missionsignal-demo'); u.is_staff=True; u.save(update_fields=['is_staff'])"
+```
+
+Start the local server and sign in as `missionsignal-demo` with the password
+provided to the seed command:
+
+```bash
+python manage.py runserver
+```
+
+Open `http://127.0.0.1:8000/admin/login/`, sign in, and then open the Analysis
+Review or Mission Brief path printed by the seed command.
+
+### Validation commands
+
+Run these commands from an activated environment after installing
+`requirements/local.txt`:
+
+```bash
+# Django configuration and model validation
+python manage.py check
+
+# Confirm model changes have committed migrations, then apply them
+python manage.py makemigrations --check --dry-run
+python manage.py migrate --no-input
+
+# MissionSignal-focused tests, followed by the complete repository suite
+pytest -q tests/missionsignal
+pytest -q
+
+# Create or refresh demo data and print demo paths
+python manage.py seed_missionsignal_demo --password demo-password
+
+# Run the local Django server
+python manage.py runserver
+```
+
+### Environment notes and known blockers
+
+- No environment variables are required for the deterministic MissionSignal
+  intake, analyzer, Mission Brief, or demo seed command.
+- The broader OpenOutreach daemon requires LinkedIn credentials and an LLM API
+  key during onboarding; those are not required to run the MissionSignal demo.
+- Installing `requirements/local.txt` is required before any Django check,
+  migration, command, server, or test can run. In particular, tests import
+  NumPy through `tests/conftest.py`, and application startup requires Django.
+- The seeded demo user is intentionally not granted staff access automatically.
+  Until a normal non-admin login route exists, use the local-only staff command
+  above to sign in through Django Admin.
+- Recommended next action: install the local requirements in a Python 3.12
+  virtual environment, run the validation commands, seed the demo, and verify
+  the printed Mission Brief path in the browser.
+
+---
 ## ✨ Features
 
 | Feature                            | Description                                                                                                          |

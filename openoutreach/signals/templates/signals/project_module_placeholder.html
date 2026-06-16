@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ module.title }} - {{ organization.name }}</title>
+  <style>
+    :root { color-scheme: light; --ink: #192a3a; --muted: #667789; --line: #d9e2e8; --panel: #f6f8fa; --accent: #0f766e; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef3f6; color: var(--ink); font: 16px/1.5 system-ui, sans-serif; }
+    main { width: min(780px, calc(100% - 32px)); margin: 32px auto; }
+    article { padding: 28px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+    h1, h2, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; }
+    h2 { margin-bottom: 8px; color: var(--muted); font-size: 1rem; font-weight: 600; }
+    .eyebrow { margin-bottom: 6px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .panel { margin: 20px 0; padding: 16px; border-radius: 8px; background: var(--panel); }
+    .button { display: inline-flex; align-items: center; min-height: 40px; padding: 9px 13px; border: 1px solid var(--accent); border-radius: 6px; color: var(--accent); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <article>
+      <p class="eyebrow">MissionSignal Module</p>
+      <h1>{{ module.heading }}</h1>
+      <h2>{{ organization.name }} - {{ project.name }}</h2>
+      <div class="panel">
+        <p>{{ module.summary }}</p>
+        <p>This page is a placeholder for the next MissionSignal phase. Project membership is required to view it.</p>
+      </div>
+      <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Back to Mission Brief</a>
+    </article>
+  </main>
+</body>
+</html>

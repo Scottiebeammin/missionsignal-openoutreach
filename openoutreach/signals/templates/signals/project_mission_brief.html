@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ organization.name }} Mission Brief</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #192a3a;
+      --muted: #667789;
+      --line: #d9e2e8;
+      --panel: #f6f8fa;
+      --accent: #0f766e;
+      --accent-soft: #e8f5f2;
+      --gold: #8a5b00;
+      --gold-soft: #fff7df;
+      --blue: #235789;
+      --blue-soft: #edf5fb;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef3f6; color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 24px auto; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; }
+    h2 { margin-bottom: 12px; font-size: 1rem; letter-spacing: .06em; text-transform: uppercase; }
+    h3 { margin-bottom: 6px; font-size: 1rem; }
+    a { color: inherit; }
+    .topbar, .hero, .panel, .module-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .button, button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: white;
+      color: var(--accent);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    button { background: var(--accent); color: white; }
+    .hero { margin-bottom: 14px; padding: 24px; }
+    .eyebrow { margin-bottom: 6px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .subtitle, .muted { color: var(--muted); }
+    .snapshot { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 10px; margin-top: 18px; }
+    .metric { min-height: 84px; padding: 14px; border-radius: 8px; background: var(--panel); }
+    .metric strong { display: block; margin-top: 4px; font-size: 1.5rem; line-height: 1.1; }
+    .dashboard { display: grid; grid-template-columns: 1.2fr .8fr; gap: 14px; align-items: start; }
+    .stack { display: grid; gap: 14px; }
+    .panel { padding: 18px; }
+    .panel.compact { min-height: 100%; }
+    .finding, .empty, .warning, .preview { padding: 12px; border-radius: 8px; }
+    .finding { background: var(--accent-soft); border-left: 4px solid var(--accent); }
+    .empty { background: var(--panel); border: 1px dashed #a8b5c0; color: var(--muted); }
+    .warning { margin-top: 8px; background: var(--gold-soft); border-left: 4px solid var(--gold); color: #5e3d00; }
+    .preview { background: var(--blue-soft); border-left: 4px solid var(--blue); }
+    .identity-grid, .opportunity-grid, .module-grid { display: grid; gap: 10px; }
+    .identity-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .opportunity-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .datum { padding: 12px; border-radius: 8px; background: var(--panel); }
+    .datum p { margin-bottom: 0; }
+    .module-card { display: block; padding: 14px; text-decoration: none; }
+    .module-card strong { display: block; margin-bottom: 4px; color: var(--accent); }
+    .module-card span { display: block; color: var(--muted); }
+    ul, ol { margin-bottom: 0; padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    @media (max-width: 880px) {
+      .dashboard, .snapshot, .identity-grid, .opportunity-grid, .module-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="topbar" aria-label="Mission Brief actions">
+      <a class="button" href="{% url 'project-analysis-detail' project.pk %}">&larr; Analysis Review</a>
+      <div class="actions">
+        <form method="post" action="{% url 'run-project-analysis' project.pk %}">
+          {% csrf_token %}
+          <button type="submit">Rerun Analysis</button>
+        </form>
+        <a class="button" href="{% url 'project-intake' %}">Start New Intake</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <p class="eyebrow">MissionSignal Mission Brief</p>
+      <h1>{{ organization.name }}</h1>
+      <p class="subtitle">{{ project.name }}</p>
+      <section class="snapshot" aria-label="Executive Snapshot">
+        <div class="metric"><h2>Confidence</h2><strong>{{ organization.analysis_confidence|default:"-" }}</strong></div>
+        <div class="metric"><h2>Status</h2><strong>{{ organization.get_analysis_status_display }}</strong></div>
+        <div class="metric"><h2>Warnings</h2><strong>{{ organization.analysis_warnings|length }}</strong></div>
+        <div class="metric"><h2>Funding Themes</h2><strong>{% if funding_criteria %}{{ funding_criteria.focus_areas|length }}{% else %}0{% endif %}</strong></div>
+      </section>
+    </header>
+
+    <div class="dashboard">
+      <div class="stack">
+        <section class="panel">
+          <h2>Mission Summary</h2>
+          {% if organization.organization_summary %}
+            <div class="finding">{{ organization.organization_summary }}</div>
+          {% else %}
+            <div class="empty">Rerun analysis to generate a concise mission summary.</div>
+          {% endif %}
+        </section>
+
+        <section class="panel">
+          <h2>Organization Identity</h2>
+          <div class="identity-grid">
+            <div class="datum"><h3>Focus areas</h3><p>{{ organization.focus_areas|join:", "|default:"No focus areas inferred yet." }}</p></div>
+            <div class="datum"><h3>Beneficiaries</h3><p>{{ organization.beneficiaries|join:", "|default:"No beneficiaries inferred yet." }}</p></div>
+            <div class="datum"><h3>Service geography</h3><p>{% if organization.city or organization.county or organization.state %}{% if organization.city %}{{ organization.city }}{% endif %}{% if organization.county %}{% if organization.city %}, {% endif %}{{ organization.county }} County{% endif %}{% if organization.state %}{% if organization.city or organization.county %}, {% endif %}{{ organization.state }}{% endif %}{% else %}No location context provided.{% endif %}</p></div>
+            <div class="datum"><h3>Capabilities</h3><p>{{ organization.capabilities|join:", "|default:"No capabilities inferred yet." }}</p></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Opportunity Snapshot</h2>
+          {% if funding_criteria %}
+            <div class="opportunity-grid">
+              <div class="datum"><h3>Funding themes</h3><p>{{ funding_criteria.focus_areas|join:", "|default:"No themes inferred yet." }}</p></div>
+              <div class="datum"><h3>Funder types</h3><p>{{ funding_criteria.likely_funder_types|join:", "|default:"No funder types inferred yet." }}</p></div>
+              <div class="datum"><h3>Opportunity types</h3><p>{{ funding_criteria.likely_opportunity_types|join:", "|default:"No opportunity types inferred yet." }}</p></div>
+              <div class="datum"><h3>Eligible geographies</h3><p>{{ funding_criteria.eligible_geographies|join:", "|default:"No geographies inferred yet." }}</p></div>
+            </div>
+          {% else %}
+            <div class="empty">Rerun analysis to generate initial funding themes and criteria.</div>
+          {% endif %}
+        </section>
+
+        <section class="panel">
+          <h2>Program Portfolio</h2>
+          <div class="preview">
+            <h3>Preview only</h3>
+            <p>{{ project.programs|default:"Program details have not been provided yet." }}</p>
+            {% if project.program_summaries %}
+              <ul>
+                {% for program in project.program_summaries %}
+                  <li>{{ program }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">A structured program database will be added later.</p>
+            {% endif %}
+          </div>
+        </section>
+      </div>
+
+      <aside class="stack">
+        <section class="panel compact">
+          <h2>Executive Snapshot</h2>
+          <p>{{ organization.service_area_notes|default:"Confirm service area, outcomes, and capacity details before using this profile for opportunity discovery." }}</p>
+        </section>
+
+        <section class="panel">
+          <h2>Modules</h2>
+          <div class="module-grid" aria-label="MissionSignal modules">
+            <a class="module-card" href="{% url 'project-programs' project.pk %}"><strong>Programs</strong><span>Portfolio preview and future program records</span></a>
+            <a class="module-card" href="{% url 'project-funding' project.pk %}"><strong>FundingSignal</strong><span>Funding criteria and future opportunity discovery</span></a>
+            <a class="module-card" href="{% url 'project-partnerships' project.pk %}"><strong>PartnershipSignal</strong><span>Future aligned partner mapping</span></a>
+            <a class="module-card" href="{% url 'project-resources' project.pk %}"><strong>ResourceSignal</strong><span>Future non-funding resource matching</span></a>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Data Gaps &amp; Warnings</h2>
+          {% for warning in organization.analysis_warnings %}
+            <div class="warning">{{ warning }}</div>
+          {% empty %}
+            <div class="finding">No analysis warnings. The inferred profile is ready for review.</div>
+          {% endfor %}
+        </section>
+
+        <section class="panel">
+          <h2>Recommended Next Actions</h2>
+          <ol>
+            {% for step in recommended_next_steps %}
+              <li>{{ step }}</li>
+            {% endfor %}
+          </ol>
+        </section>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>

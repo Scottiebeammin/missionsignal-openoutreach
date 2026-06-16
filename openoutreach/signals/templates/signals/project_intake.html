@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Create MissionSignal Project</title></head>
+<body>
+  <main>
+    <h1>Create your MissionSignal profile</h1>
+    <p>Provide four details. MissionSignal will infer the rest.</p>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Analyze Organization</button>
+    </form>
+  </main>
+</body>
+</html>

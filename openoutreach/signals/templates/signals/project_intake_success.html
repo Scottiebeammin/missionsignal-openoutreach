@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Organization queued</title></head>
+<body>
+  <main>
+    <h1>Organization queued for analysis</h1>
+    <p>{{ project.organization.name }} was created with the {{ project.name }} project.</p>
+    <p>MissionSignal will infer its organization and funding profile.</p>
+    <p><a href="{% url 'project-analysis-detail' project.pk %}">Review and run organization analysis</a></p>
+  </main>
+</body>
+</html>
