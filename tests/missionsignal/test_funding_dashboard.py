@@ -47,12 +47,28 @@ def test_project_member_can_view_real_funding_dashboard(client, analyzed_project
 
     assert response.status_code == 200
     assert "FundingSignal Dashboard" in content
+    assert "FundingSignal V2" in content
     assert "Funding Readiness Score" in content
     assert "Funding Themes" in content
     assert "Recommended Funder Types" in content
+    assert "Local Government Opportunity Snapshot" in content
     assert "Grant Readiness Checklist" in content
     assert "Recommended Funding Actions" in content
     assert "Discovery is not enabled yet." not in content
+
+
+def test_funding_dashboard_renders_deterministic_themes(client, analyzed_project):
+    project, user = analyzed_project
+    client.force_login(user)
+
+    response = client.get(reverse("project-funding", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert "Workforce Development" in content
+    assert "Digital Equity" in content
+    assert "Youth Development" in content
+    assert "Career Readiness" in content
+    assert "Community Development" in content
 
 
 def test_funding_dashboard_shows_all_required_funder_types(client, analyzed_project):
@@ -79,16 +95,82 @@ def test_funding_dashboard_explains_local_government_lane(client, analyzed_proje
     response = client.get(reverse("project-funding", kwargs={"pk": project.pk}))
     content = response.content.decode()
 
+    assert "Local Government Opportunity Snapshot" in content
     assert "Local Government" in content
-    assert "city grants" in content
-    assert "county grants" in content
+    assert "City grants" in content
+    assert "County grants" in content
     assert "youth services funding" in content
     assert "workforce programs" in content
     assert "economic development programs" in content
     assert "digital equity initiatives" in content
     assert "community development programs" in content
-    assert "service contracts" in content
+    assert "Public-sector service contracts" in content
     assert "RFPs" in content
+
+
+def test_funding_dashboard_checklist_shows_complete_and_missing_items(client, db):
+    user = get_user_model().objects.create_user(
+        username="funding-dashboard-gaps",
+        password="password",
+    )
+    organization = Organization.objects.create(
+        name="Gap Works",
+        website="https://gap-works.example",
+        mission="Help youth prepare for careers.",
+        city="Detroit",
+        state="Michigan",
+    )
+    project = Project.objects.create(
+        organization=organization,
+        name="Primary Initiative",
+        programs="Career readiness programming for youth.",
+    )
+    project.users.add(user)
+    analyze_project(project)
+    client.force_login(user)
+
+    response = client.get(reverse("project-funding", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert "Complete" in content
+    assert "Missing" in content
+    assert "Mission Statement" in content
+    assert "Programs Defined" in content
+    assert "Organization Type" in content
+    assert "Service Geography" in content
+    assert "Target Population" in content
+    assert "Outcomes / Impact" in content
+    assert "Budget Range" in content
+    assert "Current Funding Sources" in content
+    assert "Existing Partnerships" in content
+    assert "Confirm the organization type" in content
+    assert "Collect two or three outcome metrics" in content
+    assert "Prepare a simple program budget range" in content
+
+
+def test_funding_dashboard_recommended_actions_are_gap_specific(client, analyzed_project):
+    project, user = analyzed_project
+    client.force_login(user)
+
+    response = client.get(reverse("project-funding", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert "Use the Local Government snapshot to shortlist city, county, workforce, economic development, and digital equity lanes before broad grant search." in content
+    assert "Turn Primary Initiative into a one-page funding brief with themes, geography, outcomes, budget, and partner evidence." in content
+    assert "Review and approve the generated funding themes." not in content
+
+
+def test_non_member_cannot_view_funding_dashboard(client, analyzed_project):
+    project, _ = analyzed_project
+    outsider = get_user_model().objects.create_user(
+        username="funding-dashboard-nonmember",
+        password="password",
+    )
+    client.force_login(outsider)
+
+    response = client.get(reverse("project-funding", kwargs={"pk": project.pk}))
+
+    assert response.status_code == 404
 
 
 def test_government_placeholder_route_member_and_nonmember_access(client, analyzed_project):
