@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GovernmentSignal - {{ organization.name }}</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #192a3a;
+      --muted: #667789;
+      --line: #d9e2e8;
+      --panel: #f6f8fa;
+      --accent: #0f766e;
+      --accent-soft: #e8f5f2;
+      --blue: #235789;
+      --blue-soft: #edf5fb;
+      --gold: #8a5b00;
+      --gold-soft: #fff7df;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef3f6; color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 24px auto; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; }
+    h2 { margin-bottom: 12px; font-size: 1rem; letter-spacing: .06em; text-transform: uppercase; }
+    h3 { margin-bottom: 6px; font-size: 1rem; }
+    a { color: inherit; }
+    .topbar, .hero, .panel, .entity-card, .lane-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: white;
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .hero { margin-bottom: 14px; padding: 24px; }
+    .eyebrow { margin-bottom: 6px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .subtitle, .muted { color: var(--muted); }
+    .score-grid { display: grid; grid-template-columns: minmax(170px, .35fr) minmax(0, .65fr); gap: 14px; margin-top: 18px; }
+    .score-box { padding: 18px; border-radius: 8px; background: var(--accent-soft); }
+    .score-box strong { display: block; font-size: clamp(3rem, 8vw, 5rem); line-height: .95; }
+    .score-box span { display: block; margin-top: 8px; font-weight: 800; }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .panel { padding: 18px; }
+    .dashboard { display: grid; grid-template-columns: 1fr .85fr; gap: 14px; align-items: start; }
+    .stack { display: grid; gap: 14px; }
+    .lane-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .lane-card { padding: 12px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    .entity-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .entity-card { padding: 14px; }
+    .entity-card header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .score-pill { min-width: 52px; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; text-align: center; }
+    .city-core { border-color: var(--accent); background: var(--accent-soft); }
+    .strength { padding: 12px; border-radius: 8px; background: var(--accent-soft); border-left: 4px solid var(--accent); }
+    .gap { padding: 12px; border-radius: 8px; background: var(--gold-soft); border-left: 4px solid var(--gold); }
+    .status { font-weight: 800; }
+    .status.complete { color: var(--accent); }
+    .status.missing { color: var(--gold); }
+    .check-row { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .check-row:last-child { border-bottom: 0; }
+    .actions-list { margin: 0; padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    @media (max-width: 900px) {
+      .dashboard, .score-grid, .summary-grid, .lane-grid, .entity-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="topbar" aria-label="GovernmentSignal actions">
+      <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Back to Mission Brief</a>
+      <div class="actions">
+        <a class="button" href="{% url 'project-funding' project.pk %}">Back to FundingSignal</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <p class="eyebrow">GovernmentSignal V1</p>
+      <h1>GovernmentSignal Dashboard</h1>
+      <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
+      <section class="score-grid" aria-label="Government opportunity readiness">
+        <div class="score-box">
+          <h2>Government Opportunity Readiness Score</h2>
+          <strong>{{ readiness.readiness_score }}</strong>
+          <span>{{ readiness.readiness_level }}</span>
+        </div>
+        <div class="summary-grid">
+          <section class="panel">
+            <h2>Strengths</h2>
+            {% for strength in readiness.strengths %}
+              <p class="strength">{{ strength }}</p>
+            {% endfor %}
+          </section>
+          <section class="panel">
+            <h2>Gaps</h2>
+            {% for gap in readiness.gaps %}
+              <p class="gap">{{ gap }}</p>
+            {% empty %}
+              <p class="strength">No major government readiness gaps were detected.</p>
+            {% endfor %}
+          </section>
+        </div>
+      </section>
+    </header>
+
+    <div class="dashboard">
+      <div class="stack">
+        <section class="panel">
+          <h2>Relevant Public-Sector Lanes</h2>
+          <div class="lane-grid">
+            {% for lane in readiness.public_sector_lanes %}
+              <div class="lane-card">{{ lane }}</div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Recommended Government Entity Types</h2>
+          <div class="entity-grid">
+            {% for entity in readiness.recommended_entity_types %}
+              <article class="entity-card{% if entity.name == 'City Government' %} city-core{% endif %}">
+                <header>
+                  <h3>{{ entity.name }}</h3>
+                  <span class="score-pill">{{ entity.score }}</span>
+                </header>
+                <p>{{ entity.explanation }}</p>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+
+      <aside class="stack">
+        <section class="panel">
+          <h2>Government Engagement Checklist</h2>
+          <div class="checklist">
+            {% for item in readiness.engagement_checklist %}
+              <div class="check-row">
+                <span class="status {{ item.status_class }}">{{ item.status }}</span>
+                <strong>{{ item.label }}</strong>
+                <p class="muted">{{ item.detail }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Recommended Government Actions</h2>
+          <ol class="actions-list">
+            {% for action in readiness.recommended_actions %}
+              <li>{{ action }}</li>
+            {% endfor %}
+          </ol>
+        </section>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>

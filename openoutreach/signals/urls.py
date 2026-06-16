@@ -21,8 +21,7 @@ urlpatterns = [
     ),
     path(
         "projects/<int:pk>/government/",
-        views.project_module_placeholder,
-        {"module": "government"},
+        views.project_government_dashboard,
         name="project-government",
     ),
     path(

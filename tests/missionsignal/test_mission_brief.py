@@ -198,11 +198,6 @@ def test_mission_brief_handles_missing_optional_location_fields(client, db):
             "portfolio for funder alignment",
         ),
         (
-            "project-government",
-            "GovernmentSignal",
-            "city, county, state, and federal public-sector",
-        ),
-        (
             "project-partnerships",
             "PartnershipSignal",
             "Matching logic is not enabled yet.",
@@ -235,7 +230,6 @@ def test_project_member_can_view_placeholder_modules(
     "route_name",
     [
         "project-programs",
-        "project-government",
         "project-partnerships",
         "project-resources",
     ],

@@ -54,6 +54,7 @@ def test_project_member_can_view_real_funding_dashboard(client, analyzed_project
     assert "Local Government Opportunity Snapshot" in content
     assert "Grant Readiness Checklist" in content
     assert "Recommended Funding Actions" in content
+    assert reverse("project-government", kwargs={"pk": project.pk}) in content
     assert "Discovery is not enabled yet." not in content
 
 
@@ -173,7 +174,7 @@ def test_non_member_cannot_view_funding_dashboard(client, analyzed_project):
     assert response.status_code == 404
 
 
-def test_government_placeholder_route_member_and_nonmember_access(client, analyzed_project):
+def test_government_dashboard_link_from_funding_route_works(client, analyzed_project):
     project, user = analyzed_project
     client.force_login(user)
 
@@ -181,15 +182,5 @@ def test_government_placeholder_route_member_and_nonmember_access(client, analyz
     member_content = member_response.content.decode()
 
     assert member_response.status_code == 200
-    assert "GovernmentSignal" in member_content
-    assert "city, county, state, and federal public-sector" in member_content
-
-    outsider = get_user_model().objects.create_user(
-        username="funding-dashboard-outsider",
-        password="password",
-    )
-    client.force_login(outsider)
-
-    outsider_response = client.get(reverse("project-government", kwargs={"pk": project.pk}))
-
-    assert outsider_response.status_code == 404
+    assert "GovernmentSignal Dashboard" in member_content
+    assert "Government Opportunity Readiness Score" in member_content
