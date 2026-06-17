@@ -66,6 +66,12 @@ def test_executive_dashboard_renders_opportunity_summaries(client, dashboard_pro
     assert "Applied Opportunities" in content
     assert "Won Opportunities" in content
     assert "Opportunity Pipeline Snapshot" in content
+    assert "Opportunity Pipeline Summary" in content
+    assert "Discovered" in content
+    assert "Qualified" in content
+    assert "Pursuing" in content
+    assert "Submitted" in content
+    assert "Awarded" in content
     assert "Monitoring" in content
     assert "Interested" in content
     assert "Applied" in content
@@ -109,6 +115,7 @@ def test_executive_dashboard_navigation_and_view_switcher_render(client, dashboa
     assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content
     assert reverse("project-discovery", kwargs={"pk": project.pk}) in content
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
+    assert reverse("project-pipeline", kwargs={"pk": project.pk}) in content
     assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
 
 

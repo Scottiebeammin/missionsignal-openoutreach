@@ -75,6 +75,10 @@ def test_discovery_inventory_and_readiness_render(client, discovery_project):
     assert "Match Score" in content
     assert "View Details" in content
     assert "Source Organization" in content
+    assert "Current Lifecycle Status" in content
+    assert "Status History" in content
+    assert "Last Updated" in content
+    assert "Discovered" in content
     assert "Why It Matches" in content
     assert "Missing Factors" in content
     assert "Improvement Opportunities" in content
@@ -179,6 +183,7 @@ def test_discovery_navigation_links_render(client, discovery_project):
     assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content
     assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
+    assert reverse("project-pipeline", kwargs={"pk": project.pk}) in content
 
 
 def test_opportunity_csv_import_workflow(tmp_path):

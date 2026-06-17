@@ -47,6 +47,11 @@ urlpatterns = [
         name="project-discovery",
     ),
     path(
+        "projects/<int:pk>/pipeline/",
+        views.project_pipeline_workspace,
+        name="project-pipeline",
+    ),
+    path(
         "projects/<int:pk>/partnerships/",
         views.project_partnership_dashboard,
         name="project-partnerships",

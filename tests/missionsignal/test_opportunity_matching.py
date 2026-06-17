@@ -102,6 +102,8 @@ def test_match_dashboard_renders_breakdowns_missing_factors_and_improvements(cli
     assert "Add program impact evidence" in content
     assert "Current Match Score" in content
     assert "Potential Match Score" in content
+    assert "Suggested Lifecycle Stage" in content
+    assert "Discovered" in content
     assert "Primary Recommendation" in content
     assert "Show More" in content
     assert "<summary>Why It Matches</summary>" in content
@@ -132,6 +134,7 @@ def test_match_scoring_is_deterministic(match_project):
     assert first.readiness_signals == ["Outcomes", "Partnerships", "Budget", "Geography", "Beneficiaries"]
     assert first.top_gaps[0].label == "Outcomes not documented"
     assert first.top_gaps[0].count == 12
+    assert first.top_recommended[0].suggested_lifecycle_stage == "Discovered"
 
 
 def test_weighted_scoring_and_ranking_order(match_project):
@@ -215,3 +218,4 @@ def test_match_dashboard_navigation_links(client, match_project):
     assert reverse("project-resources", kwargs={"pk": project.pk}) in content
     assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content
     assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
+    assert reverse("project-pipeline", kwargs={"pk": project.pk}) in content

@@ -42,7 +42,7 @@
       <a class="active" href="{% url 'project-opportunities' project.pk %}">Overview</a>
       <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
       <a href="{% url 'project-matches' project.pk %}">Matches</a>
-      <a href="#pipeline">Pipeline</a>
+      <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
 
     <header class="hero">
@@ -88,13 +88,22 @@
       </details>
     </section>
 
+    <section class="panel">
+      <h2>Opportunity Pipeline Summary</h2>
+      <div class="metrics">
+        {% for stage in lifecycle.summary_stages %}
+          <div class="metric"><span class="muted">{{ stage.label }}</span><strong>{{ stage.count }}</strong></div>
+        {% endfor %}
+      </div>
+    </section>
+
     <details class="panel" open>
       <summary>Top Opportunities</summary>
       <div class="section-toolbar">
         <p class="muted">What requires action now: strongest matches and highest-value records.</p>
         <div class="section-actions">
           <a class="compact-link" href="{% url 'project-discovery' project.pk %}">View All Opportunities</a>
-          <a class="compact-link" href="{% url 'project-discovery' project.pk %}#pipeline">Open Pipeline</a>
+          <a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
         </div>
       </div>
       <div class="grid">
@@ -170,14 +179,15 @@
     </details>
 
     <details id="pipeline" class="panel">
-      <summary>Pipeline</summary>
+      <summary>Lifecycle Pipeline Preview</summary>
       <div class="pipeline">
-        {% for group in discovery.priority_groups %}
+        {% for group in lifecycle.summary_stages %}
           <article class="pipeline-card">
             <h3>{{ group.label }} <span class="muted">({{ group.count }})</span></h3>
+            <p class="muted">{{ group.recommended_next_step }}</p>
             <ul>
               {% for item in group.opportunities|slice:":5" %}
-                <li>{{ item.opportunity.name }} <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span></li>
+                <li>{{ item.name }} <span class="pill">{{ item.get_lifecycle_status_display }}</span></li>
               {% empty %}
                 <li class="empty-state"><strong>No opportunities</strong>Add or reprioritize records to fill this lane.</li>
               {% endfor %}
@@ -185,6 +195,7 @@
           </article>
         {% endfor %}
       </div>
+      <p style="margin-top: 12px;"><a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open full pipeline</a></p>
     </details>
 
     <details class="panel">

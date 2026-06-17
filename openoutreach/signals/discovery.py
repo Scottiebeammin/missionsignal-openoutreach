@@ -4,6 +4,11 @@ from django.db.models import Count
 
 from openoutreach.funding.models import Opportunity
 from openoutreach.signals.categories import canonical_category
+from openoutreach.signals.lifecycle import (
+    LifecycleSummary,
+    build_lifecycle_summary,
+    recommended_lifecycle_action,
+)
 from openoutreach.signals.matching import OpportunityMatch, score_inventory_opportunity
 
 
@@ -11,6 +16,10 @@ from openoutreach.signals.matching import OpportunityMatch, score_inventory_oppo
 class DiscoveryOpportunity:
     opportunity: Opportunity
     match: OpportunityMatch
+
+    @property
+    def lifecycle_next_step(self) -> str:
+        return recommended_lifecycle_action(self.opportunity.lifecycle_status)
 
 
 @dataclass(frozen=True)
@@ -46,6 +55,7 @@ class DiscoveryOverview:
     status_breakdown: list[DiscoveryBreakdown]
     focus_categories: list[DiscoveryBreakdown]
     top_opportunities: list[DiscoveryOpportunity]
+    lifecycle_summary: LifecycleSummary
 
     @property
     def best_opportunity_category(self) -> str:
@@ -230,4 +240,5 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
         status_breakdown=status_breakdown,
         focus_categories=_focus_category_breakdown(opportunities),
         top_opportunities=items[:5],
+        lifecycle_summary=build_lifecycle_summary(limit_per_stage=6),
     )

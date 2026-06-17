@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Opportunity Pipeline - {{ organization.name }}</title>
+  <style>
+    :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --accent:#0f766e; --accent-soft:#e8f5f2; --blue:#235789; --blue-soft:#edf5fb; --gold:#8a5b00; --gold-soft:#fff7df; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.42 system-ui, sans-serif; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1; }
+    h2 { margin-bottom: 12px; }
+    h3 { margin-bottom: 6px; }
+    a { color: inherit; }
+    .hero, .panel, .metric, .stage-column, .opportunity-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; margin-bottom: 14px; padding: 22px; }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .panel { margin-bottom: 14px; padding: 16px; }
+    .metrics, .board { display: grid; gap: 10px; }
+    .metrics { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .board { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+    .metric, .stage-column, .opportunity-card { padding: 14px; }
+    .metric strong { display: block; color: var(--accent); font-size: 1.5rem; }
+    .stage-column { background: #f6f8fa; }
+    .stage-column header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-weight: 900; }
+    .opportunity-card { margin-top: 10px; box-shadow: none; }
+    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    .action-panel { border-left: 4px solid var(--accent); }
+    @media (max-width: 1000px) { .hero, .metrics, .board { grid-template-columns: 1fr; } }
+  </style>
+  {% include "signals/_app_shell_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="opportunities" %}
+  <main>
+    <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
+      <a href="{% url 'project-opportunities' project.pk %}">Overview</a>
+      <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
+      <a href="{% url 'project-matches' project.pk %}">Matches</a>
+      <a class="active" href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
+    </nav>
+
+    <header class="hero">
+      <section>
+        <p class="eyebrow">Opportunity Lifecycle V1</p>
+        <h1>Opportunity Pipeline</h1>
+        <p class="muted">{{ organization.name }} - {{ project.name }}</p>
+      </section>
+      <section class="panel action-panel">
+        <h2>Recommended Next Step</h2>
+        <p><strong>{{ lifecycle.highest_activity_stage }}</strong></p>
+        <p class="muted">Use lifecycle stages to move opportunities from discovery into active pursuit and follow-up.</p>
+      </section>
+    </header>
+
+    <section class="panel">
+      <h2>Opportunity Pipeline Summary</h2>
+      <div class="metrics">
+        {% for stage in lifecycle.summary_stages %}
+          <div class="metric"><span class="muted">{{ stage.label }}</span><strong>{{ stage.count }}</strong></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Lifecycle Board</h2>
+      <div class="board">
+        {% for stage in lifecycle.stages %}
+          <article class="stage-column">
+            <header><span>{{ stage.label }}</span><span class="pill">{{ stage.count }}</span></header>
+            <p class="muted">{{ stage.recommended_next_step }}</p>
+            {% for opportunity in stage.opportunities %}
+              <section class="opportunity-card">
+                <h3>{{ opportunity.name }}</h3>
+                <p>
+                  <span class="pill status-{{ opportunity.status }}">{{ opportunity.get_status_display }}</span>
+                  <span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }}</span>
+                </p>
+                <p class="muted">Deadline: {{ opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
+                <details>
+                  <summary>Opportunity Detail Panel</summary>
+                  <p><strong>Current Lifecycle Status:</strong> {{ opportunity.get_lifecycle_status_display }}</p>
+                  <p><strong>Status History:</strong> Placeholder-ready</p>
+                  <p><strong>Last Updated:</strong> {{ opportunity.updated_at|date:"M j, Y" }}</p>
+                  <p><strong>Recommended Next Step:</strong> {{ stage.recommended_next_step }}</p>
+                  <p><strong>Assigned Owner:</strong> {{ opportunity.assigned_owner|default:"Unassigned" }}</p>
+                  <p><strong>Notes:</strong> {{ opportunity.lifecycle_notes|default:"No lifecycle notes yet." }}</p>
+                </details>
+              </section>
+            {% empty %}
+              <div class="empty-state"><strong>No opportunities</strong>Move opportunities into this lifecycle stage as work progresses.</div>
+            {% endfor %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+</body>
+</html>

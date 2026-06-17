@@ -67,7 +67,7 @@
       <a href="{% url 'project-opportunities' project.pk %}">Overview</a>
       <a class="active" href="{% url 'project-discovery' project.pk %}">Discovery</a>
       <a href="{% url 'project-matches' project.pk %}">Matches</a>
-      <a href="{% url 'project-opportunities' project.pk %}#pipeline">Pipeline</a>
+      <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
     <nav class="topbar" aria-label="Discovery Engine actions">
       <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>
@@ -251,6 +251,7 @@
             <tr>
               <th>Opportunity</th>
               <th>Status</th>
+              <th>Lifecycle</th>
               <th>Priority</th>
               <th>Deadline</th>
               <th>Match Score</th>
@@ -265,18 +266,25 @@
                     <div class="muted">{{ item.opportunity.get_opportunity_type_display }}</div>
                   </td>
                   <td><span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span></td>
+                  <td><span class="pill">{{ item.opportunity.get_lifecycle_status_display }}</span></td>
                   <td><span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span></td>
                   <td>{{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</td>
                   <td><span class="score-badge">Match {{ item.match.score }}</span></td>
                 </tr>
                 <tr>
-                  <td colspan="5">
+                  <td colspan="6">
                     <details>
                       <summary>View Details</summary>
                       <div class="inventory-grid" style="margin-top: 12px;">
                         <section class="inventory-card">
                           <h3>Source Organization</h3>
                           <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
+                          <h3>Current Lifecycle Status</h3>
+                          <p class="muted">{{ item.opportunity.get_lifecycle_status_display }}</p>
+                          <h3>Status History</h3>
+                          <p class="muted">Placeholder-ready</p>
+                          <h3>Last Updated</h3>
+                          <p class="muted">{{ item.opportunity.updated_at|date:"M j, Y" }}</p>
                           <h3>Why It Matches</h3>
                           <ul>
                             {% for reason in item.match.reasons %}
@@ -315,6 +323,7 @@
                           <p class="muted">{{ item.opportunity.notes|default:"No internal notes provided." }}</p>
                           <h3>Recommended Actions</h3>
                           <ul>
+                            <li>{{ item.lifecycle_next_step }}</li>
                             {% for suggestion in item.match.improvement_suggestions|slice:":3" %}
                               <li>{{ suggestion }}</li>
                             {% empty %}

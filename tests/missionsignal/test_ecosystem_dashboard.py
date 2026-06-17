@@ -51,6 +51,7 @@ def test_project_member_can_view_ecosystem_dashboard(client, ecosystem_project):
     assert "GovernmentSignal" in content
     assert "ResourceSignal" in content
     assert "PartnershipSignal" in content
+    assert "Pipeline" in content
 
 
 def test_non_member_cannot_view_ecosystem_dashboard(client, ecosystem_project):
@@ -176,6 +177,21 @@ def test_ecosystem_dashboard_links_to_all_signal_modules(client, ecosystem_proje
     assert reverse("project-resources", kwargs={"pk": project.pk}) in content
     assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
+    assert reverse("project-pipeline", kwargs={"pk": project.pk}) in content
+
+
+def test_ecosystem_dashboard_includes_lifecycle_health(client, ecosystem_project):
+    project, user = ecosystem_project
+    client.force_login(user)
+
+    response = client.get(reverse("project-ecosystem", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert "Lifecycle Health" in content
+    assert "Active Opportunities" in content
+    assert "Submitted Opportunities" in content
+    assert "Awarded Opportunities" in content
+    assert "Open Pipeline" in content
 
 
 def test_mission_brief_links_to_ecosystem_dashboard(client, ecosystem_project):

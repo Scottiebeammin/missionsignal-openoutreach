@@ -92,6 +92,7 @@
         <a class="button" href="{% url 'project-partnerships' project.pk %}">PartnershipSignal</a>
         <a class="button" href="{% url 'project-discovery' project.pk %}">Discovery Engine</a>
         <a class="button" href="{% url 'project-matches' project.pk %}">Opportunity Matching</a>
+        <a class="button" href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
       </div>
     </nav>
 
@@ -149,6 +150,16 @@
     {% endif %}
 
     {% if ecosystem.discovery_overview %}
+      <details class="panel">
+        <summary>Lifecycle Health</summary>
+        <div class="summary-grid">
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.lifecycle_summary.active_opportunities }}</strong><span class="muted">Active Opportunities</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.lifecycle_summary.submitted_opportunities }}</strong><span class="muted">Submitted Opportunities</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.lifecycle_summary.awarded_opportunities }}</strong><span class="muted">Awarded Opportunities</span></div>
+          <a class="summary-card" href="{% url 'project-pipeline' project.pk %}"><strong>Open Pipeline</strong><span class="muted">Manage opportunity lifecycle progress.</span></a>
+        </div>
+      </details>
+
       <details class="panel">
         <summary>Discovery Health</summary>
         <div class="summary-grid">

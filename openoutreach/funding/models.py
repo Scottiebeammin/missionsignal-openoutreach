@@ -228,6 +228,17 @@ class Opportunity(models.Model):
         MEDIUM = "medium", "Medium"
         LOW = "low", "Low"
 
+    class LifecycleStatus(models.TextChoices):
+        DISCOVERED = "discovered", "Discovered"
+        REVIEWING = "reviewing", "Reviewing"
+        QUALIFIED = "qualified", "Qualified"
+        PURSUING = "pursuing", "Pursuing"
+        APPLICATION_DRAFTING = "application_drafting", "Application Drafting"
+        SUBMITTED = "submitted", "Submitted"
+        AWARDED = "awarded", "Awarded"
+        DECLINED = "declined", "Declined"
+        CLOSED = "closed", "Closed"
+
     name = models.CharField(max_length=500)
     opportunity_type = models.CharField(
         max_length=40, choices=OpportunityType.choices, default=OpportunityType.GRANT,
@@ -247,6 +258,14 @@ class Opportunity(models.Model):
     priority_level = models.CharField(
         max_length=20, choices=PriorityLevel.choices, default=PriorityLevel.MEDIUM,
     )
+    lifecycle_status = models.CharField(
+        max_length=40, choices=LifecycleStatus.choices, default=LifecycleStatus.DISCOVERED,
+    )
+    assigned_owner = models.ForeignKey(
+        "auth.User", null=True, blank=True, on_delete=models.SET_NULL, related_name="owned_opportunities",
+    )
+    lifecycle_notes = models.TextField(blank=True, default="")
+    lifecycle_status_history = models.JSONField(default=list, blank=True)
     notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

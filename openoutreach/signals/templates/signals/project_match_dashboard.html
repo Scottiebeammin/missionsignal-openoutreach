@@ -64,7 +64,7 @@
       <a href="{% url 'project-opportunities' project.pk %}">Overview</a>
       <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
       <a class="active" href="{% url 'project-matches' project.pk %}">Matches</a>
-      <a href="{% url 'project-opportunities' project.pk %}#pipeline">Pipeline</a>
+      <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
     <nav class="topbar" aria-label="Opportunity Matching actions">
       <a class="button" href="{% url 'project-ecosystem' project.pk %}">&larr; EcosystemSignal</a>
@@ -116,6 +116,7 @@
             <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
             <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
             <p class="muted">Match Confidence: {{ match.level }}</p>
+            <p><strong>Suggested Lifecycle Stage:</strong> {{ match.suggested_lifecycle_stage }}</p>
             <p><strong>Primary Recommendation:</strong> {{ match.improvement_suggestions.0|default:"Review fit and confirm owner before pursuing." }}</p>
             <details class="factor-block">
               <summary>Why It Matches</summary>
@@ -170,6 +171,7 @@
               </div>
               <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
               <p><strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
+              <p><strong>Suggested Lifecycle Stage:</strong> {{ match.suggested_lifecycle_stage }}</p>
               <p><strong>Primary Recommendation:</strong> {{ match.improvement_suggestions.0|default:"Review fit and confirm owner before pursuing." }}</p>
             </article>
           {% empty %}
@@ -192,6 +194,7 @@
               <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
               <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
               <p class="muted">Match Confidence: {{ match.level }}</p>
+              <p><strong>Suggested Lifecycle Stage:</strong> {{ match.suggested_lifecycle_stage }}</p>
               <details class="factor-block">
                 <summary>Why It Matches</summary>
                 <ul>

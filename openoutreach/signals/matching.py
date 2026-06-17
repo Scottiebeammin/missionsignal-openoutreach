@@ -7,6 +7,7 @@ from openoutreach.funding.models import (
     ResourceProvider,
 )
 from openoutreach.signals.categories import CATEGORY_KEYWORDS
+from openoutreach.signals.lifecycle import suggested_lifecycle_stage
 
 
 MATCH_WEIGHTS = {
@@ -44,6 +45,7 @@ class OpportunityMatch:
     improvement_suggestions: list[str]
     potential_score: int
     geography_relevance: int
+    suggested_lifecycle_stage: str
 
     @property
     def matching_factor_count(self) -> int:
@@ -442,6 +444,7 @@ def _score_record(
         improvement_suggestions=_improvement_suggestions(profile, score),
         potential_score=_potential_score(score, missing_factors),
         geography_relevance=geography_score,
+        suggested_lifecycle_stage=suggested_lifecycle_stage(),
     )
 
 

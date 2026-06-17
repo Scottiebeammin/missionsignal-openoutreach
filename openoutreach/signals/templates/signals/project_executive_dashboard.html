@@ -162,6 +162,7 @@
           <a href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
           <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
           <a href="{% url 'project-matches' project.pk %}">Matching</a>
+          <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
           <a href="{% url 'project-funding' project.pk %}">Funding</a>
           <a href="{% url 'project-government' project.pk %}">Government</a>
           <a href="{% url 'project-resources' project.pk %}">Resources</a>
@@ -177,6 +178,18 @@
           <div class="metric-card"><strong>{{ dashboard.high_priority_opportunities }}</strong><span>High Priority Opportunities</span></div>
           <div class="metric-card"><strong>{{ dashboard.applied_opportunities }}</strong><span>Applied Opportunities</span></div>
           <div class="metric-card"><strong>{{ dashboard.won_opportunities }}</strong><span>Won Opportunities</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Opportunity Pipeline Summary</h2>
+          <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
+        </div>
+        <div class="metric-grid">
+          {% for stage in dashboard.lifecycle_summary.summary_stages %}
+            <div class="metric-card"><strong>{{ stage.count }}</strong><span>{{ stage.label }}</span></div>
+          {% endfor %}
         </div>
       </section>
 
