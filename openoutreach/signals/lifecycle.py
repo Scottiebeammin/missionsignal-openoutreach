@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from datetime import timedelta
+
+from django.utils import timezone
 
 from openoutreach.funding.models import Opportunity
 
@@ -95,6 +98,44 @@ ACTIVE_LIFECYCLE_STATUSES = {
     Opportunity.LifecycleStatus.SUBMITTED,
 }
 
+LIFECYCLE_TRANSITIONS = {
+    Opportunity.LifecycleStatus.DISCOVERED: [
+        (Opportunity.LifecycleStatus.REVIEWING, "Advance Stage"),
+    ],
+    Opportunity.LifecycleStatus.REVIEWING: [
+        (Opportunity.LifecycleStatus.QUALIFIED, "Advance Stage"),
+        (Opportunity.LifecycleStatus.DISCOVERED, "Move Back"),
+    ],
+    Opportunity.LifecycleStatus.QUALIFIED: [
+        (Opportunity.LifecycleStatus.PURSUING, "Advance Stage"),
+        (Opportunity.LifecycleStatus.REVIEWING, "Move Back"),
+    ],
+    Opportunity.LifecycleStatus.PURSUING: [
+        (Opportunity.LifecycleStatus.APPLICATION_DRAFTING, "Advance Stage"),
+    ],
+    Opportunity.LifecycleStatus.APPLICATION_DRAFTING: [
+        (Opportunity.LifecycleStatus.SUBMITTED, "Advance Stage"),
+    ],
+    Opportunity.LifecycleStatus.SUBMITTED: [
+        (Opportunity.LifecycleStatus.AWARDED, "Mark Awarded"),
+        (Opportunity.LifecycleStatus.DECLINED, "Mark Declined"),
+    ],
+    Opportunity.LifecycleStatus.AWARDED: [
+        (Opportunity.LifecycleStatus.CLOSED, "Close"),
+    ],
+    Opportunity.LifecycleStatus.DECLINED: [
+        (Opportunity.LifecycleStatus.CLOSED, "Close"),
+    ],
+    Opportunity.LifecycleStatus.CLOSED: [],
+}
+
+
+@dataclass(frozen=True)
+class LifecycleTransition:
+    target_status: str
+    target_label: str
+    action_label: str
+
 
 @dataclass(frozen=True)
 class LifecycleStage:
@@ -108,6 +149,19 @@ class LifecycleStage:
 
 
 @dataclass(frozen=True)
+class PipelineHealth:
+    score: int
+    level: str
+    active_opportunities: int
+    qualified_opportunities: int
+    submitted_opportunities: int
+    awarded_opportunities: int
+    stale_opportunities: int
+    overdue_opportunities: int
+    upcoming_deadlines: int
+
+
+@dataclass(frozen=True)
 class LifecycleSummary:
     stages: list[LifecycleStage]
     summary_stages: list[LifecycleStage]
@@ -115,6 +169,7 @@ class LifecycleSummary:
     submitted_opportunities: int
     awarded_opportunities: int
     highest_priority_active_opportunity: Opportunity | None
+    health: PipelineHealth
 
     @property
     def highest_activity_stage(self) -> str:
@@ -134,6 +189,17 @@ def lifecycle_description(status: str) -> str:
 
 def lifecycle_actions(status: str) -> list[str]:
     return LIFECYCLE_ACTION_LISTS.get(status, ["Review eligibility."])
+
+
+def lifecycle_transitions(status: str) -> list[LifecycleTransition]:
+    return [
+        LifecycleTransition(
+            target_status=target_status,
+            target_label=Opportunity.LifecycleStatus(target_status).label,
+            action_label=action_label,
+        )
+        for target_status, action_label in LIFECYCLE_TRANSITIONS.get(status, [])
+    ]
 
 
 def suggested_lifecycle_stage() -> str:
@@ -162,6 +228,108 @@ def _highest_priority_active_opportunity(opportunities: list[Opportunity]) -> Op
             opportunity.name,
         ),
     )[0]
+
+
+def _pipeline_health(opportunities: list[Opportunity]) -> PipelineHealth:
+    now = timezone.now()
+    today = now.date()
+    active = [
+        opportunity
+        for opportunity in opportunities
+        if opportunity.lifecycle_status in ACTIVE_LIFECYCLE_STATUSES
+    ]
+    qualified_count = sum(
+        1
+        for opportunity in opportunities
+        if opportunity.lifecycle_status == Opportunity.LifecycleStatus.QUALIFIED
+    )
+    submitted_count = sum(
+        1
+        for opportunity in opportunities
+        if opportunity.lifecycle_status == Opportunity.LifecycleStatus.SUBMITTED
+    )
+    awarded_count = sum(
+        1
+        for opportunity in opportunities
+        if opportunity.lifecycle_status == Opportunity.LifecycleStatus.AWARDED
+    )
+    stale_count = sum(
+        1
+        for opportunity in active
+        if (now - opportunity.updated_at).days >= 30
+    )
+    overdue_count = sum(
+        1
+        for opportunity in active
+        if opportunity.deadline and opportunity.deadline < today
+    )
+    upcoming_deadlines = sum(
+        1
+        for opportunity in active
+        if opportunity.deadline and today <= opportunity.deadline <= today + timedelta(days=45)
+    )
+
+    score = 45
+    if active:
+        score += 12
+    if qualified_count:
+        score += 10
+    if submitted_count:
+        score += 12
+    if awarded_count:
+        score += 16
+    if upcoming_deadlines:
+        score += 5
+    score -= min(stale_count * 6, 24)
+    score -= min(overdue_count * 10, 30)
+    score = max(0, min(score, 100))
+
+    if score >= 85:
+        level = "Excellent"
+    elif score >= 70:
+        level = "Healthy"
+    elif score >= 50:
+        level = "Needs Attention"
+    else:
+        level = "At Risk"
+    return PipelineHealth(
+        score=score,
+        level=level,
+        active_opportunities=len(active),
+        qualified_opportunities=qualified_count,
+        submitted_opportunities=submitted_count,
+        awarded_opportunities=awarded_count,
+        stale_opportunities=stale_count,
+        overdue_opportunities=overdue_count,
+        upcoming_deadlines=upcoming_deadlines,
+    )
+
+
+def transition_opportunity_lifecycle(opportunity: Opportunity, target_status: str, *, actor=None) -> Opportunity:
+    allowed_targets = {
+        transition.target_status
+        for transition in lifecycle_transitions(opportunity.lifecycle_status)
+    }
+    if target_status not in allowed_targets:
+        return opportunity
+    previous_status = opportunity.lifecycle_status
+    history = list(opportunity.lifecycle_status_history or [])
+    history.append({
+        "from": previous_status,
+        "to": target_status,
+        "actor": getattr(actor, "username", "") if actor else "",
+        "updated_at": timezone.now().isoformat(),
+    })
+    opportunity.lifecycle_status = target_status
+    opportunity.lifecycle_status_history = history
+    opportunity.save(update_fields=["lifecycle_status", "lifecycle_status_history", "updated_at"])
+    return opportunity
+
+
+def assign_opportunity_owner(opportunity: Opportunity, owner) -> Opportunity:
+    opportunity.assigned_owner = owner
+    opportunity.save(update_fields=["assigned_owner", "updated_at"])
+    return opportunity
 
 
 def build_lifecycle_summary(limit_per_stage: int | None = None) -> LifecycleSummary:
@@ -211,4 +379,5 @@ def build_lifecycle_summary(limit_per_stage: int | None = None) -> LifecycleSumm
             if opportunity.lifecycle_status == Opportunity.LifecycleStatus.AWARDED
         ),
         highest_priority_active_opportunity=_highest_priority_active_opportunity(opportunities),
+        health=_pipeline_health(opportunities),
     )

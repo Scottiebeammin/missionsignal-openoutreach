@@ -266,7 +266,10 @@
                     <div class="muted">{{ item.opportunity.get_opportunity_type_display }}</div>
                   </td>
                   <td><span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span></td>
-                  <td><span class="pill">{{ item.opportunity.get_lifecycle_status_display }}</span></td>
+                  <td>
+                    <span class="pill">{{ item.opportunity.get_lifecycle_status_display }}</span>
+                    <div class="muted">Owner: {% if item.opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</div>
+                  </td>
                   <td><span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span></td>
                   <td>{{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</td>
                   <td><span class="score-badge">Match {{ item.match.score }}</span></td>

@@ -70,6 +70,7 @@ def test_opportunities_workspace_connects_discovery_matching_and_pipeline(client
     assert "Upcoming Deadlines" in content
     assert "Opportunity Pipeline Summary" in content
     assert "Open full pipeline board" in content
+    assert "Pipeline Health" in content
     assert "Active Lifecycle Opportunities" in content
     assert "Highest Priority Active" in content
     assert "Advanced Match Health" in content

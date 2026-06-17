@@ -9,6 +9,7 @@ from openoutreach.signals.lifecycle import (
     build_lifecycle_summary,
     lifecycle_actions,
     lifecycle_description,
+    lifecycle_transitions,
     recommended_lifecycle_action,
 )
 from openoutreach.signals.matching import OpportunityMatch, score_inventory_opportunity
@@ -22,6 +23,10 @@ class DiscoveryOpportunity:
     @property
     def lifecycle_next_step(self) -> str:
         return recommended_lifecycle_action(self.opportunity.lifecycle_status)
+
+    @property
+    def lifecycle_transitions(self):
+        return lifecycle_transitions(self.opportunity.lifecycle_status)
 
 
 @dataclass(frozen=True)

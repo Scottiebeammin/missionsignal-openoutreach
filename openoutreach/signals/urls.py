@@ -52,6 +52,16 @@ urlpatterns = [
         name="project-pipeline",
     ),
     path(
+        "projects/<int:pk>/pipeline/<int:opportunity_id>/lifecycle/",
+        views.update_opportunity_lifecycle,
+        name="project-pipeline-lifecycle-update",
+    ),
+    path(
+        "projects/<int:pk>/pipeline/<int:opportunity_id>/owner/",
+        views.assign_opportunity_owner_view,
+        name="project-pipeline-owner-update",
+    ),
+    path(
         "projects/<int:pk>/partnerships/",
         views.project_partnership_dashboard,
         name="project-partnerships",

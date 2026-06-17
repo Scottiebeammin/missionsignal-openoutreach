@@ -188,6 +188,8 @@ def test_ecosystem_dashboard_includes_lifecycle_health(client, ecosystem_project
     content = response.content.decode()
 
     assert "Lifecycle Health" in content
+    assert "Pipeline Health" in content
+    assert "Pipeline Stage Distribution" in content
     assert "Active Opportunities" in content
     assert "Submitted Opportunities" in content
     assert "Awarded Opportunities" in content

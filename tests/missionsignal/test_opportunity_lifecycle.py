@@ -41,6 +41,51 @@ def test_lifecycle_status_can_move_between_stages(lifecycle_project):
     assert recommended_lifecycle_action(opportunity.lifecycle_status) == "Assign owner and collect requirements"
 
 
+def test_lifecycle_action_updates_status_history_and_timestamp(client, lifecycle_project):
+    project, user = lifecycle_project
+    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    before = opportunity.updated_at
+    notes = opportunity.lifecycle_notes
+    client.force_login(user)
+
+    response = client.post(
+        reverse("project-pipeline-lifecycle-update", kwargs={"pk": project.pk, "opportunity_id": opportunity.pk}),
+        {"target_status": Opportunity.LifecycleStatus.PURSUING},
+    )
+    opportunity.refresh_from_db()
+
+    assert response.status_code == 302
+    assert response.url == reverse("project-pipeline", kwargs={"pk": project.pk})
+    assert opportunity.lifecycle_status == Opportunity.LifecycleStatus.PURSUING
+    assert opportunity.updated_at >= before
+    assert opportunity.lifecycle_notes == notes
+    assert opportunity.lifecycle_status_history[-1]["from"] == Opportunity.LifecycleStatus.QUALIFIED
+    assert opportunity.lifecycle_status_history[-1]["to"] == Opportunity.LifecycleStatus.PURSUING
+    assert opportunity.lifecycle_status_history[-1]["actor"] == user.username
+
+
+def test_owner_assignment_controls_update_owner(client, lifecycle_project):
+    project, user = lifecycle_project
+    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    client.force_login(user)
+
+    response = client.post(
+        reverse("project-pipeline-owner-update", kwargs={"pk": project.pk, "opportunity_id": opportunity.pk}),
+        {"owner_action": "assign_me"},
+    )
+    opportunity.refresh_from_db()
+
+    assert response.status_code == 302
+    assert opportunity.assigned_owner == user
+
+    client.post(
+        reverse("project-pipeline-owner-update", kwargs={"pk": project.pk, "opportunity_id": opportunity.pk}),
+        {"owner_action": "unassign"},
+    )
+    opportunity.refresh_from_db()
+    assert opportunity.assigned_owner is None
+
+
 def test_project_member_can_view_pipeline(client, lifecycle_project):
     project, user = lifecycle_project
     client.force_login(user)
@@ -52,6 +97,10 @@ def test_project_member_can_view_pipeline(client, lifecycle_project):
     assert "Opportunity Lifecycle V2" in content
     assert "Opportunity Pipeline" in content
     assert "Lifecycle Board" in content
+    assert "Pipeline Health" in content
+    assert "Excellent" in content or "Healthy" in content or "Needs Attention" in content or "At Risk" in content
+    assert "Active Opportunities" in content
+    assert "Upcoming Deadlines" in content
     assert "Operating Focus" in content
     assert "Discovered" in content
     assert "Reviewing" in content
@@ -63,11 +112,16 @@ def test_project_member_can_view_pipeline(client, lifecycle_project):
     assert "Declined" in content
     assert "Closed" in content
     assert "Current Lifecycle Status" in content
+    assert "Current Stage" in content
     assert "Status History" in content
     assert "Last Updated" in content
     assert "Recommended Next Step" in content
-    assert "Assigned Owner" in content
-    assert "Assigned Owner: Unassigned" in content
+    assert "Owner: Unassigned" in content
+    assert "Assign to Me" in content
+    assert "Advance Stage" in content
+    assert "Mark Awarded" in content
+    assert "Mark Declined" in content
+    assert "Close" in content
     assert "Lifecycle Notes" in content
     assert "Eligibility Notes" in content
     assert "Focus Areas" in content
@@ -94,6 +148,28 @@ def test_non_member_cannot_view_pipeline(client, lifecycle_project):
     assert response.status_code == 404
 
 
+def test_non_member_cannot_update_lifecycle_or_owner(client, lifecycle_project):
+    project, _user = lifecycle_project
+    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    outsider = get_user_model().objects.create_user(username="pipeline-post-outsider")
+    client.force_login(outsider)
+
+    lifecycle_response = client.post(
+        reverse("project-pipeline-lifecycle-update", kwargs={"pk": project.pk, "opportunity_id": opportunity.pk}),
+        {"target_status": Opportunity.LifecycleStatus.PURSUING},
+    )
+    owner_response = client.post(
+        reverse("project-pipeline-owner-update", kwargs={"pk": project.pk, "opportunity_id": opportunity.pk}),
+        {"owner_action": "assign_me"},
+    )
+    opportunity.refresh_from_db()
+
+    assert lifecycle_response.status_code == 404
+    assert owner_response.status_code == 404
+    assert opportunity.lifecycle_status == Opportunity.LifecycleStatus.QUALIFIED
+    assert opportunity.assigned_owner is None
+
+
 def test_lifecycle_summary_counts(lifecycle_project):
     summary = build_lifecycle_summary()
     counts = {stage.label: stage.count for stage in summary.summary_stages}
@@ -107,3 +183,8 @@ def test_lifecycle_summary_counts(lifecycle_project):
     assert summary.submitted_opportunities == 1
     assert summary.awarded_opportunities == 1
     assert summary.highest_priority_active_opportunity is not None
+    assert 0 <= summary.health.score <= 100
+    assert summary.health.level in ["Excellent", "Healthy", "Needs Attention", "At Risk"]
+    assert summary.health.qualified_opportunities == 1
+    assert summary.health.submitted_opportunities == 1
+    assert summary.health.awarded_opportunities == 1

@@ -94,6 +94,7 @@
         <a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open full pipeline board</a>
       </div>
       <div class="metrics">
+        <div class="metric"><span class="muted">Pipeline Health</span><strong>{{ lifecycle.health.score }}</strong></div>
         <div class="metric"><span class="muted">Active Lifecycle Opportunities</span><strong>{{ lifecycle.active_opportunities }}</strong></div>
         <div class="metric"><span class="muted">Submitted</span><strong>{{ lifecycle.submitted_opportunities }}</strong></div>
         <div class="metric"><span class="muted">Awarded</span><strong>{{ lifecycle.awarded_opportunities }}</strong></div>

@@ -153,11 +153,20 @@
       <details class="panel">
         <summary>Lifecycle Health</summary>
         <div class="summary-grid">
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.lifecycle_summary.health.score }}</strong><span class="muted">Pipeline Health</span><span class="pill">{{ ecosystem.discovery_overview.lifecycle_summary.health.level }}</span></div>
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.lifecycle_summary.active_opportunities }}</strong><span class="muted">Active Opportunities</span></div>
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.lifecycle_summary.submitted_opportunities }}</strong><span class="muted">Submitted Opportunities</span></div>
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.lifecycle_summary.awarded_opportunities }}</strong><span class="muted">Awarded Opportunities</span></div>
           <a class="summary-card" href="{% url 'project-pipeline' project.pk %}"><strong>Open Pipeline</strong><span class="muted">Manage opportunity lifecycle progress.</span></a>
         </div>
+        <details style="margin-top: 12px;">
+          <summary>Pipeline Stage Distribution</summary>
+          <div class="summary-grid" style="margin-top: 10px;">
+            {% for stage in ecosystem.discovery_overview.lifecycle_summary.stages %}
+              <div class="summary-card"><strong>{{ stage.count }}</strong><span class="muted">{{ stage.label }}</span></div>
+            {% endfor %}
+          </div>
+        </details>
       </details>
 
       <details class="panel">

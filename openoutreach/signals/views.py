@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from openoutreach.core.models import Project
+from openoutreach.funding.models import Opportunity
 from openoutreach.funding.readiness import build_funding_readiness
 from openoutreach.signals.analysis_service import analyze_project
 from openoutreach.signals.dashboard import build_executive_dashboard
@@ -10,6 +11,7 @@ from openoutreach.signals.discovery import build_discovery_overview
 from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
 from openoutreach.signals.government import build_government_readiness
+from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_opportunity_lifecycle
 from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
 from openoutreach.signals.partnerships import build_partnership_readiness
@@ -293,6 +295,29 @@ def project_pipeline_workspace(request, pk):
             "lifecycle": discovery.lifecycle_summary,
         },
     )
+
+
+@login_required
+@require_POST
+def update_opportunity_lifecycle(request, pk, opportunity_id):
+    get_object_or_404(Project.objects.select_related("organization"), pk=pk, users=request.user)
+    opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
+    target_status = request.POST.get("target_status", "")
+    transition_opportunity_lifecycle(opportunity, target_status, actor=request.user)
+    return redirect("project-pipeline", pk=pk)
+
+
+@login_required
+@require_POST
+def assign_opportunity_owner_view(request, pk, opportunity_id):
+    get_object_or_404(Project.objects.select_related("organization"), pk=pk, users=request.user)
+    opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
+    owner_action = request.POST.get("owner_action", "")
+    if owner_action == "assign_me":
+        assign_opportunity_owner(opportunity, request.user)
+    elif owner_action == "unassign":
+        assign_opportunity_owner(opportunity, None)
+    return redirect("project-pipeline", pk=pk)
 
 
 @login_required

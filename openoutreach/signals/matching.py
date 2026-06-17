@@ -3,11 +3,12 @@ from dataclasses import dataclass, field
 from openoutreach.funding.models import (
     Funder,
     GovernmentEntity,
+    Opportunity,
     PartnerOrganization,
     ResourceProvider,
 )
 from openoutreach.signals.categories import CATEGORY_KEYWORDS
-from openoutreach.signals.lifecycle import suggested_lifecycle_stage
+from openoutreach.signals.lifecycle import recommended_lifecycle_action, suggested_lifecycle_stage
 
 
 MATCH_WEIGHTS = {
@@ -47,6 +48,8 @@ class OpportunityMatch:
     geography_relevance: int
     suggested_lifecycle_stage: str
     current_lifecycle_status: str
+    owner_label: str
+    suggested_next_action: str
 
     @property
     def matching_factor_count(self) -> int:
@@ -358,6 +361,8 @@ def _score_record(
     compatibility_text: str = "",
     category_keywords: list[str] | None = None,
     current_lifecycle_status: str = "Not in pipeline",
+    owner_label: str = "Unassigned",
+    suggested_next_action: str | None = None,
 ) -> OpportunityMatch:
     record_geography = _clean_values(geography)
     record_focus = _clean_values(focus_areas)
@@ -448,6 +453,8 @@ def _score_record(
         geography_relevance=geography_score,
         suggested_lifecycle_stage=suggested_lifecycle_stage(),
         current_lifecycle_status=current_lifecycle_status,
+        owner_label=owner_label,
+        suggested_next_action=suggested_next_action or recommended_lifecycle_action(Opportunity.LifecycleStatus.DISCOVERED),
     )
 
 
@@ -623,4 +630,6 @@ def score_inventory_opportunity(project, opportunity, funding_criteria=None) -> 
         ),
         category_keywords=EXPANDED_CATEGORY_KEYWORDS,
         current_lifecycle_status=opportunity.get_lifecycle_status_display(),
+        owner_label="Assigned" if opportunity.assigned_owner else "Unassigned",
+        suggested_next_action=recommended_lifecycle_action(opportunity.lifecycle_status),
     )

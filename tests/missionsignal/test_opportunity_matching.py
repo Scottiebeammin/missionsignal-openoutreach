@@ -105,6 +105,10 @@ def test_match_dashboard_renders_breakdowns_missing_factors_and_improvements(cli
     assert "Suggested Lifecycle Stage" in content
     assert "Current Lifecycle Status" in content
     assert "Not in pipeline" in content
+    assert "Owner:" in content
+    assert "Unassigned" in content
+    assert "Suggested Next Action" in content
+    assert "Review eligibility" in content
     assert "Discovered" in content
     assert "Primary Recommendation" in content
     assert "Show More" in content
@@ -138,6 +142,8 @@ def test_match_scoring_is_deterministic(match_project):
     assert first.top_gaps[0].count == 12
     assert first.top_recommended[0].suggested_lifecycle_stage == "Discovered"
     assert first.top_recommended[0].current_lifecycle_status == "Not in pipeline"
+    assert first.top_recommended[0].owner_label == "Unassigned"
+    assert first.top_recommended[0].suggested_next_action == "Review eligibility"
 
 
 def test_weighted_scoring_and_ranking_order(match_project):

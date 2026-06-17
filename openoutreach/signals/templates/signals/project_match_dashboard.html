@@ -118,6 +118,7 @@
             <p class="muted">Match Confidence: {{ match.level }}</p>
             <p><strong>Suggested Lifecycle Stage:</strong> {{ match.suggested_lifecycle_stage }}</p>
             <p><strong>Current Lifecycle Status:</strong> {{ match.current_lifecycle_status }}</p>
+            <p><strong>Owner:</strong> {{ match.owner_label }} <strong>Suggested Next Action:</strong> {{ match.suggested_next_action }}</p>
             <p><strong>Primary Recommendation:</strong> {{ match.improvement_suggestions.0|default:"Review fit and confirm owner before pursuing." }}</p>
             <details class="factor-block">
               <summary>Why It Matches</summary>
@@ -174,6 +175,7 @@
               <p><strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
               <p><strong>Suggested Lifecycle Stage:</strong> {{ match.suggested_lifecycle_stage }}</p>
               <p><strong>Current Lifecycle Status:</strong> {{ match.current_lifecycle_status }}</p>
+              <p><strong>Owner:</strong> {{ match.owner_label }} <strong>Suggested Next Action:</strong> {{ match.suggested_next_action }}</p>
               <p><strong>Primary Recommendation:</strong> {{ match.improvement_suggestions.0|default:"Review fit and confirm owner before pursuing." }}</p>
             </article>
           {% empty %}
@@ -198,6 +200,7 @@
               <p class="muted">Match Confidence: {{ match.level }}</p>
               <p><strong>Suggested Lifecycle Stage:</strong> {{ match.suggested_lifecycle_stage }}</p>
               <p><strong>Current Lifecycle Status:</strong> {{ match.current_lifecycle_status }}</p>
+              <p><strong>Owner:</strong> {{ match.owner_label }} <strong>Suggested Next Action:</strong> {{ match.suggested_next_action }}</p>
               <details class="factor-block">
                 <summary>Why It Matches</summary>
                 <ul>

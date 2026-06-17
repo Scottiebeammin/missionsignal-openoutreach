@@ -80,6 +80,7 @@ def test_discovery_inventory_and_readiness_render(client, discovery_project):
     assert "Status History" in content
     assert "Last Updated" in content
     assert "Discovered" in content
+    assert "Owner: Unassigned" in content
     assert "Why It Matches" in content
     assert "Missing Factors" in content
     assert "Improvement Opportunities" in content

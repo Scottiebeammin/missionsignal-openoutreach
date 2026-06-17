@@ -187,6 +187,7 @@
           <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
         </div>
         <div class="metric-grid">
+          <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.health.score }}</strong><span>Pipeline Health Score</span><p class="muted">{{ dashboard.lifecycle_summary.health.level }}</p></div>
           <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.active_opportunities }}</strong><span>Active Lifecycle Opportunities</span></div>
           <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.submitted_opportunities }}</strong><span>Submitted</span></div>
           <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.awarded_opportunities }}</strong><span>Awarded</span></div>

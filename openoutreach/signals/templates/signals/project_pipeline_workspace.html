@@ -37,6 +37,11 @@
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
     .score-badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 900; }
     .action-panel { border-left: 4px solid var(--accent); }
+    .card-actions, .owner-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .inline-form { margin: 0; }
+    .action-button { min-height: 30px; padding: 5px 9px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
+    .action-button.primary { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .action-button.warning { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
     ul { margin: 0; padding-left: 18px; }
     li + li { margin-top: 4px; }
     @media (max-width: 1000px) { .hero, .metrics, .board, .detail-grid { grid-template-columns: 1fr; } }
@@ -69,10 +74,20 @@
     <section class="panel">
       <h2>Opportunity Pipeline Summary</h2>
       <div class="metrics">
-        {% for stage in lifecycle.summary_stages %}
-          <div class="metric"><span class="muted">{{ stage.label }}</span><strong>{{ stage.count }}</strong></div>
-        {% endfor %}
+        <div class="metric"><span class="muted">Pipeline Health</span><strong>{{ lifecycle.health.score }}</strong><span class="pill">{{ lifecycle.health.level }}</span></div>
+        <div class="metric"><span class="muted">Active Opportunities</span><strong>{{ lifecycle.health.active_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Submitted</span><strong>{{ lifecycle.health.submitted_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Awarded</span><strong>{{ lifecycle.health.awarded_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Upcoming Deadlines</span><strong>{{ lifecycle.health.upcoming_deadlines }}</strong></div>
       </div>
+      <details style="margin-top: 12px;">
+        <summary>Stage counts</summary>
+        <div class="metrics" style="margin-top: 10px;">
+          {% for stage in lifecycle.summary_stages %}
+            <div class="metric"><span class="muted">{{ stage.label }}</span><strong>{{ stage.count }}</strong></div>
+          {% endfor %}
+        </div>
+      </details>
     </section>
 
     <section class="panel">
@@ -98,8 +113,34 @@
                   <span class="pill">{{ item.match.level }}</span>
                 </div>
                 <p class="muted" style="margin: 8px 0 0;">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
-                <p class="muted">Assigned Owner: {{ item.opportunity.assigned_owner|default:"Unassigned" }}</p>
+                <p class="muted">Owner: {% if item.opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</p>
                 <p><strong>Next:</strong> {{ stage.recommended_next_step }}</p>
+                <div class="card-actions" aria-label="Lifecycle actions">
+                  {% for transition in item.lifecycle_transitions %}
+                    <form class="inline-form" method="post" action="{% url 'project-pipeline-lifecycle-update' project.pk item.opportunity.pk %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="target_status" value="{{ transition.target_status }}">
+                      <button class="action-button primary" type="submit">{{ transition.action_label }}</button>
+                    </form>
+                  {% empty %}
+                    <span class="pill">No further actions</span>
+                  {% endfor %}
+                </div>
+                <div class="owner-actions" aria-label="Owner assignment actions">
+                  {% if item.opportunity.assigned_owner %}
+                    <form class="inline-form" method="post" action="{% url 'project-pipeline-owner-update' project.pk item.opportunity.pk %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="owner_action" value="unassign">
+                      <button class="action-button warning" type="submit">Unassign Owner</button>
+                    </form>
+                  {% else %}
+                    <form class="inline-form" method="post" action="{% url 'project-pipeline-owner-update' project.pk item.opportunity.pk %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="owner_action" value="assign_me">
+                      <button class="action-button" type="submit">Assign to Me</button>
+                    </form>
+                  {% endif %}
+                </div>
                 <details>
                   <summary>View Details</summary>
                   <div class="detail-grid">
@@ -152,7 +193,9 @@
                       <p class="muted">Placeholder-ready</p>
                     </section>
                   </div>
+                  <p><strong>Current Stage:</strong> {{ item.opportunity.get_lifecycle_status_display }}</p>
                   <p><strong>Current Lifecycle Status:</strong> {{ item.opportunity.get_lifecycle_status_display }}</p>
+                  <p><strong>Owner:</strong> {{ item.opportunity.assigned_owner|default:"Unassigned" }}</p>
                   <p><strong>Last Updated:</strong> {{ item.opportunity.updated_at|date:"M j, Y" }}</p>
                   <p><strong>Recommended Next Step:</strong> {{ stage.recommended_next_step }}</p>
                 </details>
