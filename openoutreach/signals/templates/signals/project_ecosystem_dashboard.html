@@ -129,11 +129,13 @@
 
     {% if ecosystem.discovery_overview %}
       <section class="panel">
-        <h2>Discovery Engine Summary</h2>
+        <h2>Discovery Health</h2>
         <div class="summary-grid">
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.total_opportunities }}</strong><span class="muted">Total Opportunities</span></div>
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.active_opportunities }}</strong><span class="muted">Active Opportunities</span></div>
-          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.best_opportunity_category }}</strong><span class="muted">Best Opportunity Category</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.monitoring_opportunities }}</strong><span class="muted">Monitoring Opportunities</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.high_priority_opportunities }}</strong><span class="muted">High Priority Opportunities</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.top_source_organization }}</strong><span class="muted">Top Source Organization</span></div>
           <a class="summary-card" href="{% url 'project-discovery' project.pk %}"><strong>Open Discovery Engine</strong><span class="muted">Review the manually managed opportunity inventory.</span></a>
         </div>
       </section>

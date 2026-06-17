@@ -34,10 +34,11 @@
     .eyebrow { margin-bottom: 6px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     .subtitle, .muted { color: var(--muted); }
     .panel { margin-bottom: 14px; padding: 18px; }
-    .summary-grid, .tag-grid, .inventory-grid { display: grid; gap: 10px; }
-    .summary-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .summary-grid, .tag-grid, .inventory-grid, .pipeline-grid { display: grid; gap: 10px; }
+    .summary-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
     .tag-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .inventory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    .pipeline-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
     .summary-card, .tag-card, .inventory-card { padding: 14px; }
     .summary-card strong, .tag-card strong { display: block; margin-bottom: 4px; color: var(--accent); }
     .inventory-card { border-left: 4px solid var(--blue); }
@@ -49,10 +50,10 @@
     ul { margin: 0; padding-left: 20px; }
     li + li { margin-top: 6px; }
     @media (max-width: 1000px) {
-      .summary-grid, .tag-grid, .inventory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .summary-grid, .tag-grid, .inventory-grid, .pipeline-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 640px) {
-      .summary-grid, .tag-grid, .inventory-grid { grid-template-columns: 1fr; }
+      .summary-grid, .tag-grid, .inventory-grid, .pipeline-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -71,7 +72,7 @@
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">Discovery Engine V1</p>
+      <p class="eyebrow">Discovery Engine V2</p>
       <h1>Opportunity Inventory</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <p class="muted">A manually managed inventory layer for deterministic opportunity readiness before live discovery exists.</p>
@@ -81,15 +82,45 @@
       <h2>Discovery Dashboard</h2>
       <div class="summary-grid">
         <div class="summary-card"><strong>{{ discovery.total_opportunities }}</strong><span class="muted">Total Opportunities</span></div>
-        <div class="summary-card"><strong>{{ discovery.active_opportunities }}</strong><span class="muted">Active Opportunities</span></div>
-        <div class="summary-card"><strong>{{ discovery.opportunity_types|length }}</strong><span class="muted">Opportunity Types</span></div>
-        <div class="summary-card"><strong>{{ discovery.geography_coverage|length }}</strong><span class="muted">Geography Coverage</span></div>
-        <div class="summary-card"><strong>{{ discovery.best_opportunity_category }}</strong><span class="muted">Best Opportunity Category</span></div>
+        <div class="summary-card"><strong>{{ discovery.active_opportunities }}</strong><span class="muted">Active</span></div>
+        <div class="summary-card"><strong>{{ discovery.upcoming_opportunities }}</strong><span class="muted">Upcoming</span></div>
+        <div class="summary-card"><strong>{{ discovery.monitoring_opportunities }}</strong><span class="muted">Monitoring</span></div>
+        <div class="summary-card"><strong>{{ discovery.applied_opportunities }}</strong><span class="muted">Applied</span></div>
+        <div class="summary-card"><strong>{{ discovery.won_opportunities }}</strong><span class="muted">Won</span></div>
       </div>
     </section>
 
     <section class="panel">
       <h2>Opportunity Inventory Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card"><strong>{{ discovery.opportunity_types|length }}</strong><span class="muted">Opportunity Types</span></div>
+        <div class="summary-card"><strong>{{ discovery.geography_coverage|length }}</strong><span class="muted">Geography Coverage</span></div>
+        <div class="summary-card"><strong>{{ discovery.best_opportunity_category }}</strong><span class="muted">Best Opportunity Category</span></div>
+        <div class="summary-card"><strong>{{ discovery.high_priority_opportunities }}</strong><span class="muted">High Priority Opportunities</span></div>
+        <div class="summary-card"><strong>{{ discovery.top_source_organization }}</strong><span class="muted">Top Source Organization</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Top Source Organizations</h2>
+      <div class="tag-grid">
+        {% for source in discovery.top_source_organizations %}
+          <div class="tag-card"><strong>{{ source.label }}</strong><span class="muted">{{ source.count }} opportunities</span></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Opportunity Status Breakdown</h2>
+      <div class="tag-grid">
+        {% for status in discovery.status_breakdown %}
+          <div class="tag-card"><strong>{{ status.count }}</strong><span class="muted">{{ status.label }}</span></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Opportunity Types and Geography Coverage</h2>
       <div class="tag-grid">
         {% for type in discovery.opportunity_types %}
           <div class="tag-card"><strong>{{ type }}</strong><span class="muted">Inventory type</span></div>
@@ -98,6 +129,31 @@
       <div class="tag-grid" style="margin-top: 10px;">
         {% for geography in discovery.geography_coverage %}
           <div class="tag-card"><strong>{{ geography }}</strong><span class="muted">Covered geography</span></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Opportunity Pipeline</h2>
+      <div class="pipeline-grid">
+        {% for group in discovery.priority_groups %}
+          <section>
+            <h3>{{ group.label }} <span class="muted">({{ group.count }})</span></h3>
+            {% for item in group.opportunities %}
+              <article class="inventory-card">
+                <h3>{{ item.opportunity.name }}</h3>
+                <div class="card-meta">
+                  <span class="pill status">{{ item.opportunity.get_status_display }}</span>
+                  <span class="pill">{{ item.opportunity.get_priority_level_display }}</span>
+                  <span class="pill score">Match Score {{ item.match.score }}</span>
+                </div>
+                <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
+                <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
+              </article>
+            {% empty %}
+              <p class="muted">No opportunities in this priority lane yet.</p>
+            {% endfor %}
+          </section>
         {% endfor %}
       </div>
     </section>
@@ -112,8 +168,10 @@
               <span class="pill score">Match Score {{ item.match.score }}</span>
               <span class="pill">{{ item.match.level }}</span>
               <span class="pill status">{{ item.opportunity.get_status_display }}</span>
+              <span class="pill">{{ item.opportunity.get_priority_level_display }}</span>
             </div>
-            <p class="muted">{{ item.opportunity.get_opportunity_type_display }} - {{ item.opportunity.geography|join:", "|default:"Geography not provided" }}</p>
+            <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }} - {{ item.opportunity.geography|join:", "|default:"Geography not provided" }}</p>
+            <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
             <strong>Why It Matches</strong>
             <ul>
               {% for reason in item.match.reasons %}
@@ -137,10 +195,12 @@
                 <div class="card-meta">
                   <span class="pill">{{ item.opportunity.get_opportunity_type_display }}</span>
                   <span class="pill status">{{ item.opportunity.get_status_display }}</span>
+                  <span class="pill">{{ item.opportunity.get_priority_level_display }}</span>
                   <span class="pill score">Match Score {{ item.match.score }}</span>
                   <span class="pill">{{ item.match.level }}</span>
                 </div>
-                <p class="muted">{{ item.opportunity.geography|join:", "|default:"Geography not provided" }}</p>
+                <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }} - {{ item.opportunity.geography|join:", "|default:"Geography not provided" }}</p>
+                <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
                 <strong>Why It Matches</strong>
                 <ul>
                   {% for reason in item.match.reasons %}

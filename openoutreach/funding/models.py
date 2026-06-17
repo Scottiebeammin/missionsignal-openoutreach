@@ -172,6 +172,32 @@ class PartnerOrganization(models.Model):
         return self.name
 
 
+class SourceOrganization(models.Model):
+    class OrganizationType(models.TextChoices):
+        FOUNDATION = "foundation", "Foundation"
+        GOVERNMENT_AGENCY = "government_agency", "Government Agency"
+        RESOURCE_PROVIDER = "resource_provider", "Resource Provider"
+        NONPROFIT = "nonprofit", "Nonprofit"
+        CORPORATE_PARTNER = "corporate_partner", "Corporate Partner"
+        UNIVERSITY = "university", "University"
+        WORKFORCE_BOARD = "workforce_board", "Workforce Board"
+        OTHER = "other", "Other"
+
+    name = models.CharField(max_length=500, unique=True)
+    organization_type = models.CharField(
+        max_length=40, choices=OrganizationType.choices, default=OrganizationType.OTHER,
+    )
+    website = models.URLField(max_length=500, blank=True, default="")
+    geography = models.JSONField(default=list, blank=True)
+    notes = models.TextField(blank=True, default="")
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Opportunity(models.Model):
     class OpportunityType(models.TextChoices):
         GRANT = "grant", "Grant"
@@ -192,11 +218,22 @@ class Opportunity(models.Model):
     class Status(models.TextChoices):
         ACTIVE = "active", "Active"
         UPCOMING = "upcoming", "Upcoming"
+        MONITORING = "monitoring", "Monitoring"
+        APPLIED = "applied", "Applied"
+        WON = "won", "Won"
         ARCHIVED = "archived", "Archived"
+
+    class PriorityLevel(models.TextChoices):
+        HIGH = "high", "High"
+        MEDIUM = "medium", "Medium"
+        LOW = "low", "Low"
 
     name = models.CharField(max_length=500)
     opportunity_type = models.CharField(
         max_length=40, choices=OpportunityType.choices, default=OpportunityType.GRANT,
+    )
+    source_organization = models.ForeignKey(
+        SourceOrganization, null=True, blank=True, on_delete=models.SET_NULL, related_name="opportunities",
     )
     source_type = models.CharField(max_length=40, choices=SourceType.choices, default=SourceType.MANUAL)
     source_name = models.CharField(max_length=500, blank=True, default="")
@@ -205,6 +242,11 @@ class Opportunity(models.Model):
     beneficiaries = models.JSONField(default=list, blank=True)
     eligibility_notes = models.TextField(blank=True, default="")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
+    posted_date = models.DateField(null=True, blank=True)
+    deadline = models.DateField(null=True, blank=True)
+    priority_level = models.CharField(
+        max_length=20, choices=PriorityLevel.choices, default=PriorityLevel.MEDIUM,
+    )
     notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

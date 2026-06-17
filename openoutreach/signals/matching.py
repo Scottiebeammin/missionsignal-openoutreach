@@ -566,6 +566,14 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
 
 
 def score_inventory_opportunity(project, opportunity, funding_criteria=None) -> OpportunityMatch:
+    source_name = opportunity.source_organization.name if opportunity.source_organization else opportunity.source_name
+    source_context = ""
+    if opportunity.source_organization:
+        source_context = (
+            f"{opportunity.source_organization.get_organization_type_display()}\n"
+            f"{opportunity.source_organization.notes}\n"
+            f"{' '.join(opportunity.source_organization.geography)}"
+        )
     return _score_record(
         profile=_profile(project, funding_criteria),
         name=opportunity.name,
@@ -574,6 +582,9 @@ def score_inventory_opportunity(project, opportunity, funding_criteria=None) -> 
         geography=opportunity.geography,
         focus_areas=opportunity.focus_areas,
         beneficiaries=opportunity.beneficiaries,
-        program_terms=[opportunity.source_name],
-        compatibility_text=f"{opportunity.eligibility_notes}\n{opportunity.notes}\n{opportunity.get_source_type_display()}",
+        program_terms=[source_name],
+        compatibility_text=(
+            f"{opportunity.eligibility_notes}\n{opportunity.notes}\n"
+            f"{opportunity.get_source_type_display()}\n{source_context}"
+        ),
     )

@@ -16,6 +16,7 @@ from openoutreach.funding.models import (
     Opportunity,
     PartnerOrganization,
     ResourceProvider,
+    SourceOrganization,
     default_scoring_weights,
 )
 from openoutreach.signals.models import OrganizationAnalysisRun, OrganizationSourcePage
@@ -211,9 +212,24 @@ def test_opportunity_model_defaults_and_string():
     assert opportunity.opportunity_type == Opportunity.OpportunityType.GRANT
     assert opportunity.source_type == Opportunity.SourceType.MANUAL
     assert opportunity.status == Opportunity.Status.ACTIVE
+    assert opportunity.priority_level == Opportunity.PriorityLevel.MEDIUM
+    assert opportunity.source_organization is None
+    assert opportunity.deadline is None
     assert opportunity.geography == []
     assert opportunity.focus_areas == ["digital equity"]
     assert opportunity.beneficiaries == ["youth"]
+
+
+def test_source_organization_model_defaults_and_string():
+    source = SourceOrganization.objects.create(
+        name="Community Foundation",
+        organization_type=SourceOrganization.OrganizationType.FOUNDATION,
+        geography=["Cleveland"],
+    )
+    assert str(source) == "Community Foundation"
+    assert source.active is True
+    assert source.website == ""
+    assert source.geography == ["Cleveland"]
 
 
 def test_opportunity_database_models_are_registered_in_admin():
@@ -222,6 +238,7 @@ def test_opportunity_database_models_are_registered_in_admin():
     assert admin.site.is_registered(ResourceProvider)
     assert admin.site.is_registered(PartnerOrganization)
     assert admin.site.is_registered(Opportunity)
+    assert admin.site.is_registered(SourceOrganization)
 
 
 

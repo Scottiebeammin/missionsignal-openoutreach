@@ -11,6 +11,7 @@ from openoutreach.funding.models import (
     Opportunity,
     PartnerOrganization,
     ResourceProvider,
+    SourceOrganization,
 )
 
 
@@ -49,11 +50,25 @@ class PartnerOrganizationAdmin(admin.ModelAdmin):
     search_fields = ("name", "notes", "website")
 
 
+@admin.register(SourceOrganization)
+class SourceOrganizationAdmin(admin.ModelAdmin):
+    list_display = ("name", "organization_type", "geography", "active", "website")
+    list_filter = ("organization_type", "active")
+    search_fields = ("name", "notes", "website")
+
+
 @admin.register(Opportunity)
 class OpportunityAdmin(admin.ModelAdmin):
-    list_display = ("name", "opportunity_type", "source_type", "source_name", "status")
-    list_filter = ("opportunity_type", "source_type", "status")
-    search_fields = ("name", "source_name", "eligibility_notes", "notes")
+    list_display = (
+        "name", "opportunity_type", "source_organization", "source_type",
+        "status", "priority_level", "deadline",
+    )
+    list_filter = (
+        "opportunity_type", "source_type", "status", "priority_level", "source_organization",
+    )
+    search_fields = ("name", "source_name", "source_organization__name", "eligibility_notes", "notes")
+    raw_id_fields = ("source_organization",)
+    date_hierarchy = "deadline"
 
 
 class FundingOpportunitySourceInline(admin.TabularInline):

@@ -13,6 +13,7 @@ from openoutreach.funding.models import (
     Opportunity,
     PartnerOrganization,
     ResourceProvider,
+    SourceOrganization,
 )
 from openoutreach.signals.demo import (
     DEMO_ORGANIZATION_NAME,
@@ -59,13 +60,17 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "Lakefront Employers Tech Council",
         "Neighborhood Digital Inclusion Coalition",
     ]).count() == 3
+    assert SourceOrganization.objects.count() >= 10
+    assert Opportunity.objects.count() >= 20
     assert Opportunity.objects.filter(name__in=[
         "Digital Equity Grant",
         "Workforce Development Grant",
         "Youth Technology Initiative",
         "Community Partnership Program",
         "Capacity Building Resource Program",
-    ]).count() == 5
+        "National Health Access Training Program",
+        "Youth Career Exploration Sponsorship",
+    ]).count() == 7
     assert OrganizationAnalysisRun.objects.filter(
         organization=first_organization,
     ).count() == 2
