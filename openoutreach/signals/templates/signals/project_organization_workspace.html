@@ -34,10 +34,10 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="organization" %}
   <main>
     <nav class="workspace-tabs" aria-label="Organization workspace tabs">
-      <a class="active" href="{% url 'project-organization' project.pk %}">Overview</a>
-      <a href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
-      <a href="{% url 'project-programs' project.pk %}">Programs</a>
-      <a href="{% url 'project-analysis-detail' project.pk %}">Readiness Data</a>
+      <a class="active" href="#mission">Mission</a>
+      <a href="#programs">Programs</a>
+      <a href="#outcomes">Outcomes</a>
+      <a href="#readiness">Readiness</a>
     </nav>
 
     <header class="hero">
@@ -68,21 +68,21 @@
     <section class="panel">
       <h2>Profile Workspace</h2>
       <div class="grid">
-        <article class="profile-card">
+        <article id="mission" class="profile-card">
           <h3>Mission Brief</h3>
           <p>{{ organization.mission|default:"Mission statement has not been provided yet." }}</p>
           <a href="{% url 'project-mission-brief' project.pk %}">Open Mission Brief</a>
         </article>
-        <article class="profile-card">
+        <article id="programs" class="profile-card">
           <h3>Programs</h3>
           <p>{{ project.programs|default:"Program details have not been provided yet." }}</p>
           <a href="{% url 'project-programs' project.pk %}">Manage Programs</a>
         </article>
-        <article class="profile-card">
+        <article id="outcomes" class="profile-card">
           <h3>Outcomes</h3>
           <p>{{ organization.outcomes_and_impact|join:", "|default:"Outcome and impact data has not been documented yet." }}</p>
         </article>
-        <article class="profile-card">
+        <article id="readiness" class="profile-card">
           <h3>Readiness Data</h3>
           <p>Funding sources: {{ organization.current_funding_sources|join:", "|default:"Not provided" }}</p>
           <p>Partnerships: {{ organization.existing_partnerships|join:", "|default:"Not provided" }}</p>

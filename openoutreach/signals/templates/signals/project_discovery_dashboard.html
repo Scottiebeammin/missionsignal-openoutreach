@@ -151,8 +151,8 @@
               <article class="inventory-card">
                 <h3>{{ item.opportunity.name }}</h3>
                 <div class="card-meta">
-                  <span class="pill status">{{ item.opportunity.get_status_display }}</span>
-                  <span class="pill">{{ item.opportunity.get_priority_level_display }}</span>
+                  <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
+                  <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
                   <span class="pill score">Match Score {{ item.match.score }}</span>
                 </div>
                 <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
@@ -193,7 +193,42 @@
 
     <section class="panel">
       <h2>Opportunity Inventory</h2>
-      <div class="inventory-grid">
+      <div class="premium-table-wrap">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>Opportunity</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Deadline</th>
+              <th>Match Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for group in discovery.groups %}
+              {% for item in group.opportunities %}
+                <tr>
+                  <td>
+                    <strong>{{ item.opportunity.name }}</strong>
+                    <div class="muted">Why It Matches: {{ item.match.reasons|join:", " }}</div>
+                  </td>
+                  <td>{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</td>
+                  <td><span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span></td>
+                  <td><span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span></td>
+                  <td>{{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</td>
+                  <td><span class="pill score">Match Score {{ item.match.score }}</span></td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <details class="panel">
+      <summary>Advanced Inventory Groups</summary>
+      <div class="inventory-grid" style="margin-top: 12px;">
         {% for group in discovery.groups %}
           <section>
             <h3>{{ group.label }} <span class="muted">({{ group.count }})</span></h3>
@@ -202,8 +237,8 @@
                 <h3>{{ item.opportunity.name }}</h3>
                 <div class="card-meta">
                   <span class="pill">{{ item.opportunity.get_opportunity_type_display }}</span>
-                  <span class="pill status">{{ item.opportunity.get_status_display }}</span>
-                  <span class="pill">{{ item.opportunity.get_priority_level_display }}</span>
+                  <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
+                  <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
                   <span class="pill score">Match Score {{ item.match.score }}</span>
                   <span class="pill">{{ item.match.level }}</span>
                 </div>
@@ -222,7 +257,7 @@
           </section>
         {% endfor %}
       </div>
-    </section>
+    </details>
   </main>
 </body>
 </html>

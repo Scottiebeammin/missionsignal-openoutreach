@@ -21,6 +21,7 @@
       --gold-soft: #fff7df;
       --rose: #9f2f46;
       --rose-soft: #fff0f3;
+      --shadow: 0 1px 2px rgba(16, 30, 44, .04), 0 14px 32px rgba(16, 30, 44, .05);
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.42 system-ui, sans-serif; }
@@ -38,8 +39,8 @@
     .nav a { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; color: #dce7ef; text-decoration: none; }
     .nav a.active, .nav a:hover { background: rgba(255,255,255,.12); color: white; }
     main { padding: 22px; }
-    .hero, .panel, .metric-card, .kpi-card, .pipeline-card, .chart-card { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
-    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 18px; align-items: stretch; margin-bottom: 14px; padding: 22px; }
+    .hero, .panel, .metric-card, .kpi-card, .pipeline-card, .chart-card, .advisor-panel { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: var(--shadow); }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 18px; align-items: stretch; margin-bottom: 16px; padding: 24px; }
     .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     .muted { color: var(--muted); }
     .header-metrics, .metric-grid, .kpi-grid, .health-grid, .chart-grid { display: grid; gap: 10px; }
@@ -48,21 +49,24 @@
     .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .health-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .metric-card, .kpi-card, .chart-card { padding: 14px; }
+    .metric-card, .kpi-card, .chart-card { padding: 15px; }
     .metric-card strong, .kpi-card strong { display: block; color: var(--accent); font-size: 1.75rem; line-height: 1; }
     .metric-card span, .kpi-card span { display: block; margin-top: 5px; color: var(--muted); font-weight: 700; }
-    .kpi-card p { margin: 10px 0 0; min-height: 40px; color: var(--muted); }
-    .panel { margin-bottom: 14px; padding: 16px; }
+    .kpi-card { text-decoration: none; }
+    .kpi-card p { margin: 10px 0 0; color: var(--muted); }
+    .panel { margin-bottom: 16px; padding: 18px; }
     .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
     .switcher { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); }
     .switcher button { min-height: 32px; border: 0; border-radius: 6px; padding: 6px 10px; background: transparent; color: var(--muted); font-weight: 800; }
     .switcher button.active { background: white; color: var(--accent); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
     .pipeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
-    .pipeline-card { min-height: 180px; padding: 12px; background: var(--soft); }
+    .pipeline-card { min-height: 160px; padding: 12px; background: var(--soft); box-shadow: none; }
     .pipeline-card header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-weight: 900; }
     .mini-opportunity { margin-top: 8px; padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: white; }
     .mini-opportunity strong { display: block; font-size: .88rem; }
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    .advisor-panel { margin-bottom: 16px; padding: 18px; border-left: 5px solid var(--accent); background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%); }
+    .advisor-panel ol { margin-bottom: 0; }
     .bar-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 42px; gap: 8px; align-items: center; margin-top: 9px; }
     .bar-track { height: 10px; border-radius: 999px; background: var(--soft); overflow: hidden; }
     .bar-fill { height: 100%; min-width: 3px; border-radius: inherit; background: var(--accent); }
@@ -117,12 +121,22 @@
         <div class="kpi-grid">
           {% for kpi in dashboard.kpis %}
             <a class="kpi-card" href="{% url kpi.href_name project.pk %}">
-              <strong>{{ kpi.score }}</strong>
-              <span>{{ kpi.label }} - {{ kpi.level }}</span>
+              <span class="score-card-title">{{ kpi.label }}</span>
+              <strong class="score-value">{{ kpi.score }}</strong>
+              <span>{{ kpi.level }}</span>
               <p>{{ kpi.insight }}</p>
             </a>
           {% endfor %}
         </div>
+      </section>
+
+      <section class="advisor-panel">
+        <h2>What To Do Next</h2>
+        <ol class="actions-list">
+          {% for action in dashboard.executive_actions %}
+            <li>{{ action }}</li>
+          {% endfor %}
+        </ol>
       </section>
 
       <section class="panel">
@@ -197,15 +211,6 @@
           <div class="metric-card"><strong>{{ dashboard.discovery_health.active_opportunities }}</strong><span>Active Opportunities</span></div>
           <div class="metric-card"><strong>{{ dashboard.discovery_health.upcoming_deadlines|length }}</strong><span>Upcoming Deadlines</span></div>
         </div>
-      </section>
-
-      <section class="panel">
-        <h2>Executive Actions Panel</h2>
-        <ol class="actions-list">
-          {% for action in dashboard.executive_actions %}
-            <li>{{ action }}</li>
-          {% endfor %}
-        </ol>
       </section>
 
       <section class="panel">
