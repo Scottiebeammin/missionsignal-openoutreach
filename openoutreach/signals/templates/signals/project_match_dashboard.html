@@ -107,7 +107,7 @@
     <section class="panel">
       <h2>Top Recommended Opportunities</h2>
       <div class="match-grid">
-        {% for match in match_overview.top_recommended %}
+        {% for match in match_overview.top_recommended|slice:":5" %}
           <article class="match-card">
             <div class="match-header">
               <h3>{{ match.name }}</h3>
@@ -116,7 +116,8 @@
             <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
             <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
             <p class="muted">Match Confidence: {{ match.level }}</p>
-            <details class="factor-block" open>
+            <p><strong>Primary Recommendation:</strong> {{ match.improvement_suggestions.0|default:"Review fit and confirm owner before pursuing." }}</p>
+            <details class="factor-block">
               <summary>Why It Matches</summary>
               <ul>
                 {% for reason in match.reasons %}
@@ -158,6 +159,24 @@
           </div>
         {% endfor %}
       </div>
+      <details style="margin-top: 12px;">
+        <summary>Show More</summary>
+        <div class="match-grid" style="margin-top: 10px;">
+          {% for match in match_overview.top_recommended|slice:"5:" %}
+            <article class="match-card">
+              <div class="match-header">
+                <h3>{{ match.name }}</h3>
+                <span class="score-badge">Score {{ match.score }}</span>
+              </div>
+              <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
+              <p><strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
+              <p><strong>Primary Recommendation:</strong> {{ match.improvement_suggestions.0|default:"Review fit and confirm owner before pursuing." }}</p>
+            </article>
+          {% empty %}
+            <p class="muted">No additional recommended opportunities.</p>
+          {% endfor %}
+        </div>
+      </details>
     </section>
 
     {% for category in match_overview.categories %}
@@ -173,7 +192,7 @@
               <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
               <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
               <p class="muted">Match Confidence: {{ match.level }}</p>
-              <details class="factor-block" open>
+              <details class="factor-block">
                 <summary>Why It Matches</summary>
                 <ul>
                   {% for reason in match.reasons %}

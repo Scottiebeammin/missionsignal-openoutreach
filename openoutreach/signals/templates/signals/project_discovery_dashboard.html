@@ -44,6 +44,7 @@
     .inventory-card { border-left: 4px solid var(--blue); }
     .inventory-card + .inventory-card { margin-top: 10px; }
     .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+    .search-input { min-height: 34px; min-width: min(260px, 100%); padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--ink); font: inherit; }
     .card-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
     .status { background: var(--accent-soft); color: var(--accent); }
@@ -111,34 +112,41 @@
     </section>
 
     <details class="panel" open>
-      <summary>Filters</summary>
+      <summary>Command Center Filters</summary>
       <div class="filter-bar" style="margin-top: 12px;">
+        <input class="search-input" type="search" placeholder="Search Opportunities" aria-label="Search Opportunities">
         <span class="pill">Status</span>
         <span class="pill">Priority</span>
         <span class="pill">Opportunity Type</span>
+        <span class="pill">Match Level</span>
+      </div>
+      <details style="margin-top: 12px;">
+        <summary>More Filters</summary>
+        <div class="filter-bar" style="margin-top: 10px;">
         <span class="pill">Source Organization</span>
         <span class="pill">Geography</span>
         <span class="pill">Focus Area</span>
       </div>
+      </details>
     </details>
 
-    <section class="panel">
-      <h2>Top Source Organizations</h2>
+    <details class="panel">
+      <summary>Top Source Organizations</summary>
       <div class="tag-grid">
         {% for source in discovery.top_source_organizations %}
           <div class="tag-card"><strong>{{ source.label }}</strong><span class="muted">{{ source.count }} opportunities</span></div>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
-    <section class="panel">
-      <h2>Opportunity Status Breakdown</h2>
+    <details class="panel">
+      <summary>Opportunity Status Breakdown</summary>
       <div class="tag-grid">
         {% for status in discovery.status_breakdown %}
           <div class="tag-card"><strong>{{ status.count }}</strong><span class="muted">{{ status.label }}</span></div>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Top Categories</h2>
@@ -217,12 +225,14 @@
             </div>
             <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }} - {{ item.opportunity.geography|join:", "|default:"Geography not provided" }}</p>
             <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
-            <strong>Why It Matches</strong>
-            <ul>
-              {% for reason in item.match.reasons %}
-                <li>{{ reason }}</li>
-              {% endfor %}
-            </ul>
+            <details>
+              <summary>Why It Matches</summary>
+              <ul>
+                {% for reason in item.match.reasons %}
+                  <li>{{ reason }}</li>
+                {% endfor %}
+              </ul>
+            </details>
           </article>
         {% empty %}
           <div class="empty-state">
@@ -240,7 +250,6 @@
           <thead>
             <tr>
               <th>Opportunity</th>
-              <th>Source</th>
               <th>Status</th>
               <th>Priority</th>
               <th>Deadline</th>
@@ -253,13 +262,69 @@
                 <tr>
                   <td>
                     <strong>{{ item.opportunity.name }}</strong>
-                    <div class="muted">Why It Matches: {{ item.match.reasons|join:", " }}</div>
+                    <div class="muted">{{ item.opportunity.get_opportunity_type_display }}</div>
                   </td>
-                  <td>{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</td>
                   <td><span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span></td>
                   <td><span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span></td>
                   <td>{{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</td>
                   <td><span class="score-badge">Match {{ item.match.score }}</span></td>
+                </tr>
+                <tr>
+                  <td colspan="5">
+                    <details>
+                      <summary>View Details</summary>
+                      <div class="inventory-grid" style="margin-top: 12px;">
+                        <section class="inventory-card">
+                          <h3>Source Organization</h3>
+                          <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
+                          <h3>Why It Matches</h3>
+                          <ul>
+                            {% for reason in item.match.reasons %}
+                              <li>{{ reason }}</li>
+                            {% endfor %}
+                          </ul>
+                        </section>
+                        <section class="inventory-card">
+                          <h3>Missing Factors</h3>
+                          <ul>
+                            {% for factor in item.match.missing_factors %}
+                              <li>{{ factor }}</li>
+                            {% empty %}
+                              <li>No missing factors detected.</li>
+                            {% endfor %}
+                          </ul>
+                          <h3>Improvement Opportunities</h3>
+                          <ul>
+                            {% for suggestion in item.match.improvement_suggestions %}
+                              <li>{{ suggestion }}</li>
+                            {% empty %}
+                              <li>No improvement suggestions for this match.</li>
+                            {% endfor %}
+                          </ul>
+                        </section>
+                        <section class="inventory-card">
+                          <h3>Focus Areas</h3>
+                          <p class="muted">{{ item.opportunity.focus_areas|join:", "|default:"Not provided" }}</p>
+                          <h3>Beneficiaries</h3>
+                          <p class="muted">{{ item.opportunity.beneficiaries|join:", "|default:"Not provided" }}</p>
+                        </section>
+                        <section class="inventory-card">
+                          <h3>Eligibility Notes</h3>
+                          <p class="muted">{{ item.opportunity.eligibility_notes|default:"No eligibility notes provided." }}</p>
+                          <h3>Internal Notes</h3>
+                          <p class="muted">{{ item.opportunity.notes|default:"No internal notes provided." }}</p>
+                          <h3>Recommended Actions</h3>
+                          <ul>
+                            {% for suggestion in item.match.improvement_suggestions|slice:":3" %}
+                              <li>{{ suggestion }}</li>
+                            {% empty %}
+                              <li>Review fit and assign an owner before pursuing.</li>
+                            {% endfor %}
+                          </ul>
+                        </section>
+                      </div>
+                    </details>
+                  </td>
                 </tr>
               {% endfor %}
             {% endfor %}

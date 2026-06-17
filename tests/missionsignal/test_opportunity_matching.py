@@ -102,6 +102,8 @@ def test_match_dashboard_renders_breakdowns_missing_factors_and_improvements(cli
     assert "Add program impact evidence" in content
     assert "Current Match Score" in content
     assert "Potential Match Score" in content
+    assert "Primary Recommendation" in content
+    assert "Show More" in content
     assert "<summary>Why It Matches</summary>" in content
     assert "<summary>Missing Factors</summary>" in content
     assert "<summary>Improvement Opportunities</summary>" in content

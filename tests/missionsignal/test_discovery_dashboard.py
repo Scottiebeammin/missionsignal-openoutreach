@@ -52,6 +52,10 @@ def test_discovery_inventory_and_readiness_render(client, discovery_project):
 
     content = response.content.decode()
     assert "Opportunity Inventory Summary" in content
+    assert "Command Center Filters" in content
+    assert "Search Opportunities" in content
+    assert "More Filters" in content
+    assert "Match Level" in content
     assert "Top Source Organizations" in content
     assert "Opportunity Status Breakdown" in content
     assert "Filters" in content
@@ -69,7 +73,15 @@ def test_discovery_inventory_and_readiness_render(client, discovery_project):
     assert "Capacity Building Resource Program" in content
     assert "Youth Career Exploration Sponsorship" in content
     assert "Match Score" in content
+    assert "View Details" in content
+    assert "Source Organization" in content
     assert "Why It Matches" in content
+    assert "Missing Factors" in content
+    assert "Improvement Opportunities" in content
+    assert "Focus Areas" in content
+    assert "Eligibility Notes" in content
+    assert "Internal Notes" in content
+    assert "Recommended Actions" in content
     assert "Deadline:" in content
     assert "High" in content
     assert "Strong Match" in content or "Excellent Match" in content
