@@ -19,13 +19,16 @@
     .muted { color: var(--muted); }
     .panel { margin-bottom: 14px; padding: 16px; }
     .metrics, .grid, .pipeline { display: grid; gap: 10px; }
-    .metrics { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .pipeline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .metric, .opportunity-card, .pipeline-card { padding: 14px; }
     .metric strong { display: block; color: var(--accent); font-size: 1.5rem; }
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
     .action-panel { border-left: 4px solid var(--accent); }
+    .section-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .section-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .compact-link { color: var(--accent); font-weight: 900; text-decoration: none; }
     ul, ol { margin: 0; padding-left: 20px; }
     li + li { margin-top: 6px; }
     @media (max-width: 1000px) { .hero, .metrics, .grid, .pipeline { grid-template-columns: 1fr; } }
@@ -67,20 +70,35 @@
     </header>
 
     <section class="panel">
-      <h2>Opportunity Overview</h2>
+      <h2>Opportunity Health</h2>
       <div class="metrics">
-        <div class="metric"><span class="muted">Total Opportunities</span><strong>{{ discovery.total_opportunities }}</strong></div>
-        <div class="metric"><span class="muted">Active</span><strong>{{ discovery.active_opportunities }}</strong></div>
-        <div class="metric"><span class="muted">High Priority</span><strong>{{ discovery.high_priority_opportunities }}</strong></div>
-        <div class="metric"><span class="muted">Overall Match</span><strong>{{ match_overview.overall_score }}</strong></div>
-        <div class="metric"><span class="muted">Total Matches</span><strong>{{ match_overview.total_matches }}</strong></div>
+        <div class="metric"><span class="muted">Opportunity Health</span><strong>{{ match_overview.overall_score }}</strong></div>
+        <div class="metric"><span class="muted">High Priority Opportunities</span><strong>{{ discovery.high_priority_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Active Opportunities</span><strong>{{ discovery.active_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Upcoming Deadlines</span><strong>{{ discovery.upcoming_opportunities }}</strong></div>
       </div>
+      <details style="margin-top: 12px;">
+        <summary>Secondary opportunity details</summary>
+        <div class="metrics" style="margin-top: 10px;">
+          <div class="metric"><span class="muted">Total Opportunities</span><strong>{{ discovery.total_opportunities }}</strong></div>
+          <div class="metric"><span class="muted">Total Matches</span><strong>{{ match_overview.total_matches }}</strong></div>
+          <div class="metric"><span class="muted">Applied</span><strong>{{ discovery.applied_opportunities }}</strong></div>
+          <div class="metric"><span class="muted">Won</span><strong>{{ discovery.won_opportunities }}</strong></div>
+        </div>
+      </details>
     </section>
 
-    <section class="panel">
-      <h2>Top Opportunities</h2>
+    <details class="panel" open>
+      <summary>Top Opportunities</summary>
+      <div class="section-toolbar">
+        <p class="muted">What requires action now: strongest matches and highest-value records.</p>
+        <div class="section-actions">
+          <a class="compact-link" href="{% url 'project-discovery' project.pk %}">View All Opportunities</a>
+          <a class="compact-link" href="{% url 'project-discovery' project.pk %}#pipeline">Open Pipeline</a>
+        </div>
+      </div>
       <div class="grid">
-        {% for item in discovery.top_opportunities %}
+        {% for item in discovery.top_opportunities|slice:":3" %}
           <article class="opportunity-card">
             <h3>{{ item.opportunity.name }}</h3>
             <p>
@@ -97,10 +115,35 @@
           </div>
         {% endfor %}
       </div>
-    </section>
+      <details style="margin-top: 12px;">
+        <summary>Show More</summary>
+        <div class="grid" style="margin-top: 10px;">
+          {% for item in discovery.top_opportunities|slice:"3:" %}
+            <article class="opportunity-card">
+              <h3>{{ item.opportunity.name }}</h3>
+              <p>
+                <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
+                <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
+                <span class="score-badge">Match {{ item.match.score }}</span>
+              </p>
+              <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
+            </article>
+          {% empty %}
+            <p class="muted">No additional top opportunities.</p>
+          {% endfor %}
+        </div>
+      </details>
+    </details>
 
-    <section class="panel">
-      <h2>Top Categories</h2>
+    <details class="panel" open>
+      <summary>Opportunity Categories</summary>
+      <div class="section-toolbar">
+        <p class="muted">What can wait: broader sector coverage is grouped below the top categories.</p>
+        <div class="section-actions">
+          <a class="compact-link" href="{% url 'project-discovery' project.pk %}">Show All Categories</a>
+          <span class="pill">Collapse Categories</span>
+        </div>
+      </div>
       <div class="grid">
         {% for category in discovery.focus_categories|slice:":5" %}
           <article class="opportunity-card">
@@ -112,7 +155,7 @@
         {% endfor %}
       </div>
       <details style="margin-top: 12px;">
-        <summary>More categories</summary>
+        <summary>More Categories</summary>
         <div class="grid" style="margin-top: 10px;">
           {% for category in discovery.focus_categories|slice:"5:" %}
             <article class="opportunity-card">
@@ -124,10 +167,10 @@
           {% endfor %}
         </div>
       </details>
-    </section>
+    </details>
 
-    <section id="pipeline" class="panel">
-      <h2>Pipeline</h2>
+    <details id="pipeline" class="panel">
+      <summary>Pipeline</summary>
       <div class="pipeline">
         {% for group in discovery.priority_groups %}
           <article class="pipeline-card">
@@ -142,7 +185,7 @@
           </article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     <details class="panel">
       <summary>Advanced Match Health</summary>

@@ -60,6 +60,14 @@ def test_opportunities_workspace_connects_discovery_matching_and_pipeline(client
     assert "Matches" in content
     assert "Pipeline" in content
     assert "Top Opportunities" in content
+    assert "View All Opportunities" in content
+    assert "Show More" in content
+    assert "Opportunity Categories" in content
+    assert "More Categories" in content
+    assert "Show All Categories" in content
+    assert "Collapse Categories" in content
+    assert "Opportunity Health" in content
+    assert "Upcoming Deadlines" in content
     assert "Advanced Match Health" in content
     assert reverse("project-discovery", kwargs={"pk": project.pk}) in content
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
