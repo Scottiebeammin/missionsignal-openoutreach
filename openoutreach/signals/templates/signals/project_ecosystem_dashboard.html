@@ -17,6 +17,8 @@
       --blue-soft: #edf5fb;
       --gold: #8a5b00;
       --gold-soft: #fff7df;
+      --rose: #9f2f46;
+      --rose-soft: #fff0f3;
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: #eef3f6; color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
@@ -26,41 +28,40 @@
     h2 { margin-bottom: 12px; font-size: 1rem; letter-spacing: .06em; text-transform: uppercase; }
     h3 { margin-bottom: 6px; font-size: 1rem; }
     a { color: inherit; }
-    .topbar, .hero, .panel, .status-card, .summary-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .topbar, .hero, .panel, .scorecard, .summary-card, .priority-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
     .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    .button {
-      display: inline-flex;
-      align-items: center;
-      min-height: 38px;
-      padding: 8px 12px;
-      border: 1px solid var(--accent);
-      border-radius: 6px;
-      background: white;
-      color: var(--accent);
-      font-weight: 700;
-      text-decoration: none;
-    }
+    .button { display: inline-flex; align-items: center; min-height: 38px; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 6px; background: white; color: var(--accent); font-weight: 700; text-decoration: none; }
     .hero { margin-bottom: 14px; padding: 24px; }
     .eyebrow { margin-bottom: 6px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     .subtitle, .muted { color: var(--muted); }
-    .score-grid { display: grid; grid-template-columns: minmax(170px, .35fr) minmax(0, .65fr); gap: 14px; margin-top: 18px; }
+    .score-grid { display: grid; grid-template-columns: minmax(180px, .32fr) minmax(0, .68fr); gap: 14px; margin-top: 18px; }
     .score-box { padding: 18px; border-radius: 8px; background: var(--accent-soft); }
     .score-box strong { display: block; font-size: clamp(3rem, 8vw, 5rem); line-height: .95; }
     .score-box span { display: block; margin-top: 8px; font-weight: 800; }
-    .panel { padding: 18px; }
-    .status-grid, .summary-grid, .roadmap-grid { display: grid; gap: 10px; }
-    .status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .summary-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .roadmap-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
-    .status-card, .summary-card { padding: 14px; text-decoration: none; }
-    .status-card strong, .summary-card strong { display: block; margin-bottom: 4px; color: var(--accent); }
-    .status-pill { display: inline-block; margin-bottom: 8px; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
-    .status-pill.soon { background: var(--gold-soft); color: var(--gold); }
-    ul { margin: 0; padding-left: 20px; }
+    .panel { margin-bottom: 14px; padding: 18px; }
+    .scorecard-grid, .summary-grid, .priority-grid, .insight-grid { display: grid; gap: 10px; }
+    .scorecard-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .summary-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .priority-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .insight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    .scorecard, .summary-card, .priority-card { padding: 14px; text-decoration: none; }
+    .scorecard strong, .summary-card strong { display: block; margin-bottom: 4px; color: var(--accent); }
+    .scorecard-value { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 8px 0; }
+    .scorecard-value b { font-size: 2rem; line-height: 1; }
+    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    .status { background: var(--accent-soft); color: var(--accent); }
+    .strength { padding: 12px; border-radius: 8px; background: var(--accent-soft); border-left: 4px solid var(--accent); }
+    .gap { padding: 12px; border-radius: 8px; background: var(--gold-soft); border-left: 4px solid var(--gold); }
+    .priority-card { border-left: 4px solid var(--blue); }
+    .actions-list { margin: 0; padding-left: 20px; }
     li + li { margin-top: 6px; }
-    @media (max-width: 900px) {
-      .score-grid, .status-grid, .summary-grid, .roadmap-grid { grid-template-columns: 1fr; }
+    @media (max-width: 1000px) {
+      .scorecard-grid, .summary-grid, .priority-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .score-grid, .insight-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .scorecard-grid, .summary-grid, .priority-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -71,12 +72,14 @@
       <div class="actions">
         <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
         <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
+        <a class="button" href="{% url 'project-resources' project.pk %}">ResourceSignal</a>
+        <a class="button" href="{% url 'project-partnerships' project.pk %}">PartnershipSignal</a>
       </div>
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">EcosystemSignal V0</p>
-      <h1>Ecosystem Overview Dashboard</h1>
+      <p class="eyebrow">EcosystemSignal V1</p>
+      <h1>Opportunity Ecosystem Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Opportunity ecosystem score">
         <div class="score-box">
@@ -86,19 +89,23 @@
         </div>
         <section class="panel">
           <h2>Ecosystem Summary</h2>
-          <p>Organizations operate within an opportunity ecosystem consisting of funding, government, resources, partnerships, and capacity. EcosystemSignal V0 shows which foundations are active today and which systems are still coming online.</p>
+          <p>MissionSignal views organizations through an opportunity ecosystem of funding, government, resources, partnerships, capacity, and risks and constraints. EcosystemSignal V1 combines the active signal modules into one deterministic readiness picture.</p>
         </section>
       </section>
     </header>
 
     <section class="panel">
-      <h2>Module Status</h2>
-      <div class="status-grid">
-        {% for item in ecosystem.statuses %}
-          <a class="status-card" href="{% url item.href_name project.pk %}">
-            <span class="status-pill{% if item.status == 'Coming Soon' %} soon{% endif %}">{{ item.status }}</span>
-            <strong>{{ item.name }}</strong>
-            <span class="muted">{{ item.detail }}</span>
+      <h2>Signal Scorecards</h2>
+      <div class="scorecard-grid">
+        {% for card in ecosystem.signal_scorecards %}
+          <a class="scorecard" href="{% url card.href_name project.pk %}">
+            <span class="pill status">{{ card.status }}</span>
+            <strong>{{ card.name }}</strong>
+            <div class="scorecard-value">
+              <b>{{ card.score }}</b>
+              <span class="pill">{{ card.level }}</span>
+            </div>
+            <span class="muted">{{ card.detail }}</span>
           </a>
         {% endfor %}
       </div>
@@ -113,34 +120,44 @@
       </div>
     </section>
 
+    <div class="insight-grid">
+      <section class="panel">
+        <h2>Ecosystem Strengths</h2>
+        {% for strength in ecosystem.strengths %}
+          <p class="strength">{{ strength }}</p>
+        {% endfor %}
+      </section>
+
+      <section class="panel">
+        <h2>Ecosystem Gaps</h2>
+        {% for gap in ecosystem.gaps %}
+          <p class="gap">{{ gap }}</p>
+        {% empty %}
+          <p class="strength">No major ecosystem gaps were detected.</p>
+        {% endfor %}
+      </section>
+    </div>
+
     <section class="panel">
-      <h2>Ecosystem Roadmap</h2>
-      <div class="roadmap-grid">
-        <div>
-          <h3>Completed</h3>
-          <ul>
-            {% for item in ecosystem.roadmap.completed %}
-              <li>{{ item }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-        <div>
-          <h3>Coming Soon</h3>
-          <ul>
-            {% for item in ecosystem.roadmap.coming_soon %}
-              <li>{{ item }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-        <div>
-          <h3>Future</h3>
-          <ul>
-            {% for item in ecosystem.roadmap.future %}
-              <li>{{ item }}</li>
-            {% endfor %}
-          </ul>
-        </div>
+      <h2>Priority Opportunity Areas</h2>
+      <div class="priority-grid">
+        {% for area in ecosystem.priority_areas %}
+          <article class="priority-card">
+            <h3>{{ area.label }}</h3>
+            <p class="muted">{{ area.reason }}</p>
+            <p><strong>Next step:</strong> {{ area.next_step }}</p>
+          </article>
+        {% endfor %}
       </div>
+    </section>
+
+    <section class="panel">
+      <h2>Recommended Ecosystem Actions</h2>
+      <ol class="actions-list">
+        {% for action in ecosystem.recommended_actions %}
+          <li>{{ action }}</li>
+        {% endfor %}
+      </ol>
     </section>
   </main>
 </body>
