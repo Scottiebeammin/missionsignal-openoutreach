@@ -68,8 +68,9 @@
 <body>
   <main>
     <nav class="topbar" aria-label="EcosystemSignal actions">
-      <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>
+      <a class="button" href="{% url 'project-dashboard' project.pk %}">&larr; Dashboard</a>
       <div class="actions">
+        <a class="button" href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
         <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
         <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
         <a class="button" href="{% url 'project-resources' project.pk %}">ResourceSignal</a>

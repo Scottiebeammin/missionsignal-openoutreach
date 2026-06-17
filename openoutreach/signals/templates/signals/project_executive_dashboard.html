@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MissionSignal Dashboard - {{ organization.name }}</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172334;
+      --muted: #687789;
+      --line: #d9e2e8;
+      --page: #eef3f6;
+      --panel: #ffffff;
+      --soft: #f6f8fa;
+      --accent: #0f766e;
+      --accent-soft: #e8f5f2;
+      --blue: #235789;
+      --blue-soft: #edf5fb;
+      --gold: #8a5b00;
+      --gold-soft: #fff7df;
+      --rose: #9f2f46;
+      --rose-soft: #fff0f3;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.42 system-ui, sans-serif; }
+    a { color: inherit; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1; }
+    h2 { margin-bottom: 12px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
+    h3 { margin-bottom: 6px; font-size: .98rem; }
+    .shell { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar { position: sticky; top: 0; height: 100vh; padding: 18px; background: #132437; color: white; }
+    .brand { margin-bottom: 22px; }
+    .brand strong { display: block; font-size: 1.05rem; }
+    .brand span { color: #b8c5d1; font-size: .85rem; }
+    .nav { display: grid; gap: 6px; }
+    .nav a { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; color: #dce7ef; text-decoration: none; }
+    .nav a.active, .nav a:hover { background: rgba(255,255,255,.12); color: white; }
+    main { padding: 22px; }
+    .hero, .panel, .metric-card, .kpi-card, .pipeline-card, .chart-card { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 18px; align-items: stretch; margin-bottom: 14px; padding: 22px; }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .header-metrics, .metric-grid, .kpi-grid, .health-grid, .chart-grid { display: grid; gap: 10px; }
+    .header-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .health-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric-card, .kpi-card, .chart-card { padding: 14px; }
+    .metric-card strong, .kpi-card strong { display: block; color: var(--accent); font-size: 1.75rem; line-height: 1; }
+    .metric-card span, .kpi-card span { display: block; margin-top: 5px; color: var(--muted); font-weight: 700; }
+    .kpi-card p { margin: 10px 0 0; min-height: 40px; color: var(--muted); }
+    .panel { margin-bottom: 14px; padding: 16px; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .switcher { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); }
+    .switcher button { min-height: 32px; border: 0; border-radius: 6px; padding: 6px 10px; background: transparent; color: var(--muted); font-weight: 800; }
+    .switcher button.active { background: white; color: var(--accent); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+    .pipeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .pipeline-card { min-height: 180px; padding: 12px; background: var(--soft); }
+    .pipeline-card header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-weight: 900; }
+    .mini-opportunity { margin-top: 8px; padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .mini-opportunity strong { display: block; font-size: .88rem; }
+    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    .bar-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 42px; gap: 8px; align-items: center; margin-top: 9px; }
+    .bar-track { height: 10px; border-radius: 999px; background: var(--soft); overflow: hidden; }
+    .bar-fill { height: 100%; min-width: 3px; border-radius: inherit; background: var(--accent); }
+    .bar-fill.blue { background: var(--blue); }
+    .bar-fill.gold { background: #c88814; }
+    .bar-fill.rose { background: var(--rose); }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { padding: 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .actions-list { margin: 0; padding-left: 20px; columns: 2; }
+    li + li { margin-top: 6px; }
+    @media (max-width: 1180px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      main { padding: 14px; }
+      .nav, .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .header-metrics { grid-template-columns: 1fr; }
+      .actions-list { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <strong>MissionSignal</strong>
+        <span>Opportunity Command Center</span>
+      </div>
+      <nav class="nav" aria-label="MissionSignal navigation">
+        <a class="active" href="{% url 'project-dashboard' project.pk %}">Dashboard <span>Home</span></a>
+        <a href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
+        <a href="{% url 'project-funding' project.pk %}">Funding</a>
+        <a href="{% url 'project-government' project.pk %}">Government</a>
+        <a href="{% url 'project-resources' project.pk %}">Resources</a>
+        <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+        <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
+        <a href="{% url 'project-matches' project.pk %}">Matching</a>
+        <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <section>
+          <p class="eyebrow">Executive Dashboard V1</p>
+          <h1>{{ dashboard.organization_name }}</h1>
+          <p class="muted">{{ project.name }} opportunity command center</p>
+        </section>
+        <section class="header-metrics" aria-label="Executive header metrics">
+          <div class="metric-card"><strong>{{ dashboard.ecosystem_score }}</strong><span>Ecosystem Score</span><p class="muted">{{ dashboard.ecosystem_level }}</p></div>
+          <div class="metric-card"><strong>{{ dashboard.overall_match_score }}</strong><span>Overall Match Score</span><p class="muted">Weighted local matching</p></div>
+          <div class="metric-card"><strong>{{ dashboard.last_analysis_date|date:"M j, Y"|default:"Not run" }}</strong><span>Last Analysis Date</span></div>
+          <div class="metric-card"><strong>{{ dashboard.total_opportunities }}</strong><span>Total Opportunities</span><p class="muted">Discovery inventory</p></div>
+        </section>
+      </header>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Executive KPI Cards</h2>
+          <div class="switcher" aria-label="View switcher">
+            <button class="active" type="button">Dashboard View</button>
+            <button type="button">Table View</button>
+            <button type="button">Chart View</button>
+          </div>
+        </div>
+        <div class="kpi-grid">
+          {% for kpi in dashboard.kpis %}
+            <a class="kpi-card" href="{% url kpi.href_name project.pk %}">
+              <strong>{{ kpi.score }}</strong>
+              <span>{{ kpi.label }} - {{ kpi.level }}</span>
+              <p>{{ kpi.insight }}</p>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Opportunity Command Center</h2>
+        <div class="metric-grid">
+          <div class="metric-card"><strong>{{ dashboard.total_opportunities }}</strong><span>Total Opportunities</span></div>
+          <div class="metric-card"><strong>{{ dashboard.active_opportunities }}</strong><span>Active Opportunities</span></div>
+          <div class="metric-card"><strong>{{ dashboard.high_priority_opportunities }}</strong><span>High Priority Opportunities</span></div>
+          <div class="metric-card"><strong>{{ dashboard.applied_opportunities }}</strong><span>Applied Opportunities</span></div>
+          <div class="metric-card"><strong>{{ dashboard.won_opportunities }}</strong><span>Won Opportunities</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Opportunity Pipeline Snapshot</h2>
+        <div class="pipeline">
+          {% for column in dashboard.pipeline_columns %}
+            <section class="pipeline-card">
+              <header><span>{{ column.label }}</span><span class="pill">{{ column.count }}</span></header>
+              {% for opportunity in column.opportunities %}
+                <div class="mini-opportunity">
+                  <strong>{{ opportunity.name }}</strong>
+                  <span class="muted">{{ opportunity.get_priority_level_display }} priority</span>
+                </div>
+              {% empty %}
+                <p class="muted">No opportunities in this lane.</p>
+              {% endfor %}
+            </section>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Opportunity Match Health</h2>
+        <div class="metric-grid">
+          <div class="metric-card"><strong>{{ dashboard.match_health.total_matches }}</strong><span>Total Matches</span></div>
+          <div class="metric-card"><strong>{{ dashboard.match_health.excellent_matches }}</strong><span>Excellent Matches</span></div>
+          <div class="metric-card"><strong>{{ dashboard.match_health.strong_matches }}</strong><span>Strong Matches</span></div>
+          <div class="metric-card"><strong>{{ dashboard.match_health.moderate_matches }}</strong><span>Moderate Matches</span></div>
+          <div class="metric-card"><strong>{{ dashboard.match_health.weak_matches }}</strong><span>Weak Matches</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Discovery Health</h2>
+        <div class="health-grid">
+          <div class="metric-card"><strong>{{ dashboard.discovery_health.total_source_organizations }}</strong><span>Total Source Organizations</span></div>
+          <div class="metric-card"><strong>{{ dashboard.discovery_health.opportunity_categories }}</strong><span>Opportunity Categories</span></div>
+          <div class="metric-card"><strong>{{ dashboard.discovery_health.active_opportunities }}</strong><span>Active Opportunities</span></div>
+          <div class="metric-card"><strong>{{ dashboard.discovery_health.upcoming_deadlines|length }}</strong><span>Upcoming Deadlines</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Executive Actions Panel</h2>
+        <ol class="actions-list">
+          {% for action in dashboard.executive_actions %}
+            <li>{{ action }}</li>
+          {% endfor %}
+        </ol>
+      </section>
+
+      <section class="panel">
+        <h2>Visualization Layer</h2>
+        <div class="chart-grid">
+          <article class="chart-card">
+            <h3>Funding vs Government vs Resource vs Partnership Scores</h3>
+            {% for item in dashboard.score_chart %}
+              <div class="bar-row"><span>{{ item.label }}</span><div class="bar-track"><div class="bar-fill" style="width: {{ item.value }}%;"></div></div><strong>{{ item.value }}</strong></div>
+            {% endfor %}
+          </article>
+          <article class="chart-card">
+            <h3>Opportunity Category Distribution</h3>
+            {% for item in dashboard.category_distribution %}
+              <div class="bar-row"><span>{{ item.label }}</span><div class="bar-track"><div class="bar-fill blue" style="width: {% widthratio item.value dashboard.total_opportunities 100 %}%;"></div></div><strong>{{ item.value }}</strong></div>
+            {% endfor %}
+          </article>
+          <article class="chart-card">
+            <h3>Opportunity Status Distribution</h3>
+            {% for item in dashboard.status_distribution %}
+              <div class="bar-row"><span>{{ item.label }}</span><div class="bar-track"><div class="bar-fill gold" style="width: {% widthratio item.value dashboard.total_opportunities 100 %}%;"></div></div><strong>{{ item.value }}</strong></div>
+            {% endfor %}
+          </article>
+          <article class="chart-card">
+            <h3>Priority Distribution</h3>
+            {% for item in dashboard.priority_distribution %}
+              <div class="bar-row"><span>{{ item.label }}</span><div class="bar-track"><div class="bar-fill rose" style="width: {% widthratio item.value dashboard.total_opportunities 100 %}%;"></div></div><strong>{{ item.value }}</strong></div>
+            {% endfor %}
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Table View</h2>
+        <table class="table">
+          <thead>
+            <tr><th>Area</th><th>Score</th><th>Level</th><th>Top Insight</th></tr>
+          </thead>
+          <tbody>
+            {% for kpi in dashboard.kpis %}
+              <tr><td>{{ kpi.label }}</td><td>{{ kpi.score }}</td><td>{{ kpi.level }}</td><td>{{ kpi.insight }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

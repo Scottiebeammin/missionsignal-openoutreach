@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from openoutreach.core.models import Project
 from openoutreach.funding.readiness import build_funding_readiness
 from openoutreach.signals.analysis_service import analyze_project
+from openoutreach.signals.dashboard import build_executive_dashboard
 from openoutreach.signals.discovery import build_discovery_overview
 from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
@@ -128,6 +129,37 @@ def project_government_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "readiness": readiness,
+        },
+    )
+
+
+@login_required
+def project_executive_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    funding_readiness = build_funding_readiness(project, funding_criteria)
+    government_readiness = build_government_readiness(project, funding_criteria)
+    resource_readiness = build_resource_readiness(project, funding_criteria)
+    partnership_readiness = build_partnership_readiness(project, funding_criteria)
+    match_overview = build_opportunity_matches(project, funding_criteria)
+    discovery_overview = build_discovery_overview(project, funding_criteria)
+    ecosystem = build_ecosystem_overview(
+        project, funding_readiness, government_readiness, resource_readiness,
+        partnership_readiness, match_overview, discovery_overview,
+    )
+    dashboard = build_executive_dashboard(
+        project, ecosystem, funding_readiness, government_readiness, resource_readiness,
+        partnership_readiness, match_overview, discovery_overview,
+    )
+    return render(
+        request,
+        "signals/project_executive_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "dashboard": dashboard,
         },
     )
 
