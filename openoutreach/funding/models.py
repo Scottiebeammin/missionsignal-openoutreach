@@ -48,19 +48,123 @@ class FundingCriteria(models.Model):
 
 class Funder(models.Model):
     class FunderType(models.TextChoices):
-        GOVERNMENT = "government", "Government"
-        FOUNDATION = "foundation", "Foundation"
-        CORPORATE = "corporate", "Corporate"
-        MULTILATERAL = "multilateral", "Multilateral"
-        COMMUNITY = "community", "Community"
+        COMMUNITY_FOUNDATION = "community_foundation", "Community Foundation"
+        CORPORATE_FOUNDATION = "corporate_foundation", "Corporate Foundation"
+        FAMILY_FOUNDATION = "family_foundation", "Family Foundation"
+        FEDERAL_GOVERNMENT = "federal_government", "Federal Government"
+        STATE_GOVERNMENT = "state_government", "State Government"
+        LOCAL_GOVERNMENT = "local_government", "Local Government"
+        UNITED_WAY = "united_way", "United Way"
+        WORKFORCE_BOARD = "workforce_board", "Workforce Board"
         OTHER = "other", "Other"
 
     name = models.CharField(max_length=500)
-    website = models.URLField(max_length=500, blank=True, default="")
-    description = models.TextField(blank=True, default="")
-    funder_type = models.CharField(max_length=30, choices=FunderType.choices, default=FunderType.OTHER)
+    funder_type = models.CharField(max_length=40, choices=FunderType.choices, default=FunderType.OTHER)
     geography = models.JSONField(default=list, blank=True)
+    focus_areas = models.JSONField(default=list, blank=True)
+    beneficiaries = models.JSONField(default=list, blank=True)
+    eligibility_notes = models.TextField(blank=True, default="")
+    website = models.URLField(max_length=500, blank=True, default="")
+    notes = models.TextField(blank=True, default="")
+    active = models.BooleanField(default=True)
     external_ids = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class GovernmentEntity(models.Model):
+    class EntityType(models.TextChoices):
+        CITY_GOVERNMENT = "city_government", "City Government"
+        COUNTY_GOVERNMENT = "county_government", "County Government"
+        WORKFORCE_DEVELOPMENT_BOARD = "workforce_development_board", "Workforce Development Board"
+        ECONOMIC_DEVELOPMENT_AGENCY = "economic_development_agency", "Economic Development Agency"
+        PUBLIC_SCHOOL_DISTRICT = "public_school_district", "Public School District"
+        PUBLIC_LIBRARY = "public_library", "Public Library"
+        HOUSING_COMMUNITY_DEVELOPMENT_AGENCY = (
+            "housing_community_development_agency", "Housing / Community Development Agency"
+        )
+        REGIONAL_PLANNING_AGENCY = "regional_planning_agency", "Regional Planning Agency"
+        OTHER = "other", "Other"
+
+    name = models.CharField(max_length=500)
+    entity_type = models.CharField(max_length=60, choices=EntityType.choices, default=EntityType.OTHER)
+    geography = models.JSONField(default=list, blank=True)
+    focus_areas = models.JSONField(default=list, blank=True)
+    department_or_office = models.CharField(max_length=300, blank=True, default="")
+    opportunity_lanes = models.JSONField(default=list, blank=True)
+    website = models.URLField(max_length=500, blank=True, default="")
+    notes = models.TextField(blank=True, default="")
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Government entities"
+
+    def __str__(self):
+        return self.name
+
+
+class ResourceProvider(models.Model):
+    class ResourceType(models.TextChoices):
+        TECHNICAL_ASSISTANCE_PROVIDER = "technical_assistance_provider", "Technical Assistance Provider"
+        CAPACITY_BUILDING_ORGANIZATION = "capacity_building_organization", "Capacity Building Organization"
+        NONPROFIT_SUPPORT_CENTER = "nonprofit_support_center", "Nonprofit Support Center"
+        VOLUNTEER_NETWORK = "volunteer_network", "Volunteer Network"
+        AMERICORPS_NATIONAL_SERVICE = "americorps_national_service", "AmeriCorps / National Service"
+        UNIVERSITY_PROGRAM = "university_program", "University Program"
+        SOFTWARE_DONATION_PROGRAM = "software_donation_program", "Software Donation Program"
+        SHARED_SERVICES_PROVIDER = "shared_services_provider", "Shared Services Provider"
+        EQUIPMENT_ASSISTANCE_PROGRAM = "equipment_assistance_program", "Equipment Assistance Program"
+        BROADBAND_DIGITAL_ACCESS_PROGRAM = (
+            "broadband_digital_access_program", "Broadband / Digital Access Program"
+        )
+        OTHER = "other", "Other"
+
+    name = models.CharField(max_length=500)
+    resource_type = models.CharField(max_length=60, choices=ResourceType.choices, default=ResourceType.OTHER)
+    geography = models.JSONField(default=list, blank=True)
+    focus_areas = models.JSONField(default=list, blank=True)
+    resource_categories = models.JSONField(default=list, blank=True)
+    eligibility_notes = models.TextField(blank=True, default="")
+    website = models.URLField(max_length=500, blank=True, default="")
+    notes = models.TextField(blank=True, default="")
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class PartnerOrganization(models.Model):
+    class PartnerType(models.TextChoices):
+        NONPROFIT = "nonprofit", "Nonprofit"
+        UNIVERSITY_COLLEGE = "university_college", "University / College"
+        COMMUNITY_COLLEGE = "community_college", "Community College"
+        WORKFORCE_BOARD = "workforce_board", "Workforce Board"
+        LOCAL_GOVERNMENT_AGENCY = "local_government_agency", "Local Government Agency"
+        PUBLIC_LIBRARY = "public_library", "Public Library"
+        SCHOOL_DISTRICT = "school_district", "School District"
+        HEALTHCARE_ORGANIZATION = "healthcare_organization", "Healthcare Organization"
+        CORPORATE_PARTNER = "corporate_partner", "Corporate Partner"
+        FOUNDATION = "foundation", "Foundation"
+        FAITH_BASED_ORGANIZATION = "faith_based_organization", "Faith-Based Organization"
+        COMMUNITY_BASED_ORGANIZATION = "community_based_organization", "Community-Based Organization"
+        OTHER = "other", "Other"
+
+    name = models.CharField(max_length=500)
+    partner_type = models.CharField(max_length=60, choices=PartnerType.choices, default=PartnerType.OTHER)
+    geography = models.JSONField(default=list, blank=True)
+    focus_areas = models.JSONField(default=list, blank=True)
+    beneficiaries = models.JSONField(default=list, blank=True)
+    collaboration_opportunities = models.JSONField(default=list, blank=True)
+    website = models.URLField(max_length=500, blank=True, default="")
+    notes = models.TextField(blank=True, default="")
+    active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

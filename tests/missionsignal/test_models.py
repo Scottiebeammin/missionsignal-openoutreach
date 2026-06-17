@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import pytest
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
@@ -11,6 +12,9 @@ from openoutreach.funding.models import (
     FundingOpportunity,
     FundingSignal,
     FundingSignalFeedback,
+    GovernmentEntity,
+    PartnerOrganization,
+    ResourceProvider,
     default_scoring_weights,
 )
 from openoutreach.signals.models import OrganizationAnalysisRun, OrganizationSourcePage
@@ -144,14 +148,68 @@ def test_source_record_can_track_search_queries(project, source):
 
 
 def test_funder_model():
-    funder = Funder.objects.create(name="Community Foundation", funder_type=Funder.FunderType.FOUNDATION)
+    funder = Funder.objects.create(
+        name="Community Foundation",
+        funder_type=Funder.FunderType.COMMUNITY_FOUNDATION,
+        focus_areas=["workforce development"],
+        beneficiaries=["youth"],
+    )
     assert str(funder) == "Community Foundation"
+    assert funder.active is True
     assert funder.geography == []
+    assert funder.focus_areas == ["workforce development"]
+    assert funder.beneficiaries == ["youth"]
+
+
+def test_government_entity_model_defaults_and_string():
+    entity = GovernmentEntity.objects.create(
+        name="City Workforce Office",
+        entity_type=GovernmentEntity.EntityType.CITY_GOVERNMENT,
+        opportunity_lanes=["City Grants", "RFPs / Procurement Opportunities"],
+    )
+    assert str(entity) == "City Workforce Office"
+    assert entity.active is True
+    assert entity.geography == []
+    assert entity.focus_areas == []
+    assert entity.opportunity_lanes == ["City Grants", "RFPs / Procurement Opportunities"]
+
+
+def test_resource_provider_model_defaults_and_string():
+    provider = ResourceProvider.objects.create(
+        name="Capacity Lab",
+        resource_type=ResourceProvider.ResourceType.CAPACITY_BUILDING_ORGANIZATION,
+        resource_categories=["Capacity Building Programs"],
+    )
+    assert str(provider) == "Capacity Lab"
+    assert provider.active is True
+    assert provider.geography == []
+    assert provider.focus_areas == []
+    assert provider.resource_categories == ["Capacity Building Programs"]
+
+
+def test_partner_organization_model_defaults_and_string():
+    partner = PartnerOrganization.objects.create(
+        name="Community College Partner",
+        partner_type=PartnerOrganization.PartnerType.COMMUNITY_COLLEGE,
+        collaboration_opportunities=["credential pathways", "referrals"],
+    )
+    assert str(partner) == "Community College Partner"
+    assert partner.active is True
+    assert partner.geography == []
+    assert partner.focus_areas == []
+    assert partner.collaboration_opportunities == ["credential pathways", "referrals"]
+
+
+def test_opportunity_database_models_are_registered_in_admin():
+    assert admin.site.is_registered(Funder)
+    assert admin.site.is_registered(GovernmentEntity)
+    assert admin.site.is_registered(ResourceProvider)
+    assert admin.site.is_registered(PartnerOrganization)
 
 
 def test_funding_opportunity_tracks_normalized_details(source):
     record = SourceRecord.objects.create(source=source, external_id="grant-3")
-    funder = Funder.objects.create(name="Public Fund", funder_type=Funder.FunderType.GOVERNMENT)
+    funder = Funder.objects.create(name="Public Fund", funder_type=Funder.FunderType.LOCAL_GOVERNMENT)
     opportunity = FundingOpportunity.objects.create(
         funder=funder,
         title="Workforce Innovation Grant",

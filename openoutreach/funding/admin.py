@@ -7,6 +7,9 @@ from openoutreach.funding.models import (
     FundingOpportunitySource,
     FundingSignal,
     FundingSignalFeedback,
+    GovernmentEntity,
+    PartnerOrganization,
+    ResourceProvider,
 )
 
 
@@ -19,9 +22,30 @@ class FundingCriteriaAdmin(admin.ModelAdmin):
 
 @admin.register(Funder)
 class FunderAdmin(admin.ModelAdmin):
-    list_display = ("name", "funder_type", "website")
-    list_filter = ("funder_type",)
-    search_fields = ("name", "description")
+    list_display = ("name", "funder_type", "geography", "active", "website")
+    list_filter = ("funder_type", "active")
+    search_fields = ("name", "eligibility_notes", "notes", "website")
+
+
+@admin.register(GovernmentEntity)
+class GovernmentEntityAdmin(admin.ModelAdmin):
+    list_display = ("name", "entity_type", "department_or_office", "geography", "active", "website")
+    list_filter = ("entity_type", "active")
+    search_fields = ("name", "department_or_office", "notes", "website")
+
+
+@admin.register(ResourceProvider)
+class ResourceProviderAdmin(admin.ModelAdmin):
+    list_display = ("name", "resource_type", "geography", "active", "website")
+    list_filter = ("resource_type", "active")
+    search_fields = ("name", "eligibility_notes", "notes", "website")
+
+
+@admin.register(PartnerOrganization)
+class PartnerOrganizationAdmin(admin.ModelAdmin):
+    list_display = ("name", "partner_type", "geography", "active", "website")
+    list_filter = ("partner_type", "active")
+    search_fields = ("name", "notes", "website")
 
 
 class FundingOpportunitySourceInline(admin.TabularInline):

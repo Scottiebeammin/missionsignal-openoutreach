@@ -6,7 +6,13 @@ from django.core.management import call_command
 from django.urls import reverse
 
 from openoutreach.core.models import Organization, Project
-from openoutreach.funding.models import FundingCriteria
+from openoutreach.funding.models import (
+    Funder,
+    FundingCriteria,
+    GovernmentEntity,
+    PartnerOrganization,
+    ResourceProvider,
+)
 from openoutreach.signals.demo import (
     DEMO_ORGANIZATION_NAME,
     DEMO_USERNAME,
@@ -32,6 +38,26 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
     assert first_organization.focus_areas
     assert first_organization.city == "Cleveland"
     assert FundingCriteria.objects.filter(project=first_project).count() == 1
+    assert Funder.objects.filter(name__in=[
+        "Cuyahoga Community Foundation",
+        "North Coast Corporate Giving Fund",
+        "Ohio Workforce Innovation Fund",
+    ]).count() == 3
+    assert GovernmentEntity.objects.filter(name__in=[
+        "City of Cleveland Youth and Workforce Office",
+        "Cuyahoga County Workforce Partnership",
+        "Cleveland Public Library Digital Access Team",
+    ]).count() == 3
+    assert ResourceProvider.objects.filter(name__in=[
+        "Ohio Nonprofit Capacity Lab",
+        "Tech Access Donation Network",
+        "Cleveland Volunteer Connector",
+    ]).count() == 3
+    assert PartnerOrganization.objects.filter(name__in=[
+        "Cleveland Community College Career Pathways",
+        "Lakefront Employers Tech Council",
+        "Neighborhood Digital Inclusion Coalition",
+    ]).count() == 3
     assert OrganizationAnalysisRun.objects.filter(
         organization=first_organization,
     ).count() == 2

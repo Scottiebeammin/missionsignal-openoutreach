@@ -23,7 +23,7 @@ openoutreach/
   chat/              # app (label: chat) — ChatMessage
   signals/           # MissionSignal app (label: signals) — intake, deterministic analysis, Mission Brief and Signal dashboards
   sources/           # MissionSignal app (label: sources) — source/query/record tracking for discovery inputs
-  funding/           # MissionSignal app (label: funding) — FundingSignal criteria, opportunities, matches, feedback
+  funding/           # MissionSignal app (label: funding) — FundingSignal criteria, opportunity database records, opportunities, matches, feedback
 ```
 
 Layering: `core` owns orchestration and channel-agnostic models; channel apps own their
@@ -111,7 +111,7 @@ Eight project apps in `INSTALLED_APPS`, all nested under the `openoutreach/` pac
 - **`chat`** — `ChatMessage` model (FK to the owning Deal, content, owner, answer_to threading, topic).
 - **`signals`** — MissionSignal V1: organization/project intake, deterministic analyzer orchestration, analysis review, Mission Brief, FundingSignal dashboard route, GovernmentSignal dashboard route, ResourceSignal dashboard route, PartnershipSignal dashboard route, EcosystemSignal overview route, module placeholder routes, and the `seed_missionsignal_demo` command.
 - **`sources`** — MissionSignal source bookkeeping: `Source`, `SearchQuery`, and `SourceRecord` normalize discovery inputs and record identity so future ingestion can deduplicate opportunities by source and URL/external ID.
-- **`funding`** — FundingSignal V2 data model and deterministic readiness layer: `FundingCriteria`, `Funder`, `FundingOpportunity`, `FundingOpportunitySource`, `FundingSignal`, and `FundingSignalFeedback`, plus identity helpers, opportunity resolution services, and readiness dashboard helpers.
+- **`funding`** — FundingSignal V2 data model, deterministic readiness layer, and Opportunity Database Layer V1 foundation: `FundingCriteria`, `Funder`, `GovernmentEntity`, `ResourceProvider`, `PartnerOrganization`, `FundingOpportunity`, `FundingOpportunitySource`, `FundingSignal`, and `FundingSignalFeedback`, plus identity helpers, opportunity resolution services, and readiness dashboard helpers.
 
 History note: core's models lived in the linkedin app until mid-2026; the move was state-only
 plus table renames (`linkedin_campaign` → `core_campaign` etc., `core.0002_rename_engine_tables`).
@@ -132,6 +132,7 @@ plus table renames (`linkedin_campaign` → `core_campaign` etc., `core.0002_ren
 - **OrganizationAnalysisRun** (`signals/models.py`) — Analyzer run ledger for MissionSignal. Captures input/output snapshots, status, errors, analyzer version, and timing for deterministic V1 analysis and later analyzer backends.
 - **OrganizationSourcePage** (`signals/models.py`) — Source URL metadata tied to an Organization, unique per `(organization, url)`, used to preserve the evidence set behind an analysis.
 - **FundingCriteria** (`funding/models.py`) — One row per Project. Stores inferred applicant types, funder/opportunity types, focus areas, beneficiaries, geographies, program areas, funding uses, amount range, deadline horizon, scoring weights, analyzer confidence, and the source analysis run.
+- **Opportunity Database Layer V1** (`funding/models.py`) — Foundation records for future discovery and matching: `Funder`, `GovernmentEntity`, `ResourceProvider`, and `PartnerOrganization`. They store deterministic/local directory data such as type, geography, focus areas, beneficiaries or categories, eligibility/collaboration notes, website, notes, and `active`; they are admin-manageable and seeded with BridgeForward-style demo examples, but they do not perform search, scraping, API calls, agents, or matching automation.
 - **FundingOpportunity** (`funding/models.py`) — Normalized opportunity identity and details. Identity is derived from canonical URL when present, otherwise funder/title/deadline/type, allowing source records to converge on one opportunity.
 - **FundingSignal** (`funding/models.py`) — Project-to-opportunity match with lifecycle state, score/confidence, eligibility status, score breakdown, explanation, owner, priority, and feedback.
 - **FundingReadiness** (`funding/readiness.py`) — Deterministic V2 dashboard output. Produces readiness score/level, strengths, gaps, inferred funding themes, scored recommended funder types, a Local Government Opportunity Snapshot, complete/missing grant readiness checklist rows, and gap-specific recommended funding actions. Local Government is a first-class recommendation and covers city grants, county grants, youth services funding, workforce programs, economic development programs, digital equity initiatives, community development programs, public-sector service contracts, and RFPs.
@@ -170,7 +171,7 @@ Paths below are relative to `openoutreach/`.
 - **`signals/ecosystem.py`** — Deterministic EcosystemSignal V1 helper. It combines Mission Brief profile completeness, FundingSignal readiness, GovernmentSignal readiness, ResourceSignal readiness, and PartnershipSignal readiness into an opportunity ecosystem score, signal scorecards, aggregated strengths/gaps, priority opportunity areas, recommended ecosystem actions, and ecosystem summary categories. It performs no network calls.
 - **`signals/resources.py`** — Deterministic ResourceSignal V1 helper. It reads Project, Organization, and optional FundingCriteria rows to produce a resource readiness score, strengths/gaps, non-funding resource categories, scored resource recommendations, checklist rows, actions, and ecosystem snapshot. It performs no network calls.
 - **`signals/partnerships.py`** — Deterministic PartnershipSignal V1 helper. It reads Project, Organization, and optional FundingCriteria rows to produce a partnership readiness score, strengths/gaps, partner categories, scored partner recommendations, checklist rows, actions, and ecosystem snapshot. It performs no network calls.
-- **`signals/demo.py`** and **`signals/management/commands/seed_missionsignal_demo.py`** — Idempotent local demo seeding for a demo user, organization, Primary Initiative project, and deterministic analysis.
+- **`signals/demo.py`** and **`signals/management/commands/seed_missionsignal_demo.py`** — Idempotent local demo seeding for a demo user, organization, Primary Initiative project, deterministic analysis, and BridgeForward-style Opportunity Database examples across funders, government entities, resource providers, and partner organizations.
 - **`funding/identity.py`** and **`funding/services.py`** — Canonical URL normalization, stable opportunity identity-key construction, and source-record-to-opportunity resolution.
 - **`funding/readiness.py`** — Deterministic FundingSignal V2 helper used by the dashboard. It reads Project, Organization, and optional FundingCriteria rows and performs no network calls.
 - **`sources/hashing.py`** — Stable filter hashing for source query uniqueness.
