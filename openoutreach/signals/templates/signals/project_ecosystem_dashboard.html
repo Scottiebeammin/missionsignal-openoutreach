@@ -74,6 +74,7 @@
         <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
         <a class="button" href="{% url 'project-resources' project.pk %}">ResourceSignal</a>
         <a class="button" href="{% url 'project-partnerships' project.pk %}">PartnershipSignal</a>
+        <a class="button" href="{% url 'project-discovery' project.pk %}">Discovery Engine</a>
         <a class="button" href="{% url 'project-matches' project.pk %}">Opportunity Matching</a>
       </div>
     </nav>
@@ -122,6 +123,18 @@
           <div class="summary-card"><strong>{{ ecosystem.match_overview.weakest_category }}</strong><span class="muted">Weakest Match Category</span></div>
           <div class="summary-card"><strong>{{ ecosystem.match_overview.highest_leverage_improvement }}</strong><span class="muted">Highest Leverage Improvement</span></div>
           <a class="summary-card" href="{% url 'project-matches' project.pk %}"><strong>Open Opportunity Matching</strong><span class="muted">Review deterministic opportunity recommendations.</span></a>
+        </div>
+      </section>
+    {% endif %}
+
+    {% if ecosystem.discovery_overview %}
+      <section class="panel">
+        <h2>Discovery Engine Summary</h2>
+        <div class="summary-grid">
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.total_opportunities }}</strong><span class="muted">Total Opportunities</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.active_opportunities }}</strong><span class="muted">Active Opportunities</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.discovery_overview.best_opportunity_category }}</strong><span class="muted">Best Opportunity Category</span></div>
+          <a class="summary-card" href="{% url 'project-discovery' project.pk %}"><strong>Open Discovery Engine</strong><span class="muted">Review the manually managed opportunity inventory.</span></a>
         </div>
       </section>
     {% endif %}

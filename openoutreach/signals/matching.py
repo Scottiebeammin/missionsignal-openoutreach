@@ -563,3 +563,17 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
         heatmap=_heatmap(categories),
         highest_leverage_actions=_highest_leverage_actions(top_gaps),
     )
+
+
+def score_inventory_opportunity(project, opportunity, funding_criteria=None) -> OpportunityMatch:
+    return _score_record(
+        profile=_profile(project, funding_criteria),
+        name=opportunity.name,
+        opportunity_type=opportunity.get_opportunity_type_display(),
+        category="Discovery Inventory",
+        geography=opportunity.geography,
+        focus_areas=opportunity.focus_areas,
+        beneficiaries=opportunity.beneficiaries,
+        program_terms=[opportunity.source_name],
+        compatibility_text=f"{opportunity.eligibility_notes}\n{opportunity.notes}\n{opportunity.get_source_type_display()}",
+    )

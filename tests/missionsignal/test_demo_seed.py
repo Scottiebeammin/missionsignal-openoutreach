@@ -10,6 +10,7 @@ from openoutreach.funding.models import (
     Funder,
     FundingCriteria,
     GovernmentEntity,
+    Opportunity,
     PartnerOrganization,
     ResourceProvider,
 )
@@ -58,6 +59,13 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "Lakefront Employers Tech Council",
         "Neighborhood Digital Inclusion Coalition",
     ]).count() == 3
+    assert Opportunity.objects.filter(name__in=[
+        "Digital Equity Grant",
+        "Workforce Development Grant",
+        "Youth Technology Initiative",
+        "Community Partnership Program",
+        "Capacity Building Resource Program",
+    ]).count() == 5
     assert OrganizationAnalysisRun.objects.filter(
         organization=first_organization,
     ).count() == 2

@@ -13,6 +13,7 @@ from openoutreach.funding.models import (
     FundingSignal,
     FundingSignalFeedback,
     GovernmentEntity,
+    Opportunity,
     PartnerOrganization,
     ResourceProvider,
     default_scoring_weights,
@@ -200,11 +201,28 @@ def test_partner_organization_model_defaults_and_string():
     assert partner.collaboration_opportunities == ["credential pathways", "referrals"]
 
 
+def test_opportunity_model_defaults_and_string():
+    opportunity = Opportunity.objects.create(
+        name="Digital Equity Grant",
+        focus_areas=["digital equity"],
+        beneficiaries=["youth"],
+    )
+    assert str(opportunity) == "Digital Equity Grant"
+    assert opportunity.opportunity_type == Opportunity.OpportunityType.GRANT
+    assert opportunity.source_type == Opportunity.SourceType.MANUAL
+    assert opportunity.status == Opportunity.Status.ACTIVE
+    assert opportunity.geography == []
+    assert opportunity.focus_areas == ["digital equity"]
+    assert opportunity.beneficiaries == ["youth"]
+
+
 def test_opportunity_database_models_are_registered_in_admin():
     assert admin.site.is_registered(Funder)
     assert admin.site.is_registered(GovernmentEntity)
     assert admin.site.is_registered(ResourceProvider)
     assert admin.site.is_registered(PartnerOrganization)
+    assert admin.site.is_registered(Opportunity)
+
 
 
 def test_funding_opportunity_tracks_normalized_details(source):

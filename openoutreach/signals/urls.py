@@ -35,6 +35,11 @@ urlpatterns = [
         name="project-matches",
     ),
     path(
+        "projects/<int:pk>/discovery/",
+        views.project_discovery_dashboard,
+        name="project-discovery",
+    ),
+    path(
         "projects/<int:pk>/partnerships/",
         views.project_partnership_dashboard,
         name="project-partnerships",

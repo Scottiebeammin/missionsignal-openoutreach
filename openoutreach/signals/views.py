@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from openoutreach.core.models import Project
 from openoutreach.funding.readiness import build_funding_readiness
 from openoutreach.signals.analysis_service import analyze_project
+from openoutreach.signals.discovery import build_discovery_overview
 from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
 from openoutreach.signals.government import build_government_readiness
@@ -142,9 +143,10 @@ def project_ecosystem_dashboard(request, pk):
     resource_readiness = build_resource_readiness(project, funding_criteria)
     partnership_readiness = build_partnership_readiness(project, funding_criteria)
     match_overview = build_opportunity_matches(project, funding_criteria)
+    discovery_overview = build_discovery_overview(project, funding_criteria)
     ecosystem = build_ecosystem_overview(
         project, funding_readiness, government_readiness, resource_readiness,
-        partnership_readiness, match_overview,
+        partnership_readiness, match_overview, discovery_overview,
     )
     return render(
         request,
@@ -172,6 +174,25 @@ def project_match_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "match_overview": match_overview,
+        },
+    )
+
+
+@login_required
+def project_discovery_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    discovery = build_discovery_overview(project, funding_criteria)
+    return render(
+        request,
+        "signals/project_discovery_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "funding_criteria": funding_criteria,
+            "discovery": discovery,
         },
     )
 

@@ -5,6 +5,7 @@ from openoutreach.core.models import Organization, Project
 from openoutreach.funding.models import (
     Funder,
     GovernmentEntity,
+    Opportunity,
     PartnerOrganization,
     ResourceProvider,
 )
@@ -160,6 +161,72 @@ def _seed_opportunity_database():
     for partner in partners:
         name = partner.pop("name")
         PartnerOrganization.objects.update_or_create(name=name, defaults=partner)
+
+    opportunities = [
+        {
+            "name": "Digital Equity Grant",
+            "opportunity_type": Opportunity.OpportunityType.GRANT,
+            "source_type": Opportunity.SourceType.FUNDER,
+            "source_name": "Cuyahoga Community Foundation",
+            "geography": ["Cleveland", "Cuyahoga County", "Ohio"],
+            "focus_areas": ["digital equity", "technology skills", "community development"],
+            "beneficiaries": ["youth", "low-income residents", "job seekers"],
+            "eligibility_notes": "Demo grant for nonprofit digital equity programs serving Cleveland residents.",
+            "status": Opportunity.Status.ACTIVE,
+            "notes": "Manual demo inventory record created for Discovery Engine V1.",
+        },
+        {
+            "name": "Workforce Development Grant",
+            "opportunity_type": Opportunity.OpportunityType.GRANT,
+            "source_type": Opportunity.SourceType.FUNDER,
+            "source_name": "Ohio Workforce Innovation Fund",
+            "geography": ["Ohio", "Cuyahoga County"],
+            "focus_areas": ["workforce development", "career readiness", "credentials"],
+            "beneficiaries": ["young adults", "job seekers", "low-income residents"],
+            "eligibility_notes": "Demo grant for employer-connected training and measurable workforce outcomes.",
+            "status": Opportunity.Status.ACTIVE,
+            "notes": "Manual demo inventory record created for Discovery Engine V1.",
+        },
+        {
+            "name": "Youth Technology Initiative",
+            "opportunity_type": Opportunity.OpportunityType.CONTRACT,
+            "source_type": Opportunity.SourceType.GOVERNMENT,
+            "source_name": "City of Cleveland Youth and Workforce Office",
+            "geography": ["Cleveland", "Ohio"],
+            "focus_areas": ["youth services", "technology training", "digital equity"],
+            "beneficiaries": ["youth", "students", "young adults"],
+            "eligibility_notes": "Demo city contract lane for youth technology workshops and service delivery.",
+            "status": Opportunity.Status.UPCOMING,
+            "notes": "Manual demo inventory record created for Discovery Engine V1.",
+        },
+        {
+            "name": "Community Partnership Program",
+            "opportunity_type": Opportunity.OpportunityType.PARTNERSHIP,
+            "source_type": Opportunity.SourceType.PARTNER,
+            "source_name": "Neighborhood Digital Inclusion Coalition",
+            "geography": ["Cleveland", "Cuyahoga County"],
+            "focus_areas": ["digital equity", "community outreach", "device access"],
+            "beneficiaries": ["families", "low-income residents", "job seekers"],
+            "eligibility_notes": "Demo partnership program for referrals, outreach, and shared workshops.",
+            "status": Opportunity.Status.ACTIVE,
+            "notes": "Manual demo inventory record created for Discovery Engine V1.",
+        },
+        {
+            "name": "Capacity Building Resource Program",
+            "opportunity_type": Opportunity.OpportunityType.CAPACITY_BUILDING,
+            "source_type": Opportunity.SourceType.RESOURCE_PROVIDER,
+            "source_name": "Ohio Nonprofit Capacity Lab",
+            "geography": ["Ohio"],
+            "focus_areas": ["capacity building", "evaluation", "fundraising"],
+            "beneficiaries": ["nonprofits", "community organizations"],
+            "eligibility_notes": "Demo resource program for evaluation, fundraising, and operating capacity.",
+            "status": Opportunity.Status.ACTIVE,
+            "notes": "Manual demo inventory record created for Discovery Engine V1.",
+        },
+    ]
+    for opportunity in opportunities:
+        name = opportunity.pop("name")
+        Opportunity.objects.update_or_create(name=name, defaults=opportunity)
 
 
 @transaction.atomic

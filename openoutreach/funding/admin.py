@@ -8,6 +8,7 @@ from openoutreach.funding.models import (
     FundingSignal,
     FundingSignalFeedback,
     GovernmentEntity,
+    Opportunity,
     PartnerOrganization,
     ResourceProvider,
 )
@@ -46,6 +47,13 @@ class PartnerOrganizationAdmin(admin.ModelAdmin):
     list_display = ("name", "partner_type", "geography", "active", "website")
     list_filter = ("partner_type", "active")
     search_fields = ("name", "notes", "website")
+
+
+@admin.register(Opportunity)
+class OpportunityAdmin(admin.ModelAdmin):
+    list_display = ("name", "opportunity_type", "source_type", "source_name", "status")
+    list_filter = ("opportunity_type", "source_type", "status")
+    search_fields = ("name", "source_name", "eligibility_notes", "notes")
 
 
 class FundingOpportunitySourceInline(admin.TabularInline):

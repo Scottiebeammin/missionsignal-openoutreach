@@ -172,6 +172,47 @@ class PartnerOrganization(models.Model):
         return self.name
 
 
+class Opportunity(models.Model):
+    class OpportunityType(models.TextChoices):
+        GRANT = "grant", "Grant"
+        CONTRACT = "contract", "Contract"
+        PARTNERSHIP = "partnership", "Partnership"
+        RESOURCE = "resource", "Resource"
+        SPONSORSHIP = "sponsorship", "Sponsorship"
+        TRAINING = "training", "Training"
+        CAPACITY_BUILDING = "capacity_building", "Capacity Building"
+
+    class SourceType(models.TextChoices):
+        FUNDER = "funder", "Funder"
+        GOVERNMENT = "government", "Government"
+        RESOURCE_PROVIDER = "resource_provider", "Resource Provider"
+        PARTNER = "partner", "Partner"
+        MANUAL = "manual", "Manual"
+
+    class Status(models.TextChoices):
+        ACTIVE = "active", "Active"
+        UPCOMING = "upcoming", "Upcoming"
+        ARCHIVED = "archived", "Archived"
+
+    name = models.CharField(max_length=500)
+    opportunity_type = models.CharField(
+        max_length=40, choices=OpportunityType.choices, default=OpportunityType.GRANT,
+    )
+    source_type = models.CharField(max_length=40, choices=SourceType.choices, default=SourceType.MANUAL)
+    source_name = models.CharField(max_length=500, blank=True, default="")
+    geography = models.JSONField(default=list, blank=True)
+    focus_areas = models.JSONField(default=list, blank=True)
+    beneficiaries = models.JSONField(default=list, blank=True)
+    eligibility_notes = models.TextField(blank=True, default="")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
+    notes = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
 class FundingOpportunity(models.Model):
     class Status(models.TextChoices):
         UNKNOWN = "unknown", "Unknown"

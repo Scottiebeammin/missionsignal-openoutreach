@@ -44,6 +44,7 @@ class EcosystemOverview:
     priority_areas: list[PriorityOpportunityArea]
     recommended_actions: list[str]
     match_overview: object | None
+    discovery_overview: object | None
     summary_items: list[str]
     roadmap: EcosystemRoadmap
 
@@ -264,7 +265,7 @@ def _recommended_actions(project, module_readiness: list, gaps: list[str]) -> li
 
 def build_ecosystem_overview(
     project, funding_readiness, government_readiness, resource_readiness,
-    partnership_readiness, match_overview=None,
+    partnership_readiness, match_overview=None, discovery_overview=None,
 ) -> EcosystemOverview:
     mission_score, mission_strengths, mission_gaps = _mission_profile(project)
     signal_scorecards = [
@@ -347,6 +348,7 @@ def build_ecosystem_overview(
         ),
         recommended_actions=_recommended_actions(project, module_readiness, gaps),
         match_overview=match_overview,
+        discovery_overview=discovery_overview,
         summary_items=["Funding", "Government", "Resources", "Partnerships", "Capacity", "Risks and constraints"],
         roadmap=EcosystemRoadmap(
             completed=["Mission Brief", "FundingSignal", "GovernmentSignal", "ResourceSignal", "PartnershipSignal"],
