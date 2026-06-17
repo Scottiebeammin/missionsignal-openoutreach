@@ -153,13 +153,16 @@
                 <div class="card-meta">
                   <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
                   <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
-                  <span class="pill score">Match Score {{ item.match.score }}</span>
+                  <span class="score-badge">Match {{ item.match.score }}</span>
                 </div>
                 <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
                 <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
               </article>
             {% empty %}
-              <p class="muted">No opportunities in this priority lane yet.</p>
+              <div class="empty-state">
+                <strong>No opportunities in this lane</strong>
+                Assign priority levels to opportunities so this pipeline becomes easier to manage.
+              </div>
             {% endfor %}
           </section>
         {% endfor %}
@@ -173,8 +176,8 @@
           <article class="inventory-card">
             <h3>{{ item.opportunity.name }}</h3>
             <div class="card-meta">
-              <span class="pill score">Match Score {{ item.match.score }}</span>
-              <span class="pill">{{ item.match.level }}</span>
+              <span class="score-badge">Match {{ item.match.score }}</span>
+              <span class="pill {{ item.match.level|slugify }}">{{ item.match.level }}</span>
               <span class="pill status">{{ item.opportunity.get_status_display }}</span>
               <span class="pill">{{ item.opportunity.get_priority_level_display }}</span>
             </div>
@@ -187,6 +190,11 @@
               {% endfor %}
             </ul>
           </article>
+        {% empty %}
+          <div class="empty-state">
+            <strong>No opportunity readiness yet</strong>
+            Add opportunity inventory records to show match scores and leadership-ready recommendations.
+          </div>
         {% endfor %}
       </div>
     </section>
@@ -217,13 +225,19 @@
                   <td><span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span></td>
                   <td><span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span></td>
                   <td>{{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</td>
-                  <td><span class="pill score">Match Score {{ item.match.score }}</span></td>
+                  <td><span class="score-badge">Match {{ item.match.score }}</span></td>
                 </tr>
               {% endfor %}
             {% endfor %}
           </tbody>
         </table>
       </div>
+      {% if discovery.total_opportunities == 0 %}
+        <div class="empty-state" style="margin-top: 12px;">
+          <strong>No opportunities yet</strong>
+          Import or seed manually managed opportunities to populate Discovery, Matching, and the dashboard pipeline.
+        </div>
+      {% endif %}
     </section>
 
     <details class="panel">
@@ -239,8 +253,8 @@
                   <span class="pill">{{ item.opportunity.get_opportunity_type_display }}</span>
                   <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
                   <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
-                  <span class="pill score">Match Score {{ item.match.score }}</span>
-                  <span class="pill">{{ item.match.level }}</span>
+                  <span class="score-badge">Match {{ item.match.score }}</span>
+                  <span class="pill {{ item.match.level|slugify }}">{{ item.match.level }}</span>
                 </div>
                 <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }} - {{ item.opportunity.geography|join:", "|default:"Geography not provided" }}</p>
                 <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
@@ -252,7 +266,10 @@
                 </ul>
               </article>
             {% empty %}
-              <p class="muted">No opportunities in this inventory group yet.</p>
+              <div class="empty-state">
+                <strong>No records</strong>
+                Add opportunities in this category to make the inventory more complete.
+              </div>
             {% endfor %}
           </section>
         {% endfor %}

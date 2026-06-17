@@ -48,9 +48,17 @@
       </section>
       <section class="panel action-panel">
         <h2>Recommended Next Actions</h2>
-        <ol>
-          {% for action in recommended_next_steps %}
-            <li>{{ action }}</li>
+        <ol class="advisor-list">
+          {% for action in recommended_next_steps|slice:":3" %}
+            <li>
+              {{ action }}
+              <span class="impact-label">Impact: Improves profile completeness and downstream recommendations.</span>
+            </li>
+          {% empty %}
+            <li>
+              Review the Mission Brief and keep organization data current.
+              <span class="impact-label">Impact: Preserves stronger ecosystem and opportunity analysis.</span>
+            </li>
           {% endfor %}
         </ol>
       </section>
@@ -70,17 +78,29 @@
       <div class="grid">
         <article id="mission" class="profile-card">
           <h3>Mission Brief</h3>
-          <p>{{ organization.mission|default:"Mission statement has not been provided yet." }}</p>
+          {% if organization.mission %}
+            <p>{{ organization.mission }}</p>
+          {% else %}
+            <div class="empty-state"><strong>Mission missing</strong>Add a concise mission statement so every signal can evaluate alignment.</div>
+          {% endif %}
           <a href="{% url 'project-mission-brief' project.pk %}">Open Mission Brief</a>
         </article>
         <article id="programs" class="profile-card">
           <h3>Programs</h3>
-          <p>{{ project.programs|default:"Program details have not been provided yet." }}</p>
+          {% if project.programs %}
+            <p>{{ project.programs }}</p>
+          {% else %}
+            <div class="empty-state"><strong>Programs missing</strong>Describe active programs to improve readiness and match explanations.</div>
+          {% endif %}
           <a href="{% url 'project-programs' project.pk %}">Manage Programs</a>
         </article>
         <article id="outcomes" class="profile-card">
           <h3>Outcomes</h3>
-          <p>{{ organization.outcomes_and_impact|join:", "|default:"Outcome and impact data has not been documented yet." }}</p>
+          {% if organization.outcomes_and_impact %}
+            <p>{{ organization.outcomes_and_impact|join:", " }}</p>
+          {% else %}
+            <div class="empty-state"><strong>Outcomes missing</strong>Add measurable outcomes to strengthen funding, government, and partnership readiness.</div>
+          {% endif %}
         </article>
         <article id="readiness" class="profile-card">
           <h3>Readiness Data</h3>

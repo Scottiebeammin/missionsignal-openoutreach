@@ -66,7 +66,6 @@
     .mini-opportunity strong { display: block; font-size: .88rem; }
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
     .advisor-panel { margin-bottom: 16px; padding: 18px; border-left: 5px solid var(--accent); background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%); }
-    .advisor-panel ol { margin-bottom: 0; }
     .bar-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 42px; gap: 8px; align-items: center; margin-top: 9px; }
     .bar-track { height: 10px; border-radius: 999px; background: var(--soft); overflow: hidden; }
     .bar-fill { height: 100%; min-width: 3px; border-radius: inherit; background: var(--accent); }
@@ -123,7 +122,7 @@
             <a class="kpi-card" href="{% url kpi.href_name project.pk %}">
               <span class="score-card-title">{{ kpi.label }}</span>
               <strong class="score-value">{{ kpi.score }}</strong>
-              <span>{{ kpi.level }}</span>
+              <span class="pill {{ kpi.level|slugify }}">{{ kpi.level }}</span>
               <p>{{ kpi.insight }}</p>
             </a>
           {% endfor %}
@@ -132,9 +131,17 @@
 
       <section class="advisor-panel">
         <h2>What To Do Next</h2>
-        <ol class="actions-list">
-          {% for action in dashboard.executive_actions %}
-            <li>{{ action }}</li>
+        <ol class="advisor-list">
+          {% for action in dashboard.executive_actions|slice:":3" %}
+            <li>
+              {{ action }}
+              <span class="impact-label">Impact: Improves readiness across funding, government, partnerships, or opportunity matching.</span>
+            </li>
+          {% empty %}
+            <li>
+              Review the organization profile and refresh deterministic analysis.
+              <span class="impact-label">Impact: Gives MissionSignal stronger inputs for every workspace.</span>
+            </li>
           {% endfor %}
         </ol>
       </section>
@@ -174,6 +181,38 @@
       </section>
 
       <section class="panel">
+        <div class="panel-header">
+          <h2>Top Opportunities</h2>
+          <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Discovery</a>
+        </div>
+        <div class="premium-table-wrap">
+          <table class="premium-table">
+            <thead>
+              <tr><th>Opportunity</th><th>Status</th><th>Priority</th><th>Deadline</th></tr>
+            </thead>
+            <tbody>
+              {% for column in dashboard.pipeline_columns %}
+                {% for opportunity in column.opportunities|slice:":2" %}
+                  <tr>
+                    <td><strong>{{ opportunity.name }}</strong></td>
+                    <td><span class="pill status-{{ opportunity.status }}">{{ opportunity.get_status_display }}</span></td>
+                    <td><span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }}</span></td>
+                    <td>{{ opportunity.deadline|date:"M j, Y"|default:"Not set" }}</td>
+                  </tr>
+                {% endfor %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if dashboard.total_opportunities == 0 %}
+          <div class="empty-state" style="margin-top: 12px;">
+            <strong>No opportunities yet</strong>
+            Add or seed opportunity inventory records to populate the command center, deadlines, and matching views.
+          </div>
+        {% endif %}
+      </section>
+
+      <section class="panel">
         <h2>Opportunity Pipeline Snapshot</h2>
         <div class="pipeline">
           {% for column in dashboard.pipeline_columns %}
@@ -182,10 +221,10 @@
               {% for opportunity in column.opportunities %}
                 <div class="mini-opportunity">
                   <strong>{{ opportunity.name }}</strong>
-                  <span class="muted">{{ opportunity.get_priority_level_display }} priority</span>
+                  <span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }} priority</span>
                 </div>
               {% empty %}
-                <p class="muted">No opportunities in this lane.</p>
+                <div class="empty-state"><strong>No items</strong>Add opportunities to move work into this lane.</div>
               {% endfor %}
             </section>
           {% endfor %}
@@ -210,6 +249,23 @@
           <div class="metric-card"><strong>{{ dashboard.discovery_health.opportunity_categories }}</strong><span>Opportunity Categories</span></div>
           <div class="metric-card"><strong>{{ dashboard.discovery_health.active_opportunities }}</strong><span>Active Opportunities</span></div>
           <div class="metric-card"><strong>{{ dashboard.discovery_health.upcoming_deadlines|length }}</strong><span>Upcoming Deadlines</span></div>
+        </div>
+        <div style="margin-top: 12px;">
+          <h3>Upcoming Deadlines</h3>
+          {% if dashboard.discovery_health.upcoming_deadlines %}
+            <div class="premium-table-wrap">
+              <table class="premium-table">
+                <thead><tr><th>Opportunity</th><th>Deadline</th></tr></thead>
+                <tbody>
+                  {% for opportunity in dashboard.discovery_health.upcoming_deadlines|slice:":5" %}
+                    <tr><td><strong>{{ opportunity.name }}</strong></td><td>{{ opportunity.deadline|date:"M j, Y" }}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="empty-state"><strong>No upcoming deadlines</strong>Add deadlines to opportunity records so leadership can see time-sensitive work.</div>
+          {% endif %}
         </div>
       </section>
 

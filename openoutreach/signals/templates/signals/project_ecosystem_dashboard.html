@@ -115,7 +115,7 @@
             <strong>{{ card.name }}</strong>
             <div class="scorecard-value">
               <b>{{ card.score }}</b>
-              <span class="pill">{{ card.level }}</span>
+              <span class="pill {{ card.level|slugify }}">{{ card.level }}</span>
             </div>
             <span class="muted">{{ card.detail }}</span>
           </a>
@@ -173,7 +173,10 @@
         {% for gap in ecosystem.gaps %}
           <p class="gap">{{ gap }}</p>
         {% empty %}
-          <p class="strength">No major ecosystem gaps were detected.</p>
+          <div class="empty-state">
+            <strong>No major ecosystem gaps detected</strong>
+            Keep profile data current so this remains accurate as opportunities change.
+          </div>
         {% endfor %}
       </section>
     </div>
@@ -193,9 +196,12 @@
 
     <section class="panel">
       <h2>Recommended Ecosystem Actions</h2>
-      <ol class="actions-list">
-        {% for action in ecosystem.recommended_actions %}
-          <li>{{ action }}</li>
+      <ol class="advisor-list">
+        {% for action in ecosystem.recommended_actions|slice:":5" %}
+          <li>
+            {{ action }}
+            <span class="impact-label">Impact: Strengthens the full opportunity ecosystem, not just one module.</span>
+          </li>
         {% endfor %}
       </ol>
     </section>

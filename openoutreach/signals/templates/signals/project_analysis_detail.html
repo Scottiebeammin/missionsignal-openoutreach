@@ -38,6 +38,7 @@
       </section>
       <section class="panel action-panel">
         <h2>Analysis Controls</h2>
+        <p class="muted">Refresh the local deterministic profile when mission, programs, outcomes, or readiness data changes.</p>
         <form method="post" action="{% url 'run-project-analysis' project.pk %}">
           {% csrf_token %}
           <button type="submit">Run deterministic analysis</button>
@@ -77,11 +78,17 @@
 
     <section class="panel">
       <h2>Analysis Warnings</h2>
-      <ul>
+      <ul class="advisor-list">
         {% for warning in organization.analysis_warnings %}
-          <li>{{ warning }}</li>
+          <li>
+            {{ warning }}
+            <span class="impact-label">Impact: Resolving this improves analysis quality across workspaces.</span>
+          </li>
         {% empty %}
-          <li>No warnings.</li>
+          <li>
+            No warnings.
+            <span class="impact-label">Impact: Current analysis inputs are clean enough for deterministic review.</span>
+          </li>
         {% endfor %}
       </ul>
     </section>

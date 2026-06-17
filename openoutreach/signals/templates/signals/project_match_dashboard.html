@@ -111,10 +111,10 @@
           <article class="match-card">
             <div class="match-header">
               <h3>{{ match.name }}</h3>
-              <span class="pill score-pill">{{ match.score }}</span>
+              <span class="score-badge">Score {{ match.score }}</span>
             </div>
             <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
-            <p><span class="pill">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
+            <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
             <p class="muted">Match Confidence: {{ match.level }}</p>
             <p><strong>Why It Matches</strong></p>
             <ul>
@@ -152,7 +152,10 @@
             {% endif %}
           </article>
         {% empty %}
-          <p class="muted">No active opportunity database records are available yet.</p>
+          <div class="empty-state">
+            <strong>No matches yet</strong>
+            Add active opportunity database records or seed the demo data to generate deterministic match scores.
+          </div>
         {% endfor %}
       </div>
     </section>
@@ -165,10 +168,10 @@
             <article class="category-card">
               <div class="match-header">
                 <h3>{{ match.name }}</h3>
-                <span class="pill score-pill">{{ match.score }}</span>
+                <span class="score-badge">Score {{ match.score }}</span>
               </div>
               <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
-              <p><span class="pill">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
+              <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
               <p class="muted">Match Confidence: {{ match.level }}</p>
               <div class="factor-block">
                 <p class="factor-title">Why It Matches</p>
@@ -208,7 +211,10 @@
               {% endif %}
             </article>
           {% empty %}
-            <p class="muted">No active records in this category.</p>
+            <div class="empty-state">
+              <strong>No active records</strong>
+              Add records in this category to compare fit and identify improvement opportunities.
+            </div>
           {% endfor %}
         </div>
       </section>
@@ -243,9 +249,12 @@
     <section class="panel">
       <h2>Highest Leverage Improvements</h2>
       <p class="muted">Top 5 Actions That Would Improve The Most Matches</p>
-      <ol>
+      <ol class="advisor-list">
         {% for action in match_overview.highest_leverage_actions %}
-          <li>{{ action }}</li>
+          <li>
+            {{ action }}
+            <span class="impact-label">Impact: Raises potential scores across multiple opportunity categories.</span>
+          </li>
         {% endfor %}
       </ol>
     </section>
