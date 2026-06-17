@@ -199,6 +199,7 @@
                 </div>
                 <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
                 <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
+                <p><a class="pill" href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">Open Workspace</a></p>
               </article>
             {% empty %}
               <div class="empty-state">
@@ -225,6 +226,7 @@
             </div>
             <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }} - {{ item.opportunity.geography|join:", "|default:"Geography not provided" }}</p>
             <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
+            <p><a class="pill" href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">Open Workspace</a></p>
             <details>
               <summary>Why It Matches</summary>
               <ul>
@@ -264,6 +266,7 @@
                   <td>
                     <strong>{{ item.opportunity.name }}</strong>
                     <div class="muted">{{ item.opportunity.get_opportunity_type_display }}</div>
+                    <div><a class="pill" href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">Open Workspace</a></div>
                   </td>
                   <td><span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span></td>
                   <td>

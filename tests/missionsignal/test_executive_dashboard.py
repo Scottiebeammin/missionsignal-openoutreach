@@ -67,6 +67,11 @@ def test_executive_dashboard_renders_opportunity_summaries(client, dashboard_pro
     assert "Won Opportunities" in content
     assert "Opportunity Pipeline Snapshot" in content
     assert "Opportunity Pipeline Summary" in content
+    assert "Opportunity Work Summary" in content
+    assert "Open Tasks" in content
+    assert "Overdue Tasks" in content
+    assert "Next Critical Deadline" in content
+    assert "Opportunities in Drafting" in content
     assert "Pipeline Health Score" in content
     assert "Active Lifecycle Opportunities" in content
     assert "Highest Priority Active Opportunity" in content

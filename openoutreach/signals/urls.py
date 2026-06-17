@@ -42,6 +42,16 @@ urlpatterns = [
         name="project-opportunities",
     ),
     path(
+        "projects/<int:pk>/opportunities/<int:opportunity_id>/",
+        views.project_opportunity_workspace,
+        name="project-opportunity-workspace",
+    ),
+    path(
+        "projects/<int:pk>/opportunities/<int:opportunity_id>/tasks/<int:task_id>/status/",
+        views.update_opportunity_task_status,
+        name="project-opportunity-task-status",
+    ),
+    path(
         "projects/<int:pk>/discovery/",
         views.project_discovery_dashboard,
         name="project-discovery",

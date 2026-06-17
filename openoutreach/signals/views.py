@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from openoutreach.core.models import Project
-from openoutreach.funding.models import Opportunity
+from openoutreach.funding.models import Opportunity, OpportunityTask
 from openoutreach.funding.readiness import build_funding_readiness
 from openoutreach.signals.analysis_service import analyze_project
 from openoutreach.signals.dashboard import build_executive_dashboard
@@ -14,6 +14,7 @@ from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_opportunity_lifecycle
 from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
+from openoutreach.signals.opportunity_work import build_opportunity_workspace, ensure_default_tasks
 from openoutreach.signals.partnerships import build_partnership_readiness
 from openoutreach.signals.resources import build_resource_readiness
 from openoutreach.signals.services import create_organization_intake
@@ -223,6 +224,7 @@ def project_match_dashboard(request, pk):
     )
     funding_criteria = getattr(project, "funding_criteria", None)
     match_overview = build_opportunity_matches(project, funding_criteria)
+    discovery = build_discovery_overview(project, funding_criteria)
     return render(
         request,
         "signals/project_match_dashboard.html",
@@ -231,6 +233,7 @@ def project_match_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "match_overview": match_overview,
+            "discovery": discovery,
         },
     )
 
@@ -298,12 +301,36 @@ def project_pipeline_workspace(request, pk):
 
 
 @login_required
+def project_opportunity_workspace(request, pk, opportunity_id):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    opportunity = get_object_or_404(
+        Opportunity.objects.select_related("source_organization", "assigned_owner"),
+        pk=opportunity_id,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    workspace = build_opportunity_workspace(project, opportunity, funding_criteria)
+    return render(
+        request,
+        "signals/project_opportunity_workspace.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "opportunity": opportunity,
+            "workspace": workspace,
+        },
+    )
+
+
+@login_required
 @require_POST
 def update_opportunity_lifecycle(request, pk, opportunity_id):
     get_object_or_404(Project.objects.select_related("organization"), pk=pk, users=request.user)
     opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
     target_status = request.POST.get("target_status", "")
     transition_opportunity_lifecycle(opportunity, target_status, actor=request.user)
+    ensure_default_tasks(opportunity)
     return redirect("project-pipeline", pk=pk)
 
 
@@ -318,6 +345,20 @@ def assign_opportunity_owner_view(request, pk, opportunity_id):
     elif owner_action == "unassign":
         assign_opportunity_owner(opportunity, None)
     return redirect("project-pipeline", pk=pk)
+
+
+@login_required
+@require_POST
+def update_opportunity_task_status(request, pk, opportunity_id, task_id):
+    get_object_or_404(Project.objects.select_related("organization"), pk=pk, users=request.user)
+    opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
+    task = get_object_or_404(OpportunityTask, pk=task_id, opportunity=opportunity)
+    target_status = request.POST.get("target_status", "")
+    valid_statuses = {value for value, _label in OpportunityTask.Status.choices}
+    if target_status in valid_statuses:
+        task.status = target_status
+        task.save(update_fields=["status", "updated_at"])
+    return redirect("project-opportunity-workspace", pk=pk, opportunity_id=opportunity.pk)
 
 
 @login_required

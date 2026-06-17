@@ -105,6 +105,30 @@
     </header>
 
     <section class="panel">
+      <div class="panel-header">
+        <h2>Opportunity Workspaces</h2>
+        <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Discovery Inventory</a>
+      </div>
+      <div class="match-grid">
+        {% for item in discovery.top_opportunities|slice:":4" %}
+          <article class="match-card">
+            <div class="match-header">
+              <h3>{{ item.opportunity.name }}</h3>
+              <span class="score-badge">Match {{ item.match.score }}</span>
+            </div>
+            <p class="muted">{{ item.opportunity.get_lifecycle_status_display }} · {{ item.opportunity.get_priority_level_display }} priority</p>
+            <a class="button" href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">Open Workspace</a>
+          </article>
+        {% empty %}
+          <div class="empty-state">
+            <strong>No workspaces yet</strong>
+            Add manually managed opportunities in Discovery to open pursuit workspaces.
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
       <h2>Top Recommended Opportunities</h2>
       <div class="match-grid">
         {% for match in match_overview.top_recommended|slice:":5" %}

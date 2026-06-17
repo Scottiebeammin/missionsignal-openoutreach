@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ opportunity.name }} - Opportunity Workspace</title>
+  <style>
+    :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --page:#eef3f6; --panel:#fff; --soft:#f6f8fa; --accent:#0f766e; --accent-soft:#e8f5f2; --blue:#235789; --blue-soft:#edf5fb; --gold:#8a5b00; --gold-soft:#fff7df; --rose:#9f2f46; --rose-soft:#fff0f3; --shadow:0 1px 2px rgba(16,30,44,.04),0 14px 32px rgba(16,30,44,.05); }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.42 system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 24px auto; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1; }
+    h2 { margin-bottom: 12px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
+    h3 { margin-bottom: 6px; font-size: .98rem; }
+    a { color: inherit; }
+    .hero, .panel, .metric-card, .requirement-card { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: var(--shadow); }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; margin-bottom: 14px; padding: 22px; }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .panel { margin-bottom: 14px; padding: 18px; }
+    .metric-grid, .requirement-grid { display: grid; gap: 10px; }
+    .metric-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .requirement-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .metric-card, .requirement-card { padding: 14px; box-shadow: none; }
+    .metric-card strong { display: block; color: var(--accent); font-size: 1.55rem; line-height: 1; }
+    .metric-card span { display: block; margin-top: 5px; color: var(--muted); font-weight: 700; }
+    .pill, .score-badge, .action-button { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 8px; border-radius: 999px; font-weight: 800; }
+    .pill { background: var(--blue-soft); color: var(--blue); }
+    .score-badge { background: var(--accent-soft); color: var(--accent); }
+    .status-blocked, .deadline-overdue, .priority-high { background: var(--rose-soft); color: var(--rose); }
+    .status-complete, .deadline-complete { background: var(--accent-soft); color: var(--accent); }
+    .deadline-due-soon, .priority-medium { background: var(--gold-soft); color: var(--gold); }
+    .action-panel { border-left: 5px solid var(--accent); background: linear-gradient(180deg, #fff 0%, var(--accent-soft) 180%); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--soft); color: var(--muted); font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; }
+    .inline-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .inline-form { margin: 0; }
+    .action-button { border: 1px solid var(--line); background: white; color: var(--ink); font: inherit; cursor: pointer; }
+    .action-button.primary { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+    .workspace-subtabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+    .workspace-subtabs a { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--muted); font-weight: 800; text-decoration: none; }
+    .workspace-subtabs a:hover { color: var(--accent); border-color: var(--accent); }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li + li { margin-top: 4px; }
+    @media (max-width: 1000px) { .hero, .metric-grid, .requirement-grid { grid-template-columns: 1fr; } }
+  </style>
+  {% include "signals/_app_shell_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="opportunities" %}
+  <main>
+    <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
+      <a href="{% url 'project-opportunities' project.pk %}">Overview</a>
+      <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
+      <a href="{% url 'project-matches' project.pk %}">Matches</a>
+      <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
+    </nav>
+
+    <header class="hero">
+      <section>
+        <p class="eyebrow">Opportunity Workspace V1</p>
+        <h1>{{ opportunity.name }}</h1>
+        <p class="muted">{{ opportunity.source_organization|default:opportunity.source_name|default:"No source organization" }} - {{ opportunity.get_opportunity_type_display }}</p>
+      </section>
+      <section class="panel action-panel">
+        <h2>Recommended Next Step</h2>
+        <p><strong>{{ workspace.recommended_next_step }}</strong></p>
+        <p class="muted">Use this workspace to manage requirements, tasks, deadlines, notes, and lifecycle progress.</p>
+      </section>
+    </header>
+
+    <nav class="workspace-subtabs" aria-label="Opportunity workspace sections">
+      <a href="#overview">Overview</a>
+      <a href="#requirements">Requirements</a>
+      <a href="#tasks">Tasks</a>
+      <a href="#deadlines">Deadlines</a>
+      <a href="#notes">Notes</a>
+      <a href="#history">History</a>
+    </nav>
+
+    <section id="overview" class="panel">
+      <h2>Opportunity Overview</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ workspace.match.score }}</strong><span>Match Summary</span><p><span class="pill {{ workspace.match.level|slugify }}">{{ workspace.match.level }}</span></p></div>
+        <div class="metric-card"><strong>{{ opportunity.get_lifecycle_status_display }}</strong><span>Lifecycle Status</span></div>
+        <div class="metric-card"><strong>{% if opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</strong><span>Owner</span><p class="muted">{{ opportunity.assigned_owner|default:"Owner: Unassigned" }}</p></div>
+        <div class="metric-card"><strong>{{ opportunity.deadline|date:"M j, Y"|default:"Not set" }}</strong><span>Deadline</span><p><span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }} Priority</span></p></div>
+      </div>
+      <details style="margin-top: 12px;" open>
+        <summary>Why It Matches</summary>
+        <ul>
+          {% for reason in workspace.match.reasons %}
+            <li>{{ reason }}</li>
+          {% endfor %}
+        </ul>
+      </details>
+    </section>
+
+    <section id="requirements" class="panel">
+      <h2>Requirements</h2>
+      <div class="requirement-grid">
+        {% for requirement in workspace.requirements %}
+          <article class="requirement-card">
+            <h3>{{ requirement.label }}</h3>
+            <span class="pill">{{ requirement.status }}</span>
+            <p class="muted" style="margin-top: 8px;">{{ requirement.value }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section id="tasks" class="panel">
+      <h2>Tasks</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ workspace.task_summary.total_tasks }}</strong><span>Total tasks</span></div>
+        <div class="metric-card"><strong>{{ workspace.task_summary.open_tasks }}</strong><span>Open tasks</span></div>
+        <div class="metric-card"><strong>{{ workspace.task_summary.completed_tasks }}</strong><span>Completed tasks</span></div>
+        <div class="metric-card"><strong>{{ workspace.task_summary.blocked_tasks }}</strong><span>Blocked tasks</span></div>
+      </div>
+      <div class="metric-grid" style="margin-top: 10px;">
+        <div class="metric-card"><strong>{{ workspace.task_summary.overdue_tasks }}</strong><span>Overdue tasks</span></div>
+      </div>
+      <div class="table-wrap" style="margin-top: 12px;">
+        <table>
+          <thead><tr><th>Title</th><th>Status</th><th>Priority</th><th>Due Date</th><th>Owner</th><th>Controls</th></tr></thead>
+          <tbody>
+            {% for task in workspace.task_summary.tasks %}
+              <tr>
+                <td><strong>{{ task.title }}</strong><div class="muted">{{ task.description }}</div></td>
+                <td><span class="pill status-{{ task.status }}">{{ task.get_status_display }}</span></td>
+                <td><span class="pill priority-{{ task.priority }}">{{ task.get_priority_display }}</span></td>
+                <td>{{ task.due_date|date:"M j, Y"|default:"Not set" }}</td>
+                <td>{{ task.owner|default:"Unassigned" }}</td>
+                <td>
+                  <div class="inline-actions">
+                    <form class="inline-form" method="post" action="{% url 'project-opportunity-task-status' project.pk opportunity.pk task.pk %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="target_status" value="in_progress">
+                      <button class="action-button" type="submit">Mark In Progress</button>
+                    </form>
+                    <form class="inline-form" method="post" action="{% url 'project-opportunity-task-status' project.pk opportunity.pk task.pk %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="target_status" value="complete">
+                      <button class="action-button primary" type="submit">Mark Complete</button>
+                    </form>
+                    <form class="inline-form" method="post" action="{% url 'project-opportunity-task-status' project.pk opportunity.pk task.pk %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="target_status" value="blocked">
+                      <button class="action-button" type="submit">Mark Blocked</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6">No tasks yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="deadlines" class="panel">
+      <h2>Deadlines</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ workspace.deadline_summary.next_deadline.deadline.deadline_date|date:"M j, Y"|default:"None" }}</strong><span>Next deadline</span></div>
+        <div class="metric-card"><strong>{{ workspace.deadline_summary.due_soon_deadlines }}</strong><span>Due soon deadlines</span></div>
+        <div class="metric-card"><strong>{{ workspace.deadline_summary.overdue_deadlines }}</strong><span>Overdue deadlines</span></div>
+        <div class="metric-card"><strong>{{ workspace.deadline_summary.completed_deadlines }}</strong><span>Completed deadlines</span></div>
+      </div>
+      <div class="table-wrap" style="margin-top: 12px;">
+        <table>
+          <thead><tr><th>Deadline</th><th>Type</th><th>Date</th><th>Status</th><th>Notes</th></tr></thead>
+          <tbody>
+            {% for item in workspace.deadline_summary.deadlines %}
+              <tr>
+                <td><strong>{{ item.deadline.title }}</strong></td>
+                <td>{{ item.deadline.get_deadline_type_display }}</td>
+                <td>{{ item.deadline.deadline_date|date:"M j, Y" }}</td>
+                <td><span class="pill deadline-{{ item.computed_status|slugify }}">{{ item.computed_status }}</span></td>
+                <td class="muted">{{ item.deadline.notes|default:"No notes yet." }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5">No deadlines yet. Add an opportunity deadline to begin tracking.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="notes" class="panel">
+      <h2>Notes</h2>
+      <p><strong>Lifecycle Notes</strong></p>
+      <p class="muted">{{ opportunity.lifecycle_notes|default:"No lifecycle notes yet." }}</p>
+      <p><strong>Internal Notes</strong></p>
+      <p class="muted">{{ opportunity.notes|default:"No internal notes yet." }}</p>
+    </section>
+
+    <section id="history" class="panel">
+      <h2>History</h2>
+      <p><strong>Status History Placeholder</strong></p>
+      <p class="muted">Status history support is placeholder-ready for future collaboration workflows.</p>
+      <p><strong>Last Updated</strong></p>
+      <p class="muted">{{ opportunity.updated_at|date:"M j, Y" }}</p>
+    </section>
+  </main>
+</body>
+</html>

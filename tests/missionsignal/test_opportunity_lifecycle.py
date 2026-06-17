@@ -117,6 +117,10 @@ def test_project_member_can_view_pipeline(client, lifecycle_project):
     assert "Last Updated" in content
     assert "Recommended Next Step" in content
     assert "Owner: Unassigned" in content
+    assert "Open tasks" in content
+    assert "Overdue tasks" in content
+    assert "Next deadline" in content
+    assert "Open Workspace" in content
     assert "Assign to Me" in content
     assert "Advance Stage" in content
     assert "Mark Awarded" in content

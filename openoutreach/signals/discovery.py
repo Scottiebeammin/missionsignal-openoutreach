@@ -13,6 +13,7 @@ from openoutreach.signals.lifecycle import (
     recommended_lifecycle_action,
 )
 from openoutreach.signals.matching import OpportunityMatch, score_inventory_opportunity
+from openoutreach.signals.opportunity_work import build_deadline_summary, build_task_summary
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,14 @@ class DiscoveryOpportunity:
     @property
     def lifecycle_transitions(self):
         return lifecycle_transitions(self.opportunity.lifecycle_status)
+
+    @property
+    def task_summary(self):
+        return build_task_summary(self.opportunity)
+
+    @property
+    def deadline_summary(self):
+        return build_deadline_summary(self.opportunity)
 
 
 @dataclass(frozen=True)

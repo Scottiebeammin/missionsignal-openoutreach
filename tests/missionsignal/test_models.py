@@ -14,6 +14,8 @@ from openoutreach.funding.models import (
     FundingSignalFeedback,
     GovernmentEntity,
     Opportunity,
+    OpportunityDeadline,
+    OpportunityTask,
     PartnerOrganization,
     ResourceProvider,
     SourceOrganization,
@@ -224,6 +226,35 @@ def test_opportunity_model_defaults_and_string():
     assert opportunity.beneficiaries == ["youth"]
 
 
+def test_opportunity_task_model_defaults_and_string():
+    opportunity = Opportunity.objects.create(name="Digital Equity Grant")
+    task = OpportunityTask.objects.create(
+        opportunity=opportunity,
+        title="Review eligibility",
+        description="Check applicant requirements.",
+    )
+
+    assert str(task) == "Review eligibility"
+    assert task.status == OpportunityTask.Status.NOT_STARTED
+    assert task.priority == OpportunityTask.Priority.MEDIUM
+    assert task.owner is None
+    assert task.due_date is None
+
+
+def test_opportunity_deadline_model_defaults_and_string():
+    opportunity = Opportunity.objects.create(name="Digital Equity Grant")
+    deadline = OpportunityDeadline.objects.create(
+        opportunity=opportunity,
+        title="Submission deadline",
+        deadline_date="2026-08-15",
+    )
+
+    assert str(deadline) == "Submission deadline"
+    assert deadline.deadline_type == OpportunityDeadline.DeadlineType.SUBMISSION
+    assert deadline.status == OpportunityDeadline.Status.UPCOMING
+    assert deadline.notes == ""
+
+
 def test_source_organization_model_defaults_and_string():
     source = SourceOrganization.objects.create(
         name="Community Foundation",
@@ -242,6 +273,8 @@ def test_opportunity_database_models_are_registered_in_admin():
     assert admin.site.is_registered(ResourceProvider)
     assert admin.site.is_registered(PartnerOrganization)
     assert admin.site.is_registered(Opportunity)
+    assert admin.site.is_registered(OpportunityTask)
+    assert admin.site.is_registered(OpportunityDeadline)
     assert admin.site.is_registered(SourceOrganization)
 
 

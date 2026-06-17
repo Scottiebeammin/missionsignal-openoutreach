@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from openoutreach.funding.models import Opportunity, SourceOrganization
 from openoutreach.signals.lifecycle import LifecycleSummary
 from openoutreach.signals.models import OrganizationAnalysisRun
+from openoutreach.signals.opportunity_work import OpportunityWorkSummary, build_work_summary
 
 
 @dataclass(frozen=True)
@@ -66,6 +67,7 @@ class ExecutiveDashboard:
     status_distribution: list[ChartBar]
     priority_distribution: list[ChartBar]
     lifecycle_summary: LifecycleSummary
+    work_summary: OpportunityWorkSummary
 
 
 def _top_insight(readiness) -> str:
@@ -213,4 +215,5 @@ def build_executive_dashboard(
             Opportunity.PriorityLevel.choices,
         ),
         lifecycle_summary=discovery_overview.lifecycle_summary,
+        work_summary=build_work_summary(),
     )

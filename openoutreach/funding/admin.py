@@ -9,6 +9,8 @@ from openoutreach.funding.models import (
     FundingSignalFeedback,
     GovernmentEntity,
     Opportunity,
+    OpportunityDeadline,
+    OpportunityTask,
     PartnerOrganization,
     ResourceProvider,
     SourceOrganization,
@@ -70,6 +72,24 @@ class OpportunityAdmin(admin.ModelAdmin):
     search_fields = ("name", "source_name", "source_organization__name", "eligibility_notes", "notes")
     raw_id_fields = ("source_organization", "assigned_owner")
     date_hierarchy = "deadline"
+
+
+@admin.register(OpportunityTask)
+class OpportunityTaskAdmin(admin.ModelAdmin):
+    list_display = ("title", "opportunity", "status", "priority", "due_date", "owner", "updated_at")
+    list_filter = ("status", "priority", "owner")
+    search_fields = ("title", "description", "opportunity__name", "owner__username")
+    raw_id_fields = ("opportunity", "owner")
+    date_hierarchy = "due_date"
+
+
+@admin.register(OpportunityDeadline)
+class OpportunityDeadlineAdmin(admin.ModelAdmin):
+    list_display = ("title", "opportunity", "deadline_type", "status", "deadline_date", "updated_at")
+    list_filter = ("deadline_type", "status")
+    search_fields = ("title", "notes", "opportunity__name")
+    raw_id_fields = ("opportunity",)
+    date_hierarchy = "deadline_date"
 
 
 class FundingOpportunitySourceInline(admin.TabularInline):

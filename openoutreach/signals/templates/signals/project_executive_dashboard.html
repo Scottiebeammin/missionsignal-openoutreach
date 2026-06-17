@@ -209,6 +209,22 @@
 
       <section class="panel">
         <div class="panel-header">
+          <h2>Opportunity Work Summary</h2>
+          <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Workspaces</a>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-card"><strong>{{ dashboard.work_summary.open_tasks }}</strong><span>Open Tasks</span></div>
+          <div class="metric-card"><strong>{{ dashboard.work_summary.overdue_tasks }}</strong><span>Overdue Tasks</span></div>
+          <div class="metric-card"><strong>{{ dashboard.work_summary.upcoming_deadlines }}</strong><span>Upcoming Deadlines</span></div>
+          <div class="metric-card"><strong>{{ dashboard.work_summary.overdue_deadlines }}</strong><span>Overdue Deadlines</span></div>
+          <div class="metric-card"><strong>{{ dashboard.work_summary.next_critical_deadline.deadline.title|default:"None" }}</strong><span>Next Critical Deadline</span><p class="muted">{{ dashboard.work_summary.next_critical_deadline.deadline.deadline_date|date:"M j, Y"|default:"No deadline set" }}</p></div>
+          <div class="metric-card"><strong>{{ dashboard.work_summary.drafting_opportunities }}</strong><span>Opportunities in Drafting</span></div>
+          <div class="metric-card"><strong>{{ dashboard.work_summary.submitted_opportunities }}</strong><span>Submitted Opportunities</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
           <h2>Top Opportunities</h2>
           <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Discovery</a>
         </div>

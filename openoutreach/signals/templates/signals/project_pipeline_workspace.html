@@ -114,8 +114,11 @@
                 </div>
                 <p class="muted" style="margin: 8px 0 0;">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
                 <p class="muted">Owner: {% if item.opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</p>
+                <p class="muted">Open tasks: {{ item.task_summary.open_tasks }} · Overdue tasks: {{ item.task_summary.overdue_tasks }}</p>
+                <p class="muted">Next deadline: {{ item.deadline_summary.next_deadline.deadline.deadline_date|date:"M j, Y"|default:"Not set" }}</p>
                 <p><strong>Next:</strong> {{ stage.recommended_next_step }}</p>
                 <div class="card-actions" aria-label="Lifecycle actions">
+                  <a class="action-button" href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">Open Workspace</a>
                   {% for transition in item.lifecycle_transitions %}
                     <form class="inline-form" method="post" action="{% url 'project-pipeline-lifecycle-update' project.pk item.opportunity.pk %}">
                       {% csrf_token %}
