@@ -92,53 +92,68 @@
           <strong>{{ readiness.readiness_score }}</strong>
           <span>{{ readiness.readiness_level }}</span>
         </div>
-        <div class="summary-grid">
-          <section class="panel">
-            <h2>Strengths</h2>
-            {% for strength in readiness.strengths %}
-              <p class="strength">{{ strength }}</p>
+        <section class="panel action-panel">
+          <h2>Recommended Next Actions</h2>
+          <ol class="advisor-list">
+            {% for action in readiness.actions|slice:":3" %}
+              <li>{{ action }}<span class="impact-label">Impact: Improves partnership readiness and relationship strategy.</span></li>
             {% endfor %}
-          </section>
-          <section class="panel">
-            <h2>Partnership Gaps</h2>
-            {% for gap in readiness.gaps %}
-              <p class="gap">{{ gap }}</p>
-            {% empty %}
-              <p class="strength">No major partnership gaps were detected.</p>
-            {% endfor %}
-          </section>
-        </div>
+          </ol>
+        </section>
       </section>
     </header>
 
     <section class="panel">
-      <h2>Partnership Ecosystem Snapshot</h2>
+      <h2>Partnership Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card"><strong>{{ readiness.readiness_score }}</strong><span class="muted">Partnership Score</span><p class="muted">{{ readiness.readiness_level }}</p></div>
+        <div class="summary-card"><strong>{{ readiness.categories|length }}</strong><span class="muted">Partner Categories</span><p class="muted">{{ readiness.categories.0.name|default:"No categories yet" }}</p></div>
+        <div class="summary-card"><strong>{{ readiness.recommendations|length }}</strong><span class="muted">Partner Types</span><p class="muted">{{ readiness.recommendations.0.name|default:"No recommendations yet" }}</p></div>
+        <div class="summary-card"><strong>{{ readiness.ecosystem_items|length }}</strong><span class="muted">Partnership Benefits</span><p class="muted">{{ readiness.ecosystem_items.0|default:"No ecosystem items yet" }}</p></div>
+      </div>
+    </section>
+
+    <details class="panel">
+      <summary>Partnership Ecosystem Snapshot</summary>
       <p>Partnerships can help organizations expand reach, credibility, referral pathways, service delivery capacity, funding competitiveness, program sustainability, and community trust.</p>
       <div class="ecosystem-grid">
         {% for item in readiness.ecosystem_items %}
           <div class="ecosystem-card"><strong>{{ item }}</strong></div>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     <div class="dashboard">
       <div class="stack">
-        <section class="panel">
-          <h2>Partnership Categories</h2>
+        <details class="panel" open>
+          <summary>Partnership Categories</summary>
           <div class="category-grid">
-            {% for category in readiness.categories %}
+            {% for category in readiness.categories|slice:":5" %}
               <article class="category-card">
                 <h3>{{ category.name }}</h3>
                 <p class="muted">{{ category.explanation }}</p>
               </article>
             {% endfor %}
           </div>
-        </section>
+          <details style="margin-top: 12px;">
+            <summary>Show More</summary>
+            <div class="category-grid" style="margin-top: 10px;">
+              {% for category in readiness.categories|slice:"5:" %}
+                <article class="category-card">
+                  <h3>{{ category.name }}</h3>
+                  <p class="muted">{{ category.explanation }}</p>
+                </article>
+              {% empty %}
+                <p class="muted">No additional partnership categories.</p>
+              {% endfor %}
+            </div>
+          </details>
+        </details>
 
-        <section class="panel">
-          <h2>Recommended Partner Types</h2>
+        <details class="panel" open>
+          <summary>Recommended Partner Types</summary>
           <div class="partner-grid">
-            {% for partner in readiness.recommendations %}
+            {% for partner in readiness.recommendations|slice:":5" %}
               <article class="partner-card">
                 <header>
                   <h3>{{ partner.name }}</h3>
@@ -148,12 +163,48 @@
               </article>
             {% endfor %}
           </div>
-        </section>
+          <details style="margin-top: 12px;">
+            <summary>Show More</summary>
+            <div class="partner-grid" style="margin-top: 10px;">
+              {% for partner in readiness.recommendations|slice:"5:" %}
+                <article class="partner-card">
+                  <header>
+                    <h3>{{ partner.name }}</h3>
+                    <span class="score-badge">{{ partner.score }}</span>
+                  </header>
+                  <p>{{ partner.explanation }}</p>
+                </article>
+              {% empty %}
+                <p class="muted">No additional partner types.</p>
+              {% endfor %}
+            </div>
+          </details>
+        </details>
       </div>
 
       <aside class="stack">
-        <section class="panel">
-          <h2>Partnership Readiness Checklist</h2>
+        <details class="panel">
+          <summary>Strengths and Partnership Gaps</summary>
+          <div class="summary-grid">
+            <section>
+              <h2>Strengths</h2>
+              {% for strength in readiness.strengths %}
+                <p class="strength">{{ strength }}</p>
+              {% endfor %}
+            </section>
+            <section>
+              <h2>Partnership Gaps</h2>
+              {% for gap in readiness.gaps %}
+                <p class="gap">{{ gap }}</p>
+              {% empty %}
+                <p class="strength">No major partnership gaps were detected.</p>
+              {% endfor %}
+            </section>
+          </div>
+        </details>
+
+        <details class="panel">
+          <summary>Partnership Readiness Checklist</summary>
           {% for item in readiness.checklist %}
             <div class="check-row">
               <span class="status {{ item.status_class }}">{{ item.status }}</span>
@@ -161,16 +212,16 @@
               <p class="muted">{{ item.detail }}</p>
             </div>
           {% endfor %}
-        </section>
+        </details>
 
-        <section class="panel">
-          <h2>Recommended Partnership Actions</h2>
-          <ol class="actions-list">
-            {% for action in readiness.actions %}
-              <li>{{ action }}</li>
+        <details class="panel">
+          <summary>Recommended Partnership Actions</summary>
+          <ol class="advisor-list">
+            {% for action in readiness.actions|slice:":5" %}
+              <li>{{ action }}<span class="impact-label">Impact: Improves partnership readiness and relationship strategy.</span></li>
             {% endfor %}
           </ol>
-        </section>
+        </details>
       </aside>
     </div>
   </main>

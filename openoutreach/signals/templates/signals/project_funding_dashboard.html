@@ -100,40 +100,42 @@
           <strong>{{ readiness.readiness_score }}</strong>
           <span>{{ readiness.readiness_level }}</span>
         </div>
-        <div class="summary-grid">
-          <section class="panel">
-            <h2>Strengths</h2>
-            {% for strength in readiness.strengths %}
-              <p class="strength">{{ strength }}</p>
+        <section class="panel action-panel">
+          <h2>Recommended Next Actions</h2>
+          <ol class="advisor-list">
+            {% for action in readiness.recommended_funding_actions|slice:":3" %}
+              <li>{{ action }}<span class="impact-label">Impact: Improves funding readiness and funder targeting.</span></li>
             {% endfor %}
-          </section>
-          <section class="panel">
-            <h2>Gaps</h2>
-            {% for gap in readiness.gaps %}
-              <p class="gap">{{ gap }}</p>
-            {% empty %}
-              <p class="strength">No major readiness gaps were detected.</p>
-            {% endfor %}
-          </section>
-        </div>
+          </ol>
+        </section>
       </section>
     </header>
 
+    <section class="panel">
+      <h2>Funding Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card"><strong>{{ readiness.readiness_score }}</strong><span class="muted">Funding Score</span><p class="muted">{{ readiness.readiness_level }}</p></div>
+        <div class="summary-card"><strong>{{ readiness.funding_themes|length }}</strong><span class="muted">Funding Themes</span><p class="muted">{{ readiness.funding_themes.0|default:"Themes not inferred yet" }}</p></div>
+        <div class="summary-card"><strong>{{ readiness.recommended_funder_types|length }}</strong><span class="muted">Funder Types</span><p class="muted">{{ readiness.recommended_funder_types.0.name|default:"No recommendations yet" }}</p></div>
+        <div class="summary-card"><strong>Local Government</strong><span class="muted">Core Lane</span><p class="muted">City, county, service contract, and RFP pathways.</p></div>
+      </div>
+    </section>
+
     <div class="dashboard">
       <div class="stack">
-        <section class="panel">
-          <h2>Funding Themes</h2>
+        <details class="panel" open>
+          <summary>Funding Themes</summary>
           <div class="theme-grid">
             {% for theme in readiness.funding_themes %}
               <div class="theme-card">{{ theme }}</div>
             {% endfor %}
           </div>
-        </section>
+        </details>
 
-        <section class="panel">
-          <h2>Recommended Funder Types</h2>
+        <details class="panel" open>
+          <summary>Recommended Funder Types</summary>
           <div class="funder-grid">
-            {% for funder in readiness.recommended_funder_types %}
+            {% for funder in readiness.recommended_funder_types|slice:":5" %}
               <article class="funder-card{% if funder.name == 'Local Government' %} local-government{% endif %}">
                 <header>
                   <h3>{{ funder.name }}</h3>
@@ -150,10 +152,26 @@
               </article>
             {% endfor %}
           </div>
-        </section>
+          <details style="margin-top: 12px;">
+            <summary>Show More</summary>
+            <div class="funder-grid" style="margin-top: 10px;">
+              {% for funder in readiness.recommended_funder_types|slice:"5:" %}
+                <article class="funder-card{% if funder.name == 'Local Government' %} local-government{% endif %}">
+                  <header>
+                    <h3>{{ funder.name }}</h3>
+                    <span class="score-badge">{{ funder.score }}</span>
+                  </header>
+                  <p>{{ funder.explanation }}</p>
+                </article>
+              {% empty %}
+                <p class="muted">No additional funder types.</p>
+              {% endfor %}
+            </div>
+          </details>
+        </details>
 
-        <section class="panel local-snapshot">
-          <h2>{{ readiness.local_government_snapshot.heading }}</h2>
+        <details class="panel local-snapshot" open>
+          <summary>{{ readiness.local_government_snapshot.heading }}</summary>
           <p>{{ readiness.local_government_snapshot.relevance }}</p>
           <div class="lane-grid" aria-label="Local Government opportunity lanes">
             {% for lane in readiness.local_government_snapshot.opportunity_lanes %}
@@ -161,12 +179,32 @@
             {% endfor %}
           </div>
           <p class="muted">{{ readiness.local_government_snapshot.next_step }}</p>
-        </section>
+        </details>
       </div>
 
       <aside class="stack">
-        <section class="panel">
-          <h2>Grant Readiness Checklist</h2>
+        <details class="panel">
+          <summary>Strengths and Gaps</summary>
+          <div class="summary-grid">
+            <section>
+              <h2>Strengths</h2>
+              {% for strength in readiness.strengths %}
+                <p class="strength">{{ strength }}</p>
+              {% endfor %}
+            </section>
+            <section>
+              <h2>Gaps</h2>
+              {% for gap in readiness.gaps %}
+                <p class="gap">{{ gap }}</p>
+              {% empty %}
+                <p class="strength">No major readiness gaps were detected.</p>
+              {% endfor %}
+            </section>
+          </div>
+        </details>
+
+        <details class="panel">
+          <summary>Grant Readiness Checklist</summary>
           <div class="checklist">
             {% for item in readiness.grant_readiness_checklist %}
               <div class="check-row">
@@ -176,16 +214,16 @@
               </div>
             {% endfor %}
           </div>
-        </section>
+        </details>
 
-        <section class="panel">
-          <h2>Recommended Funding Actions</h2>
-          <ol class="actions">
-            {% for action in readiness.recommended_funding_actions %}
-              <li>{{ action }}</li>
+        <details class="panel">
+          <summary>Recommended Funding Actions</summary>
+          <ol class="advisor-list">
+            {% for action in readiness.recommended_funding_actions|slice:":5" %}
+              <li>{{ action }}<span class="impact-label">Impact: Improves funding readiness and funder targeting.</span></li>
             {% endfor %}
           </ol>
-        </section>
+        </details>
       </aside>
     </div>
   </main>

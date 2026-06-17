@@ -74,18 +74,25 @@
     border-left: 5px solid var(--accent, #0f766e) !important;
     background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft, #e8f5f2) 180%);
   }
-  details.panel summary {
+  details.panel summary,
+  details > summary {
     cursor: pointer;
     font-weight: 900;
     letter-spacing: .06em;
     text-transform: uppercase;
+    color: var(--ink, #172334);
+    list-style-position: inside;
+  }
+  details.panel[open] > summary,
+  details[open] > summary {
+    margin-bottom: 12px;
   }
   .topbar { display: none !important; }
   .hero, .panel, .module-card, .metric-card, .summary-card, .scorecard, .kpi-card,
   .funder-card, .theme-card, .lane-card, .entity-card, .category-card,
   .resource-card, .partner-card, .ecosystem-card, .match-card, .inventory-card,
   .tag-card, .priority-card, .chart-card, .setting-card, .profile-card, .pipeline-card,
-  .opportunity-card, .metric, .advisor-panel {
+  .opportunity-card, .metric, .advisor-panel, .score-box, .compact-card {
     border: 1px solid var(--line, #d9e2e8) !important;
     border-radius: 14px !important;
     background: white;
@@ -106,6 +113,30 @@
   .panel {
     margin-bottom: 16px !important;
     padding: 18px !important;
+  }
+  .score-box {
+    padding: 18px !important;
+    background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft, #e8f5f2) 190%) !important;
+  }
+  .score-box h2 {
+    margin-bottom: 8px !important;
+  }
+  .score-box strong {
+    display: block;
+    color: var(--accent, #0f766e);
+    font-size: clamp(2.6rem, 7vw, 4.6rem) !important;
+    line-height: .95;
+    font-weight: 950;
+  }
+  .score-box span {
+    display: inline-flex !important;
+    margin-top: 10px !important;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--accent, #0f766e);
+    font-weight: 900;
+    box-shadow: inset 0 0 0 1px var(--line, #d9e2e8);
   }
   h1 { font-size: clamp(2rem, 4vw, 3.1rem) !important; line-height: 1 !important; letter-spacing: -.01em; }
   h2 { font-size: .78rem !important; letter-spacing: .09em !important; text-transform: uppercase !important; color: var(--muted, #687789); }
@@ -128,6 +159,35 @@
     font-size: 2rem;
     line-height: 1;
     font-weight: 900;
+  }
+  .section-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .section-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .dashboard,
+  .stack,
+  .grid,
+  .metrics,
+  .summary-grid,
+  .score-grid,
+  .category-grid,
+  .resource-grid,
+  .partner-grid,
+  .entity-grid,
+  .funder-grid,
+  .theme-grid,
+  .lane-grid,
+  .ecosystem-grid {
+    gap: 12px !important;
   }
   .advisor-panel,
   .action-panel {
@@ -179,6 +239,17 @@
     color: var(--muted, #687789);
     font-size: .82rem;
     font-weight: 700;
+  }
+  .actions-list,
+  .actions,
+  .checklist,
+  .detail-list,
+  .lane-list {
+    margin-top: 0;
+  }
+  .check-row {
+    padding: 12px 0 !important;
+    border-bottom: 1px solid var(--line, #d9e2e8) !important;
   }
   .pill {
     display: inline-flex !important;
