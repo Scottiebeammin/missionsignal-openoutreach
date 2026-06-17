@@ -20,6 +20,7 @@ def test_project_member_can_view_match_dashboard(client, match_project):
     content = response.content.decode()
 
     assert response.status_code == 200
+    assert "Opportunity Matching V3" in content
     assert "Opportunity Match Dashboard" in content
     assert "Overall Match Score" in content
     assert "Total Matches" in content.lower() or "total matches" in content
@@ -77,7 +78,7 @@ def test_match_dashboard_renders_scores_levels_and_reasons(client, match_project
     assert match_level(59) == "Weak Match"
 
 
-def test_match_dashboard_renders_breakdowns_and_improvement_suggestions(client, match_project):
+def test_match_dashboard_renders_breakdowns_missing_factors_and_improvements(client, match_project):
     project, user = match_project
     client.force_login(user)
 
@@ -88,12 +89,19 @@ def test_match_dashboard_renders_breakdowns_and_improvement_suggestions(client, 
     assert "Geography Alignment" in content
     assert "Workforce Development Alignment" in content
     assert "Youth Alignment" in content
-    assert "Missing" in content
-    assert "Outcomes Evidence" in content
-    assert "Partnership Evidence" in content
-    assert "Improve Match By" in content
-    assert "Adding outcomes data" in content
-    assert "Adding partnership information" in content
+    assert "Missing Factors" in content
+    assert "Outcomes not documented" in content
+    assert "Budget range not provided" in content
+    assert "Partnership inventory missing" in content
+    assert "Funding history missing" in content
+    assert "Improvement Opportunities" in content
+    assert "Add measurable outcomes" in content
+    assert "Add partner organizations" in content
+    assert "Add annual budget range" in content
+    assert "Add funding sources" in content
+    assert "Add program impact evidence" in content
+    assert "Current Match Score" in content
+    assert "Potential Match Score" in content
 
 
 def test_match_scoring_is_deterministic(match_project):
@@ -113,7 +121,11 @@ def test_match_scoring_is_deterministic(match_project):
     assert match_level(first.top_recommended[0].score) == first.top_recommended[0].level
     assert first.highest_score == 100
     assert first.strongest_category == "Funding"
-    assert first.readiness_signals == ["Outcomes", "Partnerships", "Budget"]
+    assert first.weakest_category == "Resource"
+    assert first.highest_leverage_improvement == "Add measurable outcomes."
+    assert first.readiness_signals == ["Outcomes", "Partnerships", "Budget", "Geography", "Beneficiaries"]
+    assert first.top_gaps[0].label == "Outcomes not documented"
+    assert first.top_gaps[0].count == 12
 
 
 def test_weighted_scoring_and_ranking_order(match_project):
@@ -128,6 +140,29 @@ def test_weighted_scoring_and_ranking_order(match_project):
     assert overview.categories[0].highest_score == 100
     assert overview.categories[0].lowest_score == 92
     assert overview.categories[2].average_score == 71
+    assert overview.heatmap[0].label == "Funding"
+    assert overview.heatmap[-1].label == "Resource"
+
+
+def test_gap_analysis_heatmap_and_leverage_actions_render(client, match_project):
+    project, user = match_project
+    client.force_login(user)
+
+    response = client.get(reverse("project-matches", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert "Top Match Gaps" in content
+    assert "Outcomes not documented" in content
+    assert "Partnership inventory missing" in content
+    assert "Ecosystem Heatmap" in content
+    assert "Funding" in content
+    assert "Government" in content
+    assert "Resource" in content
+    assert "Partnership" in content
+    assert "Highest Leverage Improvements" in content
+    assert "Top 5 Actions That Would Improve The Most Matches" in content
+    assert "Create partnership inventory." in content
+    assert "Document annual budget range." in content
 
 
 def test_ecosystem_dashboard_includes_match_summary(client, match_project):
@@ -137,11 +172,12 @@ def test_ecosystem_dashboard_includes_match_summary(client, match_project):
     response = client.get(reverse("project-ecosystem", kwargs={"pk": project.pk}))
     content = response.content.decode()
 
-    assert "Opportunity Matching Summary" in content
+    assert "Opportunity Match Health" in content
+    assert "Overall Match Score" in content
     assert "Total Opportunities" in content
-    assert "Average Match Score" in content
-    assert "Highest Match Score" in content
-    assert "Strongest Opportunity Category" in content
+    assert "Highest Match Category" in content
+    assert "Weakest Match Category" in content
+    assert "Highest Leverage Improvement" in content
     assert "Open Opportunity Matching" in content
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
 

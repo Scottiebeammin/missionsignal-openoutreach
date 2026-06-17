@@ -28,6 +28,7 @@ class OpportunityMatch:
     match_factors: list[str]
     missing_factors: list[str]
     improvement_suggestions: list[str]
+    potential_score: int
     geography_relevance: int
 
     @property
@@ -66,6 +67,30 @@ class MatchCategory:
     def top_matches(self) -> list[OpportunityMatch]:
         return self.matches[:5]
 
+    @property
+    def strength(self) -> str:
+        if self.average_score >= 90:
+            return "Excellent"
+        if self.average_score >= 75:
+            return "Strong"
+        if self.average_score >= 60:
+            return "Developing"
+        return "Needs Attention"
+
+
+@dataclass(frozen=True)
+class MatchGap:
+    label: str
+    count: int
+
+
+@dataclass(frozen=True)
+class CategoryHeatmapItem:
+    label: str
+    average_score: int
+    strength: str
+    relative_rank: int
+
 
 @dataclass(frozen=True)
 class MatchOverview:
@@ -74,6 +99,9 @@ class MatchOverview:
     categories: list[MatchCategory]
     top_recommended: list[OpportunityMatch] = field(default_factory=list)
     readiness_signals: list[str] = field(default_factory=list)
+    top_gaps: list[MatchGap] = field(default_factory=list)
+    heatmap: list[CategoryHeatmapItem] = field(default_factory=list)
+    highest_leverage_actions: list[str] = field(default_factory=list)
 
     @property
     def funding_count(self) -> int:
@@ -105,6 +133,22 @@ class MatchOverview:
             key=lambda category: (-category.average_score, -category.highest_score, category.label),
         )[0]
         return best.label.replace(" Matches", "")
+
+    @property
+    def weakest_category(self) -> str:
+        if not self.categories:
+            return "No matches yet"
+        weakest = sorted(
+            self.categories,
+            key=lambda category: (category.average_score, category.highest_score, category.label),
+        )[0]
+        return weakest.label.replace(" Matches", "")
+
+    @property
+    def highest_leverage_improvement(self) -> str:
+        if not self.highest_leverage_actions:
+            return "No improvement actions available"
+        return self.highest_leverage_actions[0]
 
 
 def _category_count(categories: list[MatchCategory], label: str) -> int:
@@ -177,7 +221,11 @@ def _profile(project, funding_criteria=None) -> dict:
         "has_partnerships": _has_values(organization.existing_partnerships),
         "has_budget": bool(organization.budget_range.strip()),
         "has_geography": _has_values(geography),
+        "has_full_geography": bool(
+            organization.city and organization.county and organization.state and organization.service_area_notes
+        ),
         "has_beneficiaries": _has_values(beneficiaries),
+        "has_funding_history": _has_values(organization.current_funding_sources),
     }
 
 
@@ -213,50 +261,63 @@ def _factor_score(matches: list[str], weight: int, *, partial: int = 0) -> int:
 def _missing_profile_factors(profile: dict) -> list[str]:
     missing = []
     if not profile["has_outcomes"]:
-        missing.append("Outcomes Evidence")
+        missing.append("Outcomes not documented")
     if not profile["has_partnerships"]:
-        missing.append("Partnership Evidence")
+        missing.append("Partnership inventory missing")
     if not profile["has_budget"]:
-        missing.append("Budget Context")
-    if not profile["has_geography"]:
-        missing.append("Service Geography")
+        missing.append("Budget range not provided")
+    if not profile["has_funding_history"]:
+        missing.append("Funding history missing")
+    if not profile["has_full_geography"]:
+        missing.append("Geography not fully defined")
     if not profile["has_beneficiaries"]:
-        missing.append("Beneficiary Detail")
+        missing.append("Beneficiary evidence limited")
     return missing
 
 
 def _improvement_suggestions(profile: dict, score: int) -> list[str]:
-    if score >= 75:
-        return []
     suggestions = []
     if not profile["has_outcomes"]:
-        suggestions.append("Adding outcomes data")
+        suggestions.append("Add measurable outcomes")
     if not profile["has_geography"]:
-        suggestions.append("Defining service geography")
+        suggestions.append("Define service geography")
     if not profile["has_partnerships"]:
-        suggestions.append("Adding partnership information")
+        suggestions.append("Add partner organizations")
     if not profile["has_beneficiaries"]:
-        suggestions.append("Expanding beneficiary information")
+        suggestions.append("Expand beneficiary documentation")
     if not profile["has_budget"]:
-        suggestions.append("Adding budget context")
+        suggestions.append("Add annual budget range")
+    if not profile["has_funding_history"]:
+        suggestions.append("Add funding sources")
+    if not profile["has_outcomes"]:
+        suggestions.append("Add program impact evidence")
     if suggestions:
-        return suggestions
-    return ["Adding stronger evidence for this opportunity category"]
+        return suggestions[:5]
+    if score < 90:
+        return ["Add stronger evidence for this opportunity category"]
+    return []
+
+
+def _potential_score(score: int, missing_factors: list[str]) -> int:
+    potential_gain = 0
+    for factor in missing_factors:
+        if factor == "Outcomes not documented":
+            potential_gain += 6
+        elif factor == "Partnership inventory missing":
+            potential_gain += 5
+        elif factor == "Budget range not provided":
+            potential_gain += 4
+        elif factor == "Funding history missing":
+            potential_gain += 4
+        elif factor == "Geography not fully defined":
+            potential_gain += 3
+        elif factor == "Beneficiary evidence limited":
+            potential_gain += 3
+    return min(100, score + potential_gain)
 
 
 def _readiness_signals(profile: dict) -> list[str]:
-    signals = []
-    if not profile["has_outcomes"]:
-        signals.append("Outcomes")
-    if not profile["has_partnerships"]:
-        signals.append("Partnerships")
-    if not profile["has_budget"]:
-        signals.append("Budget")
-    if not profile["has_geography"]:
-        signals.append("Geography")
-    if not profile["has_beneficiaries"]:
-        signals.append("Beneficiaries")
-    return signals or ["Outcomes", "Partnerships", "Budget", "Geography", "Beneficiaries"]
+    return ["Outcomes", "Partnerships", "Budget", "Geography", "Beneficiaries"]
 
 
 def _score_record(
@@ -349,8 +410,9 @@ def _score_record(
         category=category,
         reasons=reasons[:5],
         match_factors=match_factors[:5],
-        missing_factors=missing_factors[:4],
+        missing_factors=missing_factors[:5],
         improvement_suggestions=_improvement_suggestions(profile, score),
+        potential_score=_potential_score(score, missing_factors),
         geography_relevance=geography_score,
     )
 
@@ -360,6 +422,63 @@ def _sort_matches(matches: list[OpportunityMatch]) -> list[OpportunityMatch]:
         matches,
         key=lambda match: (-match.score, -match.matching_factor_count, -match.geography_relevance, match.name),
     )
+
+
+GAP_TO_ACTION = {
+    "Outcomes not documented": "Add measurable outcomes.",
+    "Partnership inventory missing": "Create partnership inventory.",
+    "Budget range not provided": "Document annual budget range.",
+    "Funding history missing": "Add funding sources.",
+    "Geography not fully defined": "Define service geography in more detail.",
+    "Beneficiary evidence limited": "Expand beneficiary documentation.",
+}
+
+GAP_PRIORITY = {
+    "Outcomes not documented": 0,
+    "Partnership inventory missing": 1,
+    "Budget range not provided": 2,
+    "Funding history missing": 3,
+    "Geography not fully defined": 4,
+    "Beneficiary evidence limited": 5,
+}
+
+
+def _gap_analysis(matches: list[OpportunityMatch]) -> list[MatchGap]:
+    counts = {}
+    for match in matches:
+        for factor in match.missing_factors:
+            counts[factor] = counts.get(factor, 0) + 1
+    gaps = [MatchGap(label=label, count=count) for label, count in counts.items()]
+    return sorted(gaps, key=lambda gap: (-gap.count, GAP_PRIORITY.get(gap.label, 99), gap.label))
+
+
+def _highest_leverage_actions(gaps: list[MatchGap]) -> list[str]:
+    actions = []
+    for gap in gaps:
+        action = GAP_TO_ACTION.get(gap.label)
+        if action and action not in actions:
+            actions.append(action)
+        if gap.label == "Outcomes not documented" and "Add program impact evidence." not in actions:
+            actions.append("Add program impact evidence.")
+        if len(actions) >= 5:
+            break
+    return actions[:5]
+
+
+def _heatmap(categories: list[MatchCategory]) -> list[CategoryHeatmapItem]:
+    ranked = sorted(
+        categories,
+        key=lambda category: (-category.average_score, -category.highest_score, category.label),
+    )
+    return [
+        CategoryHeatmapItem(
+            label=category.label.replace(" Matches", ""),
+            average_score=category.average_score,
+            strength=category.strength,
+            relative_rank=index + 1,
+        )
+        for index, category in enumerate(ranked)
+    ]
 
 
 def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
@@ -432,6 +551,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
         for category in categories
         for match in category.matches
     ])
+    top_gaps = _gap_analysis(all_matches)
     overall_score = round(sum(match.score for match in all_matches) / len(all_matches)) if all_matches else 0
     return MatchOverview(
         overall_score=overall_score,
@@ -439,4 +559,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
         categories=categories,
         top_recommended=all_matches[:8],
         readiness_signals=_readiness_signals(profile),
+        top_gaps=top_gaps,
+        heatmap=_heatmap(categories),
+        highest_leverage_actions=_highest_leverage_actions(top_gaps),
     )

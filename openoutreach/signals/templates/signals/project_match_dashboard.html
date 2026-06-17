@@ -37,10 +37,11 @@
     .score-box strong { display: block; font-size: clamp(3rem, 8vw, 5rem); line-height: .95; }
     .score-box span { display: block; margin-top: 8px; font-weight: 800; }
     .panel { margin-bottom: 14px; padding: 18px; }
-    .metric-grid, .match-grid, .category-grid { display: grid; gap: 10px; }
+    .metric-grid, .match-grid, .category-grid, .heatmap-grid { display: grid; gap: 10px; }
     .metric-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .match-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .heatmap-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .metric-card, .match-card, .category-card { padding: 14px; }
     .metric-card strong { display: block; font-size: 2rem; line-height: 1; color: var(--accent); }
     .match-header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
@@ -51,7 +52,7 @@
     ul { margin: 8px 0 0; padding-left: 20px; }
     li + li { margin-top: 4px; }
     @media (max-width: 900px) {
-      .score-grid, .metric-grid, .match-grid, .category-grid { grid-template-columns: 1fr; }
+      .score-grid, .metric-grid, .match-grid, .category-grid, .heatmap-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -69,7 +70,7 @@
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">Opportunity Matching V2</p>
+      <p class="eyebrow">Opportunity Matching V3</p>
       <h1>Opportunity Match Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Opportunity matching summary">
@@ -104,9 +105,10 @@
               <h3>{{ match.name }}</h3>
               <span class="pill score-pill">{{ match.score }}</span>
             </div>
+            <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
             <p><span class="pill">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
             <p class="muted">Match Confidence: {{ match.level }}</p>
-            <p><strong>Why it matches</strong></p>
+            <p><strong>Why It Matches</strong></p>
             <ul>
               {% for reason in match.reasons %}
                 <li>{{ reason }}</li>
@@ -122,7 +124,7 @@
             </div>
             {% if match.missing_factors %}
               <div class="factor-block">
-                <p class="factor-title">Missing</p>
+                <p class="factor-title">Missing Factors</p>
                 <ul>
                   {% for factor in match.missing_factors %}
                     <li>{{ factor }}</li>
@@ -132,7 +134,7 @@
             {% endif %}
             {% if match.improvement_suggestions %}
               <div class="factor-block">
-                <p class="factor-title">Improve Match By</p>
+                <p class="factor-title">Improvement Opportunities</p>
                 <ul>
                   {% for suggestion in match.improvement_suggestions %}
                     <li>{{ suggestion }}</li>
@@ -157,13 +159,17 @@
                 <h3>{{ match.name }}</h3>
                 <span class="pill score-pill">{{ match.score }}</span>
               </div>
+              <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
               <p><span class="pill">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
               <p class="muted">Match Confidence: {{ match.level }}</p>
-              <ul>
-                {% for reason in match.reasons %}
-                  <li>{{ reason }}</li>
-                {% endfor %}
-              </ul>
+              <div class="factor-block">
+                <p class="factor-title">Why It Matches</p>
+                <ul>
+                  {% for reason in match.reasons %}
+                    <li>{{ reason }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
               <div class="factor-block">
                 <p class="factor-title">Match Factors</p>
                 <ul>
@@ -174,7 +180,7 @@
               </div>
               {% if match.missing_factors %}
                 <div class="factor-block">
-                  <p class="factor-title">Missing</p>
+                  <p class="factor-title">Missing Factors</p>
                   <ul>
                     {% for factor in match.missing_factors %}
                       <li>{{ factor }}</li>
@@ -184,7 +190,7 @@
               {% endif %}
               {% if match.improvement_suggestions %}
                 <div class="factor-block">
-                  <p class="factor-title">Improve Match By</p>
+                  <p class="factor-title">Improvement Opportunities</p>
                   <ul>
                     {% for suggestion in match.improvement_suggestions %}
                       <li>{{ suggestion }}</li>
@@ -199,6 +205,42 @@
         </div>
       </section>
     {% endfor %}
+
+    <section class="panel">
+      <h2>Top Match Gaps</h2>
+      <div class="metric-grid">
+        {% for gap in match_overview.top_gaps %}
+          <article class="metric-card">
+            <strong>{{ gap.count }}</strong>
+            <span>{{ gap.label }}</span>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Ecosystem Heatmap</h2>
+      <div class="heatmap-grid">
+        {% for item in match_overview.heatmap %}
+          <article class="metric-card">
+            <strong>#{{ item.relative_rank }}</strong>
+            <span>{{ item.label }}</span>
+            <p class="muted">{{ item.average_score }} average match score</p>
+            <p class="muted">{{ item.strength }} category strength</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Highest Leverage Improvements</h2>
+      <p class="muted">Top 5 Actions That Would Improve The Most Matches</p>
+      <ol>
+        {% for action in match_overview.highest_leverage_actions %}
+          <li>{{ action }}</li>
+        {% endfor %}
+      </ol>
+    </section>
 
     <section class="panel">
       <h2>Match Readiness Signals</h2>

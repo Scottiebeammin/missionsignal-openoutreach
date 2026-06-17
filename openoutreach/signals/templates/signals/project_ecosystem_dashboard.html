@@ -114,12 +114,13 @@
 
     {% if ecosystem.match_overview %}
       <section class="panel">
-        <h2>Opportunity Matching Summary</h2>
+        <h2>Opportunity Match Health</h2>
         <div class="summary-grid">
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.overall_score }}</strong><span class="muted">Overall Match Score</span></div>
           <div class="summary-card"><strong>{{ ecosystem.match_overview.total_matches }}</strong><span class="muted">Total Opportunities</span></div>
-          <div class="summary-card"><strong>{{ ecosystem.match_overview.overall_score }}</strong><span class="muted">Average Match Score</span></div>
-          <div class="summary-card"><strong>{{ ecosystem.match_overview.highest_score }}</strong><span class="muted">Highest Match Score</span></div>
-          <div class="summary-card"><strong>{{ ecosystem.match_overview.strongest_category }}</strong><span class="muted">Strongest Opportunity Category</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.strongest_category }}</strong><span class="muted">Highest Match Category</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.weakest_category }}</strong><span class="muted">Weakest Match Category</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.highest_leverage_improvement }}</strong><span class="muted">Highest Leverage Improvement</span></div>
           <a class="summary-card" href="{% url 'project-matches' project.pk %}"><strong>Open Opportunity Matching</strong><span class="muted">Review deterministic opportunity recommendations.</span></a>
         </div>
       </section>
