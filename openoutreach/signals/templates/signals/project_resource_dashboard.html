@@ -72,8 +72,10 @@
       .dashboard, .score-grid, .summary-grid, .category-grid, .resource-grid, .ecosystem-grid { grid-template-columns: 1fr; }
     }
   </style>
+{% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="resources" %}
   <main>
     <nav class="topbar" aria-label="ResourceSignal actions">
       <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>

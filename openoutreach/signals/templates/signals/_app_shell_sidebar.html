@@ -1,0 +1,17 @@
+<aside class="sidebar" aria-label="MissionSignal app shell">
+  <div class="brand">
+    <strong>MissionSignal</strong>
+    <span>Opportunity Command Center</span>
+  </div>
+  <nav class="nav" aria-label="MissionSignal navigation">
+    <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'project-dashboard' project.pk %}">Dashboard <span>Home</span></a>
+    <a class="{% if active_page == 'mission' %}active{% endif %}" href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
+    <a class="{% if active_page == 'funding' %}active{% endif %}" href="{% url 'project-funding' project.pk %}">Funding</a>
+    <a class="{% if active_page == 'government' %}active{% endif %}" href="{% url 'project-government' project.pk %}">Government</a>
+    <a class="{% if active_page == 'resources' %}active{% endif %}" href="{% url 'project-resources' project.pk %}">Resources</a>
+    <a class="{% if active_page == 'partnerships' %}active{% endif %}" href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+    <a class="{% if active_page == 'discovery' %}active{% endif %}" href="{% url 'project-discovery' project.pk %}">Discovery</a>
+    <a class="{% if active_page == 'matching' %}active{% endif %}" href="{% url 'project-matches' project.pk %}">Matching</a>
+    <a class="{% if active_page == 'ecosystem' %}active{% endif %}" href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
+  </nav>
+</aside>

@@ -1,0 +1,77 @@
+<style>
+  body {
+    padding-left: 238px;
+    background: #eef3f6;
+    color: var(--ink, #172334);
+    font-size: 14px;
+  }
+  body > main {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 22px !important;
+  }
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 20;
+    width: 238px;
+    height: 100vh;
+    padding: 18px;
+    overflow-y: auto;
+    background: #132437;
+    color: white;
+  }
+  .brand { margin-bottom: 22px; }
+  .brand strong { display: block; font-size: 1.05rem; }
+  .brand span { color: #b8c5d1; font-size: .85rem; }
+  .nav { display: grid; gap: 6px; }
+  .nav a {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #dce7ef;
+    text-decoration: none;
+  }
+  .nav a.active, .nav a:hover { background: rgba(255,255,255,.12); color: white; }
+  .topbar { display: none !important; }
+  .hero, .panel, .module-card, .metric-card, .summary-card, .scorecard, .kpi-card,
+  .funder-card, .theme-card, .lane-card, .entity-card, .category-card,
+  .resource-card, .partner-card, .ecosystem-card, .match-card, .inventory-card,
+  .tag-card, .priority-card, .chart-card {
+    border: 1px solid var(--line, #d9e2e8) !important;
+    border-radius: 8px !important;
+    background: white;
+    box-shadow: 0 1px 2px rgba(16, 30, 44, .04);
+  }
+  .hero {
+    margin-bottom: 14px !important;
+    padding: 22px !important;
+  }
+  .panel {
+    margin-bottom: 14px !important;
+    padding: 16px !important;
+  }
+  h1 { font-size: clamp(2rem, 4vw, 3.1rem) !important; line-height: 1 !important; }
+  h2 { font-size: .82rem !important; letter-spacing: .08em !important; text-transform: uppercase !important; }
+  .eyebrow { letter-spacing: .08em !important; }
+  .button, button {
+    min-height: 34px !important;
+    border-radius: 6px !important;
+  }
+  @media (max-width: 1180px) {
+    body { padding-left: 0; }
+    body > main { padding: 14px !important; }
+    .sidebar {
+      position: static;
+      width: auto;
+      height: auto;
+    }
+    .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 720px) {
+    .nav { grid-template-columns: 1fr; }
+  }
+</style>

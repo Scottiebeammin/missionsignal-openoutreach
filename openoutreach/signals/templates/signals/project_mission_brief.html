@@ -74,8 +74,10 @@
       .dashboard, .snapshot, .identity-grid, .opportunity-grid, .module-grid { grid-template-columns: 1fr; }
     }
   </style>
+{% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="mission" %}
   <main>
     <nav class="topbar" aria-label="Mission Brief actions">
       <a class="button" href="{% url 'project-analysis-detail' project.pk %}">&larr; Analysis Review</a>

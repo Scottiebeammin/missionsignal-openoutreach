@@ -64,8 +64,10 @@
       .scorecard-grid, .summary-grid, .priority-grid { grid-template-columns: 1fr; }
     }
   </style>
+{% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="ecosystem" %}
   <main>
     <nav class="topbar" aria-label="EcosystemSignal actions">
       <a class="button" href="{% url 'project-dashboard' project.pk %}">&larr; Dashboard</a>

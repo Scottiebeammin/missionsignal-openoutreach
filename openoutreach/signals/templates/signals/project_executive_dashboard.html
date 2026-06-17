@@ -88,23 +88,7 @@
 </head>
 <body>
   <div class="shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <strong>MissionSignal</strong>
-        <span>Opportunity Command Center</span>
-      </div>
-      <nav class="nav" aria-label="MissionSignal navigation">
-        <a class="active" href="{% url 'project-dashboard' project.pk %}">Dashboard <span>Home</span></a>
-        <a href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
-        <a href="{% url 'project-funding' project.pk %}">Funding</a>
-        <a href="{% url 'project-government' project.pk %}">Government</a>
-        <a href="{% url 'project-resources' project.pk %}">Resources</a>
-        <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
-        <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
-        <a href="{% url 'project-matches' project.pk %}">Matching</a>
-        <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
-      </nav>
-    </aside>
+    {% include "signals/_app_shell_sidebar.html" with active_page="dashboard" %}
 
     <main>
       <header class="hero">

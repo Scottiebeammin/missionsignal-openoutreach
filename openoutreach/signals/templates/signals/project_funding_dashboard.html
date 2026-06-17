@@ -73,8 +73,10 @@
       .dashboard, .score-grid, .summary-grid, .funder-grid, .theme-grid, .lane-grid { grid-template-columns: 1fr; }
     }
   </style>
+{% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="funding" %}
   <main>
     <nav class="topbar" aria-label="FundingSignal actions">
       <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Back to Mission Brief</a>
