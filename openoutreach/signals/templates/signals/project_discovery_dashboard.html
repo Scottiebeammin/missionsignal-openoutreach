@@ -43,6 +43,7 @@
     .summary-card strong, .tag-card strong { display: block; margin-bottom: 4px; color: var(--accent); }
     .inventory-card { border-left: 4px solid var(--blue); }
     .inventory-card + .inventory-card { margin-top: 10px; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; }
     .card-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
     .status { background: var(--accent-soft); color: var(--accent); }
@@ -109,6 +110,18 @@
       </div>
     </section>
 
+    <details class="panel" open>
+      <summary>Filters</summary>
+      <div class="filter-bar" style="margin-top: 12px;">
+        <span class="pill">Status</span>
+        <span class="pill">Priority</span>
+        <span class="pill">Opportunity Type</span>
+        <span class="pill">Source Organization</span>
+        <span class="pill">Geography</span>
+        <span class="pill">Focus Area</span>
+      </div>
+    </details>
+
     <section class="panel">
       <h2>Top Source Organizations</h2>
       <div class="tag-grid">
@@ -128,7 +141,28 @@
     </section>
 
     <section class="panel">
-      <h2>Opportunity Types and Geography Coverage</h2>
+      <h2>Top Categories</h2>
+      <div class="tag-grid">
+        {% for category in discovery.focus_categories|slice:":5" %}
+          <div class="tag-card"><strong>{{ category.label }}</strong><span class="muted">{{ category.count }} opportunities</span></div>
+        {% empty %}
+          <div class="empty-state"><strong>No focus categories yet</strong>Add focus areas to opportunities to power category filtering.</div>
+        {% endfor %}
+      </div>
+      <details style="margin-top: 12px;">
+        <summary>More categories</summary>
+        <div class="tag-grid" style="margin-top: 10px;">
+          {% for category in discovery.focus_categories|slice:"5:" %}
+            <div class="tag-card"><strong>{{ category.label }}</strong><span class="muted">{{ category.count }} opportunities</span></div>
+          {% empty %}
+            <p class="muted">No additional categories.</p>
+          {% endfor %}
+        </div>
+      </details>
+    </section>
+
+    <details class="panel">
+      <summary>Opportunity Types and Geography Coverage</summary>
       <div class="tag-grid">
         {% for type in discovery.opportunity_types %}
           <div class="tag-card"><strong>{{ type }}</strong><span class="muted">Inventory type</span></div>
@@ -139,10 +173,10 @@
           <div class="tag-card"><strong>{{ geography }}</strong><span class="muted">Covered geography</span></div>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
-    <section class="panel">
-      <h2>Opportunity Pipeline</h2>
+    <details class="panel">
+      <summary>Opportunity Pipeline</summary>
       <div class="pipeline-grid">
         {% for group in discovery.priority_groups %}
           <section>
@@ -167,7 +201,7 @@
           </section>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Top Opportunity Readiness</h2>

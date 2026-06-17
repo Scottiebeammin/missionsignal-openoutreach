@@ -6,6 +6,7 @@ from openoutreach.funding.models import (
     PartnerOrganization,
     ResourceProvider,
 )
+from openoutreach.signals.categories import CATEGORY_KEYWORDS
 
 
 MATCH_WEIGHTS = {
@@ -15,6 +16,19 @@ MATCH_WEIGHTS = {
     "program": 15,
     "organization_type": 10,
 }
+
+EXPANDED_CATEGORY_KEYWORDS = [
+    keyword
+    for terms in CATEGORY_KEYWORDS.values()
+    for keyword in terms
+]
+LEGACY_FOCUS_KEYWORDS = [
+    "workforce development",
+    "digital equity",
+    "career readiness",
+    "youth development",
+    "technology",
+]
 
 
 @dataclass(frozen=True)
@@ -250,6 +264,14 @@ def _keyword_matches(keywords: list[str], text: str) -> list[str]:
     return [keyword for keyword in keywords if keyword.casefold() in text]
 
 
+def _shared_keyword_matches(keywords: list[str], profile_text: str, record_text: str) -> list[str]:
+    return [
+        keyword
+        for keyword in keywords
+        if keyword.casefold() in profile_text and keyword.casefold() in record_text
+    ]
+
+
 def _factor_score(matches: list[str], weight: int, *, partial: int = 0) -> int:
     if len(matches) >= 2:
         return weight
@@ -331,6 +353,7 @@ def _score_record(
     beneficiaries: list[str],
     program_terms: list[str],
     compatibility_text: str = "",
+    category_keywords: list[str] | None = None,
 ) -> OpportunityMatch:
     record_geography = _clean_values(geography)
     record_focus = _clean_values(focus_areas)
@@ -346,8 +369,9 @@ def _score_record(
 
     geography_matches = _overlap(profile["geography"], record_geography, record_text)
     focus_matches = _overlap(profile["focus_areas"], record_focus, record_text)
-    focus_matches += _keyword_matches(
-        ["workforce development", "digital equity", "career readiness", "youth development", "technology"],
+    focus_matches += _shared_keyword_matches(
+        category_keywords or LEGACY_FOCUS_KEYWORDS,
+        profile["combined_text"],
         record_text,
     )
     beneficiary_matches = _overlap(profile["beneficiaries"], record_beneficiaries, record_text)
@@ -356,7 +380,11 @@ def _score_record(
         record_text,
     )
     program_matches = _keyword_matches(
-        ["workforce", "career", "training", "digital", "technology", "mentoring", "job placement"],
+        [
+            "workforce", "career", "training", "digital", "technology", "mentoring", "job placement",
+            "housing", "health", "mental health", "food", "veteran", "disability", "reentry",
+            "arts", "senior", "immigrant", "refugee", "environmental justice", "rural",
+        ],
         profile["combined_text"] + "\n" + record_text,
     )
     organization_type = profile["organization_type"]
@@ -587,4 +615,5 @@ def score_inventory_opportunity(project, opportunity, funding_criteria=None) -> 
             f"{opportunity.eligibility_notes}\n{opportunity.notes}\n"
             f"{opportunity.get_source_type_display()}\n{source_context}"
         ),
+        category_keywords=EXPANDED_CATEGORY_KEYWORDS,
     )

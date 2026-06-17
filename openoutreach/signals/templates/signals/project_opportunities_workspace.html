@@ -99,6 +99,33 @@
       </div>
     </section>
 
+    <section class="panel">
+      <h2>Top Categories</h2>
+      <div class="grid">
+        {% for category in discovery.focus_categories|slice:":5" %}
+          <article class="opportunity-card">
+            <h3>{{ category.label }}</h3>
+            <p class="muted">{{ category.count }} opportunities</p>
+          </article>
+        {% empty %}
+          <div class="empty-state"><strong>No categories yet</strong>Add focus areas to opportunities to organize the inventory.</div>
+        {% endfor %}
+      </div>
+      <details style="margin-top: 12px;">
+        <summary>More categories</summary>
+        <div class="grid" style="margin-top: 10px;">
+          {% for category in discovery.focus_categories|slice:"5:" %}
+            <article class="opportunity-card">
+              <h3>{{ category.label }}</h3>
+              <p class="muted">{{ category.count }} opportunities</p>
+            </article>
+          {% empty %}
+            <p class="muted">No additional categories.</p>
+          {% endfor %}
+        </div>
+      </details>
+    </section>
+
     <section id="pipeline" class="panel">
       <h2>Pipeline</h2>
       <div class="pipeline">

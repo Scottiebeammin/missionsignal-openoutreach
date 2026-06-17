@@ -2,6 +2,8 @@ import re
 
 from pydantic import BaseModel, Field
 
+from openoutreach.signals.categories import CATEGORY_KEYWORDS
+
 
 class OrganizationAnalyzerInput(BaseModel):
     organization_name: str
@@ -44,15 +46,13 @@ class OrganizationAnalyzerOutput(BaseModel):
 
 
 _FOCUS_RULES = {
-    "education": ("education", "school", "student", "learning", "training"),
-    "workforce development": ("workforce", "career", "employment", "job"),
-    "food security": ("food", "nutrition", "meal", "hunger"),
-    "housing": ("housing", "homeless", "shelter"),
-    "health": ("health", "wellness", "medical", "mental health"),
-    "economic mobility": ("economic mobility", "small business", "entrepreneur"),
-    "youth development": ("youth", "young people", "children", "teen"),
-    "environment": ("environment", "climate", "conservation", "sustainability"),
+    category.casefold(): terms
+    for category, terms in CATEGORY_KEYWORDS.items()
 }
+_FOCUS_RULES.update({
+    "economic mobility": ("economic mobility", "small business", "entrepreneur"),
+    "environment": ("environment", "climate", "conservation", "sustainability"),
+})
 
 _BENEFICIARY_RULES = {
     "youth": ("youth", "young people", "children", "teen", "student"),

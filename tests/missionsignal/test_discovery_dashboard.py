@@ -54,6 +54,10 @@ def test_discovery_inventory_and_readiness_render(client, discovery_project):
     assert "Opportunity Inventory Summary" in content
     assert "Top Source Organizations" in content
     assert "Opportunity Status Breakdown" in content
+    assert "Filters" in content
+    assert "Focus Area" in content
+    assert "Top Categories" in content
+    assert "More categories" in content
     assert "Grants" in content
     assert "Government" in content
     assert "Resources" in content
@@ -69,6 +73,25 @@ def test_discovery_inventory_and_readiness_render(client, discovery_project):
     assert "Deadline:" in content
     assert "High" in content
     assert "Strong Match" in content or "Excellent Match" in content
+
+
+def test_discovery_dashboard_renders_expanded_focus_categories(client, discovery_project):
+    project, user = discovery_project
+    client.force_login(user)
+
+    response = client.get(reverse("project-discovery", kwargs={"pk": project.pk}))
+
+    content = response.content.decode()
+    assert "Veterans" in content
+    assert "Mental Health" in content
+    assert "LGBTQ+" in content
+    assert "Disability" in content
+    assert "Food Security" in content
+    assert "Reentry / Justice-Involved" in content
+    assert "Senior Services" in content
+    assert "Immigrant / Refugee Support" in content
+    assert "Environmental Justice" in content
+    assert "Rural Communities" in content
 
 
 def test_discovery_pipeline_renders(client, discovery_project):
@@ -94,7 +117,7 @@ def test_discovery_demo_records_are_deterministic_and_varied(discovery_project):
         for item in group.opportunities
     ]
 
-    assert first.total_opportunities >= 20
+    assert first.total_opportunities >= 29
     assert first.active_opportunities >= 8
     assert first.monitoring_opportunities >= 3
     assert first.high_priority_opportunities >= 6
@@ -107,6 +130,10 @@ def test_discovery_demo_records_are_deterministic_and_varied(discovery_project):
     assert max(scores) >= 90
     assert min(scores) < 60
     assert len(set(scores)) >= 4
+    category_labels = {category.label for category in first.focus_categories}
+    assert "Veterans" in category_labels
+    assert "Mental Health" in category_labels
+    assert "Environmental Justice" in category_labels
 
 
 def test_ecosystem_dashboard_includes_discovery_summary(client, discovery_project):

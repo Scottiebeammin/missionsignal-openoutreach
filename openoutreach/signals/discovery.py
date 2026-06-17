@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from django.db.models import Count
 
 from openoutreach.funding.models import Opportunity
+from openoutreach.signals.categories import canonical_category
 from openoutreach.signals.matching import OpportunityMatch, score_inventory_opportunity
 
 
@@ -43,6 +44,7 @@ class DiscoveryOverview:
     priority_groups: list[DiscoveryGroup]
     top_source_organizations: list[DiscoveryBreakdown]
     status_breakdown: list[DiscoveryBreakdown]
+    focus_categories: list[DiscoveryBreakdown]
     top_opportunities: list[DiscoveryOpportunity]
 
     @property
@@ -105,6 +107,19 @@ def _group_label(opportunity: Opportunity) -> str:
     }:
         return "Partnerships"
     return "Resources"
+
+
+def _focus_category_breakdown(opportunities: list[Opportunity]) -> list[DiscoveryBreakdown]:
+    counts = {}
+    for opportunity in opportunities:
+        for focus_area in opportunity.focus_areas:
+            category = canonical_category(focus_area)
+            if category:
+                counts[category] = counts.get(category, 0) + 1
+    return [
+        DiscoveryBreakdown(label=label, count=count)
+        for label, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+    ]
 
 
 def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOverview:
@@ -213,5 +228,6 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
         priority_groups=priority_groups,
         top_source_organizations=top_source_organizations,
         status_breakdown=status_breakdown,
+        focus_categories=_focus_category_breakdown(opportunities),
         top_opportunities=items[:5],
     )

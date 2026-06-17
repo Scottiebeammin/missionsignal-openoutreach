@@ -151,25 +151,25 @@
       </section>
     {% endif %}
 
-    <section class="panel">
-      <h2>Opportunity Ecosystem</h2>
+    <details class="panel">
+      <summary>Opportunity Ecosystem</summary>
       <div class="summary-grid">
         {% for item in ecosystem.summary_items %}
           <div class="summary-card"><strong>{{ item }}</strong><span class="muted">Part of the MissionSignal opportunity ecosystem.</span></div>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     <div class="insight-grid">
-      <section class="panel">
-        <h2>Ecosystem Strengths</h2>
+      <details class="panel" open>
+        <summary>Ecosystem Strengths</summary>
         {% for strength in ecosystem.strengths %}
           <p class="strength">{{ strength }}</p>
         {% endfor %}
-      </section>
+      </details>
 
-      <section class="panel">
-        <h2>Ecosystem Gaps</h2>
+      <details class="panel">
+        <summary>Ecosystem Gaps</summary>
         {% for gap in ecosystem.gaps %}
           <p class="gap">{{ gap }}</p>
         {% empty %}
@@ -178,11 +178,11 @@
             Keep profile data current so this remains accurate as opportunities change.
           </div>
         {% endfor %}
-      </section>
+      </details>
     </div>
 
-    <section class="panel">
-      <h2>Priority Opportunity Areas</h2>
+    <details class="panel">
+      <summary>Priority Opportunity Areas</summary>
       <div class="priority-grid">
         {% for area in ecosystem.priority_areas %}
           <article class="priority-card">
@@ -192,10 +192,10 @@
           </article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
-    <section class="panel">
-      <h2>Recommended Ecosystem Actions</h2>
+    <details class="panel">
+      <summary>Recommended Ecosystem Actions</summary>
       <ol class="advisor-list">
         {% for action in ecosystem.recommended_actions|slice:":5" %}
           <li>
@@ -204,7 +204,7 @@
           </li>
         {% endfor %}
       </ol>
-    </section>
+    </details>
   </main>
 </body>
 </html>

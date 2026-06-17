@@ -156,8 +156,8 @@
         </div>
       </section>
 
-      <section class="panel">
-        <h2>Detailed Views</h2>
+      <details class="panel">
+        <summary>Detailed Views</summary>
         <div class="workspace-tabs" aria-label="Detailed module shortcuts">
           <a href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
           <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
@@ -167,7 +167,7 @@
           <a href="{% url 'project-resources' project.pk %}">Resources</a>
           <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
         </div>
-      </section>
+      </details>
 
       <section class="panel">
         <h2>Opportunity Command Center</h2>
@@ -212,8 +212,8 @@
         {% endif %}
       </section>
 
-      <section class="panel">
-        <h2>Opportunity Pipeline Snapshot</h2>
+      <details class="panel">
+        <summary>Opportunity Pipeline Snapshot</summary>
         <div class="pipeline">
           {% for column in dashboard.pipeline_columns %}
             <section class="pipeline-card">
@@ -229,7 +229,7 @@
             </section>
           {% endfor %}
         </div>
-      </section>
+      </details>
 
       <section class="panel">
         <h2>Opportunity Match Health</h2>
@@ -269,8 +269,8 @@
         </div>
       </section>
 
-      <section class="panel">
-        <h2>Visualization Layer</h2>
+      <details class="panel">
+        <summary>Visualization Layer</summary>
         <div class="chart-grid">
           <article class="chart-card">
             <h3>Funding vs Government vs Resource vs Partnership Scores</h3>
@@ -297,10 +297,10 @@
             {% endfor %}
           </article>
         </div>
-      </section>
+      </details>
 
-      <section class="panel">
-        <h2>Table View</h2>
+      <details class="panel">
+        <summary>Table View</summary>
         <table class="table">
           <thead>
             <tr><th>Area</th><th>Score</th><th>Level</th><th>Top Insight</th></tr>
@@ -311,7 +311,7 @@
             {% endfor %}
           </tbody>
         </table>
-      </section>
+      </details>
     </main>
   </div>
 </body>

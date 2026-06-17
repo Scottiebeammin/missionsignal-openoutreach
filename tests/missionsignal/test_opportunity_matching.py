@@ -102,6 +102,10 @@ def test_match_dashboard_renders_breakdowns_missing_factors_and_improvements(cli
     assert "Add program impact evidence" in content
     assert "Current Match Score" in content
     assert "Potential Match Score" in content
+    assert "<summary>Why It Matches</summary>" in content
+    assert "<summary>Missing Factors</summary>" in content
+    assert "<summary>Improvement Opportunities</summary>" in content
+    assert "View all matches" in content
 
 
 def test_match_scoring_is_deterministic(match_project):
@@ -163,6 +167,20 @@ def test_gap_analysis_heatmap_and_leverage_actions_render(client, match_project)
     assert "Top 5 Actions That Would Improve The Most Matches" in content
     assert "Create partnership inventory." in content
     assert "Document annual budget range." in content
+
+
+def test_expanded_categories_can_influence_inventory_matching(match_project):
+    project, _ = match_project
+    from openoutreach.funding.models import Opportunity
+    from openoutreach.signals.matching import score_inventory_opportunity
+
+    opportunity = Opportunity.objects.get(name="Inclusive Technology Access Resource Round")
+    match = score_inventory_opportunity(project, opportunity, project.funding_criteria)
+
+    assert "Disability" in opportunity.focus_areas
+    assert "Digital Equity" in opportunity.focus_areas
+    assert match.score >= 60
+    assert any("Digital Equity" in factor or "Digital" in factor for factor in match.match_factors)
 
 
 def test_ecosystem_dashboard_includes_match_summary(client, match_project):

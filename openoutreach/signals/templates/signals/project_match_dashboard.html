@@ -116,39 +116,39 @@
             <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
             <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
             <p class="muted">Match Confidence: {{ match.level }}</p>
-            <p><strong>Why It Matches</strong></p>
-            <ul>
-              {% for reason in match.reasons %}
-                <li>{{ reason }}</li>
-              {% endfor %}
-            </ul>
-            <div class="factor-block">
+            <details class="factor-block" open>
+              <summary>Why It Matches</summary>
+              <ul>
+                {% for reason in match.reasons %}
+                  <li>{{ reason }}</li>
+                {% endfor %}
+              </ul>
               <p class="factor-title">Match Factors</p>
               <ul>
                 {% for factor in match.match_factors %}
                   <li>{{ factor }}</li>
                 {% endfor %}
               </ul>
-            </div>
+            </details>
             {% if match.missing_factors %}
-              <div class="factor-block">
-                <p class="factor-title">Missing Factors</p>
+              <details class="factor-block">
+                <summary>Missing Factors</summary>
                 <ul>
                   {% for factor in match.missing_factors %}
                     <li>{{ factor }}</li>
                   {% endfor %}
                 </ul>
-              </div>
+              </details>
             {% endif %}
             {% if match.improvement_suggestions %}
-              <div class="factor-block">
-                <p class="factor-title">Improvement Opportunities</p>
+              <details class="factor-block">
+                <summary>Improvement Opportunities</summary>
                 <ul>
                   {% for suggestion in match.improvement_suggestions %}
                     <li>{{ suggestion }}</li>
                   {% endfor %}
                 </ul>
-              </div>
+              </details>
             {% endif %}
           </article>
         {% empty %}
@@ -161,10 +161,10 @@
     </section>
 
     {% for category in match_overview.categories %}
-      <section class="panel">
-        <h2>{{ category.label }}</h2>
+      <details class="panel">
+        <summary>{{ category.label }}</summary>
         <div class="category-grid">
-          {% for match in category.matches %}
+          {% for match in category.matches|slice:":5" %}
             <article class="category-card">
               <div class="match-header">
                 <h3>{{ match.name }}</h3>
@@ -173,41 +173,39 @@
               <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
               <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
               <p class="muted">Match Confidence: {{ match.level }}</p>
-              <div class="factor-block">
-                <p class="factor-title">Why It Matches</p>
+              <details class="factor-block" open>
+                <summary>Why It Matches</summary>
                 <ul>
                   {% for reason in match.reasons %}
                     <li>{{ reason }}</li>
                   {% endfor %}
                 </ul>
-              </div>
-              <div class="factor-block">
                 <p class="factor-title">Match Factors</p>
                 <ul>
                   {% for factor in match.match_factors %}
                     <li>{{ factor }}</li>
                   {% endfor %}
                 </ul>
-              </div>
+              </details>
               {% if match.missing_factors %}
-                <div class="factor-block">
-                  <p class="factor-title">Missing Factors</p>
+                <details class="factor-block">
+                  <summary>Missing Factors</summary>
                   <ul>
                     {% for factor in match.missing_factors %}
                       <li>{{ factor }}</li>
                     {% endfor %}
                   </ul>
-                </div>
+                </details>
               {% endif %}
               {% if match.improvement_suggestions %}
-                <div class="factor-block">
-                  <p class="factor-title">Improvement Opportunities</p>
+                <details class="factor-block">
+                  <summary>Improvement Opportunities</summary>
                   <ul>
                     {% for suggestion in match.improvement_suggestions %}
                       <li>{{ suggestion }}</li>
                     {% endfor %}
                   </ul>
-                </div>
+                </details>
               {% endif %}
             </article>
           {% empty %}
@@ -217,11 +215,29 @@
             </div>
           {% endfor %}
         </div>
-      </section>
+        <details style="margin-top: 12px;">
+          <summary>View all matches</summary>
+          <div class="premium-table-wrap" style="margin-top: 10px;">
+            <table class="premium-table">
+              <thead><tr><th>Opportunity</th><th>Score</th><th>Level</th><th>Type</th></tr></thead>
+              <tbody>
+                {% for match in category.matches %}
+                  <tr>
+                    <td><strong>{{ match.name }}</strong></td>
+                    <td><span class="score-badge">Score {{ match.score }}</span></td>
+                    <td><span class="pill {{ match.level|slugify }}">{{ match.level }}</span></td>
+                    <td>{{ match.opportunity_type }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </details>
     {% endfor %}
 
-    <section class="panel">
-      <h2>Top Match Gaps</h2>
+    <details class="panel">
+      <summary>Top Match Gaps</summary>
       <div class="metric-grid">
         {% for gap in match_overview.top_gaps %}
           <article class="metric-card">
@@ -230,10 +246,10 @@
           </article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
-    <section class="panel">
-      <h2>Ecosystem Heatmap</h2>
+    <details class="panel">
+      <summary>Ecosystem Heatmap</summary>
       <div class="heatmap-grid">
         {% for item in match_overview.heatmap %}
           <article class="metric-card">
@@ -244,7 +260,7 @@
           </article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Highest Leverage Improvements</h2>
