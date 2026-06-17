@@ -43,6 +43,8 @@
     .scorecard-grid, .summary-grid, .priority-grid, .insight-grid { display: grid; gap: 10px; }
     .scorecard-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .summary-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .executive-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .compact-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
     .priority-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .insight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
     .scorecard, .summary-card, .priority-card { padding: 14px; text-decoration: none; }
@@ -54,14 +56,18 @@
     .strength { padding: 12px; border-radius: 8px; background: var(--accent-soft); border-left: 4px solid var(--accent); }
     .gap { padding: 12px; border-radius: 8px; background: var(--gold-soft); border-left: 4px solid var(--gold); }
     .priority-card { border-left: 4px solid var(--blue); }
+    .section-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 12px; }
+    .section-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .compact-card { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+    .compact-card strong { display: block; color: var(--accent); }
     .actions-list { margin: 0; padding-left: 20px; }
     li + li { margin-top: 6px; }
     @media (max-width: 1000px) {
-      .scorecard-grid, .summary-grid, .priority-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .scorecard-grid, .summary-grid, .priority-grid, .executive-grid, .compact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .score-grid, .insight-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
-      .scorecard-grid, .summary-grid, .priority-grid { grid-template-columns: 1fr; }
+      .scorecard-grid, .summary-grid, .priority-grid, .executive-grid, .compact-grid { grid-template-columns: 1fr; }
     }
   </style>
 {% include "signals/_app_shell_styles.html" %}
@@ -100,8 +106,13 @@
           <span>{{ ecosystem.level }}</span>
         </div>
         <section class="panel">
-          <h2>Ecosystem Summary</h2>
-          <p>MissionSignal views organizations through an opportunity ecosystem of funding, government, resources, partnerships, capacity, and risks and constraints. EcosystemSignal V1 combines the active signal modules into one deterministic readiness picture.</p>
+          <h2>Executive Ecosystem Signals</h2>
+          <div class="executive-grid">
+            <div class="summary-card"><strong>{{ ecosystem.match_overview.strongest_category }}</strong><span class="muted">Strongest Signal</span></div>
+            <div class="summary-card"><strong>{{ ecosystem.match_overview.weakest_category }}</strong><span class="muted">Weakest Signal</span></div>
+            <div class="summary-card"><strong>{{ ecosystem.match_overview.highest_leverage_improvement }}</strong><span class="muted">Highest Leverage Action</span></div>
+            <div class="summary-card"><strong>{{ ecosystem.match_overview.overall_score }}</strong><span class="muted">Opportunity Health</span></div>
+          </div>
         </section>
       </section>
     </header>
@@ -124,8 +135,8 @@
     </section>
 
     {% if ecosystem.match_overview %}
-      <section class="panel">
-        <h2>Opportunity Match Health</h2>
+      <details class="panel">
+        <summary>Opportunity Match Health</summary>
         <div class="summary-grid">
           <div class="summary-card"><strong>{{ ecosystem.match_overview.overall_score }}</strong><span class="muted">Overall Match Score</span></div>
           <div class="summary-card"><strong>{{ ecosystem.match_overview.total_matches }}</strong><span class="muted">Total Opportunities</span></div>
@@ -134,12 +145,12 @@
           <div class="summary-card"><strong>{{ ecosystem.match_overview.highest_leverage_improvement }}</strong><span class="muted">Highest Leverage Improvement</span></div>
           <a class="summary-card" href="{% url 'project-matches' project.pk %}"><strong>Open Opportunity Matching</strong><span class="muted">Review deterministic opportunity recommendations.</span></a>
         </div>
-      </section>
+      </details>
     {% endif %}
 
     {% if ecosystem.discovery_overview %}
-      <section class="panel">
-        <h2>Discovery Health</h2>
+      <details class="panel">
+        <summary>Discovery Health</summary>
         <div class="summary-grid">
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.total_opportunities }}</strong><span class="muted">Total Opportunities</span></div>
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.active_opportunities }}</strong><span class="muted">Active Opportunities</span></div>
@@ -148,11 +159,131 @@
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.top_source_organization }}</strong><span class="muted">Top Source Organization</span></div>
           <a class="summary-card" href="{% url 'project-discovery' project.pk %}"><strong>Open Discovery Engine</strong><span class="muted">Review the manually managed opportunity inventory.</span></a>
         </div>
-      </section>
+      </details>
     {% endif %}
+
+    <section class="panel">
+      <h2>Ecosystem Type Summaries</h2>
+
+      <details open>
+        <summary>Funder Types</summary>
+        <div class="section-toolbar">
+          <p class="muted">Top funding lanes by deterministic readiness fit.</p>
+          <div class="section-actions"><span class="pill">Show All</span><span class="pill">Collapse</span></div>
+        </div>
+        <div class="compact-grid">
+          {% for funder in funding_readiness.recommended_funder_types|slice:":5" %}
+            <article class="compact-card"><strong>{{ funder.name }}</strong><span class="score-badge">Score {{ funder.score }}</span><p class="muted">{{ funder.explanation }}</p></article>
+          {% endfor %}
+        </div>
+        <details style="margin-top: 12px;">
+          <summary>More Funder Types</summary>
+          <div class="compact-grid" style="margin-top: 10px;">
+            {% for funder in funding_readiness.recommended_funder_types|slice:"5:" %}
+              <article class="compact-card"><strong>{{ funder.name }}</strong><span class="score-badge">Score {{ funder.score }}</span><p class="muted">{{ funder.explanation }}</p></article>
+            {% empty %}
+              <p class="muted">No additional funder types.</p>
+            {% endfor %}
+          </div>
+        </details>
+      </details>
+
+      <details style="margin-top: 14px;">
+        <summary>Government Entity Types</summary>
+        <div class="section-toolbar">
+          <p class="muted">Top public-sector entity types to understand first.</p>
+          <div class="section-actions"><span class="pill">Show All</span><span class="pill">Collapse</span></div>
+        </div>
+        <div class="compact-grid">
+          {% for entity in government_readiness.recommended_entity_types|slice:":5" %}
+            <article class="compact-card"><strong>{{ entity.name }}</strong><span class="score-badge">Score {{ entity.score }}</span><p class="muted">{{ entity.explanation }}</p></article>
+          {% endfor %}
+        </div>
+        <details style="margin-top: 12px;">
+          <summary>More Government Entities</summary>
+          <div class="compact-grid" style="margin-top: 10px;">
+            {% for entity in government_readiness.recommended_entity_types|slice:"5:" %}
+              <article class="compact-card"><strong>{{ entity.name }}</strong><span class="score-badge">Score {{ entity.score }}</span><p class="muted">{{ entity.explanation }}</p></article>
+            {% empty %}
+              <p class="muted">No additional government entity types.</p>
+            {% endfor %}
+          </div>
+        </details>
+      </details>
+
+      <details style="margin-top: 14px;">
+        <summary>Resource Types</summary>
+        <div class="section-toolbar">
+          <p class="muted">Top non-funding resource provider types.</p>
+          <div class="section-actions"><span class="pill">Show All</span><span class="pill">Collapse</span></div>
+        </div>
+        <div class="compact-grid">
+          {% for recommendation in resource_readiness.recommendations|slice:":5" %}
+            <article class="compact-card"><strong>{{ recommendation.name }}</strong><span class="score-badge">Score {{ recommendation.score }}</span><p class="muted">{{ recommendation.explanation }}</p></article>
+          {% endfor %}
+        </div>
+        <details style="margin-top: 12px;">
+          <summary>More Resource Types</summary>
+          <div class="compact-grid" style="margin-top: 10px;">
+            {% for recommendation in resource_readiness.recommendations|slice:"5:" %}
+              <article class="compact-card"><strong>{{ recommendation.name }}</strong><span class="score-badge">Score {{ recommendation.score }}</span><p class="muted">{{ recommendation.explanation }}</p></article>
+            {% empty %}
+              <p class="muted">No additional resource types.</p>
+            {% endfor %}
+          </div>
+        </details>
+      </details>
+
+      <details style="margin-top: 14px;">
+        <summary>Resource Categories</summary>
+        <div class="section-toolbar">
+          <p class="muted">Resource categories that can strengthen capacity.</p>
+          <div class="section-actions"><span class="pill">Show All Categories</span><span class="pill">Collapse</span></div>
+        </div>
+        <div class="compact-grid">
+          {% for category in resource_readiness.categories|slice:":5" %}
+            <article class="compact-card"><strong>{{ category.name }}</strong><p class="muted">{{ category.explanation }}</p></article>
+          {% endfor %}
+        </div>
+        <details style="margin-top: 12px;">
+          <summary>More Categories</summary>
+          <div class="compact-grid" style="margin-top: 10px;">
+            {% for category in resource_readiness.categories|slice:"5:" %}
+              <article class="compact-card"><strong>{{ category.name }}</strong><p class="muted">{{ category.explanation }}</p></article>
+            {% empty %}
+              <p class="muted">No additional resource categories.</p>
+            {% endfor %}
+          </div>
+        </details>
+      </details>
+
+      <details style="margin-top: 14px;">
+        <summary>Partnership Categories</summary>
+        <div class="section-toolbar">
+          <p class="muted">Partner categories most relevant to reach, credibility, and delivery capacity.</p>
+          <div class="section-actions"><span class="pill">Show All</span><span class="pill">Collapse</span></div>
+        </div>
+        <div class="compact-grid">
+          {% for category in partnership_readiness.categories|slice:":5" %}
+            <article class="compact-card"><strong>{{ category.name }}</strong><p class="muted">{{ category.explanation }}</p></article>
+          {% endfor %}
+        </div>
+        <details style="margin-top: 12px;">
+          <summary>More Categories</summary>
+          <div class="compact-grid" style="margin-top: 10px;">
+            {% for category in partnership_readiness.categories|slice:"5:" %}
+              <article class="compact-card"><strong>{{ category.name }}</strong><p class="muted">{{ category.explanation }}</p></article>
+            {% empty %}
+              <p class="muted">No additional partnership categories.</p>
+            {% endfor %}
+          </div>
+        </details>
+      </details>
+    </section>
 
     <details class="panel">
       <summary>Opportunity Ecosystem</summary>
+      <p class="muted">MissionSignal views organizations through an opportunity ecosystem of funding, government, resources, partnerships, capacity, and risks and constraints.</p>
       <div class="summary-grid">
         {% for item in ecosystem.summary_items %}
           <div class="summary-card"><strong>{{ item }}</strong><span class="muted">Part of the MissionSignal opportunity ecosystem.</span></div>

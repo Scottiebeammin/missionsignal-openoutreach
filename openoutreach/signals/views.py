@@ -206,6 +206,10 @@ def project_ecosystem_dashboard(request, pk):
             "project": project,
             "organization": project.organization,
             "ecosystem": ecosystem,
+            "funding_readiness": funding_readiness,
+            "government_readiness": government_readiness,
+            "resource_readiness": resource_readiness,
+            "partnership_readiness": partnership_readiness,
         },
     )
 

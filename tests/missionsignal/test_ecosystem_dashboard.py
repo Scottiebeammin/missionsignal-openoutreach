@@ -96,6 +96,33 @@ def test_ecosystem_dashboard_signal_scorecards_render(client, ecosystem_project)
     assert content.count("Active") >= 5
 
 
+def test_ecosystem_dashboard_collapses_type_and_category_lists(client, ecosystem_project):
+    project, user = ecosystem_project
+    client.force_login(user)
+
+    response = client.get(reverse("project-ecosystem", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert "Executive Ecosystem Signals" in content
+    assert "Strongest Signal" in content
+    assert "Weakest Signal" in content
+    assert "Highest Leverage Action" in content
+    assert "Opportunity Health" in content
+    assert "Ecosystem Type Summaries" in content
+    assert "Funder Types" in content
+    assert "More Funder Types" in content
+    assert "Government Entity Types" in content
+    assert "More Government Entities" in content
+    assert "Resource Types" in content
+    assert "More Resource Types" in content
+    assert "Resource Categories" in content
+    assert "Partnership Categories" in content
+    assert "More Categories" in content
+    assert "Show All" in content
+    assert "Show All Categories" in content
+    assert "Collapse" in content
+
+
 def test_ecosystem_dashboard_strengths_and_gaps_render(client, ecosystem_project):
     project, user = ecosystem_project
     client.force_login(user)
