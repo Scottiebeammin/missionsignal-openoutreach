@@ -30,6 +30,11 @@ urlpatterns = [
         name="project-ecosystem",
     ),
     path(
+        "projects/<int:pk>/matches/",
+        views.project_match_dashboard,
+        name="project-matches",
+    ),
+    path(
         "projects/<int:pk>/partnerships/",
         views.project_partnership_dashboard,
         name="project-partnerships",

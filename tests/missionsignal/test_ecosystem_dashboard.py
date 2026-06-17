@@ -148,6 +148,7 @@ def test_ecosystem_dashboard_links_to_all_signal_modules(client, ecosystem_proje
     assert reverse("project-government", kwargs={"pk": project.pk}) in content
     assert reverse("project-resources", kwargs={"pk": project.pk}) in content
     assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content
+    assert reverse("project-matches", kwargs={"pk": project.pk}) in content
 
 
 def test_mission_brief_links_to_ecosystem_dashboard(client, ecosystem_project):

@@ -8,6 +8,7 @@ from openoutreach.signals.analysis_service import analyze_project
 from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
 from openoutreach.signals.government import build_government_readiness
+from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
 from openoutreach.signals.partnerships import build_partnership_readiness
 from openoutreach.signals.resources import build_resource_readiness
@@ -140,9 +141,10 @@ def project_ecosystem_dashboard(request, pk):
     government_readiness = build_government_readiness(project, funding_criteria)
     resource_readiness = build_resource_readiness(project, funding_criteria)
     partnership_readiness = build_partnership_readiness(project, funding_criteria)
+    match_overview = build_opportunity_matches(project, funding_criteria)
     ecosystem = build_ecosystem_overview(
         project, funding_readiness, government_readiness, resource_readiness,
-        partnership_readiness,
+        partnership_readiness, match_overview,
     )
     return render(
         request,
@@ -151,6 +153,25 @@ def project_ecosystem_dashboard(request, pk):
             "project": project,
             "organization": project.organization,
             "ecosystem": ecosystem,
+        },
+    )
+
+
+@login_required
+def project_match_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    match_overview = build_opportunity_matches(project, funding_criteria)
+    return render(
+        request,
+        "signals/project_match_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "funding_criteria": funding_criteria,
+            "match_overview": match_overview,
         },
     )
 

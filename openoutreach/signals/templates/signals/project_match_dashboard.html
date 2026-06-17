@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Opportunity Matching - {{ organization.name }}</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #192a3a;
+      --muted: #667789;
+      --line: #d9e2e8;
+      --accent: #0f766e;
+      --accent-soft: #e8f5f2;
+      --blue: #235789;
+      --blue-soft: #edf5fb;
+      --gold: #8a5b00;
+      --gold-soft: #fff7df;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef3f6; color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 24px auto; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; }
+    h2 { margin-bottom: 12px; font-size: 1rem; letter-spacing: .06em; text-transform: uppercase; }
+    h3 { margin-bottom: 6px; font-size: 1rem; }
+    a { color: inherit; }
+    .topbar, .hero, .panel, .metric-card, .match-card, .category-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .button { display: inline-flex; align-items: center; min-height: 38px; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 6px; background: white; color: var(--accent); font-weight: 700; text-decoration: none; }
+    .hero { margin-bottom: 14px; padding: 24px; }
+    .eyebrow { margin-bottom: 6px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .subtitle, .muted { color: var(--muted); }
+    .score-grid { display: grid; grid-template-columns: minmax(180px, .32fr) minmax(0, .68fr); gap: 14px; margin-top: 18px; }
+    .score-box { padding: 18px; border-radius: 8px; background: var(--accent-soft); }
+    .score-box strong { display: block; font-size: clamp(3rem, 8vw, 5rem); line-height: .95; }
+    .score-box span { display: block; margin-top: 8px; font-weight: 800; }
+    .panel { margin-bottom: 14px; padding: 18px; }
+    .metric-grid, .match-grid, .category-grid { display: grid; gap: 10px; }
+    .metric-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .match-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric-card, .match-card, .category-card { padding: 14px; }
+    .metric-card strong { display: block; font-size: 2rem; line-height: 1; color: var(--accent); }
+    .match-header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    .score-pill { background: var(--accent-soft); color: var(--accent); }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li + li { margin-top: 4px; }
+    @media (max-width: 900px) {
+      .score-grid, .metric-grid, .match-grid, .category-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="topbar" aria-label="Opportunity Matching actions">
+      <a class="button" href="{% url 'project-ecosystem' project.pk %}">&larr; EcosystemSignal</a>
+      <div class="actions">
+        <a class="button" href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
+        <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
+        <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
+        <a class="button" href="{% url 'project-resources' project.pk %}">ResourceSignal</a>
+        <a class="button" href="{% url 'project-partnerships' project.pk %}">PartnershipSignal</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <p class="eyebrow">Opportunity Matching V1</p>
+      <h1>Opportunity Match Dashboard</h1>
+      <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
+      <section class="score-grid" aria-label="Opportunity matching summary">
+        <div class="score-box">
+          <h2>Overall Match Score</h2>
+          <strong>{{ match_overview.overall_score }}</strong>
+          <span>{{ match_overview.total_matches }} total matches</span>
+        </div>
+        <section class="panel">
+          <h2>Match Categories</h2>
+          <div class="metric-grid">
+            {% for category in match_overview.categories %}
+              <article class="metric-card">
+                <strong>{{ category.count }}</strong>
+                <span>{{ category.label }}</span>
+                <p class="muted">{{ category.average_score }} average score</p>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      </section>
+    </header>
+
+    <section class="panel">
+      <h2>Top Recommended Opportunities</h2>
+      <div class="match-grid">
+        {% for match in match_overview.top_recommended %}
+          <article class="match-card">
+            <div class="match-header">
+              <h3>{{ match.name }}</h3>
+              <span class="pill score-pill">{{ match.score }}</span>
+            </div>
+            <p><span class="pill">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
+            <p><strong>Why it matches</strong></p>
+            <ul>
+              {% for reason in match.reasons %}
+                <li>{{ reason }}</li>
+              {% endfor %}
+            </ul>
+          </article>
+        {% empty %}
+          <p class="muted">No active opportunity database records are available yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% for category in match_overview.categories %}
+      <section class="panel">
+        <h2>{{ category.label }}</h2>
+        <div class="category-grid">
+          {% for match in category.matches %}
+            <article class="category-card">
+              <div class="match-header">
+                <h3>{{ match.name }}</h3>
+                <span class="pill score-pill">{{ match.score }}</span>
+              </div>
+              <p><span class="pill">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
+              <ul>
+                {% for reason in match.reasons %}
+                  <li>{{ reason }}</li>
+                {% endfor %}
+              </ul>
+            </article>
+          {% empty %}
+            <p class="muted">No active records in this category.</p>
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  </main>
+</body>
+</html>

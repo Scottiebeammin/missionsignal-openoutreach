@@ -74,6 +74,7 @@
         <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
         <a class="button" href="{% url 'project-resources' project.pk %}">ResourceSignal</a>
         <a class="button" href="{% url 'project-partnerships' project.pk %}">PartnershipSignal</a>
+        <a class="button" href="{% url 'project-matches' project.pk %}">Opportunity Matching</a>
       </div>
     </nav>
 
@@ -110,6 +111,20 @@
         {% endfor %}
       </div>
     </section>
+
+    {% if ecosystem.match_overview %}
+      <section class="panel">
+        <h2>Match Summary</h2>
+        <div class="summary-grid">
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.total_matches }}</strong><span class="muted">Total Matches</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.funding_count }}</strong><span class="muted">Funding Matches</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.government_count }}</strong><span class="muted">Government Matches</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.resource_count }}</strong><span class="muted">Resource Matches</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.partnership_count }}</strong><span class="muted">Partnership Matches</span></div>
+          <a class="summary-card" href="{% url 'project-matches' project.pk %}"><strong>Open Opportunity Matching</strong><span class="muted">Review deterministic opportunity recommendations.</span></a>
+        </div>
+      </section>
+    {% endif %}
 
     <section class="panel">
       <h2>Opportunity Ecosystem</h2>

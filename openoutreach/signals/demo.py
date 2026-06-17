@@ -181,6 +181,7 @@ def seed_missionsignal_demo(*, password=None):
                 "Close the digital divide by preparing young people and adults "
                 "from underserved communities for technology-enabled careers."
             ),
+            "organization_type": "Nonprofit",
             "city": "Cleveland",
             "county": "Cuyahoga",
             "state": "Ohio",
