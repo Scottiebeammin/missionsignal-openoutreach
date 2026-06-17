@@ -65,13 +65,35 @@ def test_match_dashboard_renders_scores_levels_and_reasons(client, match_project
     content = response.content.decode()
 
     assert "Excellent Match" in content
+    assert "Strong Match" in content
+    assert "Moderate Match" in content
+    assert "Match Confidence" in content
     assert "Workforce" in content
     assert "Digital Equity" in content or "Digital" in content
     assert "Cleveland geography alignment" in content
     assert "Nonprofit compatibility" in content
     assert match_level(76) == "Strong Match"
-    assert match_level(58) == "Moderate Match"
-    assert match_level(30) == "Weak Match"
+    assert match_level(60) == "Moderate Match"
+    assert match_level(59) == "Weak Match"
+
+
+def test_match_dashboard_renders_breakdowns_and_improvement_suggestions(client, match_project):
+    project, user = match_project
+    client.force_login(user)
+
+    response = client.get(reverse("project-matches", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert "Match Factors" in content
+    assert "Geography Alignment" in content
+    assert "Workforce Development Alignment" in content
+    assert "Youth Alignment" in content
+    assert "Missing" in content
+    assert "Outcomes Evidence" in content
+    assert "Partnership Evidence" in content
+    assert "Improve Match By" in content
+    assert "Adding outcomes data" in content
+    assert "Adding partnership information" in content
 
 
 def test_match_scoring_is_deterministic(match_project):
@@ -87,8 +109,25 @@ def test_match_scoring_is_deterministic(match_project):
     assert first.government_count == 3
     assert first.resource_count == 3
     assert first.partnership_count == 3
-    assert first.top_recommended[0].score >= 85
+    assert first.top_recommended[0].score == 100
     assert match_level(first.top_recommended[0].score) == first.top_recommended[0].level
+    assert first.highest_score == 100
+    assert first.strongest_category == "Funding"
+    assert first.readiness_signals == ["Outcomes", "Partnerships", "Budget"]
+
+
+def test_weighted_scoring_and_ranking_order(match_project):
+    project, _ = match_project
+    funding_criteria = getattr(project, "funding_criteria", None)
+
+    overview = build_opportunity_matches(project, funding_criteria)
+    scores = [match.score for match in overview.top_recommended]
+
+    assert scores == sorted(scores, reverse=True)
+    assert overview.top_recommended[0].matching_factor_count >= overview.top_recommended[-1].matching_factor_count
+    assert overview.categories[0].highest_score == 100
+    assert overview.categories[0].lowest_score == 92
+    assert overview.categories[2].average_score == 71
 
 
 def test_ecosystem_dashboard_includes_match_summary(client, match_project):
@@ -98,12 +137,11 @@ def test_ecosystem_dashboard_includes_match_summary(client, match_project):
     response = client.get(reverse("project-ecosystem", kwargs={"pk": project.pk}))
     content = response.content.decode()
 
-    assert "Match Summary" in content
-    assert "Total Matches" in content
-    assert "Funding Matches" in content
-    assert "Government Matches" in content
-    assert "Resource Matches" in content
-    assert "Partnership Matches" in content
+    assert "Opportunity Matching Summary" in content
+    assert "Total Opportunities" in content
+    assert "Average Match Score" in content
+    assert "Highest Match Score" in content
+    assert "Strongest Opportunity Category" in content
     assert "Open Opportunity Matching" in content
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
 

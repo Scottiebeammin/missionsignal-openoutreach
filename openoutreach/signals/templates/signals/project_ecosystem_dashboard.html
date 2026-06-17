@@ -114,13 +114,12 @@
 
     {% if ecosystem.match_overview %}
       <section class="panel">
-        <h2>Match Summary</h2>
+        <h2>Opportunity Matching Summary</h2>
         <div class="summary-grid">
-          <div class="summary-card"><strong>{{ ecosystem.match_overview.total_matches }}</strong><span class="muted">Total Matches</span></div>
-          <div class="summary-card"><strong>{{ ecosystem.match_overview.funding_count }}</strong><span class="muted">Funding Matches</span></div>
-          <div class="summary-card"><strong>{{ ecosystem.match_overview.government_count }}</strong><span class="muted">Government Matches</span></div>
-          <div class="summary-card"><strong>{{ ecosystem.match_overview.resource_count }}</strong><span class="muted">Resource Matches</span></div>
-          <div class="summary-card"><strong>{{ ecosystem.match_overview.partnership_count }}</strong><span class="muted">Partnership Matches</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.total_matches }}</strong><span class="muted">Total Opportunities</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.overall_score }}</strong><span class="muted">Average Match Score</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.highest_score }}</strong><span class="muted">Highest Match Score</span></div>
+          <div class="summary-card"><strong>{{ ecosystem.match_overview.strongest_category }}</strong><span class="muted">Strongest Opportunity Category</span></div>
           <a class="summary-card" href="{% url 'project-matches' project.pk %}"><strong>Open Opportunity Matching</strong><span class="muted">Review deterministic opportunity recommendations.</span></a>
         </div>
       </section>

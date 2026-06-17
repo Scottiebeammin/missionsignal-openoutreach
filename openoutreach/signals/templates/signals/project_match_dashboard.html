@@ -46,6 +46,8 @@
     .match-header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
     .score-pill { background: var(--accent-soft); color: var(--accent); }
+    .factor-block { margin-top: 12px; }
+    .factor-title { margin-bottom: 4px; font-weight: 800; }
     ul { margin: 8px 0 0; padding-left: 20px; }
     li + li { margin-top: 4px; }
     @media (max-width: 900px) {
@@ -67,7 +69,7 @@
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">Opportunity Matching V1</p>
+      <p class="eyebrow">Opportunity Matching V2</p>
       <h1>Opportunity Match Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Opportunity matching summary">
@@ -84,6 +86,8 @@
                 <strong>{{ category.count }}</strong>
                 <span>{{ category.label }}</span>
                 <p class="muted">{{ category.average_score }} average score</p>
+                <p class="muted">{{ category.highest_score }} highest score</p>
+                <p class="muted">{{ category.lowest_score }} lowest score</p>
               </article>
             {% endfor %}
           </div>
@@ -101,12 +105,41 @@
               <span class="pill score-pill">{{ match.score }}</span>
             </div>
             <p><span class="pill">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
+            <p class="muted">Match Confidence: {{ match.level }}</p>
             <p><strong>Why it matches</strong></p>
             <ul>
               {% for reason in match.reasons %}
                 <li>{{ reason }}</li>
               {% endfor %}
             </ul>
+            <div class="factor-block">
+              <p class="factor-title">Match Factors</p>
+              <ul>
+                {% for factor in match.match_factors %}
+                  <li>{{ factor }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% if match.missing_factors %}
+              <div class="factor-block">
+                <p class="factor-title">Missing</p>
+                <ul>
+                  {% for factor in match.missing_factors %}
+                    <li>{{ factor }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+            {% if match.improvement_suggestions %}
+              <div class="factor-block">
+                <p class="factor-title">Improve Match By</p>
+                <ul>
+                  {% for suggestion in match.improvement_suggestions %}
+                    <li>{{ suggestion }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
           </article>
         {% empty %}
           <p class="muted">No active opportunity database records are available yet.</p>
@@ -125,11 +158,40 @@
                 <span class="pill score-pill">{{ match.score }}</span>
               </div>
               <p><span class="pill">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
+              <p class="muted">Match Confidence: {{ match.level }}</p>
               <ul>
                 {% for reason in match.reasons %}
                   <li>{{ reason }}</li>
                 {% endfor %}
               </ul>
+              <div class="factor-block">
+                <p class="factor-title">Match Factors</p>
+                <ul>
+                  {% for factor in match.match_factors %}
+                    <li>{{ factor }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% if match.missing_factors %}
+                <div class="factor-block">
+                  <p class="factor-title">Missing</p>
+                  <ul>
+                    {% for factor in match.missing_factors %}
+                      <li>{{ factor }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+              {% if match.improvement_suggestions %}
+                <div class="factor-block">
+                  <p class="factor-title">Improve Match By</p>
+                  <ul>
+                    {% for suggestion in match.improvement_suggestions %}
+                      <li>{{ suggestion }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
             </article>
           {% empty %}
             <p class="muted">No active records in this category.</p>
@@ -137,6 +199,16 @@
         </div>
       </section>
     {% endfor %}
+
+    <section class="panel">
+      <h2>Match Readiness Signals</h2>
+      <p class="muted">Strengthening these areas would improve matches:</p>
+      <ul>
+        {% for signal in match_overview.readiness_signals %}
+          <li>{{ signal }}</li>
+        {% endfor %}
+      </ul>
+    </section>
   </main>
 </body>
 </html>

@@ -8,6 +8,15 @@ from openoutreach.funding.models import (
 )
 
 
+MATCH_WEIGHTS = {
+    "geography": 30,
+    "focus": 25,
+    "beneficiary": 20,
+    "program": 15,
+    "organization_type": 10,
+}
+
+
 @dataclass(frozen=True)
 class OpportunityMatch:
     name: str
@@ -16,6 +25,14 @@ class OpportunityMatch:
     opportunity_type: str
     category: str
     reasons: list[str]
+    match_factors: list[str]
+    missing_factors: list[str]
+    improvement_suggestions: list[str]
+    geography_relevance: int
+
+    @property
+    def matching_factor_count(self) -> int:
+        return len(self.match_factors)
 
 
 @dataclass(frozen=True)
@@ -34,6 +51,18 @@ class MatchCategory:
         return round(sum(match.score for match in self.matches) / len(self.matches))
 
     @property
+    def highest_score(self) -> int:
+        if not self.matches:
+            return 0
+        return max(match.score for match in self.matches)
+
+    @property
+    def lowest_score(self) -> int:
+        if not self.matches:
+            return 0
+        return min(match.score for match in self.matches)
+
+    @property
     def top_matches(self) -> list[OpportunityMatch]:
         return self.matches[:5]
 
@@ -44,6 +73,7 @@ class MatchOverview:
     total_matches: int
     categories: list[MatchCategory]
     top_recommended: list[OpportunityMatch] = field(default_factory=list)
+    readiness_signals: list[str] = field(default_factory=list)
 
     @property
     def funding_count(self) -> int:
@@ -61,6 +91,21 @@ class MatchOverview:
     def partnership_count(self) -> int:
         return _category_count(self.categories, "Partnership Matches")
 
+    @property
+    def highest_score(self) -> int:
+        scores = [match.score for category in self.categories for match in category.matches]
+        return max(scores) if scores else 0
+
+    @property
+    def strongest_category(self) -> str:
+        if not self.categories:
+            return "No matches yet"
+        best = sorted(
+            self.categories,
+            key=lambda category: (-category.average_score, -category.highest_score, category.label),
+        )[0]
+        return best.label.replace(" Matches", "")
+
 
 def _category_count(categories: list[MatchCategory], label: str) -> int:
     for category in categories:
@@ -70,11 +115,11 @@ def _category_count(categories: list[MatchCategory], label: str) -> int:
 
 
 def match_level(score: int) -> str:
-    if score >= 85:
+    if score >= 90:
         return "Excellent Match"
-    if score >= 70:
+    if score >= 75:
         return "Strong Match"
-    if score >= 50:
+    if score >= 60:
         return "Moderate Match"
     return "Weak Match"
 
@@ -87,8 +132,8 @@ def _clean_values(values) -> list[str]:
     return [str(value).strip() for value in values or [] if str(value).strip()]
 
 
-def _title_reason(value: str, suffix: str) -> str:
-    return f"{' '.join(word.capitalize() for word in value.split())} {suffix}"
+def _display(value: str) -> str:
+    return " ".join(word.capitalize() for word in value.split())
 
 
 def _profile(project, funding_criteria=None) -> dict:
@@ -106,36 +151,43 @@ def _profile(project, funding_criteria=None) -> dict:
         focus_areas.extend(_clean_values(funding_criteria.program_areas))
         focus_areas.extend(_clean_values(funding_criteria.funding_use_categories))
         beneficiaries.extend(_clean_values(funding_criteria.beneficiaries))
+    program_terms = _clean_values([
+        project.programs,
+        organization.mission,
+        organization.organization_summary,
+        *_clean_values(organization.capabilities),
+    ])
     combined_text = "\n".join(
-        _clean_values([
-            organization.mission,
-            project.programs,
-            organization.organization_summary,
-            organization.organization_type,
-        ])
+        program_terms
         + focus_areas
         + beneficiaries
-        + _clean_values(organization.capabilities)
         + _clean_values(organization.outcomes_and_impact)
+        + _clean_values(organization.existing_partnerships)
+        + _clean_values(organization.current_funding_sources)
+        + [organization.organization_type or ""]
     ).casefold()
     return {
         "organization_type": str(organization.organization_type or "").strip(),
         "geography": geography,
         "focus_areas": focus_areas,
         "beneficiaries": beneficiaries,
-        "programs": project.programs,
+        "program_terms": program_terms,
         "combined_text": combined_text,
+        "has_outcomes": _has_values(organization.outcomes_and_impact),
+        "has_partnerships": _has_values(organization.existing_partnerships),
+        "has_budget": bool(organization.budget_range.strip()),
+        "has_geography": _has_values(geography),
+        "has_beneficiaries": _has_values(beneficiaries),
     }
 
 
-def _aligned(profile_values: list[str], record_values: list[str], text: str = "") -> list[str]:
+def _overlap(profile_values: list[str], record_values: list[str], record_text: str) -> list[str]:
     matches = []
-    record_text = "\n".join(record_values).casefold()
     for value in profile_values:
         candidate = value.casefold()
         if not candidate:
             continue
-        if candidate in record_text or candidate in text:
+        if candidate in record_text:
             matches.append(value)
             continue
         for record_value in record_values:
@@ -146,8 +198,65 @@ def _aligned(profile_values: list[str], record_values: list[str], text: str = ""
     return matches
 
 
-def _keyword_alignment(keywords: list[str], text: str) -> list[str]:
+def _keyword_matches(keywords: list[str], text: str) -> list[str]:
     return [keyword for keyword in keywords if keyword.casefold() in text]
+
+
+def _factor_score(matches: list[str], weight: int, *, partial: int = 0) -> int:
+    if len(matches) >= 2:
+        return weight
+    if len(matches) == 1:
+        return max(partial, round(weight * 0.75))
+    return partial
+
+
+def _missing_profile_factors(profile: dict) -> list[str]:
+    missing = []
+    if not profile["has_outcomes"]:
+        missing.append("Outcomes Evidence")
+    if not profile["has_partnerships"]:
+        missing.append("Partnership Evidence")
+    if not profile["has_budget"]:
+        missing.append("Budget Context")
+    if not profile["has_geography"]:
+        missing.append("Service Geography")
+    if not profile["has_beneficiaries"]:
+        missing.append("Beneficiary Detail")
+    return missing
+
+
+def _improvement_suggestions(profile: dict, score: int) -> list[str]:
+    if score >= 75:
+        return []
+    suggestions = []
+    if not profile["has_outcomes"]:
+        suggestions.append("Adding outcomes data")
+    if not profile["has_geography"]:
+        suggestions.append("Defining service geography")
+    if not profile["has_partnerships"]:
+        suggestions.append("Adding partnership information")
+    if not profile["has_beneficiaries"]:
+        suggestions.append("Expanding beneficiary information")
+    if not profile["has_budget"]:
+        suggestions.append("Adding budget context")
+    if suggestions:
+        return suggestions
+    return ["Adding stronger evidence for this opportunity category"]
+
+
+def _readiness_signals(profile: dict) -> list[str]:
+    signals = []
+    if not profile["has_outcomes"]:
+        signals.append("Outcomes")
+    if not profile["has_partnerships"]:
+        signals.append("Partnerships")
+    if not profile["has_budget"]:
+        signals.append("Budget")
+    if not profile["has_geography"]:
+        signals.append("Geography")
+    if not profile["has_beneficiaries"]:
+        signals.append("Beneficiaries")
+    return signals or ["Outcomes", "Partnerships", "Budget", "Geography", "Beneficiaries"]
 
 
 def _score_record(
@@ -162,65 +271,95 @@ def _score_record(
     program_terms: list[str],
     compatibility_text: str = "",
 ) -> OpportunityMatch:
-    score = 20
-    reasons = []
-    combined_record_text = "\n".join(
+    record_geography = _clean_values(geography)
+    record_focus = _clean_values(focus_areas)
+    record_beneficiaries = _clean_values(beneficiaries)
+    record_program_terms = _clean_values(program_terms)
+    record_text = "\n".join(
         [name, opportunity_type, compatibility_text]
-        + _clean_values(geography)
-        + _clean_values(focus_areas)
-        + _clean_values(beneficiaries)
-        + _clean_values(program_terms)
+        + record_geography
+        + record_focus
+        + record_beneficiaries
+        + record_program_terms
     ).casefold()
 
-    geography_matches = _aligned(profile["geography"], _clean_values(geography), combined_record_text)
-    if geography_matches:
-        score += 25
-        reasons.append(_title_reason(geography_matches[0], "geography alignment"))
-
-    focus_matches = _aligned(profile["focus_areas"], _clean_values(focus_areas), combined_record_text)
-    keyword_focus = _keyword_alignment(["workforce", "digital equity", "career", "youth", "technology"], combined_record_text)
-    if focus_matches or keyword_focus:
-        score += 25
-        reasons.append(_title_reason((focus_matches or keyword_focus)[0], "alignment"))
-
-    beneficiary_matches = _aligned(profile["beneficiaries"], _clean_values(beneficiaries), combined_record_text)
-    keyword_beneficiaries = _keyword_alignment(["youth", "students", "young adults", "job seekers"], combined_record_text)
-    if beneficiary_matches or keyword_beneficiaries:
-        score += 20
-        reasons.append(_title_reason((beneficiary_matches or keyword_beneficiaries)[0], "beneficiary alignment"))
-
-    profile_text = profile["combined_text"]
-    program_matches = _keyword_alignment(
-        ["workforce", "career", "training", "digital", "technology", "mentoring", "job placement"],
-        profile_text + "\n" + combined_record_text,
+    geography_matches = _overlap(profile["geography"], record_geography, record_text)
+    focus_matches = _overlap(profile["focus_areas"], record_focus, record_text)
+    focus_matches += _keyword_matches(
+        ["workforce development", "digital equity", "career readiness", "youth development", "technology"],
+        record_text,
     )
-    if program_matches:
-        score += 20
-        reasons.append(_title_reason(program_matches[0], "program alignment"))
-
+    beneficiary_matches = _overlap(profile["beneficiaries"], record_beneficiaries, record_text)
+    beneficiary_matches += _keyword_matches(
+        ["youth", "students", "young adults", "job seekers", "low-income residents"],
+        record_text,
+    )
+    program_matches = _keyword_matches(
+        ["workforce", "career", "training", "digital", "technology", "mentoring", "job placement"],
+        profile["combined_text"] + "\n" + record_text,
+    )
     organization_type = profile["organization_type"]
-    if organization_type and organization_type.casefold() in compatibility_text.casefold():
-        score += 10
-        reasons.append(_title_reason(organization_type, "compatibility"))
-    elif organization_type and "nonprofit" in organization_type.casefold():
-        score += 6
-        reasons.append("Nonprofit compatibility")
+    organization_type_match = bool(
+        organization_type
+        and (
+            organization_type.casefold() in record_text
+            or "nonprofit" in organization_type.casefold()
+        )
+    )
 
-    score = max(0, min(score, 100))
+    geography_score = _factor_score(geography_matches, MATCH_WEIGHTS["geography"])
+    focus_score = _factor_score(focus_matches, MATCH_WEIGHTS["focus"])
+    beneficiary_score = _factor_score(beneficiary_matches, MATCH_WEIGHTS["beneficiary"])
+    program_score = _factor_score(program_matches, MATCH_WEIGHTS["program"])
+    organization_score = MATCH_WEIGHTS["organization_type"] if organization_type_match else 0
+    score = max(0, min(
+        geography_score + focus_score + beneficiary_score + program_score + organization_score,
+        100,
+    ))
+
+    match_factors = []
+    reasons = []
+    if geography_matches:
+        match_factors.append("Geography Alignment")
+        reasons.append(f"{_display(geography_matches[0])} geography alignment")
+    if focus_matches:
+        first_focus = _display(focus_matches[0])
+        match_factors.append(f"{first_focus} Alignment")
+        reasons.append(f"{first_focus} alignment")
+    if beneficiary_matches:
+        first_beneficiary = _display(beneficiary_matches[0])
+        match_factors.append(f"{first_beneficiary} Alignment")
+        reasons.append(f"{first_beneficiary} beneficiary alignment")
+    if program_matches:
+        first_program = _display(program_matches[0])
+        match_factors.append(f"{first_program} Program Alignment")
+        reasons.append(f"{first_program} program alignment")
+    if organization_type_match:
+        match_factors.append("Organization Type Alignment")
+        reasons.append(f"{_display(organization_type)} compatibility")
     if not reasons:
         reasons.append("General mission adjacency")
+
+    missing_factors = _missing_profile_factors(profile)
     return OpportunityMatch(
         name=name,
         score=score,
         level=match_level(score),
         opportunity_type=opportunity_type,
         category=category,
-        reasons=reasons[:4],
+        reasons=reasons[:5],
+        match_factors=match_factors[:5],
+        missing_factors=missing_factors[:4],
+        improvement_suggestions=_improvement_suggestions(profile, score),
+        geography_relevance=geography_score,
     )
 
 
 def _sort_matches(matches: list[OpportunityMatch]) -> list[OpportunityMatch]:
-    return sorted(matches, key=lambda match: (-match.score, match.name))
+    return sorted(
+        matches,
+        key=lambda match: (-match.score, -match.matching_factor_count, -match.geography_relevance, match.name),
+    )
 
 
 def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
@@ -299,4 +438,5 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
         total_matches=len(all_matches),
         categories=categories,
         top_recommended=all_matches[:8],
+        readiness_signals=_readiness_signals(profile),
     )
