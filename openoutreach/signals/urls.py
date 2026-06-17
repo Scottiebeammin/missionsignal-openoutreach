@@ -31,8 +31,7 @@ urlpatterns = [
     ),
     path(
         "projects/<int:pk>/partnerships/",
-        views.project_module_placeholder,
-        {"module": "partnerships"},
+        views.project_partnership_dashboard,
         name="project-partnerships",
     ),
     path(

@@ -114,6 +114,17 @@ def test_ecosystem_dashboard_links_to_active_resource_signal(client, ecosystem_p
     assert "Resource readiness, non-funding categories, recommendations, checklist, and actions are available." in content
 
 
+def test_ecosystem_dashboard_links_to_active_partnership_signal(client, ecosystem_project):
+    project, user = ecosystem_project
+    client.force_login(user)
+
+    response = client.get(reverse("project-ecosystem", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content
+    assert "Partnership readiness, partner categories, recommendations, checklist, and actions are available." in content
+
+
 def test_mission_brief_links_to_ecosystem_dashboard(client, ecosystem_project):
     project, user = ecosystem_project
     client.force_login(user)

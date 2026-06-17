@@ -41,6 +41,7 @@ def _level(score: int) -> str:
 
 def build_ecosystem_overview(
     project, funding_readiness, government_readiness, resource_readiness=None,
+    partnership_readiness=None,
 ) -> EcosystemOverview:
     organization = project.organization
     score = 20
@@ -64,6 +65,9 @@ def build_ecosystem_overview(
     readiness_scores = [funding_readiness.readiness_score, government_readiness.readiness_score]
     if resource_readiness:
         readiness_scores.append(resource_readiness.readiness_score)
+        score += 5
+    if partnership_readiness:
+        readiness_scores.append(partnership_readiness.readiness_score)
         score += 5
     score += round(sum(readiness_scores) / (10 * len(readiness_scores)))
     score = max(0, min(score, 100))
@@ -99,14 +103,18 @@ def build_ecosystem_overview(
         ),
         EcosystemStatus(
             "PartnershipSignal",
-            "Coming Soon",
-            "Future module for partner discovery, coalition mapping, and referral ecosystem analysis.",
+            "Complete" if partnership_readiness else "Coming Soon",
+            (
+                "Partnership readiness, partner categories, recommendations, checklist, and actions are available."
+                if partnership_readiness else
+                "Future module for partner discovery, coalition mapping, and referral ecosystem analysis."
+            ),
             "project-partnerships",
         ),
     ]
     roadmap = EcosystemRoadmap(
-        completed=["Mission Brief", "FundingSignal", "GovernmentSignal", "ResourceSignal"],
-        coming_soon=["PartnershipSignal"],
+        completed=["Mission Brief", "FundingSignal", "GovernmentSignal", "ResourceSignal", "PartnershipSignal"],
+        coming_soon=[],
         future=["Opportunity Discovery Engine", "Monitoring Systems", "AI Opportunity Agents"],
     )
     return EcosystemOverview(

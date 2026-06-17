@@ -9,6 +9,7 @@ from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
 from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.mission_brief import recommended_next_steps
+from openoutreach.signals.partnerships import build_partnership_readiness
 from openoutreach.signals.resources import build_resource_readiness
 from openoutreach.signals.services import create_organization_intake
 
@@ -20,14 +21,6 @@ MODULE_PLACEHOLDERS = {
         "summary": (
             "Programs will organize the organization's initiatives into a concise "
             "portfolio for funder alignment, outcomes review, and opportunity scoping."
-        ),
-    },
-    "partnerships": {
-        "title": "PartnershipSignal",
-        "heading": "PartnershipSignal",
-        "summary": (
-            "PartnershipSignal will surface mission-aligned collaborators, referral "
-            "partners, and coalition opportunities. Matching logic is not enabled yet."
         ),
     },
 }
@@ -146,8 +139,10 @@ def project_ecosystem_dashboard(request, pk):
     funding_readiness = build_funding_readiness(project, funding_criteria)
     government_readiness = build_government_readiness(project, funding_criteria)
     resource_readiness = build_resource_readiness(project, funding_criteria)
+    partnership_readiness = build_partnership_readiness(project, funding_criteria)
     ecosystem = build_ecosystem_overview(
         project, funding_readiness, government_readiness, resource_readiness,
+        partnership_readiness,
     )
     return render(
         request,
@@ -170,6 +165,25 @@ def project_resource_dashboard(request, pk):
     return render(
         request,
         "signals/project_resource_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "funding_criteria": funding_criteria,
+            "readiness": readiness,
+        },
+    )
+
+
+@login_required
+def project_partnership_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    readiness = build_partnership_readiness(project, funding_criteria)
+    return render(
+        request,
+        "signals/project_partnership_dashboard.html",
         {
             "project": project,
             "organization": project.organization,

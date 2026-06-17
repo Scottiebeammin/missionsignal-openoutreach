@@ -199,16 +199,6 @@ def test_mission_brief_handles_missing_optional_location_fields(client, db):
             "Program Portfolio",
             "portfolio for funder alignment",
         ),
-        (
-            "project-partnerships",
-            "PartnershipSignal",
-            "Matching logic is not enabled yet.",
-        ),
-        (
-            "project-resources",
-            "ResourceSignal",
-            "non-funding supports",
-        ),
     ],
 )
 def test_project_member_can_view_placeholder_modules(
@@ -232,8 +222,6 @@ def test_project_member_can_view_placeholder_modules(
     "route_name",
     [
         "project-programs",
-        "project-partnerships",
-        "project-resources",
     ],
 )
 def test_non_member_cannot_view_placeholder_modules(
