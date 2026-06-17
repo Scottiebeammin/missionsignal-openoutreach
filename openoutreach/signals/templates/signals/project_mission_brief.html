@@ -77,8 +77,14 @@
 {% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
-  {% include "signals/_app_shell_sidebar.html" with active_page="mission" %}
+  {% include "signals/_app_shell_sidebar.html" with active_page="organization" %}
   <main>
+    <nav class="workspace-tabs" aria-label="Organization workspace tabs">
+      <a href="{% url 'project-organization' project.pk %}">Overview</a>
+      <a class="active" href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
+      <a href="{% url 'project-programs' project.pk %}">Programs</a>
+      <a href="{% url 'project-analysis-detail' project.pk %}">Readiness Data</a>
+    </nav>
     <nav class="topbar" aria-label="Mission Brief actions">
       <a class="button" href="{% url 'project-analysis-detail' project.pk %}">&larr; Analysis Review</a>
       <div class="actions">

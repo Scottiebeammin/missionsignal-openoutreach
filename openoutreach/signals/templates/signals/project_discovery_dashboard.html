@@ -59,8 +59,14 @@
 {% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
-  {% include "signals/_app_shell_sidebar.html" with active_page="discovery" %}
+  {% include "signals/_app_shell_sidebar.html" with active_page="opportunities" %}
   <main>
+    <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
+      <a href="{% url 'project-opportunities' project.pk %}">Overview</a>
+      <a class="active" href="{% url 'project-discovery' project.pk %}">Discovery</a>
+      <a href="{% url 'project-matches' project.pk %}">Matches</a>
+      <a href="{% url 'project-opportunities' project.pk %}#pipeline">Pipeline</a>
+    </nav>
     <nav class="topbar" aria-label="Discovery Engine actions">
       <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>
       <div class="actions">

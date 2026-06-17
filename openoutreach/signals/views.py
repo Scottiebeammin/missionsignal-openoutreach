@@ -96,6 +96,25 @@ def project_mission_brief(request, pk):
 
 
 @login_required
+def project_organization_workspace(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    next_steps = recommended_next_steps(project.organization, funding_criteria)
+    return render(
+        request,
+        "signals/project_organization_workspace.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "funding_criteria": funding_criteria,
+            "recommended_next_steps": next_steps[:5],
+        },
+    )
+
+
+@login_required
 def project_funding_dashboard(request, pk):
     project = get_object_or_404(
         Project.objects.select_related("organization"), pk=pk, users=request.user,
@@ -225,6 +244,29 @@ def project_discovery_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "discovery": discovery,
+        },
+    )
+
+
+@login_required
+def project_opportunities_workspace(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    discovery = build_discovery_overview(project, funding_criteria)
+    match_overview = build_opportunity_matches(project, funding_criteria)
+    actions = list(match_overview.highest_leverage_actions)
+    return render(
+        request,
+        "signals/project_opportunities_workspace.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "funding_criteria": funding_criteria,
+            "discovery": discovery,
+            "match_overview": match_overview,
+            "recommended_actions": actions[:5],
         },
     )
 

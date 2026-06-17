@@ -126,6 +126,29 @@
       </section>
 
       <section class="panel">
+        <h2>Workspace Flow</h2>
+        <div class="kpi-grid">
+          <a class="kpi-card" href="{% url 'project-organization' project.pk %}"><strong>1</strong><span>Organization</span><p>Manage mission, programs, outcomes, and readiness data. Open the <u>Mission Brief</u> when you need the full profile.</p></a>
+          <a class="kpi-card" href="{% url 'project-ecosystem' project.pk %}"><strong>2</strong><span>Ecosystem</span><p>Review funding, government, resources, and partnerships together.</p></a>
+          <a class="kpi-card" href="{% url 'project-opportunities' project.pk %}"><strong>3</strong><span>Opportunities</span><p>Move from discovery and matching into the pipeline.</p></a>
+          <a class="kpi-card" href="{% url 'project-analysis-detail' project.pk %}"><strong>4</strong><span>Settings</span><p>Refresh analysis and review inferred profile data.</p></a>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Detailed Views</h2>
+        <div class="workspace-tabs" aria-label="Detailed module shortcuts">
+          <a href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
+          <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
+          <a href="{% url 'project-matches' project.pk %}">Matching</a>
+          <a href="{% url 'project-funding' project.pk %}">Funding</a>
+          <a href="{% url 'project-government' project.pk %}">Government</a>
+          <a href="{% url 'project-resources' project.pk %}">Resources</a>
+          <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+        </div>
+      </section>
+
+      <section class="panel">
         <h2>Opportunity Command Center</h2>
         <div class="metric-grid">
           <div class="metric-card"><strong>{{ dashboard.total_opportunities }}</strong><span>Total Opportunities</span></div>

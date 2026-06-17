@@ -69,6 +69,13 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="ecosystem" %}
   <main>
+    <nav class="workspace-tabs" aria-label="Ecosystem workspace tabs">
+      <a class="active" href="{% url 'project-ecosystem' project.pk %}">Overview</a>
+      <a href="{% url 'project-funding' project.pk %}">Funding</a>
+      <a href="{% url 'project-government' project.pk %}">Government</a>
+      <a href="{% url 'project-resources' project.pk %}">Resources</a>
+      <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+    </nav>
     <nav class="topbar" aria-label="EcosystemSignal actions">
       <a class="button" href="{% url 'project-dashboard' project.pk %}">&larr; Dashboard</a>
       <div class="actions">

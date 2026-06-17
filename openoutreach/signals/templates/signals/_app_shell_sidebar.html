@@ -5,13 +5,9 @@
   </div>
   <nav class="nav" aria-label="MissionSignal navigation">
     <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'project-dashboard' project.pk %}">Dashboard <span>Home</span></a>
-    <a class="{% if active_page == 'mission' %}active{% endif %}" href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
-    <a class="{% if active_page == 'funding' %}active{% endif %}" href="{% url 'project-funding' project.pk %}">Funding</a>
-    <a class="{% if active_page == 'government' %}active{% endif %}" href="{% url 'project-government' project.pk %}">Government</a>
-    <a class="{% if active_page == 'resources' %}active{% endif %}" href="{% url 'project-resources' project.pk %}">Resources</a>
-    <a class="{% if active_page == 'partnerships' %}active{% endif %}" href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
-    <a class="{% if active_page == 'discovery' %}active{% endif %}" href="{% url 'project-discovery' project.pk %}">Discovery</a>
-    <a class="{% if active_page == 'matching' %}active{% endif %}" href="{% url 'project-matches' project.pk %}">Matching</a>
-    <a class="{% if active_page == 'ecosystem' %}active{% endif %}" href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
+    <a class="{% if active_page == 'organization' or active_page == 'mission' %}active{% endif %}" href="{% url 'project-organization' project.pk %}">Organization</a>
+    <a class="{% if active_page == 'opportunities' or active_page == 'discovery' or active_page == 'matching' %}active{% endif %}" href="{% url 'project-opportunities' project.pk %}">Opportunities</a>
+    <a class="{% if active_page == 'ecosystem' or active_page == 'funding' or active_page == 'government' or active_page == 'resources' or active_page == 'partnerships' %}active{% endif %}" href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
+    <a class="{% if active_page == 'settings' %}active{% endif %}" href="{% url 'project-analysis-detail' project.pk %}">Settings</a>
   </nav>
 </aside>

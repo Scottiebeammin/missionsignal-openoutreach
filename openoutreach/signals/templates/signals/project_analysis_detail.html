@@ -1,52 +1,108 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>{{ organization.name }} analysis</title></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings - {{ organization.name }}</title>
+  <style>
+    :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --accent:#0f766e; --accent-soft:#e8f5f2; --gold:#8a5b00; --gold-soft:#fff7df; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.42 system-ui, sans-serif; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1; }
+    a { color: inherit; }
+    .hero, .panel, .setting-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; margin-bottom: 14px; padding: 22px; }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .panel { margin-bottom: 14px; padding: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .setting-card { padding: 14px; }
+    .button, button { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 6px; background: var(--accent); color: white; font: inherit; font-weight: 800; text-decoration: none; cursor: pointer; }
+    dl { margin: 0; }
+    dt { margin-top: 10px; color: var(--muted); font-weight: 800; }
+    dd { margin: 2px 0 0; }
+    ul { margin: 0; padding-left: 20px; }
+    @media (max-width: 900px) { .hero, .grid { grid-template-columns: 1fr; } }
+  </style>
+  {% include "signals/_app_shell_styles.html" %}
+</head>
 <body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="settings" %}
   <main>
-    <h1>{{ organization.name }} — {{ project.name }}</h1>
-    <p><a href="{% url 'project-mission-brief' project.pk %}">View Mission Brief</a></p>
-    <form method="post" action="{% url 'run-project-analysis' project.pk %}">
-      {% csrf_token %}
-      <button type="submit">Run deterministic analysis</button>
-    </form>
+    <header class="hero">
+      <section>
+        <p class="eyebrow">Settings</p>
+        <h1>{{ organization.name }}</h1>
+        <p class="muted">Refresh deterministic analysis and review the inferred readiness data behind the workspace.</p>
+      </section>
+      <section class="panel action-panel">
+        <h2>Analysis Controls</h2>
+        <form method="post" action="{% url 'run-project-analysis' project.pk %}">
+          {% csrf_token %}
+          <button type="submit">Run deterministic analysis</button>
+        </form>
+      </section>
+    </header>
 
-    <h2>Organization Profile</h2>
-    <dl>
-      <dt>Analysis status</dt><dd>{{ organization.get_analysis_status_display }}</dd>
-      <dt>Analysis confidence</dt><dd>{{ organization.analysis_confidence|default:"Not analyzed" }}</dd>
-      <dt>Organization summary</dt><dd>{{ organization.organization_summary|default:"Not analyzed" }}</dd>
-      <dt>Focus areas</dt><dd>{{ organization.focus_areas|join:", "|default:"None inferred" }}</dd>
-      <dt>Beneficiaries</dt><dd>{{ organization.beneficiaries|join:", "|default:"None inferred" }}</dd>
-      <dt>Service geographies</dt><dd>{{ organization.service_geographies|join:", "|default:"None inferred" }}</dd>
-      <dt>Capabilities</dt><dd>{{ organization.capabilities|join:", "|default:"None inferred" }}</dd>
-      <dt>Outcomes and impact</dt><dd>{{ organization.outcomes_and_impact|join:", "|default:"None inferred" }}</dd>
-      <dt>Search keywords</dt><dd>{{ organization.search_keywords|join:", "|default:"None inferred" }}</dd>
-    </dl>
+    <nav class="workspace-tabs" aria-label="Settings links">
+      <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
+      <a href="{% url 'project-organization' project.pk %}">Organization</a>
+      <a class="active" href="{% url 'project-analysis-detail' project.pk %}">Readiness Data</a>
+      <a href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
+    </nav>
 
-    <h2>Analysis Warnings</h2>
-    <ul>
-      {% for warning in organization.analysis_warnings %}
-        <li>{{ warning }}</li>
-      {% empty %}
-        <li>No warnings.</li>
-      {% endfor %}
-    </ul>
+    <section class="panel">
+      <h2>Organization Profile Data</h2>
+      <div class="grid">
+        <article class="setting-card">
+          <h3>Analysis Status</h3>
+          <dl>
+            <dt>Status</dt><dd>{{ organization.get_analysis_status_display }}</dd>
+            <dt>Confidence</dt><dd>{{ organization.analysis_confidence|default:"Not analyzed" }}</dd>
+            <dt>Summary</dt><dd>{{ organization.organization_summary|default:"Not analyzed" }}</dd>
+          </dl>
+        </article>
+        <article class="setting-card">
+          <h3>Readiness Inputs</h3>
+          <dl>
+            <dt>Focus areas</dt><dd>{{ organization.focus_areas|join:", "|default:"None inferred" }}</dd>
+            <dt>Beneficiaries</dt><dd>{{ organization.beneficiaries|join:", "|default:"None inferred" }}</dd>
+            <dt>Capabilities</dt><dd>{{ organization.capabilities|join:", "|default:"None inferred" }}</dd>
+            <dt>Outcomes and impact</dt><dd>{{ organization.outcomes_and_impact|join:", "|default:"None inferred" }}</dd>
+          </dl>
+        </article>
+      </div>
+    </section>
 
-    <h2>Funding Criteria</h2>
-    {% if funding_criteria %}
-      <dl>
-        <dt>Focus areas</dt><dd>{{ funding_criteria.focus_areas|join:", " }}</dd>
-        <dt>Beneficiaries</dt><dd>{{ funding_criteria.beneficiaries|join:", " }}</dd>
-        <dt>Eligible geographies</dt><dd>{{ funding_criteria.eligible_geographies|join:", " }}</dd>
-        <dt>Program areas</dt><dd>{{ funding_criteria.program_areas|join:", " }}</dd>
-        <dt>Funding uses</dt><dd>{{ funding_criteria.funding_use_categories|join:", " }}</dd>
-        <dt>Likely funder types</dt><dd>{{ funding_criteria.likely_funder_types|join:", " }}</dd>
-        <dt>Likely opportunity types</dt><dd>{{ funding_criteria.likely_opportunity_types|join:", " }}</dd>
-        <dt>Inclusion criteria</dt><dd>{{ funding_criteria.inclusion_criteria }}</dd>
-      </dl>
-    {% else %}
-      <p>Run analysis to generate FundingCriteria.</p>
-    {% endif %}
+    <section class="panel">
+      <h2>Analysis Warnings</h2>
+      <ul>
+        {% for warning in organization.analysis_warnings %}
+          <li>{{ warning }}</li>
+        {% empty %}
+          <li>No warnings.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <details class="panel">
+      <summary>Funding Criteria</summary>
+      {% if funding_criteria %}
+        <dl style="margin-top: 12px;">
+          <dt>Focus areas</dt><dd>{{ funding_criteria.focus_areas|join:", " }}</dd>
+          <dt>Beneficiaries</dt><dd>{{ funding_criteria.beneficiaries|join:", " }}</dd>
+          <dt>Eligible geographies</dt><dd>{{ funding_criteria.eligible_geographies|join:", " }}</dd>
+          <dt>Program areas</dt><dd>{{ funding_criteria.program_areas|join:", " }}</dd>
+          <dt>Funding uses</dt><dd>{{ funding_criteria.funding_use_categories|join:", " }}</dd>
+          <dt>Likely funder types</dt><dd>{{ funding_criteria.likely_funder_types|join:", " }}</dd>
+          <dt>Likely opportunity types</dt><dd>{{ funding_criteria.likely_opportunity_types|join:", " }}</dd>
+          <dt>Inclusion criteria</dt><dd>{{ funding_criteria.inclusion_criteria }}</dd>
+        </dl>
+      {% else %}
+        <p style="margin-top: 12px;">Run analysis to generate FundingCriteria.</p>
+      {% endif %}
+    </details>
   </main>
 </body>
 </html>

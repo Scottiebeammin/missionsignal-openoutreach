@@ -36,6 +36,40 @@
     text-decoration: none;
   }
   .nav a.active, .nav a:hover { background: rgba(255,255,255,.12); color: white; }
+  .workspace-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 14px;
+    padding: 6px;
+    border: 1px solid var(--line, #d9e2e8);
+    border-radius: 8px;
+    background: white;
+  }
+  .workspace-tabs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 7px 11px;
+    border-radius: 6px;
+    color: var(--muted, #687789);
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .workspace-tabs a.active, .workspace-tabs a:hover {
+    background: var(--accent-soft, #e8f5f2);
+    color: var(--accent, #0f766e);
+  }
+  .action-panel {
+    border-left: 4px solid var(--accent, #0f766e) !important;
+    background: #ffffff;
+  }
+  details.panel summary {
+    cursor: pointer;
+    font-weight: 900;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
   .topbar { display: none !important; }
   .hero, .panel, .module-card, .metric-card, .summary-card, .scorecard, .kpi-card,
   .funder-card, .theme-card, .lane-card, .entity-card, .category-card,
