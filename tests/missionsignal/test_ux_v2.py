@@ -68,9 +68,14 @@ def test_opportunities_workspace_connects_discovery_matching_and_pipeline(client
     assert "Collapse Categories" in content
     assert "Opportunity Health" in content
     assert "Upcoming Deadlines" in content
+    assert "Opportunity Pipeline Summary" in content
+    assert "Open full pipeline board" in content
+    assert "Active Lifecycle Opportunities" in content
+    assert "Highest Priority Active" in content
     assert "Advanced Match Health" in content
     assert reverse("project-discovery", kwargs={"pk": project.pk}) in content
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
+    assert reverse("project-pipeline", kwargs={"pk": project.pk}) in content
 
 
 def test_workspace_routes_are_member_only(client, ux_project):
@@ -80,6 +85,7 @@ def test_workspace_routes_are_member_only(client, ux_project):
 
     assert client.get(reverse("project-organization", kwargs={"pk": project.pk})).status_code == 404
     assert client.get(reverse("project-opportunities", kwargs={"pk": project.pk})).status_code == 404
+    assert client.get(reverse("project-pipeline", kwargs={"pk": project.pk})).status_code == 404
 
 
 def test_ecosystem_workspace_tabs_group_signal_modules(client, ux_project):

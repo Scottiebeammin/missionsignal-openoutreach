@@ -10,7 +10,6 @@ from openoutreach.signals.discovery import build_discovery_overview
 from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
 from openoutreach.signals.government import build_government_readiness
-from openoutreach.signals.lifecycle import build_lifecycle_summary
 from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
 from openoutreach.signals.partnerships import build_partnership_readiness
@@ -282,14 +281,16 @@ def project_pipeline_workspace(request, pk):
     project = get_object_or_404(
         Project.objects.select_related("organization"), pk=pk, users=request.user,
     )
-    lifecycle = build_lifecycle_summary()
+    funding_criteria = getattr(project, "funding_criteria", None)
+    discovery = build_discovery_overview(project, funding_criteria)
     return render(
         request,
         "signals/project_pipeline_workspace.html",
         {
             "project": project,
             "organization": project.organization,
-            "lifecycle": lifecycle,
+            "discovery": discovery,
+            "lifecycle": discovery.lifecycle_summary,
         },
     )
 

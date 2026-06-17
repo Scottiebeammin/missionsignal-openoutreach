@@ -15,6 +15,57 @@ LIFECYCLE_ACTIONS = {
     Opportunity.LifecycleStatus.CLOSED: "Archive notes and preserve lessons learned",
 }
 
+LIFECYCLE_DESCRIPTIONS = {
+    Opportunity.LifecycleStatus.DISCOVERED: "New inventory that needs basic fit review.",
+    Opportunity.LifecycleStatus.REVIEWING: "Eligibility, fit, and requirements are being checked.",
+    Opportunity.LifecycleStatus.QUALIFIED: "Good-fit opportunities ready for a pursue/no-pursue decision.",
+    Opportunity.LifecycleStatus.PURSUING: "Active opportunities with owners, requirements, and deadlines.",
+    Opportunity.LifecycleStatus.APPLICATION_DRAFTING: "Narrative, attachments, outcomes, and budget details are being assembled.",
+    Opportunity.LifecycleStatus.SUBMITTED: "Submitted opportunities that need follow-up and status tracking.",
+    Opportunity.LifecycleStatus.AWARDED: "Won opportunities ready for implementation and reporting setup.",
+    Opportunity.LifecycleStatus.DECLINED: "Declined opportunities to review before archiving.",
+    Opportunity.LifecycleStatus.CLOSED: "Completed or archived opportunities with lessons preserved.",
+}
+
+LIFECYCLE_ACTION_LISTS = {
+    Opportunity.LifecycleStatus.DISCOVERED: [
+        "Review eligibility.",
+        "Check geography fit.",
+        "Confirm program alignment.",
+    ],
+    Opportunity.LifecycleStatus.REVIEWING: [
+        "Compare requirements to current profile.",
+        "Identify missing documents.",
+    ],
+    Opportunity.LifecycleStatus.QUALIFIED: [
+        "Decide whether to pursue.",
+        "Assign internal owner.",
+    ],
+    Opportunity.LifecycleStatus.PURSUING: [
+        "Collect attachments.",
+        "Confirm deadlines.",
+    ],
+    Opportunity.LifecycleStatus.APPLICATION_DRAFTING: [
+        "Draft narrative.",
+        "Gather outcomes and budget details.",
+    ],
+    Opportunity.LifecycleStatus.SUBMITTED: [
+        "Track follow-up date.",
+        "Monitor status.",
+    ],
+    Opportunity.LifecycleStatus.AWARDED: [
+        "Prepare implementation plan.",
+        "Track reporting requirements.",
+    ],
+    Opportunity.LifecycleStatus.DECLINED: [
+        "Review feedback.",
+        "Save notes for future opportunities.",
+    ],
+    Opportunity.LifecycleStatus.CLOSED: [
+        "Archive lessons learned.",
+    ],
+}
+
 PIPELINE_STAGE_VALUES = [
     Opportunity.LifecycleStatus.DISCOVERED,
     Opportunity.LifecycleStatus.REVIEWING,
@@ -52,6 +103,8 @@ class LifecycleStage:
     count: int
     opportunities: list[Opportunity]
     recommended_next_step: str
+    description: str
+    recommended_actions: list[str]
 
 
 @dataclass(frozen=True)
@@ -61,6 +114,7 @@ class LifecycleSummary:
     active_opportunities: int
     submitted_opportunities: int
     awarded_opportunities: int
+    highest_priority_active_opportunity: Opportunity | None
 
     @property
     def highest_activity_stage(self) -> str:
@@ -74,8 +128,40 @@ def recommended_lifecycle_action(status: str) -> str:
     return LIFECYCLE_ACTIONS.get(status, "Review eligibility")
 
 
+def lifecycle_description(status: str) -> str:
+    return LIFECYCLE_DESCRIPTIONS.get(status, "Manage opportunity progress.")
+
+
+def lifecycle_actions(status: str) -> list[str]:
+    return LIFECYCLE_ACTION_LISTS.get(status, ["Review eligibility."])
+
+
 def suggested_lifecycle_stage() -> str:
     return Opportunity.LifecycleStatus.DISCOVERED.label
+
+
+def _highest_priority_active_opportunity(opportunities: list[Opportunity]) -> Opportunity | None:
+    priority_rank = {
+        Opportunity.PriorityLevel.HIGH: 0,
+        Opportunity.PriorityLevel.MEDIUM: 1,
+        Opportunity.PriorityLevel.LOW: 2,
+    }
+    active = [
+        opportunity
+        for opportunity in opportunities
+        if opportunity.lifecycle_status in ACTIVE_LIFECYCLE_STATUSES
+    ]
+    if not active:
+        return None
+    return sorted(
+        active,
+        key=lambda opportunity: (
+            priority_rank.get(opportunity.priority_level, 99),
+            opportunity.deadline is None,
+            opportunity.deadline,
+            opportunity.name,
+        ),
+    )[0]
 
 
 def build_lifecycle_summary(limit_per_stage: int | None = None) -> LifecycleSummary:
@@ -97,6 +183,8 @@ def build_lifecycle_summary(limit_per_stage: int | None = None) -> LifecycleSumm
                 count=len(stage_opportunities),
                 opportunities=stage_opportunities[:limit_per_stage] if limit_per_stage else stage_opportunities,
                 recommended_next_step=recommended_lifecycle_action(value),
+                description=lifecycle_description(value),
+                recommended_actions=lifecycle_actions(value),
             )
         )
     summary_stages = [
@@ -122,4 +210,5 @@ def build_lifecycle_summary(limit_per_stage: int | None = None) -> LifecycleSumm
             for opportunity in opportunities
             if opportunity.lifecycle_status == Opportunity.LifecycleStatus.AWARDED
         ),
+        highest_priority_active_opportunity=_highest_priority_active_opportunity(opportunities),
     )

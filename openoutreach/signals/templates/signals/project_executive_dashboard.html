@@ -187,10 +187,23 @@
           <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
         </div>
         <div class="metric-grid">
-          {% for stage in dashboard.lifecycle_summary.summary_stages %}
-            <div class="metric-card"><strong>{{ stage.count }}</strong><span>{{ stage.label }}</span></div>
-          {% endfor %}
+          <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.active_opportunities }}</strong><span>Active Lifecycle Opportunities</span></div>
+          <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.submitted_opportunities }}</strong><span>Submitted</span></div>
+          <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.awarded_opportunities }}</strong><span>Awarded</span></div>
+          <div class="metric-card"><strong>{{ dashboard.discovery_health.upcoming_deadlines|length }}</strong><span>Upcoming Deadlines</span></div>
+          <div class="metric-card">
+            <strong>{{ dashboard.lifecycle_summary.highest_priority_active_opportunity.name|default:"None" }}</strong>
+            <span>Highest Priority Active Opportunity</span>
+          </div>
         </div>
+        <details style="margin-top: 12px;">
+          <summary>Lifecycle stage counts</summary>
+          <div class="metric-grid" style="margin-top: 10px;">
+            {% for stage in dashboard.lifecycle_summary.summary_stages %}
+              <div class="metric-card"><strong>{{ stage.count }}</strong><span>{{ stage.label }}</span></div>
+            {% endfor %}
+          </div>
+        </details>
       </section>
 
       <section class="panel">

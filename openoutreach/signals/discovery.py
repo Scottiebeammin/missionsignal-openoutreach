@@ -7,6 +7,8 @@ from openoutreach.signals.categories import canonical_category
 from openoutreach.signals.lifecycle import (
     LifecycleSummary,
     build_lifecycle_summary,
+    lifecycle_actions,
+    lifecycle_description,
     recommended_lifecycle_action,
 )
 from openoutreach.signals.matching import OpportunityMatch, score_inventory_opportunity
@@ -39,6 +41,17 @@ class DiscoveryBreakdown:
 
 
 @dataclass(frozen=True)
+class DiscoveryLifecycleStage:
+    value: str
+    label: str
+    count: int
+    opportunities: list[DiscoveryOpportunity]
+    description: str
+    recommended_next_step: str
+    recommended_actions: list[str]
+
+
+@dataclass(frozen=True)
 class DiscoveryOverview:
     total_opportunities: int
     active_opportunities: int
@@ -56,6 +69,7 @@ class DiscoveryOverview:
     focus_categories: list[DiscoveryBreakdown]
     top_opportunities: list[DiscoveryOpportunity]
     lifecycle_summary: LifecycleSummary
+    lifecycle_stages: list[DiscoveryLifecycleStage]
 
     @property
     def best_opportunity_category(self) -> str:
@@ -129,6 +143,21 @@ def _focus_category_breakdown(opportunities: list[Opportunity]) -> list[Discover
     return [
         DiscoveryBreakdown(label=label, count=count)
         for label, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+    ]
+
+
+def _lifecycle_stages(items: list[DiscoveryOpportunity]) -> list[DiscoveryLifecycleStage]:
+    return [
+        DiscoveryLifecycleStage(
+            value=value,
+            label=Opportunity.LifecycleStatus(value).label,
+            count=sum(1 for item in items if item.opportunity.lifecycle_status == value),
+            opportunities=[item for item in items if item.opportunity.lifecycle_status == value],
+            description=lifecycle_description(value),
+            recommended_next_step=recommended_lifecycle_action(value),
+            recommended_actions=lifecycle_actions(value),
+        )
+        for value, _label in Opportunity.LifecycleStatus.choices
     ]
 
 
@@ -241,4 +270,5 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
         focus_categories=_focus_category_breakdown(opportunities),
         top_opportunities=items[:5],
         lifecycle_summary=build_lifecycle_summary(limit_per_stage=6),
+        lifecycle_stages=_lifecycle_stages(items),
     )

@@ -49,9 +49,10 @@ def test_project_member_can_view_pipeline(client, lifecycle_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Opportunity Lifecycle V1" in content
+    assert "Opportunity Lifecycle V2" in content
     assert "Opportunity Pipeline" in content
     assert "Lifecycle Board" in content
+    assert "Operating Focus" in content
     assert "Discovered" in content
     assert "Reviewing" in content
     assert "Qualified" in content
@@ -66,8 +67,21 @@ def test_project_member_can_view_pipeline(client, lifecycle_project):
     assert "Last Updated" in content
     assert "Recommended Next Step" in content
     assert "Assigned Owner" in content
-    assert "Notes" in content
+    assert "Assigned Owner: Unassigned" in content
+    assert "Lifecycle Notes" in content
+    assert "Eligibility Notes" in content
+    assert "Focus Areas" in content
+    assert "Beneficiaries" in content
+    assert "Match Reasons" in content
+    assert "Missing Factors" in content
+    assert "Improvement Opportunities" in content
+    assert "View Details" in content
+    assert "Match" in content
     assert "Identify program alignment" in content
+    assert "Review eligibility." in content
+    assert "Check geography fit." in content
+    assert "Assign internal owner." in content
+    assert "Track follow-up date." in content
 
 
 def test_non_member_cannot_view_pipeline(client, lifecycle_project):
@@ -92,3 +106,4 @@ def test_lifecycle_summary_counts(lifecycle_project):
     assert summary.active_opportunities >= 4
     assert summary.submitted_opportunities == 1
     assert summary.awarded_opportunities == 1
+    assert summary.highest_priority_active_opportunity is not None

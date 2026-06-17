@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Opportunity Pipeline - {{ organization.name }}</title>
   <style>
-    :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --accent:#0f766e; --accent-soft:#e8f5f2; --blue:#235789; --blue-soft:#edf5fb; --gold:#8a5b00; --gold-soft:#fff7df; }
+    :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --accent:#0f766e; --accent-soft:#e8f5f2; --blue:#235789; --blue-soft:#edf5fb; --gold:#8a5b00; --gold-soft:#fff7df; --rose:#9f2f46; --rose-soft:#fff0f3; --soft:#f6f8fa; }
     * { box-sizing: border-box; }
     body { margin: 0; font: 14px/1.42 system-ui, sans-serif; }
     h1, h2, h3, p { margin-top: 0; }
@@ -18,17 +18,28 @@
     .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     .muted { color: var(--muted); }
     .panel { margin-bottom: 14px; padding: 16px; }
-    .metrics, .board { display: grid; gap: 10px; }
+    .metrics, .board, .card-meta, .detail-grid { display: grid; gap: 10px; }
     .metrics { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .board { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+    .board { grid-template-columns: repeat(3, minmax(280px, 1fr)); align-items: start; }
     .metric, .stage-column, .opportunity-card { padding: 14px; }
     .metric strong { display: block; color: var(--accent); font-size: 1.5rem; }
-    .stage-column { background: #f6f8fa; }
-    .stage-column header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-weight: 900; }
+    .stage-column { background: var(--soft); }
+    .stage-column header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-weight: 900; }
+    .stage-description { min-height: 40px; margin-bottom: 10px; font-size: .9rem; }
+    .stage-actions { margin: 0 0 12px; padding-left: 18px; color: var(--muted); font-size: .86rem; }
     .opportunity-card { margin-top: 10px; box-shadow: none; }
+    .opportunity-card h3 { font-size: .98rem; line-height: 1.22; }
+    .card-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px; }
+    .card-meta span { min-width: 0; }
+    .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 10px; }
+    .detail-block { padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .detail-block strong { display: block; margin-bottom: 4px; }
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    .score-badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 900; }
     .action-panel { border-left: 4px solid var(--accent); }
-    @media (max-width: 1000px) { .hero, .metrics, .board { grid-template-columns: 1fr; } }
+    ul { margin: 0; padding-left: 18px; }
+    li + li { margin-top: 4px; }
+    @media (max-width: 1000px) { .hero, .metrics, .board, .detail-grid { grid-template-columns: 1fr; } }
   </style>
   {% include "signals/_app_shell_styles.html" %}
 </head>
@@ -44,14 +55,14 @@
 
     <header class="hero">
       <section>
-        <p class="eyebrow">Opportunity Lifecycle V1</p>
+        <p class="eyebrow">Opportunity Lifecycle V2</p>
         <h1>Opportunity Pipeline</h1>
         <p class="muted">{{ organization.name }} - {{ project.name }}</p>
       </section>
       <section class="panel action-panel">
-        <h2>Recommended Next Step</h2>
+        <h2>Operating Focus</h2>
         <p><strong>{{ lifecycle.highest_activity_stage }}</strong></p>
-        <p class="muted">Use lifecycle stages to move opportunities from discovery into active pursuit and follow-up.</p>
+        <p class="muted">Use this board to move opportunities from inventory to pursuit, submission, award, or closeout.</p>
       </section>
     </header>
 
@@ -67,26 +78,83 @@
     <section class="panel">
       <h2>Lifecycle Board</h2>
       <div class="board">
-        {% for stage in lifecycle.stages %}
+        {% for stage in discovery.lifecycle_stages %}
           <article class="stage-column">
             <header><span>{{ stage.label }}</span><span class="pill">{{ stage.count }}</span></header>
-            <p class="muted">{{ stage.recommended_next_step }}</p>
-            {% for opportunity in stage.opportunities %}
+            <p class="muted stage-description">{{ stage.description }}</p>
+            <ul class="stage-actions">
+              {% for action in stage.recommended_actions %}
+                <li>{{ action }}</li>
+              {% endfor %}
+            </ul>
+            {% for item in stage.opportunities %}
               <section class="opportunity-card">
-                <h3>{{ opportunity.name }}</h3>
-                <p>
-                  <span class="pill status-{{ opportunity.status }}">{{ opportunity.get_status_display }}</span>
-                  <span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }}</span>
-                </p>
-                <p class="muted">Deadline: {{ opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
+                <h3>{{ item.opportunity.name }}</h3>
+                <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
+                <div class="card-meta">
+                  <span class="pill">{{ item.opportunity.get_opportunity_type_display }}</span>
+                  <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
+                  <span class="score-badge">Match {{ item.match.score }}</span>
+                  <span class="pill">{{ item.match.level }}</span>
+                </div>
+                <p class="muted" style="margin: 8px 0 0;">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
+                <p class="muted">Assigned Owner: {{ item.opportunity.assigned_owner|default:"Unassigned" }}</p>
+                <p><strong>Next:</strong> {{ stage.recommended_next_step }}</p>
                 <details>
-                  <summary>Opportunity Detail Panel</summary>
-                  <p><strong>Current Lifecycle Status:</strong> {{ opportunity.get_lifecycle_status_display }}</p>
-                  <p><strong>Status History:</strong> Placeholder-ready</p>
-                  <p><strong>Last Updated:</strong> {{ opportunity.updated_at|date:"M j, Y" }}</p>
+                  <summary>View Details</summary>
+                  <div class="detail-grid">
+                    <section class="detail-block">
+                      <strong>Lifecycle Notes</strong>
+                      <p class="muted">{{ item.opportunity.lifecycle_notes|default:"No lifecycle notes yet." }}</p>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Eligibility Notes</strong>
+                      <p class="muted">{{ item.opportunity.eligibility_notes|default:"No eligibility notes provided." }}</p>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Focus Areas</strong>
+                      <p class="muted">{{ item.opportunity.focus_areas|join:", "|default:"Not provided" }}</p>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Beneficiaries</strong>
+                      <p class="muted">{{ item.opportunity.beneficiaries|join:", "|default:"Not provided" }}</p>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Match Reasons</strong>
+                      <ul>
+                        {% for reason in item.match.reasons %}
+                          <li>{{ reason }}</li>
+                        {% endfor %}
+                      </ul>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Missing Factors</strong>
+                      <ul>
+                        {% for factor in item.match.missing_factors %}
+                          <li>{{ factor }}</li>
+                        {% empty %}
+                          <li>No missing factors detected.</li>
+                        {% endfor %}
+                      </ul>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Improvement Opportunities</strong>
+                      <ul>
+                        {% for suggestion in item.match.improvement_suggestions %}
+                          <li>{{ suggestion }}</li>
+                        {% empty %}
+                          <li>No improvement suggestions for this match.</li>
+                        {% endfor %}
+                      </ul>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Status History</strong>
+                      <p class="muted">Placeholder-ready</p>
+                    </section>
+                  </div>
+                  <p><strong>Current Lifecycle Status:</strong> {{ item.opportunity.get_lifecycle_status_display }}</p>
+                  <p><strong>Last Updated:</strong> {{ item.opportunity.updated_at|date:"M j, Y" }}</p>
                   <p><strong>Recommended Next Step:</strong> {{ stage.recommended_next_step }}</p>
-                  <p><strong>Assigned Owner:</strong> {{ opportunity.assigned_owner|default:"Unassigned" }}</p>
-                  <p><strong>Notes:</strong> {{ opportunity.lifecycle_notes|default:"No lifecycle notes yet." }}</p>
                 </details>
               </section>
             {% empty %}

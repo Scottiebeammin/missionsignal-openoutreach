@@ -73,6 +73,7 @@ def test_discovery_inventory_and_readiness_render(client, discovery_project):
     assert "Capacity Building Resource Program" in content
     assert "Youth Career Exploration Sponsorship" in content
     assert "Match Score" in content
+    assert "Lifecycle" in content
     assert "View Details" in content
     assert "Source Organization" in content
     assert "Current Lifecycle Status" in content

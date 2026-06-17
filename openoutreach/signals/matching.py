@@ -46,6 +46,7 @@ class OpportunityMatch:
     potential_score: int
     geography_relevance: int
     suggested_lifecycle_stage: str
+    current_lifecycle_status: str
 
     @property
     def matching_factor_count(self) -> int:
@@ -356,6 +357,7 @@ def _score_record(
     program_terms: list[str],
     compatibility_text: str = "",
     category_keywords: list[str] | None = None,
+    current_lifecycle_status: str = "Not in pipeline",
 ) -> OpportunityMatch:
     record_geography = _clean_values(geography)
     record_focus = _clean_values(focus_areas)
@@ -445,6 +447,7 @@ def _score_record(
         potential_score=_potential_score(score, missing_factors),
         geography_relevance=geography_score,
         suggested_lifecycle_stage=suggested_lifecycle_stage(),
+        current_lifecycle_status=current_lifecycle_status,
     )
 
 
@@ -619,4 +622,5 @@ def score_inventory_opportunity(project, opportunity, funding_criteria=None) -> 
             f"{opportunity.get_source_type_display()}\n{source_context}"
         ),
         category_keywords=EXPANDED_CATEGORY_KEYWORDS,
+        current_lifecycle_status=opportunity.get_lifecycle_status_display(),
     )
