@@ -241,6 +241,19 @@
         </div>
       </section>
 
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Opportunity Web Summary</h2>
+          <a class="pill" href="{% url 'project-opportunity-web' project.pk %}">View Opportunity Web</a>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-card"><strong>{{ opportunity_web.relationship_health_score }}</strong><span>Relationship Health</span></div>
+          <div class="metric-card"><strong>{{ opportunity_web.active_opportunities }}</strong><span>Active Opportunities</span></div>
+          <div class="metric-card"><strong>${{ opportunity_web.forecast_value|floatformat:0 }}</strong><span>Weighted Forecast</span></div>
+          <div class="metric-card"><strong>{{ opportunity_web.opportunity_gaps.0|default:"No web gap" }}</strong><span>Top Opportunity Gap</span></div>
+        </div>
+      </section>
+
       <section class="panel" aria-label="Wins Across the Web">
         <div class="panel-header">
           <div>

@@ -22,6 +22,7 @@ from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_
 from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
 from openoutreach.signals.opportunity_work import build_opportunity_workspace, ensure_default_tasks
+from openoutreach.signals.opportunity_web import build_opportunity_web
 from openoutreach.signals.partnerships import build_partnership_readiness
 from openoutreach.signals.readiness import (
     build_opportunity_pursuit_readiness,
@@ -201,6 +202,7 @@ def project_executive_dashboard(request, pk):
     )
     forecast = dashboard.forecast
     relationships = dashboard.relationships
+    opportunity_web = build_opportunity_web(project, discovery_overview)
     return render(
         request,
         "signals/project_executive_dashboard.html",
@@ -208,6 +210,7 @@ def project_executive_dashboard(request, pk):
             "project": project,
             "organization": project.organization,
             "dashboard": dashboard,
+            "opportunity_web": opportunity_web,
             "score_transparency": {
                 "readiness": explain_readiness(dashboard.readiness),
                 "completeness": explain_organization_completeness(dashboard.readiness.organization_completeness),
@@ -265,6 +268,24 @@ def project_relationships_dashboard(request, pk):
             "score_transparency": {
                 "relationship": explain_relationship_health(relationships),
             },
+        },
+    )
+
+
+@login_required
+def project_opportunity_web(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    discovery = build_discovery_overview(project, funding_criteria)
+    return render(
+        request,
+        "signals/project_opportunity_web.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "web": build_opportunity_web(project, discovery),
         },
     )
 

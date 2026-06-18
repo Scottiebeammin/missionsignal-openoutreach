@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Opportunity Web - {{ organization.name }}</title>
+  {% include "signals/_app_shell_styles.html" %}
+  <style>
+    .web-path {
+      display: grid;
+      gap: 14px;
+    }
+    .web-node {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .web-node::after {
+      content: "to";
+      display: block;
+      width: max-content;
+      margin: 14px auto -4px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .web-node:last-child::after {
+      content: "";
+      margin: 0;
+    }
+    .web-node-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .web-node-header h2 {
+      margin: 0;
+    }
+    .web-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .web-metric {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: var(--surface-subtle);
+    }
+    .web-metric strong {
+      display: block;
+      font-size: 1rem;
+      color: var(--ink);
+    }
+    .web-lists {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+  </style>
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="opportunity-web" %}
+  <main>
+    <nav class="workspace-tabs" aria-label="Opportunity Web navigation">
+      <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
+      <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
+      <a class="active" href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
+      <a href="{% url 'project-relationships' project.pk %}">Relationships</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Opportunities</a>
+    </nav>
+
+    <header class="hero">
+      <section>
+        <p class="eyebrow">Opportunity Web Visualization V1</p>
+        <h1>The Web of Opportunity</h1>
+        <p class="muted">{{ organization.name }} - {{ project.name }}</p>
+      </section>
+      <section class="metric-card advisor-panel">
+        <h2>Opportunity Web Summary</h2>
+        <strong>{{ web.relationship_health_score }}</strong>
+        <span>Relationship Health</span>
+        <p class="muted">{{ web.active_opportunities }} active opportunities · ${{ web.forecast_value|floatformat:0 }} weighted forecast</p>
+      </section>
+    </header>
+
+    <section class="panel">
+      <h2>Opportunity Web Pathway</h2>
+      <p class="muted">A summary-first view of how mission, funders, partners, contacts, resources, opportunities, and outcomes connect across the organization.</p>
+      <div class="web-path" style="margin-top: 14px;">
+        {% for node in web.nodes %}
+          <article class="web-node">
+            <div class="web-node-header">
+              <div>
+                <p class="eyebrow">{{ node.label }} Node</p>
+                <h2>{{ node.label }}</h2>
+              </div>
+              <span class="pill">{{ node.status }}</span>
+            </div>
+            <div class="web-metrics">
+              {% for label, value in node.metrics %}
+                <div class="web-metric">
+                  <span class="muted">{{ label }}</span>
+                  <strong>{{ value }}</strong>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="web-lists">
+              <section>
+                <h3>Highlights</h3>
+                <ul>
+                  {% for highlight in node.highlights %}
+                    <li>{{ highlight }}</li>
+                  {% endfor %}
+                </ul>
+              </section>
+              <section>
+                <h3>Gaps</h3>
+                <ul>
+                  {% for gap in node.gaps %}
+                    <li>{{ gap }}</li>
+                  {% endfor %}
+                </ul>
+              </section>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Opportunity Gaps</h2>
+      <div class="summary-grid">
+        {% for gap in web.opportunity_gaps %}
+          <article class="summary-card">
+            <strong>{{ gap }}</strong>
+            <span class="muted">Web gap</span>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="advisor-panel">
+      <h2>Highest Leverage Actions</h2>
+      <ol class="advisor-list">
+        {% for action in web.highest_leverage_actions %}
+          <li>{{ action }}<span class="impact-label">Impact: Strengthens the web between mission, relationships, resources, opportunities, and outcomes.</span></li>
+        {% endfor %}
+      </ol>
+    </section>
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>

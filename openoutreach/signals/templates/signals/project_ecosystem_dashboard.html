@@ -81,6 +81,7 @@
       <a href="{% url 'project-government' project.pk %}">Government</a>
       <a href="{% url 'project-resources' project.pk %}">Resources</a>
       <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+      <a href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
     </nav>
     <nav class="topbar" aria-label="Ecosystem actions">
       <a class="button" href="{% url 'project-dashboard' project.pk %}">&larr; Dashboard</a>
@@ -90,6 +91,7 @@
         <a class="button" href="{% url 'project-government' project.pk %}">Government</a>
         <a class="button" href="{% url 'project-resources' project.pk %}">Resources</a>
         <a class="button" href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+        <a class="button" href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
         <a class="button" href="{% url 'project-discovery' project.pk %}">Discovery</a>
         <a class="button" href="{% url 'project-matches' project.pk %}">Matching</a>
         <a class="button" href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
@@ -117,6 +119,14 @@
         </section>
       </section>
     </header>
+
+    <section class="panel">
+      <div class="section-toolbar">
+        <h2>Opportunity Web</h2>
+        <a class="pill" href="{% url 'project-opportunity-web' project.pk %}">View Opportunity Web</a>
+      </div>
+      <p class="muted">See how mission, funders, partners, contacts, resources, opportunities, and outcomes connect across the web of opportunity.</p>
+    </section>
 
     <details class="panel">
       <summary>Score Transparency</summary>

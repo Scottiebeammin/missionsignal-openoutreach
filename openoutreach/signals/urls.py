@@ -37,6 +37,11 @@ urlpatterns = [
         name="project-ecosystem",
     ),
     path(
+        "projects/<int:pk>/web/",
+        views.project_opportunity_web,
+        name="project-opportunity-web",
+    ),
+    path(
         "projects/<int:pk>/matches/",
         views.project_match_dashboard,
         name="project-matches",
