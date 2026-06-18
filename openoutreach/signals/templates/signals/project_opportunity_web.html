@@ -64,6 +64,19 @@
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 14px;
     }
+    .executive-web-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .web-story {
+      border-left: 4px solid var(--accent);
+      background: linear-gradient(180deg, #fff 0%, var(--surface-subtle) 180%);
+    }
+    @media (max-width: 900px) {
+      .executive-web-summary { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -83,6 +96,7 @@
         <p class="eyebrow">Opportunity Web Visualization V1</p>
         <h1>The Web of Opportunity</h1>
         <p class="muted">{{ organization.name }} - {{ project.name }}</p>
+        <p class="muted">A strategic map of the assets, gaps, relationships, resources, and opportunities that shape mission growth.</p>
       </section>
       <section class="metric-card advisor-panel">
         <h2>Opportunity Web Summary</h2>
@@ -93,9 +107,27 @@
       </section>
     </header>
 
+    <section class="executive-web-summary" aria-label="Opportunity Web executive summary">
+      <article class="metric-card web-story">
+        <h2>Strongest Asset</h2>
+        <strong>{{ web.nodes.0.highlights.0|default:"Mission clarity" }}</strong>
+        <span>What the web can build around first</span>
+      </article>
+      <article class="metric-card web-story">
+        <h2>Biggest Gap</h2>
+        <strong>{{ web.opportunity_gaps.0|default:"No major web gap" }}</strong>
+        <span>Where leadership attention matters most</span>
+      </article>
+      <article class="metric-card web-story">
+        <h2>Highest Leverage Action</h2>
+        <strong>{{ web.highest_leverage_actions.0|default:"Review the Opportunity Web Snapshot" }}</strong>
+        <span>Next move to strengthen the ecosystem</span>
+      </article>
+    </section>
+
     <section class="panel">
       <h2>Opportunity Web Pathway</h2>
-      <p class="muted">A summary-first view of how mission, funders, partners, contacts, resources, opportunities, and outcomes connect across the organization.</p>
+      <p class="muted">A summary-first pathway showing how mission assets become funder, government, partner, resource, opportunity, and outcome movement.</p>
       <div class="web-path" style="margin-top: 14px;">
         {% for node in web.nodes %}
           <article class="web-node">

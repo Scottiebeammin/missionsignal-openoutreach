@@ -83,6 +83,13 @@
     .section { padding: 30px; margin: 18px 0; }
     .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
     .mini-card { border: 1px solid var(--line); border-radius: 16px; background: #fff; padding: 18px; }
+    .preview-card { min-height: 190px; display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(180deg, #fff 0%, #fffaf0 150%); }
+    .preview-frame { display: grid; gap: 8px; margin-top: 12px; }
+    .preview-bar { height: 12px; border-radius: 999px; background: rgba(21, 26, 58, .12); overflow: hidden; }
+    .preview-bar span { display: block; height: 100%; border-radius: inherit; background: var(--gold); }
+    .proof-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+    .proof { padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .proof strong { display: block; color: var(--navy); font-size: 1.4rem; }
     .pathway {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -101,7 +108,7 @@
     .muted { color: var(--muted); }
     .footer { color: var(--muted); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 22px 0 0; }
     @media (max-width: 880px) {
-      .hero, .grid, .pathway { grid-template-columns: 1fr; }
+      .hero, .grid, .pathway, .proof-row { grid-template-columns: 1fr; }
       .hero-copy { padding: 34px; }
     }
   </style>
@@ -119,11 +126,17 @@
     <header class="hero">
       <section class="hero-copy">
         <p class="eyebrow">anansiatlas.com</p>
-        <h1>Map the web of opportunity around your mission.</h1>
-        <p class="subtitle">Anansi Atlas helps nonprofits uncover funders, partners, resources, risks, and strategic pathways across their opportunity ecosystem.</p>
+        <h1>Turn scattered opportunity into an executive action map.</h1>
+        <p class="subtitle">Anansi Atlas helps nonprofit leaders see the funders, partners, resources, risks, and next moves that can change what their mission is able to pursue.</p>
         <div class="hero-actions">
           <a class="button primary" href="#interest">Get Your Opportunity Web Snapshot</a>
           <a class="button" href="{% url 'pilot-onboarding' %}">Join the Founding Atlas Partners</a>
+        </div>
+        <div class="proof-row" aria-label="Pilot outcomes">
+          <div class="proof"><strong>1</strong><span class="muted">executive snapshot</span></div>
+          <div class="proof"><strong>4</strong><span class="muted">opportunity health signals</span></div>
+          <div class="proof"><strong>5</strong><span class="muted">recommended next actions</span></div>
+          <div class="proof"><strong>0</strong><span class="muted">generic grant-list noise</span></div>
         </div>
       </section>
       <section id="interest" class="capture-card">
@@ -147,8 +160,9 @@
 
     <section class="section">
       <p class="eyebrow">The Problem</p>
-      <h2>Mission-driven organizations operate inside a complex web.</h2>
-      <div class="pathway">
+        <h2>Most opportunity work is spread across inboxes, relationships, documents, deadlines, and memory.</h2>
+        <p class="muted">That makes leadership decisions harder: which funder is worth pursuing, which relationship matters now, which gap will block progress, and what action should happen this week?</p>
+        <div class="pathway">
         <span>Funders</span>
         <span>Partners</span>
         <span>Government pathways</span>
@@ -162,8 +176,8 @@
 
     <section class="section">
       <p class="eyebrow">The Web of Opportunity</p>
-      <h2>See hidden connections, map strategic pathways, identify gaps, and focus action.</h2>
-      <p class="muted">Anansi Atlas is built for leaders who need a clear view of the ecosystem around their mission, not another generic grant list.</p>
+      <h2>A leadership map for the whole opportunity ecosystem, not another list of possible grants.</h2>
+      <p class="muted">The Web of Opportunity connects mission, programs, funders, government pathways, partners, resources, documents, risks, deadlines, relationships, and wins so teams can focus on the moves with the highest leverage.</p>
     </section>
 
     <section class="section">
@@ -179,15 +193,36 @@
     </section>
 
     <section class="section">
+      <p class="eyebrow">Inside Anansi Atlas</p>
+      <h2>Executive previews for the work leaders need to see first.</h2>
+      <div class="grid">
+        <article class="mini-card preview-card">
+          <div><h3>Dashboard</h3><p class="muted">Readiness, forecast value, relationship health, opportunity health, wins, and next actions in one command view.</p></div>
+          <div class="preview-frame"><div class="preview-bar"><span style="width: 82%;"></span></div><div class="preview-bar"><span style="width: 64%;"></span></div><div class="preview-bar"><span style="width: 76%;"></span></div></div>
+        </article>
+        <article class="mini-card preview-card">
+          <div><h3>Opportunity Web</h3><p class="muted">A strategic pathway view connecting mission, funders, partners, resources, opportunities, and outcomes.</p></div>
+          <div class="pathway"><span>Mission</span><span>Funders</span><span>Partners</span><span>Outcomes</span></div>
+        </article>
+        <article class="mini-card preview-card">
+          <div><h3>Opportunity Web Snapshot</h3><p class="muted">A consulting-style deliverable with top opportunities, top risks, resource gaps, relationship gaps, and recommended actions.</p></div>
+          <div class="preview-frame"><div class="preview-bar"><span style="width: 88%;"></span></div><div class="preview-bar"><span style="width: 52%;"></span></div><div class="preview-bar"><span style="width: 70%;"></span></div></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
       <p class="eyebrow">Opportunity Web Snapshot</p>
-      <h2>A focused starter view of your organization’s opportunity ecosystem.</h2>
-      <p class="muted">The Snapshot maps mission, funders, partners, contacts, resources, opportunities, outcomes, and practical next steps.</p>
+      <h2>A board-ready starter view of your organization’s opportunity ecosystem.</h2>
+      <p class="muted">The Snapshot clarifies where momentum already exists, which gaps could block funding or partnership movement, and the recommended actions that can improve readiness before a team invests time in pursuit.</p>
+      <p><a class="button primary" href="#interest">Get Your Opportunity Web Snapshot</a></p>
     </section>
 
     <section class="section">
       <p class="eyebrow">Founding Atlas Partners</p>
-      <h2>A limited pilot group helping shape the platform.</h2>
-      <p class="muted">Founding Atlas Partners are mission-driven organizations and advisors who want a clearer operating view of funding, relationships, resources, readiness, and opportunity movement.</p>
+      <h2>A limited pilot group for organizations ready to manage opportunity more strategically.</h2>
+      <p class="muted">Founding Atlas Partners help refine the executive workflow, receive early Snapshot guidance, and shape how Anansi Atlas supports funding, government, partnership, resource, and readiness decisions.</p>
+      <p><a class="button" href="{% url 'pilot-onboarding' %}">Join Founding Atlas Partners</a></p>
     </section>
 
     <section class="section">

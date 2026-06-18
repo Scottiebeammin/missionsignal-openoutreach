@@ -106,15 +106,57 @@
         <section>
           <p class="eyebrow">Anansi Atlas Executive Dashboard</p>
           <h1>{{ dashboard.organization_name }}</h1>
-          <p class="muted">Map the web of opportunity around your mission. Anansi Atlas helps nonprofits uncover funders, partners, resources, risks, and strategic pathways across their opportunity ecosystem.</p>
+          <p class="muted">An executive view of what is ready, what is valuable, what relationships need attention, and which opportunity actions should happen next.</p>
         </section>
         <section class="header-metrics" aria-label="Executive header metrics">
-          <div class="metric-card"><strong>{{ dashboard.ecosystem_score }}</strong><span>Ecosystem Score</span><p class="muted">{{ dashboard.ecosystem_level }}</p></div>
-          <div class="metric-card"><strong>{{ dashboard.overall_match_score }}</strong><span>Overall Match Score</span><p class="muted">Weighted local matching</p></div>
-          <div class="metric-card"><strong>{{ dashboard.last_analysis_date|date:"M j, Y"|default:"Not run" }}</strong><span>Last Analysis Date</span></div>
-          <div class="metric-card"><strong>{{ dashboard.total_opportunities }}</strong><span>Total Opportunities</span><p class="muted">Discovery inventory</p></div>
+          <div class="metric-card"><strong>{{ dashboard.readiness.overall_score }}</strong><span>Readiness</span><p class="muted">{{ dashboard.readiness.level }}</p></div>
+          <div class="metric-card"><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><span>Forecast Value</span><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
+          <div class="metric-card"><strong>{{ dashboard.relationships.health.score }}</strong><span>Relationship Health</span><p class="muted">{{ dashboard.relationships.health.level }}</p></div>
+          <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.health.score }}</strong><span>Opportunity Health</span><p class="muted">{{ dashboard.lifecycle_summary.health.level }}</p></div>
         </section>
       </header>
+
+      <section class="advisor-panel">
+        <h2>What To Do Next</h2>
+        <ol class="advisor-list">
+          {% for action in dashboard.executive_actions|slice:":3" %}
+            <li>
+              {{ action }}
+              <span class="impact-label">Impact: Improves readiness across funding, government, partnerships, or opportunity matching.</span>
+            </li>
+          {% empty %}
+            <li>
+              Review the organization profile and refresh deterministic analysis.
+              <span class="impact-label">Impact: Gives Anansi Atlas stronger inputs for every workspace.</span>
+            </li>
+          {% endfor %}
+        </ol>
+      </section>
+
+      <section class="panel" aria-label="Wins Across the Web">
+        <div class="panel-header">
+          <div>
+            <h2>Wins Across the Web</h2>
+            <p class="muted">Latest celebrations and proof that opportunity work is moving.</p>
+          </div>
+          <a class="button" href="{% url 'project-celebrations' project.pk %}">View All Celebrations</a>
+        </div>
+        <div class="celebration-grid">
+          {% for celebration in dashboard.celebration_overview.recent_celebrations|slice:":3" %}
+            <article class="celebration-card">
+              <span class="pill">{{ celebration.get_celebration_type_display }}</span>
+              <h3>{{ celebration.title }}</h3>
+              <p>{{ celebration.description }}</p>
+              <p class="muted">{{ celebration.impact }}</p>
+            </article>
+          {% empty %}
+            <article class="celebration-card">
+              <h3>Progress across your opportunity web</h3>
+              <p class="muted">Celebrations will appear here as awards, submissions, partnerships, and impact milestones are recorded.</p>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
 
       <section class="panel">
         <div class="panel-header">
@@ -123,11 +165,14 @@
         </div>
         <div class="metric-grid">
           <div class="metric-card"><strong>{{ dashboard.readiness.overall_score }}</strong><span>Readiness</span><p class="muted">{{ dashboard.readiness.level }}</p></div>
-          <div class="metric-card"><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><span>Pipeline Value</span><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
+          <div class="metric-card"><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><span>Forecast Value</span><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
           <div class="metric-card"><strong>{{ dashboard.active_opportunities }}</strong><span>Active Opportunities</span></div>
           <div class="metric-card"><strong>{{ dashboard.discovery_health.upcoming_deadlines|length }}</strong><span>Upcoming Deadlines</span></div>
           <div class="metric-card"><strong>{{ dashboard.celebration_overview.metrics.celebrations_shared }}</strong><span>Wins Across the Web</span></div>
           <div class="metric-card"><strong>{{ dashboard.relationships.health.score }}</strong><span>Relationship Health</span><p class="muted">{{ dashboard.relationships.health.level }}</p></div>
+          <div class="metric-card"><strong>{{ dashboard.ecosystem_score }}</strong><span>Ecosystem Score</span><p class="muted">{{ dashboard.ecosystem_level }}</p></div>
+          <div class="metric-card"><strong>{{ dashboard.overall_match_score }}</strong><span>Overall Match Score</span><p class="muted">Weighted local matching</p></div>
+          <div class="metric-card"><strong>{{ dashboard.last_analysis_date|date:"M j, Y"|default:"Not run" }}</strong><span>Last Analysis Date</span></div>
         </div>
       </section>
 
@@ -211,22 +256,23 @@
         </div>
       </details>
 
-      <section class="advisor-panel">
+      <details class="advisor-panel">
+        <summary>More Recommended Actions</summary>
         <h2>What To Do Next</h2>
         <ol class="advisor-list">
-          {% for action in dashboard.executive_actions|slice:":3" %}
+          {% for action in dashboard.executive_actions|slice:"3:8" %}
             <li>
               {{ action }}
               <span class="impact-label">Impact: Improves readiness across funding, government, partnerships, or opportunity matching.</span>
             </li>
           {% empty %}
             <li>
-              Review the organization profile and refresh deterministic analysis.
-              <span class="impact-label">Impact: Gives Anansi Atlas stronger inputs for every workspace.</span>
+              The highest-priority actions are already shown at the top of the dashboard.
+              <span class="impact-label">Impact: Keeps leadership focused on the first three moves.</span>
             </li>
           {% endfor %}
         </ol>
-      </section>
+      </details>
 
       <section class="panel">
         <div class="panel-header">
@@ -257,7 +303,8 @@
         </div>
       </section>
 
-      <section class="panel" aria-label="Wins Across the Web">
+      <details class="panel" aria-label="Wins Across the Web">
+        <summary>More Wins Across the Web</summary>
         <div class="panel-header">
           <div>
             <h2>Wins Across the Web</h2>
@@ -280,7 +327,7 @@
             </article>
           {% endfor %}
         </div>
-      </section>
+      </details>
 
       <details class="panel">
         <summary>Workspace Flow</summary>

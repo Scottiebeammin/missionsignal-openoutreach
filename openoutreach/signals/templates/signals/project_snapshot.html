@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   <title>Opportunity Web Snapshot - {{ organization.name }}</title>
   {% include "signals/_app_shell_styles.html" %}
+  <style>
+    .deliverable-cover {
+      border-left: 5px solid var(--accent);
+      background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%);
+    }
+  </style>
 </head>
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="snapshot" %}
@@ -21,6 +27,7 @@
         <p class="eyebrow">Opportunity Web Snapshot V1</p>
         <h1>Opportunity Web Snapshot</h1>
         <p class="muted">{{ organization.name }} - {{ project.name }}</p>
+        <p class="muted">A concise executive deliverable for deciding where to focus opportunity, readiness, relationship, and resource work next.</p>
       </section>
       <section class="metric-card advisor-panel">
         <h2>Readiness Score</h2>
@@ -29,13 +36,19 @@
       </section>
     </header>
 
-    <section class="panel">
-      <h2>Mission Overview</h2>
+    <section class="panel deliverable-cover">
+      <h2>Executive Summary</h2>
       <p class="muted">{{ snapshot.mission_overview }}</p>
+      <div class="metric-grid" style="margin-top: 12px;">
+        <div class="metric-card"><strong>{{ snapshot.readiness_score }}</strong><span>Readiness Score</span><p class="muted">{{ snapshot.readiness_level }}</p></div>
+        {% for label, value in snapshot.opportunity_web_summary|slice:":3" %}
+          <div class="metric-card"><strong>{{ value }}</strong><span>{{ label }}</span></div>
+        {% endfor %}
+      </div>
     </section>
 
     <section class="panel">
-      <h2>Opportunity Web Summary</h2>
+      <h2>Opportunity Overview</h2>
       <div class="metric-grid">
         {% for label, value in snapshot.opportunity_web_summary %}
           <div class="metric-card"><strong>{{ value }}</strong><span>{{ label }}</span></div>
@@ -44,7 +57,40 @@
     </section>
 
     <section class="panel">
-      <h2>Pathways</h2>
+      <h2>Top Opportunities</h2>
+      <div class="compact-grid">
+        {% for item in snapshot.top_opportunities %}
+          <article class="compact-card">
+            <strong>{{ item.opportunity.name }}</strong>
+            <span class="score-badge">Score {{ item.match.score }}</span>
+            <p class="muted">{{ item.opportunity.get_opportunity_type_display }} · {{ item.opportunity.get_priority_level_display }} priority</p>
+          </article>
+        {% empty %}
+          <div class="empty-state"><strong>No opportunities yet</strong>Add opportunities to Discovery to populate the Snapshot.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Top Risks</h2>
+      <div class="summary-grid">
+        {% for gap in snapshot.top_risks_gaps %}
+          <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Snapshot risk</span></article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Top Resource Gaps</h2>
+      <div class="summary-grid">
+        {% for gap in snapshot.top_resource_gaps %}
+          <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Resource gap</span></article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Top Relationship Gaps</h2>
       <div class="insight-grid">
         <section>
           <h3>Top Funder Pathways</h3>
@@ -65,41 +111,8 @@
       </div>
     </section>
 
-    <section class="panel">
-      <h2>Top Opportunities</h2>
-      <div class="compact-grid">
-        {% for item in snapshot.top_opportunities %}
-          <article class="compact-card">
-            <strong>{{ item.opportunity.name }}</strong>
-            <span class="score-badge">Score {{ item.match.score }}</span>
-            <p class="muted">{{ item.opportunity.get_opportunity_type_display }} · {{ item.opportunity.get_priority_level_display }} priority</p>
-          </article>
-        {% empty %}
-          <div class="empty-state"><strong>No opportunities yet</strong>Add opportunities to Discovery to populate the Snapshot.</div>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section class="panel">
-      <h2>Top Resource Gaps</h2>
-      <div class="summary-grid">
-        {% for gap in snapshot.top_resource_gaps %}
-          <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Resource gap</span></article>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section class="panel">
-      <h2>Top Risks / Gaps</h2>
-      <div class="summary-grid">
-        {% for gap in snapshot.top_risks_gaps %}
-          <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Snapshot gap</span></article>
-        {% endfor %}
-      </div>
-    </section>
-
     <section class="advisor-panel">
-      <h2>Top 5 Recommended Next Actions</h2>
+      <h2>Top Recommended Actions</h2>
       <ol class="advisor-list">
         {% for action in snapshot.recommended_next_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Improves the Opportunity Web Snapshot and future pursuit readiness.</span></li>

@@ -22,7 +22,9 @@ def test_public_landing_page_renders_without_login(client):
     assert response.status_code == 200
     assert "Anansi Atlas" in content
     assert "The Web of Opportunity" in content
-    assert "Map the web of opportunity around your mission." in content
+    assert "Turn scattered opportunity into an executive action map." in content
+    assert "Inside Anansi Atlas" in content
+    assert "Dashboard" in content
     assert "Get Your Opportunity Web Snapshot" in content
     assert "Join the Founding Atlas Partners" in content
     assert "anansiatlas.com" in content
@@ -84,15 +86,16 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
 
     assert response.status_code == 200
     assert "Opportunity Web Snapshot V1" in content
-    assert "Mission Overview" in content
-    assert "Opportunity Web Summary" in content
+    assert "Executive Summary" in content
+    assert "Opportunity Overview" in content
     assert "Readiness Score" in content
     assert "Top Funder Pathways" in content
     assert "Top Partner Pathways" in content
     assert "Top Resource Gaps" in content
     assert "Top Opportunities" in content
-    assert "Top Risks / Gaps" in content
-    assert "Top 5 Recommended Next Actions" in content
+    assert "Top Risks" in content
+    assert "Top Relationship Gaps" in content
+    assert "Top Recommended Actions" in content
 
 
 def test_non_member_cannot_view_opportunity_web_snapshot(client, snapshot_project):
