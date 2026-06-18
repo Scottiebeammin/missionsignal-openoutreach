@@ -143,6 +143,23 @@
         </div>
       </section>
 
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Document / Evidence Summary</h2>
+          <div class="actions">
+            <a class="pill" href="{% url 'project-documents' project.pk %}">Open Document Vault</a>
+            <a class="pill" href="{% url 'project-evidence' project.pk %}">Open Evidence Library</a>
+          </div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.document_summary.readiness_score }}</strong><span>Document readiness score</span></div>
+          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.evidence_summary.readiness_score }}</strong><span>Evidence readiness score</span></div>
+          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.document_summary.missing_critical_documents|length }}</strong><span>Missing critical documents</span></div>
+          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.evidence_summary.missing_items }}</strong><span>Missing evidence items</span></div>
+          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.opportunities_blocked_by_missing_documents }}</strong><span>Opportunities blocked by missing documents</span></div>
+        </div>
+      </section>
+
       <section class="advisor-panel">
         <h2>What To Do Next</h2>
         <ol class="advisor-list">

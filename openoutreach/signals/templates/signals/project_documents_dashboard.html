@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Document Vault - {{ organization.name }}</title>
+  <style>
+    :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --page:#eef3f6; --panel:#fff; --soft:#f6f8fa; --accent:#0f766e; --accent-soft:#e8f5f2; --blue:#235789; --blue-soft:#edf5fb; --shadow:0 1px 2px rgba(16,30,44,.04),0 14px 32px rgba(16,30,44,.05); }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.42 system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 24px auto; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1; }
+    h2 { margin-bottom: 12px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
+    .hero, .panel, .metric-card, .item-card { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: var(--shadow); }
+    .hero { margin-bottom: 14px; padding: 22px; }
+    .panel { margin-bottom: 14px; padding: 18px; }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .metric-grid, .item-grid { display: grid; gap: 10px; }
+    .metric-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .item-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .metric-card, .item-card { padding: 14px; box-shadow: none; }
+    .metric-card strong { display: block; color: var(--accent); font-size: 1.7rem; line-height: 1; }
+    .metric-card span { display: block; margin-top: 5px; color: var(--muted); font-weight: 700; }
+    .pill { display: inline-flex; min-height: 28px; align-items: center; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    @media (max-width: 1000px) { .metric-grid, .item-grid { grid-template-columns: 1fr; } }
+  </style>
+  {% include "signals/_app_shell_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="organization" %}
+  <main>
+    <nav class="workspace-tabs" aria-label="Document workspace navigation">
+      <a href="{% url 'project-organization' project.pk %}">Organization</a>
+      <a class="active" href="{% url 'project-documents' project.pk %}">Documents</a>
+      <a href="{% url 'project-evidence' project.pk %}">Evidence</a>
+      <a href="{% url 'project-readiness' project.pk %}">Readiness</a>
+    </nav>
+    <header class="hero">
+      <p class="eyebrow">Document Vault V1</p>
+      <h1>Document Vault</h1>
+      <p class="muted">{{ organization.name }} - {{ project.name }}</p>
+    </header>
+
+    <section class="panel">
+      <h2>Document Readiness</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ document_summary.total_documents }}</strong><span>Total documents</span></div>
+        <div class="metric-card"><strong>{{ document_summary.available_documents }}</strong><span>Available documents</span></div>
+        <div class="metric-card"><strong>{{ document_summary.missing_documents }}</strong><span>Missing documents</span></div>
+        <div class="metric-card"><strong>{{ document_summary.needs_update_documents }}</strong><span>Needs update</span></div>
+        <div class="metric-card"><strong>{{ document_summary.readiness_score }}</strong><span>Document readiness score</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Missing Critical Documents</h2>
+      <div class="item-grid">
+        {% for item in document_summary.missing_critical_documents %}
+          <article class="item-card"><strong>{{ item }}</strong><p class="muted">Required for stronger submission readiness.</p></article>
+        {% empty %}
+          <article class="item-card"><strong>All critical documents available</strong><p class="muted">Core submission documents are ready.</p></article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Document List by Status</h2>
+      {% for label, items in document_summary.grouped_by_status %}
+        <details open>
+          <summary>{{ label }} ({{ items|length }})</summary>
+          <div class="item-grid" style="margin-top: 10px;">
+            {% for item in items %}
+              <article class="item-card">
+                <h3>{{ item.title }}</h3>
+                <span class="pill">{{ item.get_document_type_display }}</span>
+                <p class="muted">{{ item.notes|default:"No notes yet." }}</p>
+              </article>
+            {% endfor %}
+          </div>
+        </details>
+      {% endfor %}
+    </section>
+
+    <section class="panel">
+      <h2>Document List by Type</h2>
+      {% for label, items in document_summary.grouped_by_type %}
+        <details>
+          <summary>{{ label }} ({{ items|length }})</summary>
+          <div class="item-grid" style="margin-top: 10px;">
+            {% for item in items %}
+              <article class="item-card"><strong>{{ item.title }}</strong><p class="muted">{{ item.get_status_display }}</p></article>
+            {% endfor %}
+          </div>
+        </details>
+      {% endfor %}
+    </section>
+  </main>
+</body>
+</html>

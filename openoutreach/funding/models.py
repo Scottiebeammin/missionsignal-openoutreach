@@ -345,6 +345,125 @@ class OpportunityDeadline(models.Model):
         return self.title
 
 
+class DocumentVaultItem(models.Model):
+    class DocumentType(models.TextChoices):
+        IRS_DETERMINATION_LETTER = "irs_determination_letter", "IRS Determination Letter"
+        W9 = "w9", "W-9"
+        ANNUAL_BUDGET = "annual_budget", "Annual Budget"
+        PROGRAM_BUDGET = "program_budget", "Program Budget"
+        BOARD_LIST = "board_list", "Board List"
+        STRATEGIC_PLAN = "strategic_plan", "Strategic Plan"
+        ANNUAL_REPORT = "annual_report", "Annual Report"
+        OUTCOME_REPORT = "outcome_report", "Outcome Report"
+        AUDIT_FINANCIAL_STATEMENT = "audit_financial_statement", "Audit / Financial Statement"
+        INSURANCE = "insurance", "Insurance"
+        POLICY_DOCUMENT = "policy_document", "Policy Document"
+        OTHER = "other", "Other"
+
+    class Status(models.TextChoices):
+        AVAILABLE = "available", "Available"
+        NEEDS_UPDATE = "needs_update", "Needs Update"
+        MISSING = "missing", "Missing"
+        ARCHIVED = "archived", "Archived"
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="document_vault_items")
+    title = models.CharField(max_length=300)
+    document_type = models.CharField(max_length=40, choices=DocumentType.choices, default=DocumentType.OTHER)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.MISSING)
+    file_reference = models.CharField(max_length=500, blank=True, default="")
+    notes = models.TextField(blank=True, default="")
+    uploaded_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("document_type", "title")
+        constraints = [
+            models.UniqueConstraint(fields=("project", "title"), name="unique_project_document_title"),
+        ]
+
+    def __str__(self):
+        return self.title
+
+
+class EvidenceLibraryItem(models.Model):
+    class EvidenceType(models.TextChoices):
+        OUTCOME_METRIC = "outcome_metric", "Outcome Metric"
+        IMPACT_STORY = "impact_story", "Impact Story"
+        EVALUATION_REPORT = "evaluation_report", "Evaluation Report"
+        TESTIMONIAL = "testimonial", "Testimonial"
+        COMMUNITY_NEED_DATA = "community_need_data", "Community Need Data"
+        PROGRAM_RESULT = "program_result", "Program Result"
+        PARTNER_LETTER = "partner_letter", "Partner Letter"
+        MEDIA_MENTION = "media_mention", "Media Mention"
+        OTHER = "other", "Other"
+
+    class Status(models.TextChoices):
+        AVAILABLE = "available", "Available"
+        NEEDS_UPDATE = "needs_update", "Needs Update"
+        MISSING = "missing", "Missing"
+        ARCHIVED = "archived", "Archived"
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="evidence_library_items")
+    title = models.CharField(max_length=300)
+    evidence_type = models.CharField(max_length=40, choices=EvidenceType.choices, default=EvidenceType.OTHER)
+    related_program = models.CharField(max_length=300, blank=True, default="")
+    metric_name = models.CharField(max_length=200, blank=True, default="")
+    metric_value = models.CharField(max_length=200, blank=True, default="")
+    evidence_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True, default="")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.MISSING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("evidence_type", "title")
+        constraints = [
+            models.UniqueConstraint(fields=("project", "title"), name="unique_project_evidence_title"),
+        ]
+
+    def __str__(self):
+        return self.title
+
+
+class OpportunityDocumentRequirement(models.Model):
+    class RequirementType(models.TextChoices):
+        REQUIRED_DOCUMENT = "required_document", "Required Document"
+        SUPPORTING_EVIDENCE = "supporting_evidence", "Supporting Evidence"
+        FINANCIAL_DOCUMENT = "financial_document", "Financial Document"
+        PROGRAM_EVIDENCE = "program_evidence", "Program Evidence"
+        PARTNERSHIP_EVIDENCE = "partnership_evidence", "Partnership Evidence"
+        COMPLIANCE_DOCUMENT = "compliance_document", "Compliance Document"
+        OTHER = "other", "Other"
+
+    class Status(models.TextChoices):
+        AVAILABLE = "available", "Available"
+        MISSING = "missing", "Missing"
+        NEEDS_UPDATE = "needs_update", "Needs Update"
+        NOT_REQUIRED = "not_required", "Not Required"
+
+    opportunity = models.ForeignKey(Opportunity, on_delete=models.CASCADE, related_name="document_requirements")
+    title = models.CharField(max_length=300)
+    requirement_type = models.CharField(
+        max_length=40, choices=RequirementType.choices, default=RequirementType.REQUIRED_DOCUMENT,
+    )
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.MISSING)
+    linked_document = models.ForeignKey(
+        DocumentVaultItem, null=True, blank=True, on_delete=models.SET_NULL, related_name="opportunity_requirements",
+    )
+    notes = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("requirement_type", "title")
+        constraints = [
+            models.UniqueConstraint(fields=("opportunity", "title"), name="unique_opportunity_document_requirement"),
+        ]
+
+    def __str__(self):
+        return self.title
+
+
 class FundingOpportunity(models.Model):
     class Status(models.TextChoices):
         UNKNOWN = "unknown", "Unknown"

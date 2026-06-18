@@ -4,6 +4,8 @@ from datetime import date
 
 from openoutreach.core.models import Organization, Project
 from openoutreach.funding.models import (
+    DocumentVaultItem,
+    EvidenceLibraryItem,
     Funder,
     GovernmentEntity,
     Opportunity,
@@ -11,6 +13,7 @@ from openoutreach.funding.models import (
     ResourceProvider,
     SourceOrganization,
 )
+from openoutreach.signals.documents import ensure_opportunity_document_requirements
 from openoutreach.signals.analysis_service import analyze_project
 from openoutreach.signals.models import OrganizationAnalysisRun
 
@@ -699,6 +702,141 @@ def _seed_opportunity_database():
         Opportunity.objects.update_or_create(name=name, defaults=opportunity)
 
 
+def _seed_document_and_evidence_data(project):
+    documents = [
+        {
+            "title": "IRS Determination Letter",
+            "document_type": DocumentVaultItem.DocumentType.IRS_DETERMINATION_LETTER,
+            "status": DocumentVaultItem.Status.AVAILABLE,
+            "file_reference": "vault://irs-determination-letter.pdf",
+            "notes": "Current nonprofit determination letter placeholder.",
+        },
+        {
+            "title": "W-9",
+            "document_type": DocumentVaultItem.DocumentType.W9,
+            "status": DocumentVaultItem.Status.AVAILABLE,
+            "file_reference": "vault://w9.pdf",
+            "notes": "Current W-9 placeholder.",
+        },
+        {
+            "title": "Annual Budget",
+            "document_type": DocumentVaultItem.DocumentType.ANNUAL_BUDGET,
+            "status": DocumentVaultItem.Status.NEEDS_UPDATE,
+            "file_reference": "vault://annual-budget.xlsx",
+            "notes": "Needs refresh for the current fiscal year.",
+        },
+        {
+            "title": "Program Budget",
+            "document_type": DocumentVaultItem.DocumentType.PROGRAM_BUDGET,
+            "status": DocumentVaultItem.Status.AVAILABLE,
+            "file_reference": "vault://program-budget.xlsx",
+            "notes": "Draft program budget for digital skills initiative.",
+        },
+        {
+            "title": "Board List",
+            "document_type": DocumentVaultItem.DocumentType.BOARD_LIST,
+            "status": DocumentVaultItem.Status.AVAILABLE,
+            "file_reference": "vault://board-list.pdf",
+            "notes": "Current board list placeholder.",
+        },
+        {
+            "title": "Outcome Report",
+            "document_type": DocumentVaultItem.DocumentType.OUTCOME_REPORT,
+            "status": DocumentVaultItem.Status.MISSING,
+            "notes": "Outcome report needs to be assembled from current metrics.",
+        },
+        {
+            "title": "Insurance",
+            "document_type": DocumentVaultItem.DocumentType.INSURANCE,
+            "status": DocumentVaultItem.Status.NEEDS_UPDATE,
+            "file_reference": "vault://insurance-certificate.pdf",
+            "notes": "Certificate needs current coverage dates.",
+        },
+        {
+            "title": "Policy Document",
+            "document_type": DocumentVaultItem.DocumentType.POLICY_DOCUMENT,
+            "status": DocumentVaultItem.Status.MISSING,
+            "notes": "Policy packet needed for public-sector contracts.",
+        },
+    ]
+    for document in documents:
+        title = document.pop("title")
+        DocumentVaultItem.objects.update_or_create(project=project, title=title, defaults=document)
+
+    evidence_items = [
+        {
+            "title": "Participants completing digital skills workshops",
+            "evidence_type": EvidenceLibraryItem.EvidenceType.OUTCOME_METRIC,
+            "related_program": "Digital skills workshops",
+            "metric_name": "Workshop completions",
+            "metric_value": "180 participants",
+            "evidence_date": date(2026, 5, 1),
+            "status": EvidenceLibraryItem.Status.AVAILABLE,
+            "notes": "Demo outcome metric for digital skills participation.",
+        },
+        {
+            "title": "Youth internship placement result",
+            "evidence_type": EvidenceLibraryItem.EvidenceType.PROGRAM_RESULT,
+            "related_program": "Paid technology internships",
+            "metric_name": "Placement rate",
+            "metric_value": "68%",
+            "evidence_date": date(2026, 4, 20),
+            "status": EvidenceLibraryItem.Status.AVAILABLE,
+            "notes": "Demo placement result for career pathway programs.",
+        },
+        {
+            "title": "Participant impact story",
+            "evidence_type": EvidenceLibraryItem.EvidenceType.IMPACT_STORY,
+            "related_program": "Youth career exploration",
+            "status": EvidenceLibraryItem.Status.NEEDS_UPDATE,
+            "notes": "Needs permission and current quote.",
+        },
+        {
+            "title": "Community broadband need data",
+            "evidence_type": EvidenceLibraryItem.EvidenceType.COMMUNITY_NEED_DATA,
+            "related_program": "Device access",
+            "status": EvidenceLibraryItem.Status.AVAILABLE,
+            "evidence_date": date(2026, 3, 15),
+            "notes": "Demo local digital access need data.",
+        },
+        {
+            "title": "Employer testimonial",
+            "evidence_type": EvidenceLibraryItem.EvidenceType.TESTIMONIAL,
+            "related_program": "Employer-connected workforce training",
+            "status": EvidenceLibraryItem.Status.MISSING,
+            "notes": "Employer testimonial needs to be requested.",
+        },
+        {
+            "title": "Partner support letter",
+            "evidence_type": EvidenceLibraryItem.EvidenceType.PARTNER_LETTER,
+            "related_program": "Community partnerships",
+            "status": EvidenceLibraryItem.Status.MISSING,
+            "notes": "Partner letter needed for partnership and grant submissions.",
+        },
+        {
+            "title": "Evaluation memo",
+            "evidence_type": EvidenceLibraryItem.EvidenceType.EVALUATION_REPORT,
+            "related_program": "Digital skills workshops",
+            "status": EvidenceLibraryItem.Status.NEEDS_UPDATE,
+            "notes": "Evaluation memo needs current outcomes and charts.",
+        },
+        {
+            "title": "Local media mention",
+            "evidence_type": EvidenceLibraryItem.EvidenceType.MEDIA_MENTION,
+            "related_program": "Digital inclusion",
+            "status": EvidenceLibraryItem.Status.AVAILABLE,
+            "evidence_date": date(2026, 2, 10),
+            "notes": "Demo media mention for community digital inclusion work.",
+        },
+    ]
+    for evidence in evidence_items:
+        title = evidence.pop("title")
+        EvidenceLibraryItem.objects.update_or_create(project=project, title=title, defaults=evidence)
+
+    for opportunity in Opportunity.objects.all():
+        ensure_opportunity_document_requirements(project, opportunity)
+
+
 @transaction.atomic
 def seed_missionsignal_demo(*, password=None):
     """Create or refresh the deterministic MissionSignal demo records."""
@@ -756,6 +894,7 @@ def seed_missionsignal_demo(*, password=None):
 
     analyze_project(project, mode="deterministic")
     _seed_opportunity_database()
+    _seed_document_and_evidence_data(project)
     organization.refresh_from_db()
     project.refresh_from_db()
     return user, organization, project

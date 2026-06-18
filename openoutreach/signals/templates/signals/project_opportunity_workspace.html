@@ -77,6 +77,8 @@
       <a href="#requirements">Requirements</a>
       <a href="#tasks">Tasks</a>
       <a href="#deadlines">Deadlines</a>
+      <a href="#documents">Documents</a>
+      <a href="#evidence">Evidence</a>
       <a href="#notes">Notes</a>
       <a href="#history">History</a>
     </nav>
@@ -86,6 +88,7 @@
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ workspace.match.score }}</strong><span>Match Summary</span><p><span class="pill {{ workspace.match.level|slugify }}">{{ workspace.match.level }}</span></p></div>
         <div class="metric-card"><strong>{{ pursuit_readiness.score }}</strong><span>Pursuit Readiness</span><p><span class="pill">{{ pursuit_readiness.level }}</span></p></div>
+        <div class="metric-card"><strong>{{ document_summary.submission_readiness_score }}</strong><span>Submission Readiness Impact</span><p><span class="pill">Docs {{ document_summary.document_readiness_score }} · Evidence {{ document_summary.evidence_readiness_score }}</span></p></div>
         <div class="metric-card"><strong>{{ opportunity.get_lifecycle_status_display }}</strong><span>Lifecycle Status</span></div>
         <div class="metric-card"><strong>{% if opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</strong><span>Owner</span><p class="muted">{{ opportunity.assigned_owner|default:"Owner: Unassigned" }}</p></div>
         <div class="metric-card"><strong>{{ opportunity.deadline|date:"M j, Y"|default:"Not set" }}</strong><span>Deadline</span><p><span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }} Priority</span></p></div>
@@ -212,6 +215,61 @@
               </tr>
             {% empty %}
               <tr><td colspan="5">No deadlines yet. Add an opportunity deadline to begin tracking.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="documents" class="panel">
+      <h2>Documents</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ document_summary.document_readiness_score }}</strong><span>Document readiness score</span></div>
+        <div class="metric-card"><strong>{{ document_summary.available_requirements }}</strong><span>Available documents</span></div>
+        <div class="metric-card"><strong>{{ document_summary.missing_requirements }}</strong><span>Missing documents</span></div>
+        <div class="metric-card"><strong>{{ document_summary.needs_update_requirements }}</strong><span>Needs update</span></div>
+      </div>
+      <div class="table-wrap" style="margin-top: 12px;">
+        <table>
+          <thead><tr><th>Required Document</th><th>Status</th><th>Type</th><th>Linked Vault Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            {% for requirement in document_summary.required_documents %}
+              <tr>
+                <td><strong>{{ requirement.title }}</strong></td>
+                <td><span class="pill">{{ requirement.get_status_display }}</span></td>
+                <td>{{ requirement.get_requirement_type_display }}</td>
+                <td>{{ requirement.linked_document.title|default:"No linked document" }}</td>
+                <td class="muted">{{ requirement.notes }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5">No required documents yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="evidence" class="panel">
+      <h2>Evidence</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ document_summary.evidence_readiness_score }}</strong><span>Evidence readiness score</span></div>
+        <div class="metric-card"><strong>{{ document_summary.needed_evidence|length }}</strong><span>Required evidence</span></div>
+        <div class="metric-card"><strong>{{ document_summary.missing_requirements }}</strong><span>Missing evidence or documents</span></div>
+      </div>
+      <div class="table-wrap" style="margin-top: 12px;">
+        <table>
+          <thead><tr><th>Required Evidence</th><th>Status</th><th>Type</th><th>Linked Evidence / Document</th><th>Notes</th></tr></thead>
+          <tbody>
+            {% for requirement in document_summary.needed_evidence %}
+              <tr>
+                <td><strong>{{ requirement.title }}</strong></td>
+                <td><span class="pill">{{ requirement.get_status_display }}</span></td>
+                <td>{{ requirement.get_requirement_type_display }}</td>
+                <td>{{ requirement.linked_document.title|default:"No linked item" }}</td>
+                <td class="muted">{{ requirement.notes }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5">No required evidence yet.</td></tr>
             {% endfor %}
           </tbody>
         </table>

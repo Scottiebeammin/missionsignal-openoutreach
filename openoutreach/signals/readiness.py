@@ -3,6 +3,10 @@ from dataclasses import dataclass
 from django.utils import timezone
 
 from openoutreach.funding.models import Opportunity, OpportunityDeadline, OpportunityTask
+from openoutreach.signals.documents import (
+    build_document_evidence_health,
+    build_opportunity_document_summary,
+)
 
 
 @dataclass(frozen=True)
@@ -39,6 +43,9 @@ class ReadinessOverview:
     recommended_actions: list[str]
     organization_completeness: OrganizationCompleteness
     dimensions: list[ReadinessDimension]
+    document_readiness_score: int
+    evidence_readiness_score: int
+    submission_readiness_score: int
 
 
 @dataclass(frozen=True)
@@ -122,6 +129,7 @@ def build_organization_completeness(project, module_readiness: dict | None = Non
     funding_score = getattr(module_readiness.get("funding"), "readiness_score", 0)
     government_score = getattr(module_readiness.get("government"), "readiness_score", 0)
     resource_score = getattr(module_readiness.get("resource"), "readiness_score", 0)
+    document_health = build_document_evidence_health(project)
 
     areas = [
         CompletenessArea("Mission", _has_text(organization.mission), "Mission statement is present."),
@@ -142,6 +150,16 @@ def build_organization_completeness(project, module_readiness: dict | None = Non
         CompletenessArea("Resource Capacity", resource_score >= 65 or _has_values(organization.capabilities), "Capacity and resources are documented."),
         CompletenessArea("Funding Readiness", funding_score >= 65, "Funding readiness is strong enough for pursuit planning."),
         CompletenessArea("Government Readiness", government_score >= 65, "Government readiness is strong enough for public-sector pursuit."),
+        CompletenessArea(
+            "Document Readiness",
+            document_health.document_summary.readiness_score >= 65,
+            "Core documents are available or being maintained.",
+        ),
+        CompletenessArea(
+            "Evidence Readiness",
+            document_health.evidence_summary.readiness_score >= 65,
+            "Evidence library can support applications and partnerships.",
+        ),
     ]
     completed = [area.label for area in areas if area.complete]
     missing = [area.label for area in areas if not area.complete]
@@ -152,6 +170,8 @@ def build_organization_completeness(project, module_readiness: dict | None = Non
         "Partnerships",
         "Funding Readiness",
         "Government Readiness",
+        "Document Readiness",
+        "Evidence Readiness",
         "Resource Capacity",
         "Beneficiaries",
         "Geography",
@@ -208,6 +228,10 @@ def build_readiness_overview(
         )
         / 4
     )
+    document_health = build_document_evidence_health(project)
+    submission_score = round(
+        (document_health.document_summary.readiness_score + document_health.evidence_summary.readiness_score) / 2
+    )
     dimensions = [
         _dimension("Mission Readiness", mission_score, "Mission is clear enough to anchor opportunity work.", "Mission needs clearer positioning."),
         _dimension("Program Readiness", program_score, "Programs are defined for opportunity alignment.", "Programs need clearer definition."),
@@ -217,6 +241,9 @@ def build_readiness_overview(
         _dimension("Partnership Readiness", partnership_readiness.readiness_score, "Partnership lane supports credibility.", "Partnership evidence needs work."),
         _dimension("Resource Readiness", resource_readiness.readiness_score, "Resource lane can support capacity.", "Resource capacity needs definition."),
         _dimension("Operational Readiness", operational_score, "Operations are ready for active pursuit.", "Operational details need cleanup."),
+        _dimension("Document Readiness", document_health.document_summary.readiness_score, "Core documents are organized for pursuit.", "Critical documents are missing or need updates."),
+        _dimension("Evidence Readiness", document_health.evidence_summary.readiness_score, "Evidence library can support applications.", "Evidence library needs stronger outcomes, stories, or support materials."),
+        _dimension("Submission Readiness", submission_score, "Documents and evidence can support submissions.", "Submission package readiness needs preparation."),
     ]
     overall_score = round(sum(item.score for item in dimensions) / len(dimensions))
     strengths = _dedupe(
@@ -242,6 +269,10 @@ def build_readiness_overview(
         actions.append("Create a capacity and resource needs inventory.")
     if "Government Readiness" in completeness.missing_areas:
         actions.append("Build a local government contact strategy.")
+    if document_health.document_summary.missing_critical_documents:
+        actions.append("Complete missing critical documents in the Document Vault.")
+    if document_health.evidence_summary.missing_evidence_items:
+        actions.append("Add missing outcome evidence and impact support to the Evidence Library.")
     actions.append("Use the readiness dashboard to prioritize the next opportunity preparation sprint.")
     return ReadinessOverview(
         overall_score=overall_score,
@@ -251,6 +282,9 @@ def build_readiness_overview(
         recommended_actions=_dedupe(actions, 7),
         organization_completeness=completeness,
         dimensions=dimensions,
+        document_readiness_score=document_health.document_summary.readiness_score,
+        evidence_readiness_score=document_health.evidence_summary.readiness_score,
+        submission_readiness_score=submission_score,
     )
 
 
@@ -259,6 +293,7 @@ def build_opportunity_pursuit_readiness(project, opportunity: Opportunity) -> Op
     completeness = build_organization_completeness(project)
     tasks = list(opportunity.tasks.all())
     deadlines = list(opportunity.deadlines.all())
+    document_summary = build_opportunity_document_summary(project, opportunity)
     required_documents_ready = any(task.status == OpportunityTask.Status.COMPLETE for task in tasks) or bool(tasks)
     outcomes_ready = _has_values(organization.outcomes_and_impact)
     budget_ready = _has_text(organization.budget_range)
@@ -282,6 +317,9 @@ def build_opportunity_pursuit_readiness(project, opportunity: Opportunity) -> Op
         (85 if partnership_ready else 45, "Partnership evidence is available.", "Partnership inventory is missing."),
         (82 if resource_ready else 45, "Resource capacity is documented.", "Resource readiness needs definition."),
         (88 if deadline_ready else 30, "Deadline status is manageable.", "One or more deadlines are overdue."),
+        (document_summary.document_readiness_score, "Required documents are available.", "Required documents are missing or need updates."),
+        (document_summary.evidence_readiness_score, "Required evidence is available.", "Required evidence is missing or needs updates."),
+        (document_summary.submission_readiness_score, "Submission package is ready enough to pursue.", "Submission readiness needs preparation."),
     ]
     score = round(sum(value for value, _ready, _not_ready in factors) / len(factors))
     why_ready = [ready for value, ready, _not_ready in factors if value >= 70]
@@ -294,6 +332,9 @@ def build_opportunity_pursuit_readiness(project, opportunity: Opportunity) -> Op
         ("Capacity readiness needs definition.", "Document capacity and staffing needs."),
         ("Resource readiness needs definition.", "Create a resource needs inventory."),
         ("One or more deadlines are overdue.", "Resolve overdue deadlines."),
+        ("Required documents are missing or need updates.", "Complete missing required documents."),
+        ("Required evidence is missing or needs updates.", "Add required evidence items."),
+        ("Submission readiness needs preparation.", "Prepare the submission document and evidence package."),
         ("Organization completeness needs work.", "Complete missing organization profile areas."),
     ]
     highest = next(

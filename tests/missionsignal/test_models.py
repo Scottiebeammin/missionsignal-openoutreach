@@ -7,6 +7,8 @@ from django.db import IntegrityError
 
 from openoutreach.core.models import Campaign, Organization, Project
 from openoutreach.funding.models import (
+    DocumentVaultItem,
+    EvidenceLibraryItem,
     Funder,
     FundingCriteria,
     FundingOpportunity,
@@ -15,6 +17,7 @@ from openoutreach.funding.models import (
     GovernmentEntity,
     Opportunity,
     OpportunityDeadline,
+    OpportunityDocumentRequirement,
     OpportunityTask,
     PartnerOrganization,
     ResourceProvider,
@@ -255,6 +258,41 @@ def test_opportunity_deadline_model_defaults_and_string():
     assert deadline.notes == ""
 
 
+def test_document_vault_item_model_defaults_and_string(project):
+    document = DocumentVaultItem.objects.create(project=project, title="W-9")
+
+    assert str(document) == "W-9"
+    assert document.document_type == DocumentVaultItem.DocumentType.OTHER
+    assert document.status == DocumentVaultItem.Status.MISSING
+    assert document.file_reference == ""
+    assert document.notes == ""
+
+
+def test_evidence_library_item_model_defaults_and_string(project):
+    evidence = EvidenceLibraryItem.objects.create(project=project, title="Outcome metric")
+
+    assert str(evidence) == "Outcome metric"
+    assert evidence.evidence_type == EvidenceLibraryItem.EvidenceType.OTHER
+    assert evidence.status == EvidenceLibraryItem.Status.MISSING
+    assert evidence.related_program == ""
+    assert evidence.metric_name == ""
+    assert evidence.metric_value == ""
+
+
+def test_opportunity_document_requirement_model_defaults_and_string():
+    opportunity = Opportunity.objects.create(name="Digital Equity Grant")
+    requirement = OpportunityDocumentRequirement.objects.create(
+        opportunity=opportunity,
+        title="IRS Determination Letter",
+    )
+
+    assert str(requirement) == "IRS Determination Letter"
+    assert requirement.requirement_type == OpportunityDocumentRequirement.RequirementType.REQUIRED_DOCUMENT
+    assert requirement.status == OpportunityDocumentRequirement.Status.MISSING
+    assert requirement.linked_document is None
+    assert requirement.notes == ""
+
+
 def test_source_organization_model_defaults_and_string():
     source = SourceOrganization.objects.create(
         name="Community Foundation",
@@ -275,6 +313,9 @@ def test_opportunity_database_models_are_registered_in_admin():
     assert admin.site.is_registered(Opportunity)
     assert admin.site.is_registered(OpportunityTask)
     assert admin.site.is_registered(OpportunityDeadline)
+    assert admin.site.is_registered(DocumentVaultItem)
+    assert admin.site.is_registered(EvidenceLibraryItem)
+    assert admin.site.is_registered(OpportunityDocumentRequirement)
     assert admin.site.is_registered(SourceOrganization)
 
 

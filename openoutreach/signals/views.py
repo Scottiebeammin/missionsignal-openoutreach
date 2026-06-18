@@ -8,6 +8,11 @@ from openoutreach.funding.readiness import build_funding_readiness
 from openoutreach.signals.analysis_service import analyze_project
 from openoutreach.signals.dashboard import build_executive_dashboard
 from openoutreach.signals.discovery import build_discovery_overview
+from openoutreach.signals.documents import (
+    build_document_vault_summary,
+    build_evidence_library_summary,
+    build_opportunity_document_summary,
+)
 from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
 from openoutreach.signals.government import build_government_readiness
@@ -218,6 +223,38 @@ def project_readiness_dashboard(request, pk):
 
 
 @login_required
+def project_documents_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    return render(
+        request,
+        "signals/project_documents_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "document_summary": build_document_vault_summary(project),
+        },
+    )
+
+
+@login_required
+def project_evidence_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    return render(
+        request,
+        "signals/project_evidence_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "evidence_summary": build_evidence_library_summary(project),
+        },
+    )
+
+
+@login_required
 def project_ecosystem_dashboard(request, pk):
     project = get_object_or_404(
         Project.objects.select_related("organization"), pk=pk, users=request.user,
@@ -357,6 +394,7 @@ def project_opportunity_workspace(request, pk, opportunity_id):
     funding_criteria = getattr(project, "funding_criteria", None)
     workspace = build_opportunity_workspace(project, opportunity, funding_criteria)
     pursuit_readiness = build_opportunity_pursuit_readiness(project, opportunity)
+    document_summary = build_opportunity_document_summary(project, opportunity)
     return render(
         request,
         "signals/project_opportunity_workspace.html",
@@ -366,6 +404,7 @@ def project_opportunity_workspace(request, pk, opportunity_id):
             "opportunity": opportunity,
             "workspace": workspace,
             "pursuit_readiness": pursuit_readiness,
+            "document_summary": document_summary,
         },
     )
 

@@ -196,6 +196,7 @@
                   <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
                   <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
                   <span class="score-badge">Match {{ item.match.score }}</span>
+                  <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
                 </div>
                 <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
                 <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
@@ -221,6 +222,7 @@
             <div class="card-meta">
               <span class="score-badge">Match {{ item.match.score }}</span>
               <span class="pill">Pursuit {{ item.pursuit_readiness.score }}</span>
+              <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
               <span class="pill {{ item.match.level|slugify }}">{{ item.match.level }}</span>
               <span class="pill status">{{ item.opportunity.get_status_display }}</span>
               <span class="pill">{{ item.opportunity.get_priority_level_display }}</span>
@@ -259,6 +261,7 @@
               <th>Deadline</th>
               <th>Match Score</th>
               <th>Pursuit Readiness</th>
+              <th>Submission Readiness</th>
             </tr>
           </thead>
           <tbody>
@@ -279,9 +282,10 @@
                   <td>{{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</td>
                   <td><span class="score-badge">Match {{ item.match.score }}</span></td>
                   <td><span class="pill">{{ item.pursuit_readiness.score }} {{ item.pursuit_readiness.level }}</span></td>
+                  <td><span class="pill">Docs {{ item.document_summary.document_readiness_score }} · Evidence {{ item.document_summary.evidence_readiness_score }} · Submission {{ item.document_summary.submission_readiness_score }}</span></td>
                 </tr>
                 <tr>
-                  <td colspan="7">
+                  <td colspan="8">
                     <details>
                       <summary>View Details</summary>
                       <div class="inventory-grid" style="margin-top: 12px;">
@@ -371,6 +375,7 @@
                   <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
                   <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
                   <span class="score-badge">Match {{ item.match.score }}</span>
+                  <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
                   <span class="pill {{ item.match.level|slugify }}">{{ item.match.level }}</span>
                 </div>
                 <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }} - {{ item.opportunity.geography|join:", "|default:"Geography not provided" }}</p>

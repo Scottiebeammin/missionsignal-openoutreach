@@ -93,6 +93,15 @@
     </section>
 
     <section class="panel">
+      <h2>Document and Evidence Readiness</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ readiness.document_readiness_score }}</strong><span>Document readiness</span><p><a class="pill" href="{% url 'project-documents' project.pk %}">Open Document Vault</a></p></div>
+        <div class="metric-card"><strong>{{ readiness.evidence_readiness_score }}</strong><span>Evidence readiness</span><p><a class="pill" href="{% url 'project-evidence' project.pk %}">Open Evidence Library</a></p></div>
+        <div class="metric-card"><strong>{{ readiness.submission_readiness_score }}</strong><span>Submission readiness</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
       <h2>Opportunity Pursuit Readiness Summary</h2>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ pursuit_summary.average_score }}</strong><span>Opportunity Readiness Average</span></div>

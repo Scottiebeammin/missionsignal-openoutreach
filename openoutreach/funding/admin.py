@@ -2,6 +2,8 @@ from django.contrib import admin
 
 from openoutreach.funding.models import (
     Funder,
+    DocumentVaultItem,
+    EvidenceLibraryItem,
     FundingCriteria,
     FundingOpportunity,
     FundingOpportunitySource,
@@ -10,6 +12,7 @@ from openoutreach.funding.models import (
     GovernmentEntity,
     Opportunity,
     OpportunityDeadline,
+    OpportunityDocumentRequirement,
     OpportunityTask,
     PartnerOrganization,
     ResourceProvider,
@@ -90,6 +93,38 @@ class OpportunityDeadlineAdmin(admin.ModelAdmin):
     search_fields = ("title", "notes", "opportunity__name")
     raw_id_fields = ("opportunity",)
     date_hierarchy = "deadline_date"
+
+
+@admin.register(DocumentVaultItem)
+class DocumentVaultItemAdmin(admin.ModelAdmin):
+    list_display = ("title", "project", "document_type", "status", "uploaded_at", "updated_at")
+    list_filter = ("document_type", "status")
+    search_fields = ("title", "notes", "project__organization__name", "project__name", "file_reference")
+    raw_id_fields = ("project",)
+    date_hierarchy = "updated_at"
+
+
+@admin.register(EvidenceLibraryItem)
+class EvidenceLibraryItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "title", "project", "evidence_type", "related_program", "metric_name", "status", "evidence_date",
+    )
+    list_filter = ("evidence_type", "status")
+    search_fields = (
+        "title", "notes", "related_program", "metric_name", "metric_value",
+        "project__organization__name", "project__name",
+    )
+    raw_id_fields = ("project",)
+    date_hierarchy = "evidence_date"
+
+
+@admin.register(OpportunityDocumentRequirement)
+class OpportunityDocumentRequirementAdmin(admin.ModelAdmin):
+    list_display = ("title", "opportunity", "requirement_type", "status", "linked_document", "updated_at")
+    list_filter = ("requirement_type", "status")
+    search_fields = ("title", "notes", "opportunity__name", "linked_document__title")
+    raw_id_fields = ("opportunity", "linked_document")
+    date_hierarchy = "updated_at"
 
 
 class FundingOpportunitySourceInline(admin.TabularInline):

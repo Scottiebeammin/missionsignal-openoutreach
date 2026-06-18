@@ -13,6 +13,7 @@ from openoutreach.signals.lifecycle import (
     recommended_lifecycle_action,
 )
 from openoutreach.signals.matching import OpportunityMatch, score_inventory_opportunity
+from openoutreach.signals.documents import build_opportunity_document_summary
 from openoutreach.signals.opportunity_work import build_deadline_summary, build_task_summary
 from openoutreach.signals.readiness import build_opportunity_pursuit_readiness
 
@@ -42,6 +43,10 @@ class DiscoveryOpportunity:
     @property
     def pursuit_readiness(self):
         return build_opportunity_pursuit_readiness(self.project, self.opportunity)
+
+    @property
+    def document_summary(self):
+        return build_opportunity_document_summary(self.project, self.opportunity)
 
 
 @dataclass(frozen=True)

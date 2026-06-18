@@ -65,9 +65,15 @@ def test_readiness_engine_scoring(readiness_project):
 
     assert 0 <= readiness.overall_score <= 100
     assert readiness.level in ["Emerging", "Developing", "Competitive", "Advanced"]
-    assert len(readiness.dimensions) == 8
+    assert len(readiness.dimensions) == 11
     assert any(dimension.label == "Mission Readiness" for dimension in readiness.dimensions)
     assert any(dimension.label == "Operational Readiness" for dimension in readiness.dimensions)
+    assert any(dimension.label == "Document Readiness" for dimension in readiness.dimensions)
+    assert any(dimension.label == "Evidence Readiness" for dimension in readiness.dimensions)
+    assert any(dimension.label == "Submission Readiness" for dimension in readiness.dimensions)
+    assert 0 <= readiness.document_readiness_score <= 100
+    assert 0 <= readiness.evidence_readiness_score <= 100
+    assert 0 <= readiness.submission_readiness_score <= 100
     assert readiness.strengths
     assert readiness.gaps
     assert readiness.recommended_actions
@@ -118,6 +124,10 @@ def test_project_member_can_view_readiness_dashboard(client, readiness_project):
     assert "Readiness Gaps" in content
     assert "Highest Leverage Actions" in content
     assert "Opportunity Pursuit Readiness Summary" in content
+    assert "Document and Evidence Readiness" in content
+    assert "Document readiness" in content
+    assert "Evidence readiness" in content
+    assert "Submission readiness" in content
 
 
 def test_non_member_cannot_view_readiness_dashboard(client, readiness_project):
