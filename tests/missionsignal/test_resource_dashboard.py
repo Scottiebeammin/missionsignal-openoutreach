@@ -44,7 +44,7 @@ def test_project_member_can_view_resource_dashboard(client, resource_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "ResourceSignal Dashboard" in content
+    assert "Resources Dashboard" in content
     assert "Resource Readiness Score" in content
     assert "Resource Opportunity Categories" in content
     assert "Recommended Resource Types" in content

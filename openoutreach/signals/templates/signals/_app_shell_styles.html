@@ -2,9 +2,9 @@
   body {
     padding-left: 238px;
     background:
-      radial-gradient(circle at top right, rgba(15, 118, 110, .12), transparent 30rem),
-      linear-gradient(180deg, #f6f9fb 0%, #edf3f7 42%, #e8eff4 100%);
-    color: var(--ink, #172334);
+      radial-gradient(circle at top right, rgba(212, 160, 23, .14), transparent 30rem),
+      linear-gradient(180deg, #fbf8f1 0%, #f7f3eb 48%, #eef2f7 100%);
+    color: var(--ink, #0d1b3d);
     font-size: 14px;
   }
   body > main {
@@ -21,13 +21,13 @@
     height: 100vh;
     padding: 18px;
     overflow-y: auto;
-    background: linear-gradient(180deg, #0d1f35 0%, #132a42 48%, #101b2b 100%);
+    background: linear-gradient(180deg, #0d1b3d 0%, #14284f 52%, #09142d 100%);
     color: white;
     box-shadow: 8px 0 30px rgba(15, 27, 43, .14);
   }
   .brand { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.12); }
-  .brand strong { display: block; font-size: 1.08rem; letter-spacing: .02em; }
-  .brand span { color: #b8c5d1; font-size: .85rem; }
+  .brand strong { display: block; color: #f7f3eb; font-size: 1.08rem; letter-spacing: .02em; }
+  .brand span { color: #d4a017; font-size: .85rem; font-weight: 800; }
   .nav { display: grid; gap: 6px; }
   .nav a {
     display: flex;
@@ -42,7 +42,18 @@
     transition: background .16s ease, color .16s ease, transform .16s ease;
   }
   .nav a.active, .nav a:hover { background: rgba(255,255,255,.14); color: white; transform: translateX(1px); }
-  .nav a.active { box-shadow: inset 3px 0 0 #5eead4; }
+  .nav a.active { box-shadow: inset 3px 0 0 #d4a017; }
+  .sidebar-footer {
+    display: grid;
+    gap: 3px;
+    margin-top: 24px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,.12);
+    color: #dce7ef;
+    font-size: .78rem;
+  }
+  .sidebar-footer strong { color: #f7f3eb; }
+  .sidebar-footer span { color: #b8c5d1; }
   .workspace-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -67,11 +78,11 @@
   }
   .workspace-tabs a.active, .workspace-tabs a:hover {
     background: #ffffff;
-    color: var(--accent, #0f766e);
+    color: var(--accent, #d4a017);
     box-shadow: 0 1px 2px rgba(16, 30, 44, .08), 0 8px 18px rgba(16, 30, 44, .06);
   }
   .action-panel {
-    border-left: 5px solid var(--accent, #0f766e) !important;
+    border-left: 5px solid var(--accent, #d4a017) !important;
     background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft, #e8f5f2) 180%);
   }
   details.panel summary,
@@ -116,14 +127,14 @@
   }
   .score-box {
     padding: 18px !important;
-    background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft, #e8f5f2) 190%) !important;
+    background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft, #fff6dd) 190%) !important;
   }
   .score-box h2 {
     margin-bottom: 8px !important;
   }
   .score-box strong {
     display: block;
-    color: var(--accent, #0f766e);
+    color: var(--accent, #d4a017);
     font-size: clamp(2.6rem, 7vw, 4.6rem) !important;
     line-height: .95;
     font-weight: 950;
@@ -134,7 +145,7 @@
     padding: 5px 9px;
     border-radius: 999px;
     background: #ffffff;
-    color: var(--accent, #0f766e);
+    color: var(--accent, #d4a017);
     font-weight: 900;
     box-shadow: inset 0 0 0 1px var(--line, #d9e2e8);
   }
@@ -143,7 +154,7 @@
   h3 { color: var(--ink, #172334); }
   .eyebrow { letter-spacing: .08em !important; }
   .metric-card strong, .kpi-card strong, .summary-card strong, .scorecard strong {
-    color: var(--accent, #0f766e);
+    color: var(--accent, #d4a017);
   }
   .score-card-title {
     color: var(--muted, #687789);
@@ -155,7 +166,7 @@
   .score-value {
     display: block;
     margin: 8px 0 4px;
-    color: var(--accent, #0f766e);
+    color: var(--accent, #d4a017);
     font-size: 2rem;
     line-height: 1;
     font-weight: 900;
@@ -200,7 +211,7 @@
     position: absolute;
     inset: 0 0 auto;
     height: 3px;
-    background: linear-gradient(90deg, var(--accent, #0f766e), #235789);
+    background: linear-gradient(90deg, var(--accent, #d4a017), #c46a3d);
   }
   .advisor-list {
     display: grid;
@@ -229,7 +240,7 @@
     width: 28px;
     height: 28px;
     border-radius: 999px;
-    background: var(--accent, #0f766e);
+    background: var(--accent, #d4a017);
     color: white;
     font-weight: 900;
   }

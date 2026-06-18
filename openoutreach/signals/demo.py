@@ -839,7 +839,7 @@ def _seed_document_and_evidence_data(project):
 
 @transaction.atomic
 def seed_missionsignal_demo(*, password=None):
-    """Create or refresh the deterministic MissionSignal demo records."""
+    """Create or refresh the deterministic Anansi Atlas demo records."""
     user, user_created = get_user_model().objects.get_or_create(username=DEMO_USERNAME)
     if password:
         user.set_password(password)

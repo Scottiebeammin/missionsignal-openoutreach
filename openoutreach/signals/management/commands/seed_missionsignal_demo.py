@@ -5,7 +5,7 @@ from openoutreach.signals.demo import seed_missionsignal_demo
 
 
 class Command(BaseCommand):
-    help = "Create or refresh demo-ready MissionSignal data."
+    help = "Create or refresh demo-ready Anansi Atlas data."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -20,7 +20,7 @@ class Command(BaseCommand):
         analysis_url = reverse("project-analysis-detail", kwargs={"pk": project.pk})
         brief_url = reverse("project-mission-brief", kwargs={"pk": project.pk})
 
-        self.stdout.write(self.style.SUCCESS("MissionSignal demo data is ready."))
+        self.stdout.write(self.style.SUCCESS("Anansi Atlas demo data is ready."))
         self.stdout.write(f"Demo user: {user.username} (ID: {user.pk})")
         self.stdout.write(f"Organization ID: {organization.pk}")
         self.stdout.write(f"Project ID: {project.pk}")

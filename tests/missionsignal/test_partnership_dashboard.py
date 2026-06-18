@@ -44,7 +44,7 @@ def test_project_member_can_view_partnership_dashboard(client, partnership_proje
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "PartnershipSignal Dashboard" in content
+    assert "Partnerships Dashboard" in content
     assert "Partnership Readiness Score" in content
     assert "Partnership Categories" in content
     assert "Recommended Partner Types" in content

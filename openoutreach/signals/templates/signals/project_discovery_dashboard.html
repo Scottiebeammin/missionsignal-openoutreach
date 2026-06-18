@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Discovery Engine - {{ organization.name }}</title>
+  <title>Discovery - {{ organization.name }}</title>
   <style>
     :root {
       color-scheme: light;
@@ -69,20 +69,20 @@
       <a href="{% url 'project-matches' project.pk %}">Matches</a>
       <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
-    <nav class="topbar" aria-label="Discovery Engine actions">
+    <nav class="topbar" aria-label="Discovery actions">
       <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>
       <div class="actions">
-        <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
-        <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
-        <a class="button" href="{% url 'project-resources' project.pk %}">ResourceSignal</a>
-        <a class="button" href="{% url 'project-partnerships' project.pk %}">PartnershipSignal</a>
-        <a class="button" href="{% url 'project-ecosystem' project.pk %}">EcosystemSignal</a>
-        <a class="button" href="{% url 'project-matches' project.pk %}">Opportunity Matching</a>
+        <a class="button" href="{% url 'project-funding' project.pk %}">Funding</a>
+        <a class="button" href="{% url 'project-government' project.pk %}">Government</a>
+        <a class="button" href="{% url 'project-resources' project.pk %}">Resources</a>
+        <a class="button" href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+        <a class="button" href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
+        <a class="button" href="{% url 'project-matches' project.pk %}">Matching</a>
       </div>
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">Discovery Engine V2</p>
+      <p class="eyebrow">Discovery V2</p>
       <h1>Opportunity Inventory</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <p class="muted">A manually managed inventory layer for deterministic opportunity readiness before live discovery exists.</p>

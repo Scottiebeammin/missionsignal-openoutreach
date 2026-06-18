@@ -106,7 +106,7 @@ def _specific_actions(checklist: list[GovernmentChecklistItem], organization, pr
         actions.append("Identify workforce board contacts, youth services leads, economic development staff, and digital equity program owners.")
 
     actions.append("Track local RFP and procurement portals for service contracts and pilot opportunities.")
-    actions.append(f"Use FundingSignal themes to decide which GovernmentSignal lanes fit {project.name} first.")
+    actions.append(f"Use funding themes to decide which government lanes fit {project.name} first.")
     return actions[:8]
 
 

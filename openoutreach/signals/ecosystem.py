@@ -278,25 +278,25 @@ def build_ecosystem_overview(
             "Mission profile, project narrative, geography, beneficiaries, and readiness gaps.",
         ),
         _scorecard(
-            "FundingSignal",
+            "Funding",
             funding_readiness,
             "project-funding",
             "Funding themes, funder types, Local Government lanes, checklist, and actions.",
         ),
         _scorecard(
-            "GovernmentSignal",
+            "Government",
             government_readiness,
             "project-government",
             "Public-sector lanes, government entity types, checklist, and actions.",
         ),
         _scorecard(
-            "ResourceSignal",
+            "Resources",
             resource_readiness,
             "project-resources",
             "Non-funding resources, capacity supports, checklist, and actions.",
         ),
         _scorecard(
-            "PartnershipSignal",
+            "Partnerships",
             partnership_readiness,
             "project-partnerships",
             "Partner categories, partner recommendations, checklist, and actions.",
@@ -351,7 +351,7 @@ def build_ecosystem_overview(
         discovery_overview=discovery_overview,
         summary_items=["Funding", "Government", "Resources", "Partnerships", "Capacity", "Risks and constraints"],
         roadmap=EcosystemRoadmap(
-            completed=["Mission Brief", "FundingSignal", "GovernmentSignal", "ResourceSignal", "PartnershipSignal"],
+            completed=["Mission Brief", "Funding", "Government", "Resources", "Partnerships"],
             coming_soon=[],
             future=["Opportunity Discovery Engine", "Monitoring Systems", "AI Opportunity Agents"],
         ),

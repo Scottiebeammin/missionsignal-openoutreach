@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Create MissionSignal Project</title></head>
+<head><meta charset="utf-8"><title>Create Anansi Atlas Project</title></head>
 <body>
   <main>
-    <h1>Create your MissionSignal profile</h1>
-    <p>Start with the four required fields. Optional profile details improve FundingSignal readiness.</p>
+    <h1>Create your Anansi Atlas profile</h1>
+    <p>Start with the four required fields. Optional profile details improve Funding readiness.</p>
     <form method="post">
       {% csrf_token %}
       <fieldset>
@@ -15,7 +15,7 @@
         <p>{{ form.programs.label_tag }} {{ form.programs }}</p>
       </fieldset>
       <fieldset>
-        <legend>Optional FundingSignal readiness profile</legend>
+        <legend>Optional Funding readiness profile</legend>
         <p>{{ form.organization_type.label_tag }} {{ form.organization_type }} <small>{{ form.organization_type.help_text }}</small></p>
         <p>{{ form.city.label_tag }} {{ form.city }}</p>
         <p>{{ form.county.label_tag }} {{ form.county }}</p>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ResourceSignal - {{ organization.name }}</title>
+  <title>Resources - {{ organization.name }}</title>
   <style>
     :root {
       color-scheme: light;
@@ -84,18 +84,18 @@
       <a class="active" href="{% url 'project-resources' project.pk %}">Resources</a>
       <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
     </nav>
-    <nav class="topbar" aria-label="ResourceSignal actions">
+    <nav class="topbar" aria-label="Resources actions">
       <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>
       <div class="actions">
-        <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
-        <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
-        <a class="button" href="{% url 'project-ecosystem' project.pk %}">EcosystemSignal</a>
+        <a class="button" href="{% url 'project-funding' project.pk %}">Funding</a>
+        <a class="button" href="{% url 'project-government' project.pk %}">Government</a>
+        <a class="button" href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
       </div>
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">ResourceSignal V1</p>
-      <h1>ResourceSignal Dashboard</h1>
+      <p class="eyebrow">Resources V1</p>
+      <h1>Resources Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Resource readiness">
         <div class="score-box">

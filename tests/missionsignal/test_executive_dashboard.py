@@ -22,11 +22,30 @@ def test_project_member_can_view_executive_dashboard(client, dashboard_project):
 
     assert response.status_code == 200
     content = response.content.decode()
-    assert "Executive Dashboard V1" in content
-    assert "Opportunity Command Center" in content
+    assert "Anansi Atlas Executive Dashboard" in content
+    assert "Anansi Atlas" in content
+    assert "The Web of Opportunity" in content
+    assert "anansiatlas.com" in content
+    assert "Scott Foundry Group LLC" in content
     assert "Ecosystem Score" in content
     assert "Overall Match Score" in content
     assert "Last Analysis Date" in content
+    assert "Opportunity Command Center" not in content
+
+
+def test_executive_dashboard_renders_celebration_area(client, dashboard_project):
+    project, user = dashboard_project
+    client.force_login(user)
+
+    response = client.get(reverse("project-dashboard", kwargs={"pk": project.pk}))
+
+    content = response.content.decode()
+    assert "Celebration Area" in content
+    assert "Recent Wins" in content
+    assert "Milestones" in content
+    assert "Progress Highlights" in content
+    assert "Wins across your web" in content
+    assert "Progress in your opportunity ecosystem" in content
 
 
 def test_non_member_cannot_view_executive_dashboard(client, dashboard_project):

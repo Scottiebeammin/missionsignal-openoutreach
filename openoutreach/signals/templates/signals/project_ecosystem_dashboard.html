@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EcosystemSignal - {{ organization.name }}</title>
+  <title>Ecosystem - {{ organization.name }}</title>
   <style>
     :root {
       color-scheme: light;
@@ -82,22 +82,22 @@
       <a href="{% url 'project-resources' project.pk %}">Resources</a>
       <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
     </nav>
-    <nav class="topbar" aria-label="EcosystemSignal actions">
+    <nav class="topbar" aria-label="Ecosystem actions">
       <a class="button" href="{% url 'project-dashboard' project.pk %}">&larr; Dashboard</a>
       <div class="actions">
         <a class="button" href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
-        <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
-        <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
-        <a class="button" href="{% url 'project-resources' project.pk %}">ResourceSignal</a>
-        <a class="button" href="{% url 'project-partnerships' project.pk %}">PartnershipSignal</a>
-        <a class="button" href="{% url 'project-discovery' project.pk %}">Discovery Engine</a>
-        <a class="button" href="{% url 'project-matches' project.pk %}">Opportunity Matching</a>
+        <a class="button" href="{% url 'project-funding' project.pk %}">Funding</a>
+        <a class="button" href="{% url 'project-government' project.pk %}">Government</a>
+        <a class="button" href="{% url 'project-resources' project.pk %}">Resources</a>
+        <a class="button" href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+        <a class="button" href="{% url 'project-discovery' project.pk %}">Discovery</a>
+        <a class="button" href="{% url 'project-matches' project.pk %}">Matching</a>
         <a class="button" href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
       </div>
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">EcosystemSignal V1</p>
+      <p class="eyebrow">Ecosystem V1</p>
       <h1>Opportunity Ecosystem Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Opportunity ecosystem score">
@@ -157,7 +157,7 @@
           <div class="summary-card"><strong>{{ ecosystem.match_overview.strongest_category }}</strong><span class="muted">Highest Match Category</span></div>
           <div class="summary-card"><strong>{{ ecosystem.match_overview.weakest_category }}</strong><span class="muted">Weakest Match Category</span></div>
           <div class="summary-card"><strong>{{ ecosystem.match_overview.highest_leverage_improvement }}</strong><span class="muted">Highest Leverage Improvement</span></div>
-          <a class="summary-card" href="{% url 'project-matches' project.pk %}"><strong>Open Opportunity Matching</strong><span class="muted">Review deterministic opportunity recommendations.</span></a>
+          <a class="summary-card" href="{% url 'project-matches' project.pk %}"><strong>Open Matching</strong><span class="muted">Review deterministic opportunity recommendations.</span></a>
         </div>
       </details>
     {% endif %}
@@ -190,7 +190,7 @@
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.monitoring_opportunities }}</strong><span class="muted">Monitoring Opportunities</span></div>
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.high_priority_opportunities }}</strong><span class="muted">High Priority Opportunities</span></div>
           <div class="summary-card"><strong>{{ ecosystem.discovery_overview.top_source_organization }}</strong><span class="muted">Top Source Organization</span></div>
-          <a class="summary-card" href="{% url 'project-discovery' project.pk %}"><strong>Open Discovery Engine</strong><span class="muted">Review the manually managed opportunity inventory.</span></a>
+          <a class="summary-card" href="{% url 'project-discovery' project.pk %}"><strong>Open Discovery</strong><span class="muted">Review the manually managed opportunity inventory.</span></a>
         </div>
       </details>
     {% endif %}
@@ -316,10 +316,10 @@
 
     <details class="panel">
       <summary>Opportunity Ecosystem</summary>
-      <p class="muted">MissionSignal views organizations through an opportunity ecosystem of funding, government, resources, partnerships, capacity, and risks and constraints.</p>
+      <p class="muted">Anansi Atlas views organizations through an opportunity ecosystem of funding, government, resources, partnerships, capacity, and risks and constraints.</p>
       <div class="summary-grid">
         {% for item in ecosystem.summary_items %}
-          <div class="summary-card"><strong>{{ item }}</strong><span class="muted">Part of the MissionSignal opportunity ecosystem.</span></div>
+          <div class="summary-card"><strong>{{ item }}</strong><span class="muted">Part of the Anansi Atlas opportunity ecosystem.</span></div>
         {% endfor %}
       </div>
     </details>

@@ -25,7 +25,7 @@ def test_project_member_can_view_discovery_dashboard(client, discovery_project):
 
     assert response.status_code == 200
     content = response.content.decode()
-    assert "Discovery Engine V2" in content
+    assert "Discovery V2" in content
     assert "Opportunity Inventory" in content
     assert "Total Opportunities" in content
     assert "Active" in content
@@ -167,7 +167,7 @@ def test_ecosystem_dashboard_includes_discovery_summary(client, discovery_projec
     assert "Monitoring Opportunities" in content
     assert "High Priority Opportunities" in content
     assert "Top Source Organization" in content
-    assert "Open Discovery Engine" in content
+    assert "Open Discovery" in content
     assert reverse("project-discovery", kwargs={"pk": project.pk}) in content
 
 

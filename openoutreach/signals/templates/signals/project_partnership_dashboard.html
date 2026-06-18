@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PartnershipSignal - {{ organization.name }}</title>
+  <title>Partnerships - {{ organization.name }}</title>
   <style>
     :root {
       color-scheme: light;
@@ -72,19 +72,19 @@
       <a href="{% url 'project-resources' project.pk %}">Resources</a>
       <a class="active" href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
     </nav>
-    <nav class="topbar" aria-label="PartnershipSignal actions">
+    <nav class="topbar" aria-label="Partnerships actions">
       <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>
       <div class="actions">
-        <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
-        <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
-        <a class="button" href="{% url 'project-resources' project.pk %}">ResourceSignal</a>
-        <a class="button" href="{% url 'project-ecosystem' project.pk %}">EcosystemSignal</a>
+        <a class="button" href="{% url 'project-funding' project.pk %}">Funding</a>
+        <a class="button" href="{% url 'project-government' project.pk %}">Government</a>
+        <a class="button" href="{% url 'project-resources' project.pk %}">Resources</a>
+        <a class="button" href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
       </div>
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">PartnershipSignal V1</p>
-      <h1>PartnershipSignal Dashboard</h1>
+      <p class="eyebrow">Partnerships V1</p>
+      <h1>Partnerships Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Partnership readiness">
         <div class="score-box">

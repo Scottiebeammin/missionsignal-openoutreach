@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Opportunity Matching - {{ organization.name }}</title>
+  <title>Matching - {{ organization.name }}</title>
   <style>
     :root {
       color-scheme: light;
@@ -66,19 +66,19 @@
       <a class="active" href="{% url 'project-matches' project.pk %}">Matches</a>
       <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
-    <nav class="topbar" aria-label="Opportunity Matching actions">
-      <a class="button" href="{% url 'project-ecosystem' project.pk %}">&larr; EcosystemSignal</a>
+    <nav class="topbar" aria-label="Matching actions">
+      <a class="button" href="{% url 'project-ecosystem' project.pk %}">&larr; Ecosystem</a>
       <div class="actions">
         <a class="button" href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
-        <a class="button" href="{% url 'project-funding' project.pk %}">FundingSignal</a>
-        <a class="button" href="{% url 'project-government' project.pk %}">GovernmentSignal</a>
-        <a class="button" href="{% url 'project-resources' project.pk %}">ResourceSignal</a>
-        <a class="button" href="{% url 'project-partnerships' project.pk %}">PartnershipSignal</a>
+        <a class="button" href="{% url 'project-funding' project.pk %}">Funding</a>
+        <a class="button" href="{% url 'project-government' project.pk %}">Government</a>
+        <a class="button" href="{% url 'project-resources' project.pk %}">Resources</a>
+        <a class="button" href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
       </div>
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">Opportunity Matching V3</p>
+      <p class="eyebrow">Matching V3</p>
       <h1>Opportunity Match Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Opportunity matching summary">

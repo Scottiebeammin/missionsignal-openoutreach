@@ -20,7 +20,7 @@ def test_project_member_can_view_match_dashboard(client, match_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Opportunity Matching V3" in content
+    assert "Matching V3" in content
     assert "Opportunity Match Dashboard" in content
     assert "Overall Match Score" in content
     assert "Total Matches" in content.lower() or "total matches" in content
@@ -210,7 +210,7 @@ def test_ecosystem_dashboard_includes_match_summary(client, match_project):
     assert "Highest Match Category" in content
     assert "Weakest Match Category" in content
     assert "Highest Leverage Improvement" in content
-    assert "Open Opportunity Matching" in content
+    assert "Open Matching" in content
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
 
 

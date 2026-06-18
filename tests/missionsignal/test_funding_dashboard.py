@@ -46,8 +46,8 @@ def test_project_member_can_view_real_funding_dashboard(client, analyzed_project
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "FundingSignal Dashboard" in content
-    assert "FundingSignal V2" in content
+    assert "Funding Dashboard" in content
+    assert "Funding V2" in content
     assert "Funding Readiness Score" in content
     assert "Funding Themes" in content
     assert "Recommended Funder Types" in content
@@ -182,5 +182,5 @@ def test_government_dashboard_link_from_funding_route_works(client, analyzed_pro
     member_content = member_response.content.decode()
 
     assert member_response.status_code == 200
-    assert "GovernmentSignal Dashboard" in member_content
+    assert "Government Dashboard" in member_content
     assert "Government Opportunity Readiness Score" in member_content

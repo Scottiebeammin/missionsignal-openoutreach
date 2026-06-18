@@ -44,7 +44,7 @@ def test_project_member_can_view_government_dashboard(client, government_project
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "GovernmentSignal Dashboard" in content
+    assert "Government Dashboard" in content
     assert "Government Opportunity Readiness Score" in content
     assert "Relevant Public-Sector Lanes" in content
     assert "Recommended Government Entity Types" in content
@@ -148,4 +148,4 @@ def test_government_dashboard_actions_are_practical_and_gap_driven(client, gover
 
     assert "Map city and county departments aligned with the mission and service geography." in content
     assert "Track local RFP and procurement portals for service contracts and pilot opportunities." in content
-    assert "Use FundingSignal themes to decide which GovernmentSignal lanes fit Primary Initiative first." in content
+    assert "Use funding themes to decide which government lanes fit Primary Initiative first." in content

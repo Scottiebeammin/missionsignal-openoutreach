@@ -125,9 +125,9 @@ Then open:
 
 ---
 
-## MissionSignal Local Demo Setup
+## Anansi Atlas Local Demo Setup
 
-MissionSignal's deterministic demo does not require an LLM API key, LinkedIn
+Anansi Atlas's deterministic demo does not require an LLM API key, LinkedIn
 credentials, Playwright, website crawling, or any external service. It uses the
 repository's SQLite database at `data/db.sqlite3`.
 
@@ -193,7 +193,7 @@ python manage.py check
 python manage.py makemigrations --check --dry-run
 python manage.py migrate --no-input
 
-# MissionSignal-focused tests, followed by the complete repository suite
+# Anansi Atlas-focused tests, followed by the complete repository suite
 pytest -q tests/missionsignal
 pytest -q
 
@@ -206,10 +206,10 @@ python manage.py runserver
 
 ### Environment notes and known blockers
 
-- No environment variables are required for the deterministic MissionSignal
+- No environment variables are required for the deterministic Anansi Atlas
   intake, analyzer, Mission Brief, or demo seed command.
 - The broader OpenOutreach daemon requires LinkedIn credentials and an LLM API
-  key during onboarding; those are not required to run the MissionSignal demo.
+  key during onboarding; those are not required to run the Anansi Atlas demo.
 - Installing `requirements/local.txt` is required before any Django check,
   migration, command, server, or test can run. In particular, tests import
   NumPy through `tests/conftest.py`, and application startup requires Django.

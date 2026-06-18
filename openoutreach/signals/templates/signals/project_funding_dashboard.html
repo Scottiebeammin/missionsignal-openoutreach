@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FundingSignal - {{ organization.name }}</title>
+  <title>Funding - {{ organization.name }}</title>
   <style>
     :root {
       color-scheme: light;
@@ -85,14 +85,14 @@
       <a href="{% url 'project-resources' project.pk %}">Resources</a>
       <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
     </nav>
-    <nav class="topbar" aria-label="FundingSignal actions">
+    <nav class="topbar" aria-label="Funding actions">
       <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Back to Mission Brief</a>
-      <a class="button" href="{% url 'project-government' project.pk %}">Open GovernmentSignal</a>
+      <a class="button" href="{% url 'project-government' project.pk %}">Open Government</a>
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">FundingSignal V2</p>
-      <h1>FundingSignal Dashboard</h1>
+      <p class="eyebrow">Funding V2</p>
+      <h1>Funding Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Funding readiness">
         <div class="score-box">

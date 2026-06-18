@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MissionSignal Dashboard - {{ organization.name }}</title>
+  <title>Anansi Atlas Dashboard - {{ organization.name }}</title>
   <style>
     :root {
       color-scheme: light;
-      --ink: #172334;
+      --ink: #0D1B3D;
       --muted: #687789;
       --line: #d9e2e8;
-      --page: #eef3f6;
+      --page: #F7F3EB;
       --panel: #ffffff;
       --soft: #f6f8fa;
-      --accent: #0f766e;
-      --accent-soft: #e8f5f2;
+      --accent: #D4A017;
+      --accent-soft: #fff6dd;
       --blue: #235789;
       --blue-soft: #edf5fb;
-      --gold: #8a5b00;
+      --gold: #D4A017;
       --gold-soft: #fff7df;
-      --rose: #9f2f46;
+      --rose: #C46A3D;
       --rose-soft: #fff0f3;
       --shadow: 0 1px 2px rgba(16, 30, 44, .04), 0 14px 32px rgba(16, 30, 44, .05);
     }
@@ -31,13 +31,16 @@
     h2 { margin-bottom: 12px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
     h3 { margin-bottom: 6px; font-size: .98rem; }
     .shell { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 100vh; }
-    .sidebar { position: sticky; top: 0; height: 100vh; padding: 18px; background: #132437; color: white; }
+    .sidebar { position: sticky; top: 0; height: 100vh; padding: 18px; background: #0D1B3D; color: white; }
     .brand { margin-bottom: 22px; }
     .brand strong { display: block; font-size: 1.05rem; }
-    .brand span { color: #b8c5d1; font-size: .85rem; }
+    .brand span { color: #D4A017; font-size: .85rem; font-weight: 800; }
     .nav { display: grid; gap: 6px; }
     .nav a { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; color: #dce7ef; text-decoration: none; }
     .nav a.active, .nav a:hover { background: rgba(255,255,255,.12); color: white; }
+    .sidebar-footer { display: grid; gap: 3px; margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.12); color: #dce7ef; font-size: .78rem; }
+    .sidebar-footer strong { color: #F7F3EB; }
+    .sidebar-footer span { color: #b8c5d1; }
     main { padding: 22px; }
     .hero, .panel, .metric-card, .kpi-card, .pipeline-card, .chart-card, .advisor-panel { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: var(--shadow); }
     .hero { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 18px; align-items: stretch; margin-bottom: 16px; padding: 24px; }
@@ -70,8 +73,11 @@
     .bar-track { height: 10px; border-radius: 999px; background: var(--soft); overflow: hidden; }
     .bar-fill { height: 100%; min-width: 3px; border-radius: inherit; background: var(--accent); }
     .bar-fill.blue { background: var(--blue); }
-    .bar-fill.gold { background: #c88814; }
+    .bar-fill.gold { background: #D4A017; }
     .bar-fill.rose { background: var(--rose); }
+    .celebration-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .celebration-card { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(180deg, #ffffff 0%, #fffaf0 160%); }
+    .site-footer { margin: 24px 0 4px; color: var(--muted); font-size: .85rem; text-align: center; }
     .table { width: 100%; border-collapse: collapse; }
     .table th, .table td { padding: 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
     .actions-list { margin: 0; padding-left: 20px; columns: 2; }
@@ -80,11 +86,11 @@
       .shell { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; }
       .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .celebration-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 720px) {
       main { padding: 14px; }
-      .nav, .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .header-metrics { grid-template-columns: 1fr; }
+      .nav, .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .header-metrics, .celebration-grid { grid-template-columns: 1fr; }
       .actions-list { columns: 1; }
     }
   </style>
@@ -96,9 +102,10 @@
     <main>
       <header class="hero">
         <section>
-          <p class="eyebrow">Executive Dashboard V1</p>
+          <p class="eyebrow">Anansi Atlas Executive Dashboard</p>
           <h1>{{ dashboard.organization_name }}</h1>
-          <p class="muted">{{ project.name }} opportunity command center</p>
+          <p class="muted">Map the web of opportunity around your mission. Anansi Atlas helps nonprofits uncover funders, partners, resources, risks, and strategic pathways across their opportunity ecosystem.</p>
+          <p><span class="pill">anansiatlas.com</span> <span class="pill">The Web of Opportunity</span></p>
         </section>
         <section class="header-metrics" aria-label="Executive header metrics">
           <div class="metric-card"><strong>{{ dashboard.ecosystem_score }}</strong><span>Ecosystem Score</span><p class="muted">{{ dashboard.ecosystem_level }}</p></div>
@@ -171,10 +178,46 @@
           {% empty %}
             <li>
               Review the organization profile and refresh deterministic analysis.
-              <span class="impact-label">Impact: Gives MissionSignal stronger inputs for every workspace.</span>
+              <span class="impact-label">Impact: Gives Anansi Atlas stronger inputs for every workspace.</span>
             </li>
           {% endfor %}
         </ol>
+      </section>
+
+      <section class="panel" aria-label="Celebration Area">
+        <div class="panel-header">
+          <div>
+            <h2>Celebration Area</h2>
+            <p class="muted">Wins across your web, milestones, and momentum worth celebrating.</p>
+          </div>
+          <span class="pill">Progress in your opportunity ecosystem</span>
+        </div>
+        <div class="celebration-grid">
+          <article class="celebration-card">
+            <h3>Recent Wins</h3>
+            <ul>
+              {% for win in dashboard.celebration.recent_wins %}
+                <li>{{ win }}</li>
+              {% endfor %}
+            </ul>
+          </article>
+          <article class="celebration-card">
+            <h3>Milestones</h3>
+            <ul>
+              {% for milestone in dashboard.celebration.milestones %}
+                <li>{{ milestone }}</li>
+              {% endfor %}
+            </ul>
+          </article>
+          <article class="celebration-card">
+            <h3>Progress Highlights</h3>
+            <ul>
+              {% for highlight in dashboard.celebration.progress_highlights %}
+                <li>{{ highlight }}</li>
+              {% endfor %}
+            </ul>
+          </article>
+        </div>
       </section>
 
       <section class="panel">
@@ -202,7 +245,7 @@
       </details>
 
       <section class="panel">
-        <h2>Opportunity Command Center</h2>
+        <h2>The Web of Opportunity</h2>
         <div class="metric-grid">
           <div class="metric-card"><strong>{{ dashboard.total_opportunities }}</strong><span>Total Opportunities</span></div>
           <div class="metric-card"><strong>{{ dashboard.active_opportunities }}</strong><span>Active Opportunities</span></div>
@@ -386,6 +429,7 @@
           </tbody>
         </table>
       </details>
+      <footer class="site-footer">Anansi Atlas is operated by Scott Foundry Group LLC.</footer>
     </main>
   </div>
 </body>

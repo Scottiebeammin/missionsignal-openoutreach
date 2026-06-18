@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GovernmentSignal - {{ organization.name }}</title>
+  <title>Government - {{ organization.name }}</title>
   <style>
     :root {
       color-scheme: light;
@@ -84,16 +84,16 @@
       <a href="{% url 'project-resources' project.pk %}">Resources</a>
       <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
     </nav>
-    <nav class="topbar" aria-label="GovernmentSignal actions">
+    <nav class="topbar" aria-label="Government actions">
       <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Back to Mission Brief</a>
       <div class="actions">
-        <a class="button" href="{% url 'project-funding' project.pk %}">Back to FundingSignal</a>
+        <a class="button" href="{% url 'project-funding' project.pk %}">Back to Funding</a>
       </div>
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">GovernmentSignal V1</p>
-      <h1>GovernmentSignal Dashboard</h1>
+      <p class="eyebrow">Government V1</p>
+      <h1>Government Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Government opportunity readiness">
         <div class="score-box">

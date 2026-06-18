@@ -1,6 +1,13 @@
 from dataclasses import dataclass
 
-from openoutreach.funding.models import Opportunity, SourceOrganization
+from openoutreach.funding.models import (
+    DocumentVaultItem,
+    EvidenceLibraryItem,
+    Opportunity,
+    OpportunityDeadline,
+    OpportunityTask,
+    SourceOrganization,
+)
 from openoutreach.signals.documents import DocumentEvidenceHealth, build_document_evidence_health
 from openoutreach.signals.lifecycle import LifecycleSummary
 from openoutreach.signals.models import OrganizationAnalysisRun
@@ -53,6 +60,13 @@ class DiscoveryHealth:
 
 
 @dataclass(frozen=True)
+class CelebrationArea:
+    recent_wins: list[str]
+    milestones: list[str]
+    progress_highlights: list[str]
+
+
+@dataclass(frozen=True)
 class ExecutiveDashboard:
     organization_name: str
     ecosystem_score: int
@@ -78,6 +92,7 @@ class ExecutiveDashboard:
     readiness: ReadinessOverview
     pursuit_summary: OpportunityPursuitSummary
     document_evidence_health: DocumentEvidenceHealth
+    celebration: CelebrationArea
 
 
 def _top_insight(readiness) -> str:
@@ -141,6 +156,81 @@ def _last_analysis_date(project):
     return analysis_run.completed_at or analysis_run.created_at
 
 
+def _pluralize(count: int, singular: str, plural: str | None = None) -> str:
+    label = singular if count == 1 else (plural or f"{singular}s")
+    return f"{count} {label}"
+
+
+def _build_celebration_area(
+    project, discovery_overview, readiness, pursuit_summary, document_evidence_health,
+) -> CelebrationArea:
+    active_pipeline_count = discovery_overview.lifecycle_summary.active_opportunities
+    submitted_count = discovery_overview.lifecycle_summary.submitted_opportunities
+    awarded_count = discovery_overview.lifecycle_summary.awarded_opportunities
+    completed_tasks = OpportunityTask.objects.filter(status=OpportunityTask.Status.COMPLETE).count()
+    completed_deadlines = OpportunityDeadline.objects.filter(status=OpportunityDeadline.Status.COMPLETE).count()
+    available_documents = DocumentVaultItem.objects.filter(
+        project=project, status=DocumentVaultItem.Status.AVAILABLE,
+    ).count()
+    available_evidence = EvidenceLibraryItem.objects.filter(
+        project=project, status=EvidenceLibraryItem.Status.AVAILABLE,
+    ).count()
+
+    recent_wins = []
+    if active_pipeline_count:
+        recent_wins.append(
+            f"{_pluralize(active_pipeline_count, 'opportunity', 'opportunities')} active in your opportunity web."
+        )
+    if completed_tasks:
+        recent_wins.append(f"{_pluralize(completed_tasks, 'task')} completed across pursuit work.")
+    if completed_deadlines:
+        recent_wins.append(f"{_pluralize(completed_deadlines, 'deadline')} completed and no longer blocking progress.")
+    if available_documents:
+        recent_wins.append(f"{_pluralize(available_documents, 'document')} ready in the vault.")
+    if available_evidence:
+        recent_wins.append(
+            f"{_pluralize(available_evidence, 'evidence item', 'evidence items')} added to your opportunity web."
+        )
+    if submitted_count:
+        recent_wins.append(f"{_pluralize(submitted_count, 'opportunity', 'opportunities')} submitted.")
+    if awarded_count:
+        recent_wins.append(f"{_pluralize(awarded_count, 'opportunity', 'opportunities')} awarded.")
+    if not recent_wins:
+        recent_wins.append("Your opportunity web is mapped and ready for the next focused action.")
+
+    milestones = [
+        f"{project.organization.name} has an Opportunity Web Snapshot in progress.",
+        f"{_pluralize(discovery_overview.total_opportunities, 'opportunity', 'opportunities')} mapped across funders, partners, resources, and public-sector lanes.",
+    ]
+    if discovery_overview.high_priority_opportunities:
+        milestones.append(f"{_pluralize(discovery_overview.high_priority_opportunities, 'high-priority opportunity', 'high-priority opportunities')} identified for leadership review.")
+    if readiness.organization_completeness.score >= 70:
+        milestones.append("Organization completeness is strong enough to support sharper opportunity decisions.")
+    if document_evidence_health.document_summary.readiness_score >= 70:
+        milestones.append("Document readiness is moving from preparation into pursuit support.")
+
+    progress_highlights = [
+        f"Readiness score is {readiness.overall_score}, giving the team a clear baseline for action.",
+        f"Average pursuit readiness is {pursuit_summary.average_score} across mapped opportunities.",
+    ]
+    if discovery_overview.upcoming_opportunities:
+        progress_highlights.append(f"{_pluralize(discovery_overview.upcoming_opportunities, 'upcoming opportunity', 'upcoming opportunities')} ready for review.")
+    available_evidence_items = (
+        document_evidence_health.evidence_summary.total_evidence_items
+        - document_evidence_health.evidence_summary.missing_items
+    )
+    if available_evidence_items:
+        progress_highlights.append("Outcome evidence is available to strengthen future narratives.")
+    if not progress_highlights:
+        progress_highlights.append("Progress will appear here as opportunities, documents, evidence, tasks, and deadlines move forward.")
+
+    return CelebrationArea(
+        recent_wins=recent_wins[:5],
+        milestones=milestones[:5],
+        progress_highlights=progress_highlights[:5],
+    )
+
+
 def build_executive_dashboard(
     project,
     ecosystem,
@@ -156,6 +246,12 @@ def build_executive_dashboard(
     for action in ecosystem.recommended_actions:
         if action not in actions:
             actions.append(action)
+
+    readiness = build_readiness_overview(
+        project, funding_readiness, government_readiness, resource_readiness, partnership_readiness,
+    )
+    pursuit_summary = build_opportunity_pursuit_summary(project)
+    document_evidence_health = build_document_evidence_health(project)
 
     return ExecutiveDashboard(
         organization_name=project.organization.name,
@@ -226,9 +322,10 @@ def build_executive_dashboard(
         ),
         lifecycle_summary=discovery_overview.lifecycle_summary,
         work_summary=build_work_summary(),
-        readiness=build_readiness_overview(
-            project, funding_readiness, government_readiness, resource_readiness, partnership_readiness,
+        readiness=readiness,
+        pursuit_summary=pursuit_summary,
+        document_evidence_health=document_evidence_health,
+        celebration=_build_celebration_area(
+            project, discovery_overview, readiness, pursuit_summary, document_evidence_health,
         ),
-        pursuit_summary=build_opportunity_pursuit_summary(project),
-        document_evidence_health=build_document_evidence_health(project),
     )

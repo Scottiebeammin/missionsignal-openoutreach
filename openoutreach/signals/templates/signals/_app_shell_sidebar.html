@@ -1,13 +1,17 @@
-<aside class="sidebar" aria-label="MissionSignal app shell">
+<aside class="sidebar" aria-label="Anansi Atlas app shell">
   <div class="brand">
-    <strong>MissionSignal</strong>
-    <span>Opportunity Command Center</span>
+    <strong>Anansi Atlas</strong>
+    <span>The Web of Opportunity</span>
   </div>
-  <nav class="nav" aria-label="MissionSignal navigation">
+  <nav class="nav" aria-label="Anansi Atlas navigation">
     <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'project-dashboard' project.pk %}">Dashboard <span>Home</span></a>
     <a class="{% if active_page == 'organization' or active_page == 'mission' %}active{% endif %}" href="{% url 'project-organization' project.pk %}">Organization</a>
     <a class="{% if active_page == 'opportunities' or active_page == 'discovery' or active_page == 'matching' %}active{% endif %}" href="{% url 'project-opportunities' project.pk %}">Opportunities</a>
     <a class="{% if active_page == 'ecosystem' or active_page == 'funding' or active_page == 'government' or active_page == 'resources' or active_page == 'partnerships' %}active{% endif %}" href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
     <a class="{% if active_page == 'settings' %}active{% endif %}" href="{% url 'project-analysis-detail' project.pk %}">Settings</a>
   </nav>
+  <div class="sidebar-footer">
+    <strong>anansiatlas.com</strong>
+    <span>Operated by Scott Foundry Group LLC</span>
+  </div>
 </aside>

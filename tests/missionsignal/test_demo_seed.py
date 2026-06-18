@@ -86,6 +86,6 @@ def test_demo_seed_command_prints_demo_routes_and_sets_password():
     project = Project.objects.get(name="Primary Initiative")
     command_output = output.getvalue()
     assert user.check_password("demo-password")
-    assert "MissionSignal demo data is ready." in command_output
+    assert "Anansi Atlas demo data is ready." in command_output
     assert reverse("project-analysis-detail", kwargs={"pk": project.pk}) in command_output
     assert reverse("project-mission-brief", kwargs={"pk": project.pk}) in command_output

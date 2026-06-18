@@ -45,12 +45,12 @@ def test_project_member_can_view_ecosystem_dashboard(client, ecosystem_project):
 
     assert response.status_code == 200
     assert "Opportunity Ecosystem Dashboard" in content
-    assert "EcosystemSignal V1" in content
+    assert "Ecosystem V1" in content
     assert "Mission Brief" in content
-    assert "FundingSignal" in content
-    assert "GovernmentSignal" in content
-    assert "ResourceSignal" in content
-    assert "PartnershipSignal" in content
+    assert "Funding" in content
+    assert "Government" in content
+    assert "Resources" in content
+    assert "Partnerships" in content
     assert "Pipeline" in content
 
 
@@ -76,7 +76,7 @@ def test_ecosystem_dashboard_score_and_summary_render(client, ecosystem_project)
 
     assert "Opportunity Ecosystem Score" in content
     assert any(level in content for level in ["Emerging", "Developing", "Competitive", "Advanced"])
-    assert "MissionSignal views organizations through an opportunity ecosystem" in content
+    assert "Anansi Atlas views organizations through an opportunity ecosystem" in content
     for item in ["Funding", "Government", "Resources", "Partnerships", "Capacity", "Risks and constraints"]:
         assert item in content
 
@@ -203,5 +203,5 @@ def test_mission_brief_links_to_ecosystem_dashboard(client, ecosystem_project):
     response = client.get(reverse("project-mission-brief", kwargs={"pk": project.pk}))
     content = response.content.decode()
 
-    assert "EcosystemSignal" in content
+    assert "Ecosystem" in content
     assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
