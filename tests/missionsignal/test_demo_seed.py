@@ -21,6 +21,7 @@ from openoutreach.signals.demo import (
     seed_missionsignal_demo,
 )
 from openoutreach.signals.models import Celebration, OrganizationAnalysisRun
+from openoutreach.signals.models import OrganizationContact, PartnerOrganization as RelationshipPartnerOrganization
 
 
 @pytest.mark.django_db
@@ -74,7 +75,13 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
     assert Opportunity.objects.filter(estimated_value__isnull=False).count() >= 20
     assert Opportunity.objects.filter(value_confidence=Opportunity.ValueConfidence.HIGH).exists()
     assert Opportunity.objects.filter(value_confidence=Opportunity.ValueConfidence.LOW).exists()
-    assert Celebration.objects.filter(project=first_project).count() == 8
+    assert OrganizationContact.objects.filter(project=first_project).count() >= 6
+    assert RelationshipPartnerOrganization.objects.filter(project=first_project).count() >= 5
+    assert OrganizationContact.objects.filter(
+        project=first_project,
+        relationship_strength=OrganizationContact.RelationshipStrength.STRONG,
+    ).exists()
+    assert Celebration.objects.filter(project=first_project).count() == 10
     assert Celebration.objects.filter(title__in=[
         "Digital Equity Grant Awarded",
         "New Workforce Partnership",
@@ -84,7 +91,9 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "Veterans Support Initiative",
         "Food Security Milestone",
         "Environmental Justice Partnership",
-    ]).count() == 8
+        "Strategic Introduction to City Workforce Leaders",
+        "Community Collaboration with Digital Inclusion Partners",
+    ]).count() == 10
     assert OrganizationAnalysisRun.objects.filter(
         organization=first_organization,
     ).count() == 2

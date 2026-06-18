@@ -9,6 +9,7 @@ urlpatterns = [
     path("projects/<int:pk>/analysis/run/", views.run_project_analysis, name="run-project-analysis"),
     path("projects/<int:pk>/dashboard/", views.project_executive_dashboard, name="project-dashboard"),
     path("projects/<int:pk>/readiness/", views.project_readiness_dashboard, name="project-readiness"),
+    path("projects/<int:pk>/relationships/", views.project_relationships_dashboard, name="project-relationships"),
     path("projects/<int:pk>/documents/", views.project_documents_dashboard, name="project-documents"),
     path("projects/<int:pk>/evidence/", views.project_evidence_dashboard, name="project-evidence"),
     path("projects/<int:pk>/celebrations/", views.project_celebrations_dashboard, name="project-celebrations"),

@@ -128,6 +128,7 @@
                   <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
                   <span class="pill">{{ item.match.level }}</span>
                   <span class="pill">Value ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</span>
+                  <span class="pill">{{ item.relationship_context.compact_status }}</span>
                 </div>
                 <p class="muted" style="margin: 8px 0 0;">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
                 <p class="muted">Owner: {% if item.opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</p>
@@ -223,6 +224,11 @@
                       <p class="muted">Estimated value: ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</p>
                       <p class="muted">Weighted contribution: ${{ item.forecast_contribution.weighted_value|floatformat:0 }}</p>
                       <p class="muted">Confidence: {{ item.forecast_contribution.value_confidence }}</p>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Relationship Context</strong>
+                      <p class="muted">{{ item.relationship_context.relationship_label }}</p>
+                      <p class="muted">{{ item.relationship_context.recommended_action }}</p>
                     </section>
                   </div>
                   <p><strong>Current Stage:</strong> {{ item.opportunity.get_lifecycle_status_display }}</p>

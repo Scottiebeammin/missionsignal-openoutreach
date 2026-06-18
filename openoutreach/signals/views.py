@@ -28,6 +28,10 @@ from openoutreach.signals.readiness import (
     build_opportunity_pursuit_summary,
     build_readiness_overview,
 )
+from openoutreach.signals.relationships import (
+    build_opportunity_relationship_context,
+    build_relationship_overview,
+)
 from openoutreach.signals.resources import build_resource_readiness
 from openoutreach.signals.services import create_organization_intake
 
@@ -225,6 +229,22 @@ def project_readiness_dashboard(request, pk):
 
 
 @login_required
+def project_relationships_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    return render(
+        request,
+        "signals/project_relationships_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "relationships": build_relationship_overview(project),
+        },
+    )
+
+
+@login_required
 def project_documents_dashboard(request, pk):
     project = get_object_or_404(
         Project.objects.select_related("organization"), pk=pk, users=request.user,
@@ -293,6 +313,7 @@ def project_ecosystem_dashboard(request, pk):
     )
     pursuit_summary = build_opportunity_pursuit_summary(project)
     forecast = build_pipeline_forecast()
+    relationships = build_relationship_overview(project)
     return render(
         request,
         "signals/project_ecosystem_dashboard.html",
@@ -307,6 +328,7 @@ def project_ecosystem_dashboard(request, pk):
             "readiness": readiness,
             "pursuit_summary": pursuit_summary,
             "forecast": forecast,
+            "relationships": relationships,
         },
     )
 
@@ -417,6 +439,7 @@ def project_opportunity_workspace(request, pk, opportunity_id):
     workspace = build_opportunity_workspace(project, opportunity, funding_criteria)
     pursuit_readiness = build_opportunity_pursuit_readiness(project, opportunity)
     document_summary = build_opportunity_document_summary(project, opportunity)
+    relationship_context = build_opportunity_relationship_context(project, opportunity)
     return render(
         request,
         "signals/project_opportunity_workspace.html",
@@ -427,6 +450,7 @@ def project_opportunity_workspace(request, pk, opportunity_id):
             "workspace": workspace,
             "pursuit_readiness": pursuit_readiness,
             "document_summary": document_summary,
+            "relationship_context": relationship_context,
         },
     )
 

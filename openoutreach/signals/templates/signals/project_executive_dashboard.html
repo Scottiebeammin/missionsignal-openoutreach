@@ -127,6 +127,7 @@
           <div class="metric-card"><strong>{{ dashboard.active_opportunities }}</strong><span>Active Opportunities</span></div>
           <div class="metric-card"><strong>{{ dashboard.discovery_health.upcoming_deadlines|length }}</strong><span>Upcoming Deadlines</span></div>
           <div class="metric-card"><strong>{{ dashboard.celebration_overview.metrics.celebrations_shared }}</strong><span>Wins Across the Web</span></div>
+          <div class="metric-card"><strong>{{ dashboard.relationships.health.score }}</strong><span>Relationship Health</span><p class="muted">{{ dashboard.relationships.health.level }}</p></div>
         </div>
       </section>
 
@@ -214,6 +215,19 @@
             </li>
           {% endfor %}
         </ol>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Relationship Snapshot</h2>
+          <a class="pill" href="{% url 'project-relationships' project.pk %}">Open Relationships</a>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-card"><strong>{{ dashboard.relationships.health.score }}</strong><span>Relationship Health</span><p class="muted">{{ dashboard.relationships.health.level }}</p></div>
+          <div class="metric-card"><strong>{{ dashboard.relationships.strong_relationships }}</strong><span>Strong Relationships</span></div>
+          <div class="metric-card"><strong>{{ dashboard.relationships.relationship_gaps.0|default:"No relationship gap" }}</strong><span>Key Gaps</span></div>
+          <div class="metric-card"><strong>{{ dashboard.relationships.health.highest_leverage_action }}</strong><span>Recommended Next Action</span></div>
+        </div>
       </section>
 
       <section class="panel" aria-label="Wins Across the Web">

@@ -17,6 +17,7 @@ from openoutreach.signals.documents import build_opportunity_document_summary
 from openoutreach.signals.forecasting import forecast_contribution
 from openoutreach.signals.opportunity_work import build_deadline_summary, build_task_summary
 from openoutreach.signals.readiness import build_opportunity_pursuit_readiness
+from openoutreach.signals.relationships import build_opportunity_relationship_context
 
 
 @dataclass(frozen=True)
@@ -52,6 +53,10 @@ class DiscoveryOpportunity:
     @property
     def forecast_contribution(self):
         return forecast_contribution(self.opportunity)
+
+    @property
+    def relationship_context(self):
+        return build_opportunity_relationship_context(self.project, self.opportunity)
 
 
 @dataclass(frozen=True)

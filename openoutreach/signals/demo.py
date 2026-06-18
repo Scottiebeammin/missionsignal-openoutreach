@@ -15,7 +15,12 @@ from openoutreach.funding.models import (
 )
 from openoutreach.signals.documents import ensure_opportunity_document_requirements
 from openoutreach.signals.analysis_service import analyze_project
-from openoutreach.signals.models import Celebration, OrganizationAnalysisRun
+from openoutreach.signals.models import (
+    Celebration,
+    OrganizationAnalysisRun,
+    OrganizationContact,
+    PartnerOrganization as RelationshipPartnerOrganization,
+)
 
 DEMO_USERNAME = "missionsignal-demo"
 DEMO_ORGANIZATION_NAME = "BridgeForward Digital Futures"
@@ -905,6 +910,18 @@ def _seed_celebrations(project):
             "impact": "The expansion creates more early exposure to technology careers and local mentor networks.",
         },
         {
+            "title": "Strategic Introduction to City Workforce Leaders",
+            "celebration_type": Celebration.CelebrationType.STRATEGIC_INTRODUCTION,
+            "description": "A trusted contact introduced BridgeForward to city workforce leaders aligned with youth technology pathways.",
+            "impact": "The introduction creates a clearer path toward public-sector partnership and future service opportunities.",
+        },
+        {
+            "title": "Community Collaboration with Digital Inclusion Partners",
+            "celebration_type": Celebration.CelebrationType.COMMUNITY_COLLABORATION,
+            "description": "Neighborhood partners coordinated outreach, referrals, and shared workshop planning.",
+            "impact": "The collaboration strengthens trust, reach, and readiness for larger digital equity opportunities.",
+        },
+        {
             "title": "Veterans Support Initiative",
             "celebration_type": Celebration.CelebrationType.ORGANIZATION_MILESTONE,
             "description": "The organization added a targeted support track for veterans seeking digital skills and employment navigation.",
@@ -933,6 +950,119 @@ def _seed_celebrations(project):
                 "organization_name": project.organization.name,
                 "website": project.organization.website,
             },
+        )
+
+
+def _seed_relationship_data(project):
+    contacts = [
+        {
+            "name": "Maya Thompson",
+            "title": "Program Officer",
+            "organization": "Cuyahoga Community Foundation",
+            "contact_type": OrganizationContact.ContactType.PROGRAM_OFFICER,
+            "email": "maya.thompson@example.org",
+            "notes": "Primary foundation contact for youth and digital equity grants.",
+            "relationship_strength": OrganizationContact.RelationshipStrength.ESTABLISHED,
+        },
+        {
+            "name": "Jordan Ellis",
+            "title": "Workforce Grants Manager",
+            "organization": "Ohio Workforce Innovation Fund",
+            "contact_type": OrganizationContact.ContactType.FUNDER,
+            "email": "jordan.ellis@example.ohio.gov",
+            "notes": "Known contact for workforce grant and training opportunities.",
+            "relationship_strength": OrganizationContact.RelationshipStrength.DEVELOPING,
+        },
+        {
+            "name": "Priya Nair",
+            "title": "Youth Workforce Representative",
+            "organization": "City of Cleveland Youth and Workforce Office",
+            "contact_type": OrganizationContact.ContactType.GOVERNMENT_CONTACT,
+            "email": "priya.nair@example.gov",
+            "notes": "City contact for youth services, service contracts, and digital access programs.",
+            "relationship_strength": OrganizationContact.RelationshipStrength.STRONG,
+        },
+        {
+            "name": "Andre Lewis",
+            "title": "Community Outreach Lead",
+            "organization": "Neighborhood Digital Inclusion Coalition",
+            "contact_type": OrganizationContact.ContactType.COMMUNITY_LEADER,
+            "email": "andre.lewis@example.org",
+            "notes": "Community partner contact for referrals, neighborhood outreach, and device access.",
+            "relationship_strength": OrganizationContact.RelationshipStrength.STRONG,
+        },
+        {
+            "name": "Elena Cruz",
+            "title": "Corporate Citizenship Director",
+            "organization": "Great Lakes Corporate Citizenship Council",
+            "contact_type": OrganizationContact.ContactType.CORPORATE_CONTACT,
+            "email": "elena.cruz@example.com",
+            "notes": "Corporate contact for sponsorships, mentors, and employer introductions.",
+            "relationship_strength": OrganizationContact.RelationshipStrength.DEVELOPING,
+        },
+        {
+            "name": "Samir Patel",
+            "title": "Career Pathways Dean",
+            "organization": "Cleveland Community College Career Pathways",
+            "contact_type": OrganizationContact.ContactType.PARTNER,
+            "email": "samir.patel@example.edu",
+            "notes": "Academic partner for credentials, shared training space, and referrals.",
+            "relationship_strength": OrganizationContact.RelationshipStrength.ESTABLISHED,
+        },
+    ]
+    for contact in contacts:
+        name = contact.pop("name")
+        organization_name = contact.get("organization", "")
+        OrganizationContact.objects.update_or_create(
+            project=project,
+            name=name,
+            organization=organization_name,
+            defaults=contact,
+        )
+
+    partners = [
+        {
+            "organization_name": "Neighborhood Digital Inclusion Coalition",
+            "partner_type": RelationshipPartnerOrganization.PartnerType.COMMUNITY_PARTNER,
+            "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.STRONG,
+            "website": "https://neighborhood-digital-inclusion.example.org",
+            "notes": "Community partner for outreach, referrals, shared workshops, and device distribution.",
+        },
+        {
+            "organization_name": "City of Cleveland Youth and Workforce Office",
+            "partner_type": RelationshipPartnerOrganization.PartnerType.GOVERNMENT_PARTNER,
+            "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.ESTABLISHED,
+            "website": "https://cleveland-youth-workforce.example.gov",
+            "notes": "Public-sector partner for youth workforce, contracts, and city grants.",
+        },
+        {
+            "organization_name": "Cleveland Community College Career Pathways",
+            "partner_type": RelationshipPartnerOrganization.PartnerType.ACADEMIC_PARTNER,
+            "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.ESTABLISHED,
+            "website": "https://cleveland-community-college.example.edu",
+            "notes": "Academic partner for credentials, career pathways, and shared training facilities.",
+        },
+        {
+            "organization_name": "Great Lakes Corporate Citizenship Council",
+            "partner_type": RelationshipPartnerOrganization.PartnerType.CORPORATE_PARTNER,
+            "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.DEVELOPING,
+            "website": "https://great-lakes-citizenship.example.com",
+            "notes": "Corporate partner for sponsorships, mentors, mock interviews, and employer introductions.",
+        },
+        {
+            "organization_name": "Ohio Nonprofit Capacity Lab",
+            "partner_type": RelationshipPartnerOrganization.PartnerType.SERVICE_PARTNER,
+            "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.DEVELOPING,
+            "website": "https://ohio-capacity-lab.example.org",
+            "notes": "Service partner for evaluation, capacity building, and fundraising readiness.",
+        },
+    ]
+    for partner in partners:
+        organization_name = partner.pop("organization_name")
+        RelationshipPartnerOrganization.objects.update_or_create(
+            project=project,
+            organization_name=organization_name,
+            defaults=partner,
         )
 
 
@@ -994,6 +1124,7 @@ def seed_missionsignal_demo(*, password=None):
     analyze_project(project, mode="deterministic")
     _seed_opportunity_database()
     _seed_document_and_evidence_data(project)
+    _seed_relationship_data(project)
     _seed_celebrations(project)
     organization.refresh_from_db()
     project.refresh_from_db()

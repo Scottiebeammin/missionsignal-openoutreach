@@ -33,6 +33,7 @@ def test_primary_navigation_is_workflow_based(client, ux_project):
     assert reverse("project-organization", kwargs={"pk": project.pk}) in content
     assert reverse("project-opportunities", kwargs={"pk": project.pk}) in content
     assert reverse("project-readiness", kwargs={"pk": project.pk}) in content
+    assert reverse("project-relationships", kwargs={"pk": project.pk}) in content
     assert reverse("project-documents", kwargs={"pk": project.pk}) in content
     assert reverse("project-evidence", kwargs={"pk": project.pk}) in content
     assert reverse("project-celebrations", kwargs={"pk": project.pk}) in content

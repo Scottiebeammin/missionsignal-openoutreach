@@ -13,6 +13,7 @@ from openoutreach.signals.readiness import (
     build_opportunity_pursuit_summary,
     build_readiness_overview,
 )
+from openoutreach.signals.relationships import RelationshipOverview, build_relationship_overview
 
 
 @dataclass(frozen=True)
@@ -82,6 +83,7 @@ class ExecutiveDashboard:
     document_evidence_health: DocumentEvidenceHealth
     celebration_overview: CelebrationOverview
     forecast: PipelineForecast
+    relationships: RelationshipOverview
 
 
 def _top_insight(readiness) -> str:
@@ -241,4 +243,5 @@ def build_executive_dashboard(
         document_evidence_health=document_evidence_health,
         celebration_overview=build_celebration_overview(project),
         forecast=build_pipeline_forecast(),
+        relationships=build_relationship_overview(project),
     )

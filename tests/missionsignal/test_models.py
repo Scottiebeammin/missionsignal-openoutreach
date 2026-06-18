@@ -25,6 +25,7 @@ from openoutreach.funding.models import (
     default_scoring_weights,
 )
 from openoutreach.signals.models import Celebration, OrganizationAnalysisRun, OrganizationSourcePage
+from openoutreach.signals.models import OrganizationContact, PartnerOrganization as RelationshipPartnerOrganization
 from openoutreach.sources.models import SearchQuery, Source, SourceRecord
 
 
@@ -128,6 +129,32 @@ def test_celebration_model_defaults_and_string(project):
     assert celebration.organization_name == ""
     assert celebration.website == ""
     assert celebration.celebration_type == Celebration.CelebrationType.IMPACT_MILESTONE
+
+
+def test_relationship_contact_model_defaults_and_string(project):
+    contact = OrganizationContact.objects.create(
+        project=project,
+        name="Avery Grant",
+        organization="Example Foundation",
+        contact_type=OrganizationContact.ContactType.PROGRAM_OFFICER,
+    )
+    assert str(contact) == "Avery Grant — Example Foundation"
+    assert contact.status == OrganizationContact.Status.ACTIVE
+    assert contact.relationship_strength == OrganizationContact.RelationshipStrength.UNKNOWN
+    assert contact.email == ""
+    assert contact.phone == ""
+
+
+def test_relationship_partner_model_defaults_and_string(project):
+    partner = RelationshipPartnerOrganization.objects.create(
+        project=project,
+        organization_name="Example Partner",
+        partner_type=RelationshipPartnerOrganization.PartnerType.COMMUNITY_PARTNER,
+    )
+    assert str(partner) == "Example Partner"
+    assert partner.status == RelationshipPartnerOrganization.Status.ACTIVE
+    assert partner.relationship_strength == RelationshipPartnerOrganization.RelationshipStrength.UNKNOWN
+    assert partner.website == ""
 
 
 def test_funding_criteria_defaults_and_one_per_project(project):
@@ -334,6 +361,8 @@ def test_opportunity_database_models_are_registered_in_admin():
     assert admin.site.is_registered(EvidenceLibraryItem)
     assert admin.site.is_registered(OpportunityDocumentRequirement)
     assert admin.site.is_registered(SourceOrganization)
+    assert admin.site.is_registered(OrganizationContact)
+    assert admin.site.is_registered(RelationshipPartnerOrganization)
 
 
 

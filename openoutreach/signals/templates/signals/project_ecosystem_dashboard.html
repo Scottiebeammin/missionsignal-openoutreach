@@ -148,6 +148,20 @@
       </div>
     </section>
 
+    <section class="panel">
+      <div class="section-toolbar">
+        <h2>Relationship Health</h2>
+        <a class="pill" href="{% url 'project-relationships' project.pk %}">Open Relationships</a>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card"><strong>{{ relationships.health.score }}</strong><span class="muted">Relationship Health Score</span><span class="pill">{{ relationships.health.level }}</span></div>
+        <div class="summary-card"><strong>{{ relationships.total_contacts }}</strong><span class="muted">Contact Count</span></div>
+        <div class="summary-card"><strong>{{ relationships.total_partners }}</strong><span class="muted">Partner Count</span></div>
+        <div class="summary-card"><strong>{{ relationships.strong_relationships }}</strong><span class="muted">Strong Relationships</span></div>
+        <div class="summary-card"><strong>{{ relationships.health.highest_leverage_action }}</strong><span class="muted">Highest Leverage Relationship Action</span></div>
+      </div>
+    </section>
+
     {% if ecosystem.match_overview %}
       <details class="panel">
         <summary>Opportunity Match Health</summary>

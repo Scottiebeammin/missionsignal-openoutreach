@@ -50,6 +50,8 @@ def test_celebrations_page_renders_seeded_examples_and_metrics(client, celebrati
     assert "New Workforce Partnership" in content
     assert "Technology Access Milestone" in content
     assert "Community Health Success Story" in content
+    assert "Strategic Introduction to City Workforce Leaders" in content
+    assert "Community Collaboration with Digital Inclusion Partners" in content
     assert "Celebrations shared" in content
     assert "Opportunities awarded" in content
     assert "Partnerships formed" in content

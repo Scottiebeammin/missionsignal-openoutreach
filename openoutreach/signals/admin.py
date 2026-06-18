@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from openoutreach.signals.models import Celebration, OrganizationAnalysisRun, OrganizationSourcePage
+from openoutreach.signals.models import (
+    Celebration,
+    OrganizationAnalysisRun,
+    OrganizationContact,
+    OrganizationSourcePage,
+    PartnerOrganization,
+)
 
 
 @admin.register(Celebration)
@@ -10,6 +16,24 @@ class CelebrationAdmin(admin.ModelAdmin):
     search_fields = ("title", "description", "impact", "organization_name", "project__name")
     raw_id_fields = ("project",)
     date_hierarchy = "created_at"
+
+
+@admin.register(OrganizationContact)
+class OrganizationContactAdmin(admin.ModelAdmin):
+    list_display = ("name", "project", "organization", "contact_type", "relationship_strength", "status", "updated_at")
+    list_filter = ("contact_type", "relationship_strength", "status")
+    search_fields = ("name", "title", "organization", "email", "notes", "project__name")
+    raw_id_fields = ("project",)
+    date_hierarchy = "updated_at"
+
+
+@admin.register(PartnerOrganization)
+class RelationshipPartnerOrganizationAdmin(admin.ModelAdmin):
+    list_display = ("organization_name", "project", "partner_type", "relationship_strength", "status", "website")
+    list_filter = ("partner_type", "relationship_strength", "status")
+    search_fields = ("organization_name", "notes", "website", "project__name")
+    raw_id_fields = ("project",)
+    date_hierarchy = "updated_at"
 
 
 @admin.register(OrganizationSourcePage)

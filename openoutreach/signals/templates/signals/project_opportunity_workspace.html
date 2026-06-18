@@ -94,7 +94,37 @@
         <div class="metric-card"><strong>{{ opportunity.deadline|date:"M j, Y"|default:"Not set" }}</strong><span>Deadline</span><p><span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }} Priority</span></p></div>
         <div class="metric-card"><strong>${{ workspace.forecast.estimated_value|floatformat:0|default:"0" }}</strong><span>Estimated Value</span><p><span class="pill">{{ workspace.forecast.value_confidence }} Confidence</span></p></div>
         <div class="metric-card"><strong>${{ workspace.forecast.weighted_value|floatformat:0 }}</strong><span>Weighted Forecast Contribution</span><p class="muted">{{ workspace.forecast.stage_weight_percent }}% stage weight</p></div>
+        <div class="metric-card"><strong>{{ relationship_context.relationship_label }}</strong><span>Relationship Context</span><p class="muted">{{ relationship_context.recommended_action }}</p></div>
       </div>
+      <details style="margin-top: 12px;">
+        <summary>Related Contacts and Partners</summary>
+        <div class="requirement-grid" style="margin-top: 10px;">
+          <article class="requirement-card">
+            <h3>Related Contacts</h3>
+            <ul>
+              {% for contact in relationship_context.related_contacts %}
+                <li>{{ contact.name }} · {{ contact.organization }} · {{ contact.get_relationship_strength_display }}</li>
+              {% empty %}
+                <li>No related contacts yet.</li>
+              {% endfor %}
+            </ul>
+          </article>
+          <article class="requirement-card">
+            <h3>Related Partners</h3>
+            <ul>
+              {% for partner in relationship_context.related_partners %}
+                <li>{{ partner.organization_name }} · {{ partner.get_partner_type_display }} · {{ partner.get_relationship_strength_display }}</li>
+              {% empty %}
+                <li>No related partners yet.</li>
+              {% endfor %}
+            </ul>
+          </article>
+          <article class="requirement-card">
+            <h3>Relationship Context</h3>
+            <p class="muted">{{ relationship_context.recommended_action }}</p>
+          </article>
+        </div>
+      </details>
       <details style="margin-top: 12px;">
         <summary>Forecast</summary>
         <div class="requirement-grid" style="margin-top: 10px;">

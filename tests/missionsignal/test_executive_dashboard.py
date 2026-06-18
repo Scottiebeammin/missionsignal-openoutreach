@@ -147,6 +147,7 @@ def test_executive_dashboard_navigation_and_view_switcher_render(client, dashboa
     assert reverse("project-pipeline", kwargs={"pk": project.pk}) in content
     assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
     assert reverse("project-readiness", kwargs={"pk": project.pk}) in content
+    assert reverse("project-relationships", kwargs={"pk": project.pk}) in content
     assert reverse("project-documents", kwargs={"pk": project.pk}) in content
     assert reverse("project-evidence", kwargs={"pk": project.pk}) in content
     assert reverse("project-celebrations", kwargs={"pk": project.pk}) in content
