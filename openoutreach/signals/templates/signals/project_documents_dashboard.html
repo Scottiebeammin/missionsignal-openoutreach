@@ -29,7 +29,7 @@
   {% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
-  {% include "signals/_app_shell_sidebar.html" with active_page="organization" %}
+  {% include "signals/_app_shell_sidebar.html" with active_page="documents" %}
   <main>
     <nav class="workspace-tabs" aria-label="Document workspace navigation">
       <a href="{% url 'project-organization' project.pk %}">Organization</a>
@@ -96,6 +96,7 @@
         </details>
       {% endfor %}
     </section>
+    {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>
 </html>

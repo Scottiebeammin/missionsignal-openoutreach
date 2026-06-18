@@ -1,6 +1,15 @@
 from django.contrib import admin
 
-from openoutreach.signals.models import OrganizationAnalysisRun, OrganizationSourcePage
+from openoutreach.signals.models import Celebration, OrganizationAnalysisRun, OrganizationSourcePage
+
+
+@admin.register(Celebration)
+class CelebrationAdmin(admin.ModelAdmin):
+    list_display = ("title", "project", "celebration_type", "organization_name", "updated_at")
+    list_filter = ("celebration_type",)
+    search_fields = ("title", "description", "impact", "organization_name", "project__name")
+    raw_id_fields = ("project",)
+    date_hierarchy = "created_at"
 
 
 @admin.register(OrganizationSourcePage)

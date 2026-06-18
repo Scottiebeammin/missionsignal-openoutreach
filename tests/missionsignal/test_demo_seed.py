@@ -20,7 +20,7 @@ from openoutreach.signals.demo import (
     DEMO_USERNAME,
     seed_missionsignal_demo,
 )
-from openoutreach.signals.models import OrganizationAnalysisRun
+from openoutreach.signals.models import Celebration, OrganizationAnalysisRun
 
 
 @pytest.mark.django_db
@@ -71,6 +71,17 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "National Health Access Training Program",
         "Youth Career Exploration Sponsorship",
     ]).count() == 7
+    assert Celebration.objects.filter(project=first_project).count() == 8
+    assert Celebration.objects.filter(title__in=[
+        "Digital Equity Grant Awarded",
+        "New Workforce Partnership",
+        "Technology Access Milestone",
+        "Community Health Success Story",
+        "Youth Program Expansion",
+        "Veterans Support Initiative",
+        "Food Security Milestone",
+        "Environmental Justice Partnership",
+    ]).count() == 8
     assert OrganizationAnalysisRun.objects.filter(
         organization=first_organization,
     ).count() == 2

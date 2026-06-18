@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Settings - {{ organization.name }}</title>
+  <title>Workspace Settings - {{ organization.name }}</title>
   <style>
     :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --accent:#0f766e; --accent-soft:#e8f5f2; --gold:#8a5b00; --gold-soft:#fff7df; }
     * { box-sizing: border-box; }
@@ -32,7 +32,7 @@
   <main>
     <header class="hero">
       <section>
-        <p class="eyebrow">Settings</p>
+        <p class="eyebrow">Workspace Settings</p>
         <h1>{{ organization.name }}</h1>
         <p class="muted">Refresh deterministic analysis and review the inferred readiness data behind the workspace.</p>
       </section>
@@ -46,7 +46,7 @@
       </section>
     </header>
 
-    <nav class="workspace-tabs" aria-label="Settings links">
+    <nav class="workspace-tabs" aria-label="Workspace Settings links">
       <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
       <a href="{% url 'project-organization' project.pk %}">Organization</a>
       <a class="active" href="{% url 'project-analysis-detail' project.pk %}">Readiness Data</a>
@@ -110,6 +110,7 @@
         <p style="margin-top: 12px;">Run analysis to generate FundingCriteria.</p>
       {% endif %}
     </details>
+    {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>
 </html>

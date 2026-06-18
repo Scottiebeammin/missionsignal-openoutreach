@@ -15,7 +15,7 @@ from openoutreach.funding.models import (
 )
 from openoutreach.signals.documents import ensure_opportunity_document_requirements
 from openoutreach.signals.analysis_service import analyze_project
-from openoutreach.signals.models import OrganizationAnalysisRun
+from openoutreach.signals.models import Celebration, OrganizationAnalysisRun
 
 DEMO_USERNAME = "missionsignal-demo"
 DEMO_ORGANIZATION_NAME = "BridgeForward Digital Futures"
@@ -837,6 +837,70 @@ def _seed_document_and_evidence_data(project):
         ensure_opportunity_document_requirements(project, opportunity)
 
 
+def _seed_celebrations(project):
+    celebrations = [
+        {
+            "title": "Digital Equity Grant Awarded",
+            "celebration_type": Celebration.CelebrationType.OPPORTUNITY_AWARDED,
+            "description": "BridgeForward secured support for device access and digital skills workshops.",
+            "impact": "The award expands access to training equipment for residents preparing for technology-enabled careers.",
+        },
+        {
+            "title": "New Workforce Partnership",
+            "celebration_type": Celebration.CelebrationType.PARTNERSHIP_FORMED,
+            "description": "A regional workforce partner joined the opportunity web to strengthen employer-connected pathways.",
+            "impact": "The partnership improves referral pathways, placement support, and credibility for future public-sector opportunities.",
+        },
+        {
+            "title": "Technology Access Milestone",
+            "celebration_type": Celebration.CelebrationType.IMPACT_MILESTONE,
+            "description": "The program documented a new milestone in learner access to devices and digital coaching.",
+            "impact": "More participants can complete training activities outside the classroom and prepare for internships.",
+        },
+        {
+            "title": "Community Health Success Story",
+            "celebration_type": Celebration.CelebrationType.SUCCESS_STORY,
+            "description": "Digital navigation support helped a community member connect with health and benefits resources online.",
+            "impact": "The story shows how digital equity work can support broader household stability and access.",
+        },
+        {
+            "title": "Youth Program Expansion",
+            "celebration_type": Celebration.CelebrationType.PROGRAM_LAUNCH,
+            "description": "Youth career exploration expanded into a new neighborhood-based cohort.",
+            "impact": "The expansion creates more early exposure to technology careers and local mentor networks.",
+        },
+        {
+            "title": "Veterans Support Initiative",
+            "celebration_type": Celebration.CelebrationType.ORGANIZATION_MILESTONE,
+            "description": "The organization added a targeted support track for veterans seeking digital skills and employment navigation.",
+            "impact": "The initiative broadens the opportunity ecosystem while keeping workforce readiness at the center.",
+        },
+        {
+            "title": "Food Security Milestone",
+            "celebration_type": Celebration.CelebrationType.COMMUNITY_ACHIEVEMENT,
+            "description": "A community partner integrated food access referrals into participant support planning.",
+            "impact": "Participants facing immediate household needs receive stronger wraparound support while pursuing training.",
+        },
+        {
+            "title": "Environmental Justice Partnership",
+            "celebration_type": Celebration.CelebrationType.PARTNERSHIP_FORMED,
+            "description": "A local environmental justice partner joined planning conversations for youth civic technology projects.",
+            "impact": "The partnership connects digital skills, civic learning, and neighborhood resilience work.",
+        },
+    ]
+    for celebration in celebrations:
+        title = celebration.pop("title")
+        Celebration.objects.update_or_create(
+            project=project,
+            title=title,
+            defaults={
+                **celebration,
+                "organization_name": project.organization.name,
+                "website": project.organization.website,
+            },
+        )
+
+
 @transaction.atomic
 def seed_missionsignal_demo(*, password=None):
     """Create or refresh the deterministic Anansi Atlas demo records."""
@@ -895,6 +959,7 @@ def seed_missionsignal_demo(*, password=None):
     analyze_project(project, mode="deterministic")
     _seed_opportunity_database()
     _seed_document_and_evidence_data(project)
+    _seed_celebrations(project)
     organization.refresh_from_db()
     project.refresh_from_db()
     return user, organization, project

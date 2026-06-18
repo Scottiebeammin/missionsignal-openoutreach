@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Celebrations - {{ organization.name }}</title>
+  <style>
+    :root { color-scheme: light; --ink:#0d1b3d; --muted:#687789; --line:#d9e2e8; --accent:#d4a017; --accent-soft:#fff6dd; --clay:#c46a3d; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.42 system-ui, sans-serif; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1; }
+    h2 { margin-bottom: 12px; }
+    h3 { margin-bottom: 6px; }
+    a { color: inherit; }
+    .hero, .panel, .metric, .celebration-card { border: 1px solid var(--line); border-radius: 12px; background: white; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; margin-bottom: 14px; padding: 22px; }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .panel { margin-bottom: 14px; padding: 16px; }
+    .metrics, .grid { display: grid; gap: 10px; }
+    .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric, .celebration-card { padding: 14px; }
+    .metric strong { display: block; color: var(--accent); font-size: 1.6rem; }
+    .pill { display: inline-flex; padding: 4px 8px; border-radius: 999px; background: var(--accent-soft); color: #8a5b00; font-weight: 900; }
+    .button { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 12px; border-radius: 999px; background: var(--ink); color: white; font-weight: 900; text-decoration: none; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .submission-placeholder { border-left: 5px solid var(--accent); background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 190%); }
+    @media (max-width: 900px) { .hero, .metrics, .grid { grid-template-columns: 1fr; } }
+  </style>
+  {% include "signals/_app_shell_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="celebrations" %}
+  <main>
+    <header class="hero">
+      <section>
+        <p class="eyebrow">Celebrations</p>
+        <h1>Wins Across the Web</h1>
+        <p class="muted">Stories of mission progress, ecosystem momentum, and organizational wins worth remembering.</p>
+      </section>
+      <section class="panel submission-placeholder">
+        <h2>Share a Win</h2>
+        <p class="muted">Capture a milestone, partnership, award, or impact story so the team can remember progress as clearly as it tracks gaps.</p>
+        <a class="button" href="{% url 'project-analysis-detail' project.pk %}">Manage celebration records</a>
+      </section>
+    </header>
+
+    <section class="panel">
+      <h2>Momentum Across the Ecosystem</h2>
+      <div class="metrics">
+        <div class="metric"><span class="muted">Celebrations shared</span><strong>{{ celebrations.metrics.celebrations_shared }}</strong></div>
+        <div class="metric"><span class="muted">Opportunities awarded</span><strong>{{ celebrations.metrics.opportunities_awarded }}</strong></div>
+        <div class="metric"><span class="muted">Partnerships formed</span><strong>{{ celebrations.metrics.partnerships_formed }}</strong></div>
+        <div class="metric"><span class="muted">Impact stories shared</span><strong>{{ celebrations.metrics.impact_stories_shared }}</strong></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Impact Highlights</h2>
+      <div class="grid">
+        {% for celebration in celebrations.featured_celebrations %}
+          <article class="celebration-card">
+            <span class="pill">{{ celebration.get_celebration_type_display }}</span>
+            <h3>{{ celebration.title }}</h3>
+            <p>{{ celebration.description }}</p>
+            <p class="muted">{{ celebration.impact }}</p>
+          </article>
+        {% empty %}
+          <div class="empty-state"><strong>No highlights yet</strong>Share mission progress to build a record of momentum across the opportunity web.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Recent Celebration Feed</h2>
+      <div class="grid">
+        {% for celebration in celebrations.recent_celebrations %}
+          <article class="celebration-card">
+            <span class="pill">{{ celebration.get_celebration_type_display }}</span>
+            <h3>{{ celebration.title }}</h3>
+            <p>{{ celebration.description }}</p>
+            <p class="muted">{{ celebration.impact }}</p>
+            {% if celebration.organization_name %}<p class="muted">{{ celebration.organization_name }}</p>{% endif %}
+          </article>
+        {% empty %}
+          <div class="empty-state"><strong>No celebrations yet</strong>Wins, milestones, and progress highlights will appear here.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>

@@ -25,9 +25,17 @@ def test_primary_navigation_is_workflow_based(client, ux_project):
     assert "Organization" in content
     assert "Opportunities" in content
     assert "Ecosystem" in content
-    assert "Settings" in content
+    assert "Readiness" in content
+    assert "Documents" in content
+    assert "Evidence" in content
+    assert "Celebrations" in content
+    assert "Workspace Settings" in content
     assert reverse("project-organization", kwargs={"pk": project.pk}) in content
     assert reverse("project-opportunities", kwargs={"pk": project.pk}) in content
+    assert reverse("project-readiness", kwargs={"pk": project.pk}) in content
+    assert reverse("project-documents", kwargs={"pk": project.pk}) in content
+    assert reverse("project-evidence", kwargs={"pk": project.pk}) in content
+    assert reverse("project-celebrations", kwargs={"pk": project.pk}) in content
     assert reverse("project-analysis-detail", kwargs={"pk": project.pk}) in content
 
 

@@ -38,9 +38,6 @@
     .nav { display: grid; gap: 6px; }
     .nav a { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; color: #dce7ef; text-decoration: none; }
     .nav a.active, .nav a:hover { background: rgba(255,255,255,.12); color: white; }
-    .sidebar-footer { display: grid; gap: 3px; margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.12); color: #dce7ef; font-size: .78rem; }
-    .sidebar-footer strong { color: #F7F3EB; }
-    .sidebar-footer span { color: #b8c5d1; }
     main { padding: 22px; }
     .hero, .panel, .metric-card, .kpi-card, .pipeline-card, .chart-card, .advisor-panel { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: var(--shadow); }
     .hero { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 18px; align-items: stretch; margin-bottom: 16px; padding: 24px; }
@@ -77,7 +74,12 @@
     .bar-fill.rose { background: var(--rose); }
     .celebration-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
     .celebration-card { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(180deg, #ffffff 0%, #fffaf0 160%); }
-    .site-footer { margin: 24px 0 4px; color: var(--muted); font-size: .85rem; text-align: center; }
+    .button { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 12px; border-radius: 999px; background: var(--ink); color: white; font-weight: 900; text-decoration: none; }
+    .app-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 28px 0 4px; padding: 16px 4px 0; border-top: 1px solid rgba(13, 27, 61, .12); color: var(--muted); font-size: .82rem; }
+    .app-footer strong { display: block; color: var(--ink); font-size: .9rem; }
+    .app-footer span { display: block; }
+    .footer-mark { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(212, 160, 23, .42); border-radius: 999px; background: linear-gradient(135deg, rgba(212, 160, 23, .14), rgba(196, 106, 61, .08)); color: var(--ink); font-weight: 950; }
+    .footer-meta { margin-left: auto; text-align: right; }
     .table { width: 100%; border-collapse: collapse; }
     .table th, .table td { padding: 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
     .actions-list { margin: 0; padding-left: 20px; columns: 2; }
@@ -105,7 +107,6 @@
           <p class="eyebrow">Anansi Atlas Executive Dashboard</p>
           <h1>{{ dashboard.organization_name }}</h1>
           <p class="muted">Map the web of opportunity around your mission. Anansi Atlas helps nonprofits uncover funders, partners, resources, risks, and strategic pathways across their opportunity ecosystem.</p>
-          <p><span class="pill">anansiatlas.com</span> <span class="pill">The Web of Opportunity</span></p>
         </section>
         <section class="header-metrics" aria-label="Executive header metrics">
           <div class="metric-card"><strong>{{ dashboard.ecosystem_score }}</strong><span>Ecosystem Score</span><p class="muted">{{ dashboard.ecosystem_level }}</p></div>
@@ -184,39 +185,28 @@
         </ol>
       </section>
 
-      <section class="panel" aria-label="Celebration Area">
+      <section class="panel" aria-label="Wins Across the Web">
         <div class="panel-header">
           <div>
-            <h2>Celebration Area</h2>
-            <p class="muted">Wins across your web, milestones, and momentum worth celebrating.</p>
+            <h2>Wins Across the Web</h2>
+            <p class="muted">Latest celebrations and stories of mission progress.</p>
           </div>
-          <span class="pill">Progress in your opportunity ecosystem</span>
+          <a class="button" href="{% url 'project-celebrations' project.pk %}">View All Celebrations</a>
         </div>
         <div class="celebration-grid">
-          <article class="celebration-card">
-            <h3>Recent Wins</h3>
-            <ul>
-              {% for win in dashboard.celebration.recent_wins %}
-                <li>{{ win }}</li>
-              {% endfor %}
-            </ul>
-          </article>
-          <article class="celebration-card">
-            <h3>Milestones</h3>
-            <ul>
-              {% for milestone in dashboard.celebration.milestones %}
-                <li>{{ milestone }}</li>
-              {% endfor %}
-            </ul>
-          </article>
-          <article class="celebration-card">
-            <h3>Progress Highlights</h3>
-            <ul>
-              {% for highlight in dashboard.celebration.progress_highlights %}
-                <li>{{ highlight }}</li>
-              {% endfor %}
-            </ul>
-          </article>
+          {% for celebration in dashboard.celebration_overview.recent_celebrations|slice:":3" %}
+            <article class="celebration-card">
+              <span class="pill">{{ celebration.get_celebration_type_display }}</span>
+              <h3>{{ celebration.title }}</h3>
+              <p>{{ celebration.description }}</p>
+              <p class="muted">{{ celebration.impact }}</p>
+            </article>
+          {% empty %}
+            <article class="celebration-card">
+              <h3>Progress across your opportunity web</h3>
+              <p class="muted">Celebrations will appear here as awards, submissions, partnerships, and impact milestones are recorded.</p>
+            </article>
+          {% endfor %}
         </div>
       </section>
 
@@ -226,7 +216,7 @@
           <a class="kpi-card" href="{% url 'project-organization' project.pk %}"><strong>1</strong><span>Organization</span><p>Manage mission, programs, outcomes, and readiness data. Open the <u>Mission Brief</u> when you need the full profile.</p></a>
           <a class="kpi-card" href="{% url 'project-ecosystem' project.pk %}"><strong>2</strong><span>Ecosystem</span><p>Review funding, government, resources, and partnerships together.</p></a>
           <a class="kpi-card" href="{% url 'project-opportunities' project.pk %}"><strong>3</strong><span>Opportunities</span><p>Move from discovery and matching into the pipeline.</p></a>
-          <a class="kpi-card" href="{% url 'project-analysis-detail' project.pk %}"><strong>4</strong><span>Settings</span><p>Refresh analysis and review inferred profile data.</p></a>
+          <a class="kpi-card" href="{% url 'project-analysis-detail' project.pk %}"><strong>4</strong><span>Workspace Settings</span><p>Refresh analysis and review inferred profile data.</p></a>
         </div>
       </section>
 
@@ -429,7 +419,7 @@
           </tbody>
         </table>
       </details>
-      <footer class="site-footer">Anansi Atlas is operated by Scott Foundry Group LLC.</footer>
+      {% include "signals/_app_shell_footer.html" %}
     </main>
   </div>
 </body>

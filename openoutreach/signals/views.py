@@ -6,6 +6,7 @@ from openoutreach.core.models import Project
 from openoutreach.funding.models import Opportunity, OpportunityTask
 from openoutreach.funding.readiness import build_funding_readiness
 from openoutreach.signals.analysis_service import analyze_project
+from openoutreach.signals.celebrations import build_celebration_overview
 from openoutreach.signals.dashboard import build_executive_dashboard
 from openoutreach.signals.discovery import build_discovery_overview
 from openoutreach.signals.documents import (
@@ -250,6 +251,22 @@ def project_evidence_dashboard(request, pk):
             "project": project,
             "organization": project.organization,
             "evidence_summary": build_evidence_library_summary(project),
+        },
+    )
+
+
+@login_required
+def project_celebrations_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    return render(
+        request,
+        "signals/project_celebrations_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "celebrations": build_celebration_overview(project),
         },
     )
 

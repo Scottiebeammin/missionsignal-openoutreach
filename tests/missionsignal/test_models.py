@@ -24,7 +24,7 @@ from openoutreach.funding.models import (
     SourceOrganization,
     default_scoring_weights,
 )
-from openoutreach.signals.models import OrganizationAnalysisRun, OrganizationSourcePage
+from openoutreach.signals.models import Celebration, OrganizationAnalysisRun, OrganizationSourcePage
 from openoutreach.sources.models import SearchQuery, Source, SourceRecord
 
 
@@ -114,6 +114,20 @@ def test_organization_analysis_run_records_snapshots(organization):
     )
     assert run.status == OrganizationAnalysisRun.Status.PENDING
     assert run.output_snapshot["focus_areas"] == ["workforce development"]
+
+
+def test_celebration_model_defaults_and_string(project):
+    celebration = Celebration.objects.create(
+        project=project,
+        title="Community Milestone",
+        celebration_type=Celebration.CelebrationType.IMPACT_MILESTONE,
+        description="A meaningful program milestone was documented.",
+        impact="The milestone gives the team a clearer story of mission progress.",
+    )
+    assert str(celebration) == "Community Milestone"
+    assert celebration.organization_name == ""
+    assert celebration.website == ""
+    assert celebration.celebration_type == Celebration.CelebrationType.IMPACT_MILESTONE
 
 
 def test_funding_criteria_defaults_and_one_per_project(project):

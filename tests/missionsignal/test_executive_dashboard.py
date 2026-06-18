@@ -40,12 +40,13 @@ def test_executive_dashboard_renders_celebration_area(client, dashboard_project)
     response = client.get(reverse("project-dashboard", kwargs={"pk": project.pk}))
 
     content = response.content.decode()
-    assert "Celebration Area" in content
-    assert "Recent Wins" in content
-    assert "Milestones" in content
-    assert "Progress Highlights" in content
-    assert "Wins across your web" in content
-    assert "Progress in your opportunity ecosystem" in content
+    assert "Wins Across the Web" in content
+    assert "Latest celebrations and stories of mission progress." in content
+    assert "Environmental Justice Partnership" in content
+    assert "Food Security Milestone" in content
+    assert "Veterans Support Initiative" in content
+    assert "View All Celebrations" in content
+    assert reverse("project-celebrations", kwargs={"pk": project.pk}) in content
 
 
 def test_non_member_cannot_view_executive_dashboard(client, dashboard_project):
@@ -145,6 +146,11 @@ def test_executive_dashboard_navigation_and_view_switcher_render(client, dashboa
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
     assert reverse("project-pipeline", kwargs={"pk": project.pk}) in content
     assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
+    assert reverse("project-readiness", kwargs={"pk": project.pk}) in content
+    assert reverse("project-documents", kwargs={"pk": project.pk}) in content
+    assert reverse("project-evidence", kwargs={"pk": project.pk}) in content
+    assert reverse("project-celebrations", kwargs={"pk": project.pk}) in content
+    assert "Workspace Settings" in content
 
 
 def test_executive_dashboard_renders_chart_ready_sections(client, dashboard_project):

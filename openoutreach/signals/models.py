@@ -1,6 +1,6 @@
 from django.db import models
 
-from openoutreach.core.models import Organization
+from openoutreach.core.models import Organization, Project
 
 
 class OrganizationSourcePage(models.Model):
@@ -60,3 +60,38 @@ class OrganizationAnalysisRun(models.Model):
 
     def __str__(self):
         return f"{self.organization} analysis ({self.status})"
+
+
+class Celebration(models.Model):
+    class CelebrationType(models.TextChoices):
+        OPPORTUNITY_AWARDED = "opportunity_awarded", "Opportunity Awarded"
+        OPPORTUNITY_SUBMITTED = "opportunity_submitted", "Opportunity Submitted"
+        PARTNERSHIP_FORMED = "partnership_formed", "Partnership Formed"
+        PROGRAM_LAUNCH = "program_launch", "Program Launch"
+        FUNDING_SECURED = "funding_secured", "Funding Secured"
+        IMPACT_MILESTONE = "impact_milestone", "Impact Milestone"
+        VOLUNTEER_MILESTONE = "volunteer_milestone", "Volunteer Milestone"
+        ORGANIZATION_MILESTONE = "organization_milestone", "Organization Milestone"
+        SUCCESS_STORY = "success_story", "Success Story"
+        COMMUNITY_ACHIEVEMENT = "community_achievement", "Community Achievement"
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="celebrations")
+    title = models.CharField(max_length=300)
+    celebration_type = models.CharField(
+        max_length=40, choices=CelebrationType.choices, default=CelebrationType.ORGANIZATION_MILESTONE,
+    )
+    description = models.TextField(blank=True, default="")
+    impact = models.TextField(blank=True, default="")
+    organization_name = models.CharField(max_length=300, blank=True, default="")
+    website = models.URLField(max_length=500, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-created_at", "title")
+        constraints = [
+            models.UniqueConstraint(fields=("project", "title"), name="unique_project_celebration_title"),
+        ]
+
+    def __str__(self):
+        return self.title
