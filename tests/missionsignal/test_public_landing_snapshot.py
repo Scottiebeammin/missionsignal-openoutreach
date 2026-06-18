@@ -22,11 +22,11 @@ def test_public_landing_page_renders_without_login(client):
     assert response.status_code == 200
     assert "Anansi Atlas" in content
     assert "The Web of Opportunity" in content
-    assert "Turn scattered opportunity into an executive action map." in content
-    assert "Inside Anansi Atlas" in content
-    assert "Dashboard" in content
-    assert "Get Your Opportunity Web Snapshot" in content
-    assert "Join the Founding Atlas Partners" in content
+    assert "Map the Web of Opportunity Around Your Mission" in content
+    assert "funders, potential partners, community resources, strategic risks, pathways" in content
+    assert "Explore the Opportunity Web Snapshot" in content
+    assert "Become a Founding Atlas Partner" in content
+    assert "Marcus Scott" in content
     assert "anansiatlas.com" in content
     assert "Scott Foundry Group LLC" in content
 
@@ -70,11 +70,11 @@ def test_pilot_onboarding_route_renders_without_login(client):
 
     assert response.status_code == 200
     assert "Founding Atlas Partners" in content
-    assert "Mission" in content
-    assert "Programs" in content
+    assert "Shape a smarter way to see opportunity" in content
+    assert "Mission and programs" in content
     assert "Geography" in content
-    assert "Beneficiaries" in content
-    assert "Documents and evidence" in content
+    assert "Funders and partners" in content
+    assert "Resources and evidence" in content
 
 
 def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_project):

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Matching - {{ organization.name }}</title>
+  <title>Match Intelligence - {{ organization.name }}</title>
   <style>
     :root {
       color-scheme: light;
@@ -58,12 +58,12 @@
 {% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
-  {% include "signals/_app_shell_sidebar.html" with active_page="opportunities" %}
+  {% include "signals/_app_shell_sidebar.html" with active_page="matching" %}
   <main>
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
-      <a href="{% url 'project-opportunities' project.pk %}">Overview</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Pathways Overview</a>
       <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
-      <a class="active" href="{% url 'project-matches' project.pk %}">Matches</a>
+      <a class="active" href="{% url 'project-matches' project.pk %}">Match Intelligence</a>
       <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
     <nav class="topbar" aria-label="Matching actions">
@@ -78,7 +78,7 @@
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">Matching V3</p>
+      <p class="eyebrow">Matching V3 · Match Intelligence</p>
       <h1>Opportunity Match Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Opportunity matching summary">

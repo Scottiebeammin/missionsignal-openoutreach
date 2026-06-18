@@ -49,18 +49,18 @@
   {% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
-  {% include "signals/_app_shell_sidebar.html" with active_page="opportunities" %}
+  {% include "signals/_app_shell_sidebar.html" with active_page="pipeline" %}
   <main>
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
-      <a href="{% url 'project-opportunities' project.pk %}">Overview</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Pathways Overview</a>
       <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
-      <a href="{% url 'project-matches' project.pk %}">Matches</a>
+      <a href="{% url 'project-matches' project.pk %}">Match Intelligence</a>
       <a class="active" href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
 
     <header class="hero">
       <section>
-        <p class="eyebrow">Opportunity Lifecycle V2</p>
+        <p class="eyebrow">Opportunity Lifecycle V2 · Pipeline · Pathway Operations</p>
         <h1>Opportunity Pipeline</h1>
         <p class="muted">{{ organization.name }} - {{ project.name }}</p>
       </section>

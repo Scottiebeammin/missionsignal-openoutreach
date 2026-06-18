@@ -61,12 +61,12 @@
 {% include "signals/_app_shell_styles.html" %}
 </head>
 <body>
-  {% include "signals/_app_shell_sidebar.html" with active_page="opportunities" %}
+  {% include "signals/_app_shell_sidebar.html" with active_page="discovery" %}
   <main>
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
-      <a href="{% url 'project-opportunities' project.pk %}">Overview</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Pathways Overview</a>
       <a class="active" href="{% url 'project-discovery' project.pk %}">Discovery</a>
-      <a href="{% url 'project-matches' project.pk %}">Matches</a>
+      <a href="{% url 'project-matches' project.pk %}">Match Intelligence</a>
       <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
     <nav class="topbar" aria-label="Discovery actions">
@@ -77,12 +77,12 @@
         <a class="button" href="{% url 'project-resources' project.pk %}">Resources</a>
         <a class="button" href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
         <a class="button" href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
-        <a class="button" href="{% url 'project-matches' project.pk %}">Matching</a>
+        <a class="button" href="{% url 'project-matches' project.pk %}">Match Intelligence</a>
       </div>
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">Discovery V2</p>
+      <p class="eyebrow">Discovery V2 · Opportunity Inventory</p>
       <h1>Opportunity Inventory</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <p class="muted">A manually managed inventory layer for deterministic opportunity readiness before live discovery exists.</p>
@@ -206,7 +206,7 @@
             {% empty %}
               <div class="empty-state">
                 <strong>No opportunities in this lane</strong>
-                Assign priority levels to opportunities so this pipeline becomes easier to manage.
+                Assign priority levels to opportunities so this pathway pipeline becomes easier to manage.
               </div>
             {% endfor %}
           </section>
