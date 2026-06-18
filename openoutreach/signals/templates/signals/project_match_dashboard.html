@@ -132,6 +132,14 @@
     </section>
 
     <section class="panel">
+      <h2>Score Transparency</h2>
+      <div class="insight-grid">
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.match %}
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.readiness %}
+      </div>
+    </section>
+
+    <section class="panel">
       <h2>Top Recommended Opportunities</h2>
       <div class="match-grid">
         {% for match in match_overview.top_recommended|slice:":5" %}

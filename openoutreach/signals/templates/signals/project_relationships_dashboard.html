@@ -59,6 +59,11 @@
     </header>
 
     <section class="panel">
+      <h2>Score Transparency</h2>
+      {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
+    </section>
+
+    <section class="panel">
       <h2>Relationship Snapshot</h2>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ relationships.total_contacts }}</strong><span>Total Contacts</span></div>

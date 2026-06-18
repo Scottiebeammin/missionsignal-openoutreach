@@ -99,6 +99,12 @@
         <div class="metric"><span class="muted">Awarded Value</span><strong>${{ forecast.awarded_value|floatformat:0 }}</strong></div>
         <div class="metric"><span class="muted">Upcoming Deadline Value</span><strong>${{ forecast.upcoming_deadline_value|floatformat:0 }}</strong></div>
       </div>
+      <details style="margin-top: 12px;">
+        <summary>Forecast Score Transparency</summary>
+        <div style="margin-top: 10px;">
+          {% include "signals/_score_explanation.html" with explanation=score_transparency.forecast %}
+        </div>
+      </details>
     </section>
 
     <section class="panel">

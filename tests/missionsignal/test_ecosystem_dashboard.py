@@ -75,6 +75,11 @@ def test_ecosystem_dashboard_score_and_summary_render(client, ecosystem_project)
     content = response.content.decode()
 
     assert "Opportunity Ecosystem Score" in content
+    assert "Score Transparency" in content
+    assert "Readiness Score Transparency" in content
+    assert "Match Score Transparency" in content
+    assert "Forecast Health Transparency" in content
+    assert "Relationship Health Transparency" in content
     assert any(level in content for level in ["Emerging", "Developing", "Competitive", "Advanced"])
     assert "Anansi Atlas views organizations through an opportunity ecosystem" in content
     for item in ["Funding", "Government", "Resources", "Partnerships", "Capacity", "Risks and constraints"]:

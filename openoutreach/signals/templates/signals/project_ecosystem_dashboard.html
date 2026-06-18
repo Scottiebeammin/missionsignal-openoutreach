@@ -118,6 +118,17 @@
       </section>
     </header>
 
+    <details class="panel">
+      <summary>Score Transparency</summary>
+      <div class="insight-grid" style="margin-top: 12px;">
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.readiness %}
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.completeness %}
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.match %}
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.forecast %}
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
+      </div>
+    </details>
+
     <section class="panel">
       <h2>Signal Scorecards</h2>
       <div class="scorecard-grid">

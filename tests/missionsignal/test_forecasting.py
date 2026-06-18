@@ -103,6 +103,13 @@ def test_dashboard_pipeline_workspace_and_ecosystem_render_forecast(client, fore
     assert "Forecast Health" in ecosystem
     assert "Forecast Confidence" in ecosystem
     assert "Funding Forecast Breakdown" in ecosystem
+    assert "Forecast Health Transparency" in ecosystem
+    assert "Score Contributors" in ecosystem
+    assert "Score Gaps" in ecosystem
+    assert "Forecast Score Transparency" in pipeline
+    assert "Submitted Opportunities" in pipeline
+    assert "Pursuing Opportunities" in pipeline
+    assert "Qualified Opportunities" in pipeline
 
 
 def test_opportunity_workspace_discovery_and_matching_render_forecast(client, forecast_project):

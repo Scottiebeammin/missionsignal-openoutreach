@@ -71,6 +71,14 @@
       </div>
     </section>
 
+    <section class="panel">
+      <h2>Score Transparency</h2>
+      <div class="insight-grid">
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.readiness %}
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.completeness %}
+      </div>
+    </section>
+
     <details class="panel">
       <summary>Organization Completeness</summary>
       <h2>Organization Completeness</h2>

@@ -86,6 +86,10 @@ def test_match_dashboard_renders_breakdowns_missing_factors_and_improvements(cli
     content = response.content.decode()
 
     assert "Match Factors" in content
+    assert "Score Transparency" in content
+    assert "Match Score Transparency" in content
+    assert "Score Contributors" in content
+    assert "Score Gaps" in content
     assert "Geography Alignment" in content
     assert "Workforce Development Alignment" in content
     assert "Youth Alignment" in content

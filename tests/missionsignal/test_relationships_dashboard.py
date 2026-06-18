@@ -72,6 +72,10 @@ def test_project_member_can_view_relationship_dashboard(client, relationship_pro
     assert "Relationship Intelligence V1" in content
     assert "Relationship Dashboard" in content
     assert "Relationship Health" in content
+    assert "Relationship Health Transparency" in content
+    assert "Score Contributors" in content
+    assert "Score Gaps" in content
+    assert "Highest Leverage Action" in content
     assert "Total Contacts" in content
     assert "Total Partners" in content
     assert "Strong Relationships" in content

@@ -146,6 +146,23 @@
         <summary>Readiness Details</summary>
         <div class="requirement-grid" style="margin-top: 10px;">
           <article class="requirement-card">
+            <h3>Score Transparency</h3>
+            <p><strong>Pursuit Readiness:</strong> {{ score_transparency.pursuit.score }} · {{ score_transparency.pursuit.level }}</p>
+            <p class="factor-title">Score Contributors</p>
+            <ul>
+              {% for contributor in score_transparency.pursuit.contributors|slice:":3" %}
+                <li>{{ contributor }}</li>
+              {% endfor %}
+            </ul>
+            <p class="factor-title">Score Gaps</p>
+            <ul>
+              {% for gap in score_transparency.pursuit.gaps|slice:":3" %}
+                <li>{{ gap }}</li>
+              {% endfor %}
+            </ul>
+            <p class="muted"><strong>Highest Leverage Action:</strong> {{ score_transparency.pursuit.highest_leverage_action }}</p>
+          </article>
+          <article class="requirement-card">
             <h3>Improvement Opportunities</h3>
             <p class="muted">{{ pursuit_readiness.highest_leverage_improvement }}</p>
           </article>

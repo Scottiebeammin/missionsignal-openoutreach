@@ -123,6 +123,11 @@ def test_project_member_can_view_readiness_dashboard(client, readiness_project):
     assert "Readiness Strengths" in content
     assert "Readiness Gaps" in content
     assert "Highest Leverage Actions" in content
+    assert "Score Transparency" in content
+    assert "Readiness Score Transparency" in content
+    assert "Organization Completeness Transparency" in content
+    assert "Score Contributors" in content
+    assert "Score Gaps" in content
     assert "Opportunity Pursuit Readiness Summary" in content
     assert "Document and Evidence Readiness" in content
     assert "Document readiness" in content
@@ -171,6 +176,9 @@ def test_opportunity_workspace_displays_pursuit_readiness(client, readiness_proj
 
     assert "Pursuit Readiness" in content
     assert "Readiness Details" in content
+    assert "Score Transparency" in content
+    assert "Score Contributors" in content
+    assert "Score Gaps" in content
     assert "Improvement Opportunities" in content
     assert "Required Missing Areas" in content
 

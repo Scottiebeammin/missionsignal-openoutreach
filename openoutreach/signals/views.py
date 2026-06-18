@@ -33,6 +33,14 @@ from openoutreach.signals.relationships import (
     build_relationship_overview,
 )
 from openoutreach.signals.resources import build_resource_readiness
+from openoutreach.signals.score_transparency import (
+    explain_forecast,
+    explain_match_overview,
+    explain_organization_completeness,
+    explain_pursuit_readiness,
+    explain_readiness,
+    explain_relationship_health,
+)
 from openoutreach.signals.services import create_organization_intake
 
 
@@ -191,6 +199,8 @@ def project_executive_dashboard(request, pk):
         project, ecosystem, funding_readiness, government_readiness, resource_readiness,
         partnership_readiness, match_overview, discovery_overview,
     )
+    forecast = dashboard.forecast
+    relationships = dashboard.relationships
     return render(
         request,
         "signals/project_executive_dashboard.html",
@@ -198,6 +208,13 @@ def project_executive_dashboard(request, pk):
             "project": project,
             "organization": project.organization,
             "dashboard": dashboard,
+            "score_transparency": {
+                "readiness": explain_readiness(dashboard.readiness),
+                "completeness": explain_organization_completeness(dashboard.readiness.organization_completeness),
+                "match": explain_match_overview(match_overview),
+                "forecast": explain_forecast(forecast),
+                "relationship": explain_relationship_health(relationships),
+            },
         },
     )
 
@@ -224,6 +241,10 @@ def project_readiness_dashboard(request, pk):
             "organization": project.organization,
             "readiness": readiness,
             "pursuit_summary": pursuit_summary,
+            "score_transparency": {
+                "readiness": explain_readiness(readiness),
+                "completeness": explain_organization_completeness(readiness.organization_completeness),
+            },
         },
     )
 
@@ -233,13 +254,17 @@ def project_relationships_dashboard(request, pk):
     project = get_object_or_404(
         Project.objects.select_related("organization"), pk=pk, users=request.user,
     )
+    relationships = build_relationship_overview(project)
     return render(
         request,
         "signals/project_relationships_dashboard.html",
         {
             "project": project,
             "organization": project.organization,
-            "relationships": build_relationship_overview(project),
+            "relationships": relationships,
+            "score_transparency": {
+                "relationship": explain_relationship_health(relationships),
+            },
         },
     )
 
@@ -329,6 +354,13 @@ def project_ecosystem_dashboard(request, pk):
             "pursuit_summary": pursuit_summary,
             "forecast": forecast,
             "relationships": relationships,
+            "score_transparency": {
+                "readiness": explain_readiness(readiness),
+                "completeness": explain_organization_completeness(readiness.organization_completeness),
+                "match": explain_match_overview(match_overview),
+                "forecast": explain_forecast(forecast),
+                "relationship": explain_relationship_health(relationships),
+            },
         },
     )
 
@@ -358,6 +390,10 @@ def project_match_dashboard(request, pk):
             "match_overview": match_overview,
             "discovery": discovery,
             "readiness": readiness,
+            "score_transparency": {
+                "match": explain_match_overview(match_overview),
+                "readiness": explain_readiness(readiness),
+            },
         },
     )
 
@@ -422,6 +458,9 @@ def project_pipeline_workspace(request, pk):
             "discovery": discovery,
             "lifecycle": discovery.lifecycle_summary,
             "forecast": forecast,
+            "score_transparency": {
+                "forecast": explain_forecast(forecast),
+            },
         },
     )
 
@@ -451,6 +490,9 @@ def project_opportunity_workspace(request, pk, opportunity_id):
             "pursuit_readiness": pursuit_readiness,
             "document_summary": document_summary,
             "relationship_context": relationship_context,
+            "score_transparency": {
+                "pursuit": explain_pursuit_readiness(pursuit_readiness),
+            },
         },
     )
 

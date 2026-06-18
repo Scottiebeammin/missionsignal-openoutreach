@@ -1,0 +1,29 @@
+<article class="compact-card">
+  <div class="match-header">
+    <div>
+      <p class="eyebrow">{{ explanation.label }} Transparency</p>
+      <h3>{{ explanation.label }}</h3>
+    </div>
+    <span class="score-badge">{{ explanation.score }}</span>
+  </div>
+  <p><span class="pill">{{ explanation.level }}</span></p>
+  <div class="insight-grid" style="margin-top: 12px;">
+    <section>
+      <h4>Score Contributors</h4>
+      <ul>
+        {% for contributor in explanation.contributors %}
+          <li>{{ contributor }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+    <section>
+      <h4>Score Gaps</h4>
+      <ul>
+        {% for gap in explanation.gaps %}
+          <li>{{ gap }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+  <p class="muted"><strong>Highest Leverage Action:</strong> {{ explanation.highest_leverage_action }}</p>
+</article>

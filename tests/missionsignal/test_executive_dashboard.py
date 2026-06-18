@@ -30,6 +30,11 @@ def test_project_member_can_view_executive_dashboard(client, dashboard_project):
     assert "Ecosystem Score" in content
     assert "Overall Match Score" in content
     assert "Last Analysis Date" in content
+    assert "Score Transparency" in content
+    assert "Readiness Score Transparency" in content
+    assert "Match Score Transparency" in content
+    assert "Forecast Health Transparency" in content
+    assert "Relationship Health Transparency" in content
     assert "Opportunity Command Center" not in content
 
 
