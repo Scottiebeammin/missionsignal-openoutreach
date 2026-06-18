@@ -135,6 +135,19 @@
       </div>
     </section>
 
+    <section class="panel">
+      <div class="section-toolbar">
+        <h2>Readiness Health</h2>
+        <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness Dashboard</a>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card"><strong>{{ readiness.organization_completeness.score }}</strong><span class="muted">Completeness Score</span><span class="pill">{{ readiness.organization_completeness.level }}</span></div>
+        <div class="summary-card"><strong>{{ readiness.overall_score }}</strong><span class="muted">Readiness Score</span><span class="pill">{{ readiness.level }}</span></div>
+        <div class="summary-card"><strong>{{ pursuit_summary.average_score }}</strong><span class="muted">Opportunity Readiness Average</span></div>
+        <div class="summary-card"><strong>{{ readiness.gaps.0|default:"No readiness gap" }}</strong><span class="muted">Top Readiness Gap</span></div>
+      </div>
+    </section>
+
     {% if ecosystem.match_overview %}
       <details class="panel">
         <summary>Opportunity Match Health</summary>

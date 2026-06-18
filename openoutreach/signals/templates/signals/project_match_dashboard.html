@@ -117,6 +117,7 @@
               <span class="score-badge">Match {{ item.match.score }}</span>
             </div>
             <p class="muted">{{ item.opportunity.get_lifecycle_status_display }} · {{ item.opportunity.get_priority_level_display }} priority</p>
+            <p><strong>Pursuit Readiness:</strong> {{ item.pursuit_readiness.score }} · {{ item.pursuit_readiness.level }}</p>
             <a class="button" href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">Open Workspace</a>
           </article>
         {% empty %}
@@ -138,6 +139,7 @@
               <span class="score-badge">Score {{ match.score }}</span>
             </div>
             <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
+            <p><strong>Pursuit Readiness:</strong> {{ readiness.overall_score }} <strong>Combined Opportunity Health:</strong> Match {{ match.score }} + Readiness {{ readiness.overall_score }}</p>
             <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
             <p class="muted">Match Confidence: {{ match.level }}</p>
             <p><strong>Suggested Lifecycle Stage:</strong> {{ match.suggested_lifecycle_stage }}</p>
@@ -197,6 +199,7 @@
               </div>
               <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
               <p><strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
+              <p><strong>Pursuit Readiness:</strong> {{ readiness.overall_score }} <strong>Combined Opportunity Health:</strong> Match {{ match.score }} + Readiness {{ readiness.overall_score }}</p>
               <p><strong>Suggested Lifecycle Stage:</strong> {{ match.suggested_lifecycle_stage }}</p>
               <p><strong>Current Lifecycle Status:</strong> {{ match.current_lifecycle_status }}</p>
               <p><strong>Owner:</strong> {{ match.owner_label }} <strong>Suggested Next Action:</strong> {{ match.suggested_next_action }}</p>
@@ -220,6 +223,7 @@
                 <span class="score-badge">Score {{ match.score }}</span>
               </div>
               <p><strong>Current Match Score:</strong> {{ match.score }} <strong>Potential Match Score:</strong> {{ match.potential_score }}</p>
+              <p><strong>Pursuit Readiness:</strong> {{ readiness.overall_score }} <strong>Combined Opportunity Health:</strong> Match {{ match.score }} + Readiness {{ readiness.overall_score }}</p>
               <p><span class="pill {{ match.level|slugify }}">{{ match.level }}</span> <span class="muted">{{ match.opportunity_type }}</span></p>
               <p class="muted">Match Confidence: {{ match.level }}</p>
               <p><strong>Suggested Lifecycle Stage:</strong> {{ match.suggested_lifecycle_stage }}</p>

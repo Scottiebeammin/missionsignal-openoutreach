@@ -85,10 +85,38 @@
       <h2>Opportunity Overview</h2>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ workspace.match.score }}</strong><span>Match Summary</span><p><span class="pill {{ workspace.match.level|slugify }}">{{ workspace.match.level }}</span></p></div>
+        <div class="metric-card"><strong>{{ pursuit_readiness.score }}</strong><span>Pursuit Readiness</span><p><span class="pill">{{ pursuit_readiness.level }}</span></p></div>
         <div class="metric-card"><strong>{{ opportunity.get_lifecycle_status_display }}</strong><span>Lifecycle Status</span></div>
         <div class="metric-card"><strong>{% if opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</strong><span>Owner</span><p class="muted">{{ opportunity.assigned_owner|default:"Owner: Unassigned" }}</p></div>
         <div class="metric-card"><strong>{{ opportunity.deadline|date:"M j, Y"|default:"Not set" }}</strong><span>Deadline</span><p><span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }} Priority</span></p></div>
       </div>
+      <details style="margin-top: 12px;">
+        <summary>Readiness Details</summary>
+        <div class="requirement-grid" style="margin-top: 10px;">
+          <article class="requirement-card">
+            <h3>Improvement Opportunities</h3>
+            <p class="muted">{{ pursuit_readiness.highest_leverage_improvement }}</p>
+          </article>
+          <article class="requirement-card">
+            <h3>Required Missing Areas</h3>
+            <ul>
+              {% for area in pursuit_readiness.missing_areas %}
+                <li>{{ area }}</li>
+              {% empty %}
+                <li>No required missing areas detected.</li>
+              {% endfor %}
+            </ul>
+          </article>
+          <article class="requirement-card">
+            <h3>Why Ready</h3>
+            <ul>
+              {% for reason in pursuit_readiness.why_ready|slice:":3" %}
+                <li>{{ reason }}</li>
+              {% endfor %}
+            </ul>
+          </article>
+        </div>
+      </details>
       <details style="margin-top: 12px;" open>
         <summary>Why It Matches</summary>
         <ul>

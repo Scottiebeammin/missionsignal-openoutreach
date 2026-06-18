@@ -4,6 +4,12 @@ from openoutreach.funding.models import Opportunity, SourceOrganization
 from openoutreach.signals.lifecycle import LifecycleSummary
 from openoutreach.signals.models import OrganizationAnalysisRun
 from openoutreach.signals.opportunity_work import OpportunityWorkSummary, build_work_summary
+from openoutreach.signals.readiness import (
+    OpportunityPursuitSummary,
+    ReadinessOverview,
+    build_opportunity_pursuit_summary,
+    build_readiness_overview,
+)
 
 
 @dataclass(frozen=True)
@@ -68,6 +74,8 @@ class ExecutiveDashboard:
     priority_distribution: list[ChartBar]
     lifecycle_summary: LifecycleSummary
     work_summary: OpportunityWorkSummary
+    readiness: ReadinessOverview
+    pursuit_summary: OpportunityPursuitSummary
 
 
 def _top_insight(readiness) -> str:
@@ -216,4 +224,8 @@ def build_executive_dashboard(
         ),
         lifecycle_summary=discovery_overview.lifecycle_summary,
         work_summary=build_work_summary(),
+        readiness=build_readiness_overview(
+            project, funding_readiness, government_readiness, resource_readiness, partnership_readiness,
+        ),
+        pursuit_summary=build_opportunity_pursuit_summary(project),
     )

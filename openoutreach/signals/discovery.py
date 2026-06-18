@@ -14,10 +14,12 @@ from openoutreach.signals.lifecycle import (
 )
 from openoutreach.signals.matching import OpportunityMatch, score_inventory_opportunity
 from openoutreach.signals.opportunity_work import build_deadline_summary, build_task_summary
+from openoutreach.signals.readiness import build_opportunity_pursuit_readiness
 
 
 @dataclass(frozen=True)
 class DiscoveryOpportunity:
+    project: object
     opportunity: Opportunity
     match: OpportunityMatch
 
@@ -36,6 +38,10 @@ class DiscoveryOpportunity:
     @property
     def deadline_summary(self):
         return build_deadline_summary(self.opportunity)
+
+    @property
+    def pursuit_readiness(self):
+        return build_opportunity_pursuit_readiness(self.project, self.opportunity)
 
 
 @dataclass(frozen=True)
@@ -180,6 +186,7 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
     opportunities = list(queryset)
     items = [
         DiscoveryOpportunity(
+            project=project,
             opportunity=opportunity,
             match=score_inventory_opportunity(project, opportunity, funding_criteria),
         )

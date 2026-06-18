@@ -110,6 +110,7 @@
                   <span class="pill">{{ item.opportunity.get_opportunity_type_display }}</span>
                   <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
                   <span class="score-badge">Match {{ item.match.score }}</span>
+                  <span class="pill">Ready {{ item.pursuit_readiness.score }}</span>
                   <span class="pill">{{ item.match.level }}</span>
                 </div>
                 <p class="muted" style="margin: 8px 0 0;">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>

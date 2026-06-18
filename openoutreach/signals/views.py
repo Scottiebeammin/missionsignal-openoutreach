@@ -16,6 +16,11 @@ from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
 from openoutreach.signals.opportunity_work import build_opportunity_workspace, ensure_default_tasks
 from openoutreach.signals.partnerships import build_partnership_readiness
+from openoutreach.signals.readiness import (
+    build_opportunity_pursuit_readiness,
+    build_opportunity_pursuit_summary,
+    build_readiness_overview,
+)
 from openoutreach.signals.resources import build_resource_readiness
 from openoutreach.signals.services import create_organization_intake
 
@@ -187,6 +192,32 @@ def project_executive_dashboard(request, pk):
 
 
 @login_required
+def project_readiness_dashboard(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    funding_readiness = build_funding_readiness(project, funding_criteria)
+    government_readiness = build_government_readiness(project, funding_criteria)
+    resource_readiness = build_resource_readiness(project, funding_criteria)
+    partnership_readiness = build_partnership_readiness(project, funding_criteria)
+    readiness = build_readiness_overview(
+        project, funding_readiness, government_readiness, resource_readiness, partnership_readiness,
+    )
+    pursuit_summary = build_opportunity_pursuit_summary(project)
+    return render(
+        request,
+        "signals/project_readiness_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "readiness": readiness,
+            "pursuit_summary": pursuit_summary,
+        },
+    )
+
+
+@login_required
 def project_ecosystem_dashboard(request, pk):
     project = get_object_or_404(
         Project.objects.select_related("organization"), pk=pk, users=request.user,
@@ -202,6 +233,10 @@ def project_ecosystem_dashboard(request, pk):
         project, funding_readiness, government_readiness, resource_readiness,
         partnership_readiness, match_overview, discovery_overview,
     )
+    readiness = build_readiness_overview(
+        project, funding_readiness, government_readiness, resource_readiness, partnership_readiness,
+    )
+    pursuit_summary = build_opportunity_pursuit_summary(project)
     return render(
         request,
         "signals/project_ecosystem_dashboard.html",
@@ -213,6 +248,8 @@ def project_ecosystem_dashboard(request, pk):
             "government_readiness": government_readiness,
             "resource_readiness": resource_readiness,
             "partnership_readiness": partnership_readiness,
+            "readiness": readiness,
+            "pursuit_summary": pursuit_summary,
         },
     )
 
@@ -225,6 +262,13 @@ def project_match_dashboard(request, pk):
     funding_criteria = getattr(project, "funding_criteria", None)
     match_overview = build_opportunity_matches(project, funding_criteria)
     discovery = build_discovery_overview(project, funding_criteria)
+    funding_readiness = build_funding_readiness(project, funding_criteria)
+    government_readiness = build_government_readiness(project, funding_criteria)
+    resource_readiness = build_resource_readiness(project, funding_criteria)
+    partnership_readiness = build_partnership_readiness(project, funding_criteria)
+    readiness = build_readiness_overview(
+        project, funding_readiness, government_readiness, resource_readiness, partnership_readiness,
+    )
     return render(
         request,
         "signals/project_match_dashboard.html",
@@ -234,6 +278,7 @@ def project_match_dashboard(request, pk):
             "funding_criteria": funding_criteria,
             "match_overview": match_overview,
             "discovery": discovery,
+            "readiness": readiness,
         },
     )
 
@@ -311,6 +356,7 @@ def project_opportunity_workspace(request, pk, opportunity_id):
     )
     funding_criteria = getattr(project, "funding_criteria", None)
     workspace = build_opportunity_workspace(project, opportunity, funding_criteria)
+    pursuit_readiness = build_opportunity_pursuit_readiness(project, opportunity)
     return render(
         request,
         "signals/project_opportunity_workspace.html",
@@ -319,6 +365,7 @@ def project_opportunity_workspace(request, pk, opportunity_id):
             "organization": project.organization,
             "opportunity": opportunity,
             "workspace": workspace,
+            "pursuit_readiness": pursuit_readiness,
         },
     )
 

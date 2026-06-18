@@ -129,6 +129,20 @@
         </div>
       </section>
 
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Readiness Health</h2>
+          <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness Dashboard</a>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-card"><strong>{{ dashboard.readiness.organization_completeness.score }}</strong><span>Organization Completeness</span><p class="muted">{{ dashboard.readiness.organization_completeness.level }}</p></div>
+          <div class="metric-card"><strong>{{ dashboard.readiness.overall_score }}</strong><span>Readiness Score</span><p class="muted">{{ dashboard.readiness.level }}</p></div>
+          <div class="metric-card"><strong>{{ dashboard.readiness.gaps.0|default:"No readiness gap" }}</strong><span>Top Readiness Gap</span></div>
+          <div class="metric-card"><strong>{{ dashboard.readiness.recommended_actions.0|default:"Maintain readiness" }}</strong><span>Top Readiness Action</span></div>
+          <div class="metric-card"><strong>{{ dashboard.pursuit_summary.average_score }}</strong><span>Opportunity Readiness Average</span></div>
+        </div>
+      </section>
+
       <section class="advisor-panel">
         <h2>What To Do Next</h2>
         <ol class="advisor-list">

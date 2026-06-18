@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Readiness - {{ organization.name }}</title>
+  <style>
+    :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --page:#eef3f6; --panel:#fff; --soft:#f6f8fa; --accent:#0f766e; --accent-soft:#e8f5f2; --blue:#235789; --blue-soft:#edf5fb; --gold:#8a5b00; --gold-soft:#fff7df; --shadow:0 1px 2px rgba(16,30,44,.04),0 14px 32px rgba(16,30,44,.05); }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.42 system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 24px auto; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1; }
+    h2 { margin-bottom: 12px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
+    h3 { margin-bottom: 6px; font-size: .98rem; }
+    a { color: inherit; }
+    .hero, .panel, .metric-card, .area-card { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: var(--shadow); }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; margin-bottom: 14px; padding: 22px; }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .panel { margin-bottom: 14px; padding: 18px; }
+    .metric-grid, .area-grid, .insight-grid { display: grid; gap: 10px; }
+    .metric-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .area-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .insight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric-card, .area-card { padding: 14px; box-shadow: none; }
+    .metric-card strong { display: block; color: var(--accent); font-size: 1.7rem; line-height: 1; }
+    .metric-card span { display: block; margin-top: 5px; color: var(--muted); font-weight: 700; }
+    .pill { display: inline-flex; min-height: 28px; align-items: center; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
+    .status-complete { background: var(--accent-soft); color: var(--accent); }
+    .status-missing { background: var(--gold-soft); color: var(--gold); }
+    ul, ol { margin: 8px 0 0; padding-left: 20px; }
+    li + li { margin-top: 4px; }
+    @media (max-width: 1000px) { .hero, .metric-grid, .area-grid, .insight-grid { grid-template-columns: 1fr; } }
+  </style>
+  {% include "signals/_app_shell_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="ecosystem" %}
+  <main>
+    <nav class="workspace-tabs" aria-label="Readiness navigation">
+      <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
+      <a class="active" href="{% url 'project-readiness' project.pk %}">Readiness</a>
+      <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Opportunities</a>
+    </nav>
+
+    <header class="hero">
+      <section>
+        <p class="eyebrow">Readiness Engine V1</p>
+        <h1>Readiness Dashboard</h1>
+        <p class="muted">{{ organization.name }} - {{ project.name }}</p>
+      </section>
+      <section class="metric-card">
+        <h2>Overall Readiness</h2>
+        <strong>{{ readiness.overall_score }}</strong>
+        <span>{{ readiness.level }}</span>
+        <p class="muted">Deterministic readiness across mission, programs, outcomes, funding, government, partnerships, resources, and operations.</p>
+      </section>
+    </header>
+
+    <section class="panel">
+      <h2>Organization Completeness</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ readiness.organization_completeness.score }}</strong><span>Organization Completeness Score</span><p><span class="pill">{{ readiness.organization_completeness.level }}</span></p></div>
+        <div class="metric-card"><strong>{{ readiness.organization_completeness.completed_areas|length }}</strong><span>Completed Areas</span></div>
+        <div class="metric-card"><strong>{{ readiness.organization_completeness.missing_areas|length }}</strong><span>Missing Areas</span></div>
+        <div class="metric-card"><strong>{{ readiness.organization_completeness.highest_leverage_missing_area }}</strong><span>Highest Leverage Missing Area</span></div>
+      </div>
+      <div class="area-grid" style="margin-top: 12px;">
+        {% for area in readiness.organization_completeness.areas %}
+          <article class="area-card">
+            <h3>{{ area.label }}</h3>
+            <span class="pill {% if area.complete %}status-complete{% else %}status-missing{% endif %}">{% if area.complete %}Complete{% else %}Missing{% endif %}</span>
+            <p class="muted" style="margin-top: 8px;">{{ area.detail }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Readiness Dimensions</h2>
+      <div class="metric-grid">
+        {% for dimension in readiness.dimensions %}
+          <article class="metric-card">
+            <strong>{{ dimension.score }}</strong>
+            <span>{{ dimension.label }}</span>
+            <p><span class="pill">{{ dimension.level }}</span></p>
+            <p class="muted">{{ dimension.insight }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Opportunity Pursuit Readiness Summary</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ pursuit_summary.average_score }}</strong><span>Opportunity Readiness Average</span></div>
+        <div class="metric-card"><strong>{{ pursuit_summary.ready_opportunities }}</strong><span>Ready Opportunities</span></div>
+        <div class="metric-card"><strong>{{ pursuit_summary.needs_preparation_opportunities }}</strong><span>Needs Preparation</span></div>
+        <div class="metric-card"><strong>{{ pursuit_summary.strongest_opportunity.name|default:"None" }}</strong><span>Strongest Opportunity</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Readiness Strengths and Gaps</h2>
+      <div class="insight-grid">
+        <section>
+          <h3>Readiness Strengths</h3>
+          <ul>
+            {% for strength in readiness.strengths %}
+              <li>{{ strength }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+        <section>
+          <h3>Readiness Gaps</h3>
+          <ul>
+            {% for gap in readiness.gaps %}
+              <li>{{ gap }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Highest Leverage Actions</h2>
+      <ol class="advisor-list">
+        {% for action in readiness.recommended_actions %}
+          <li>{{ action }}<span class="impact-label">Impact: Improves organization and opportunity pursuit readiness.</span></li>
+        {% endfor %}
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
