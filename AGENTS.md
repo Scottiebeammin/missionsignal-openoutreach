@@ -24,6 +24,55 @@ Use Ponytail-style judgment before writing custom code: first ask whether the re
 - Update or add tests near the changed behavior.
 - Run the standard validation commands before committing: `.venv/bin/python manage.py check`, `.venv/bin/python manage.py makemigrations --check --dry-run`, and `.venv/bin/python -m pytest -q tests/missionsignal`.
 
+## Skill and Repo Usage Rules
+
+When working on this project, use any already-installed skills, instructions, project utilities, or reusable workflows that are relevant to the task.
+
+Before writing custom code:
+
+- Check existing project components, utilities, hooks, config, and framework features.
+- Check whether any installed skills or instruction files apply.
+- Prefer existing tools and simple solutions before adding custom code.
+
+When a task could benefit from an external skill, repo, package, or automation tool:
+
+- Recommend it first.
+- Explain what it does in plain English.
+- Use a short analogy so the user understands its purpose.
+- Explain why it may help this project.
+- Ask for approval before downloading, cloning, installing, or running anything.
+
+Do not install everything automatically.
+
+When recommending external repos or skills, use this format:
+
+Recommended:
+
+1. [Repo/tool name]
+
+   - What it does:
+   - Analogy:
+   - Why it helps:
+   - Risk/complexity:
+   - Should I inspect/download it? Yes/No needed from user.
+
+Good repos/tools to consider when relevant:
+
+- ComposioHQ/awesome-codex-skills: curated Codex skills; like an app store for Codex workflows.
+- DietrichGebert/ponytail: encourages using existing libraries/tools before custom code; like a senior dev checking the toolbox before building from scratch.
+- upstash/context7: pulls current documentation into agent workflows; like giving Codex the latest manual.
+- Dimillian/Skills: reusable Codex skill examples; like another developer's playbook.
+- ComfyUI: image-generation workflow automation; like a factory line for visual assets.
+- 11cafe/jaaz: open-source AI creative canvas; like a local Canva-style creative assistant.
+
+Security and safety:
+
+- Flag anything that requires API keys, paid accounts, OAuth, broad permissions, or system-level access.
+- Do not add new dependencies unless clearly justified.
+- Do not run unknown scripts without approval.
+- Do not modify unrelated files.
+- Keep Anansi Atlas brand/project rules separate from general development rules.
+
 ## Project Overview
 
 OpenOutreach — self-hosted LinkedIn automation for B2B lead generation. Playwright + stealth for browser automation, LinkedIn Voyager API for profile data, Django + Django Admin for CRM (models owned by this project).
