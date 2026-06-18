@@ -232,6 +232,9 @@ def test_opportunity_model_defaults_and_string():
     assert opportunity.source_type == Opportunity.SourceType.MANUAL
     assert opportunity.status == Opportunity.Status.ACTIVE
     assert opportunity.priority_level == Opportunity.PriorityLevel.MEDIUM
+    assert opportunity.estimated_value is None
+    assert opportunity.value_confidence == Opportunity.ValueConfidence.MEDIUM
+    assert opportunity.forecast_notes == ""
     assert opportunity.lifecycle_status == Opportunity.LifecycleStatus.DISCOVERED
     assert opportunity.assigned_owner is None
     assert opportunity.lifecycle_notes == ""

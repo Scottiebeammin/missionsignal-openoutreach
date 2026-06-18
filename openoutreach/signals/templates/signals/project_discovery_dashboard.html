@@ -197,6 +197,7 @@
                   <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
                   <span class="score-badge">Match {{ item.match.score }}</span>
                   <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
+                  <span class="pill">Value ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</span>
                 </div>
                 <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
                 <p class="muted">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
@@ -259,6 +260,7 @@
               <th>Lifecycle</th>
               <th>Priority</th>
               <th>Deadline</th>
+              <th>Estimated Value</th>
               <th>Match Score</th>
               <th>Pursuit Readiness</th>
               <th>Submission Readiness</th>
@@ -280,12 +282,13 @@
                   </td>
                   <td><span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span></td>
                   <td>{{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</td>
+                  <td><span class="pill">${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</span></td>
                   <td><span class="score-badge">Match {{ item.match.score }}</span></td>
                   <td><span class="pill">{{ item.pursuit_readiness.score }} {{ item.pursuit_readiness.level }}</span></td>
                   <td><span class="pill">Docs {{ item.document_summary.document_readiness_score }} · Evidence {{ item.document_summary.evidence_readiness_score }} · Submission {{ item.document_summary.submission_readiness_score }}</span></td>
                 </tr>
                 <tr>
-                  <td colspan="8">
+                  <td colspan="9">
                     <details>
                       <summary>View Details</summary>
                       <div class="inventory-grid" style="margin-top: 12px;">
@@ -375,6 +378,7 @@
                   <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
                   <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
                   <span class="score-badge">Match {{ item.match.score }}</span>
+                  <span class="pill">Value ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</span>
                   <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
                   <span class="pill {{ item.match.level|slugify }}">{{ item.match.level }}</span>
                 </div>

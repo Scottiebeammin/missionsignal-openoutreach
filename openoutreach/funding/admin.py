@@ -66,13 +66,17 @@ class SourceOrganizationAdmin(admin.ModelAdmin):
 class OpportunityAdmin(admin.ModelAdmin):
     list_display = (
         "name", "opportunity_type", "source_organization", "source_type",
-        "status", "lifecycle_status", "priority_level", "assigned_owner", "deadline",
+        "status", "lifecycle_status", "priority_level", "estimated_value",
+        "value_confidence", "assigned_owner", "deadline",
     )
     list_filter = (
         "opportunity_type", "source_type", "status", "lifecycle_status",
-        "priority_level", "source_organization", "assigned_owner",
+        "priority_level", "value_confidence", "source_organization", "assigned_owner",
     )
-    search_fields = ("name", "source_name", "source_organization__name", "eligibility_notes", "notes")
+    search_fields = (
+        "name", "source_name", "source_organization__name",
+        "eligibility_notes", "notes", "forecast_notes",
+    )
     raw_id_fields = ("source_organization", "assigned_owner")
     date_hierarchy = "deadline"
 

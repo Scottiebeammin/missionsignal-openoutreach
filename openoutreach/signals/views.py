@@ -16,6 +16,7 @@ from openoutreach.signals.documents import (
 )
 from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import OrganizationIntakeForm
+from openoutreach.signals.forecasting import build_pipeline_forecast
 from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_opportunity_lifecycle
 from openoutreach.signals.matching import build_opportunity_matches
@@ -291,6 +292,7 @@ def project_ecosystem_dashboard(request, pk):
         project, funding_readiness, government_readiness, resource_readiness, partnership_readiness,
     )
     pursuit_summary = build_opportunity_pursuit_summary(project)
+    forecast = build_pipeline_forecast()
     return render(
         request,
         "signals/project_ecosystem_dashboard.html",
@@ -304,6 +306,7 @@ def project_ecosystem_dashboard(request, pk):
             "partnership_readiness": partnership_readiness,
             "readiness": readiness,
             "pursuit_summary": pursuit_summary,
+            "forecast": forecast,
         },
     )
 
@@ -387,6 +390,7 @@ def project_pipeline_workspace(request, pk):
     )
     funding_criteria = getattr(project, "funding_criteria", None)
     discovery = build_discovery_overview(project, funding_criteria)
+    forecast = build_pipeline_forecast()
     return render(
         request,
         "signals/project_pipeline_workspace.html",
@@ -395,6 +399,7 @@ def project_pipeline_workspace(request, pk):
             "organization": project.organization,
             "discovery": discovery,
             "lifecycle": discovery.lifecycle_summary,
+            "forecast": forecast,
         },
     )
 

@@ -91,6 +91,17 @@
     </section>
 
     <section class="panel">
+      <h2>Pipeline Forecast</h2>
+      <div class="metrics">
+        <div class="metric"><span class="muted">Total Value</span><strong>${{ forecast.total_pipeline_value|floatformat:0 }}</strong></div>
+        <div class="metric"><span class="muted">Weighted Value</span><strong>${{ forecast.weighted_forecast_value|floatformat:0 }}</strong><span class="pill">{{ forecast.forecast_confidence }} confidence</span></div>
+        <div class="metric"><span class="muted">Submitted Value</span><strong>${{ forecast.submitted_value|floatformat:0 }}</strong></div>
+        <div class="metric"><span class="muted">Awarded Value</span><strong>${{ forecast.awarded_value|floatformat:0 }}</strong></div>
+        <div class="metric"><span class="muted">Upcoming Deadline Value</span><strong>${{ forecast.upcoming_deadline_value|floatformat:0 }}</strong></div>
+      </div>
+    </section>
+
+    <section class="panel">
       <h2>Lifecycle Board</h2>
       <div class="board">
         {% for stage in discovery.lifecycle_stages %}
@@ -113,6 +124,7 @@
                   <span class="pill">Ready {{ item.pursuit_readiness.score }}</span>
                   <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
                   <span class="pill">{{ item.match.level }}</span>
+                  <span class="pill">Value ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</span>
                 </div>
                 <p class="muted" style="margin: 8px 0 0;">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
                 <p class="muted">Owner: {% if item.opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</p>
@@ -197,6 +209,12 @@
                     <section class="detail-block">
                       <strong>Status History</strong>
                       <p class="muted">Placeholder-ready</p>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Forecast</strong>
+                      <p class="muted">Estimated value: ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</p>
+                      <p class="muted">Weighted contribution: ${{ item.forecast_contribution.weighted_value|floatformat:0 }}</p>
+                      <p class="muted">Confidence: {{ item.forecast_contribution.value_confidence }}</p>
                     </section>
                   </div>
                   <p><strong>Current Stage:</strong> {{ item.opportunity.get_lifecycle_status_display }}</p>

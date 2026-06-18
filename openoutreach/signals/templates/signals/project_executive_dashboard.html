@@ -153,6 +153,21 @@
 
       <section class="panel">
         <div class="panel-header">
+          <h2>Forecast Summary</h2>
+          <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline Forecast</a>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-card"><strong>${{ dashboard.forecast.total_pipeline_value|floatformat:0 }}</strong><span>Total Pipeline Value</span></div>
+          <div class="metric-card"><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><span>Weighted Forecast Value</span><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
+          <div class="metric-card"><strong>${{ dashboard.forecast.submitted_value|floatformat:0 }}</strong><span>Submitted Value</span></div>
+          <div class="metric-card"><strong>${{ dashboard.forecast.awarded_value|floatformat:0 }}</strong><span>Awarded Value</span></div>
+          <div class="metric-card"><strong>{{ dashboard.forecast.highest_value_opportunity.name|default:"None" }}</strong><span>Highest Value Opportunity</span></div>
+          <div class="metric-card"><strong>{{ dashboard.forecast.highest_confidence_opportunity.name|default:"None" }}</strong><span>Highest Confidence Opportunity</span></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
           <h2>Document / Evidence Summary</h2>
           <div class="actions">
             <a class="pill" href="{% url 'project-documents' project.pk %}">Open Document Vault</a>

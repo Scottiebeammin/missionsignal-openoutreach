@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 from openoutreach.funding.models import Opportunity, OpportunityDeadline, OpportunityTask
+from openoutreach.signals.forecasting import OpportunityForecastContribution, forecast_contribution
 from openoutreach.signals.lifecycle import recommended_lifecycle_action
 from openoutreach.signals.matching import OpportunityMatch, score_inventory_opportunity
 
@@ -101,6 +102,7 @@ class OpportunityWorkspaceContext:
     task_summary: TaskSummary
     deadline_summary: DeadlineSummary
     recommended_next_step: str
+    forecast: OpportunityForecastContribution
 
 
 def _target_date(opportunity: Opportunity, days_before_deadline: int):
@@ -260,6 +262,7 @@ def build_opportunity_workspace(project, opportunity: Opportunity, funding_crite
         task_summary=build_task_summary(opportunity),
         deadline_summary=build_deadline_summary(opportunity),
         recommended_next_step=recommended_lifecycle_action(opportunity.lifecycle_status),
+        forecast=forecast_contribution(opportunity),
     )
 
 

@@ -117,6 +117,7 @@
               <span class="score-badge">Match {{ item.match.score }}</span>
             </div>
             <p class="muted">{{ item.opportunity.get_lifecycle_status_display }} · {{ item.opportunity.get_priority_level_display }} priority</p>
+            <p><strong>Estimated Value:</strong> ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }} <strong>Weighted Value:</strong> ${{ item.forecast_contribution.weighted_value|floatformat:0 }}</p>
             <p><strong>Pursuit Readiness:</strong> {{ item.pursuit_readiness.score }} · {{ item.pursuit_readiness.level }}</p>
             <p><strong>Submission Readiness:</strong> Docs {{ item.document_summary.document_readiness_score }} · Evidence {{ item.document_summary.evidence_readiness_score }}</p>
             <a class="button" href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">Open Workspace</a>

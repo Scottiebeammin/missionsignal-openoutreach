@@ -228,6 +228,11 @@ class Opportunity(models.Model):
         MEDIUM = "medium", "Medium"
         LOW = "low", "Low"
 
+    class ValueConfidence(models.TextChoices):
+        LOW = "low", "Low"
+        MEDIUM = "medium", "Medium"
+        HIGH = "high", "High"
+
     class LifecycleStatus(models.TextChoices):
         DISCOVERED = "discovered", "Discovered"
         REVIEWING = "reviewing", "Reviewing"
@@ -258,6 +263,11 @@ class Opportunity(models.Model):
     priority_level = models.CharField(
         max_length=20, choices=PriorityLevel.choices, default=PriorityLevel.MEDIUM,
     )
+    estimated_value = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    value_confidence = models.CharField(
+        max_length=20, choices=ValueConfidence.choices, default=ValueConfidence.MEDIUM,
+    )
+    forecast_notes = models.TextField(blank=True, default="")
     lifecycle_status = models.CharField(
         max_length=40, choices=LifecycleStatus.choices, default=LifecycleStatus.DISCOVERED,
     )

@@ -695,10 +695,45 @@ def _seed_opportunity_database():
             "notes": "Digital equity overlap but weak geography and beneficiary fit for the Cleveland demo profile.",
         },
     ]
+    forecast_values = {
+        "Digital Equity Grant": ("75000.00", Opportunity.ValueConfidence.HIGH, "Local foundation grant with a realistic mid-sized request."),
+        "Workforce Development Grant": ("180000.00", Opportunity.ValueConfidence.HIGH, "Larger workforce grant with strong program fit."),
+        "Youth Technology Initiative": ("240000.00", Opportunity.ValueConfidence.MEDIUM, "Potential city contract value based on service delivery scope."),
+        "Community Partnership Program": ("25000.00", Opportunity.ValueConfidence.MEDIUM, "Partnership value estimated from shared programming and referrals."),
+        "Capacity Building Resource Program": ("15000.00", Opportunity.ValueConfidence.HIGH, "Capacity-building support value estimated from coaching and training."),
+        "Employer Mentorship Sponsorship": ("30000.00", Opportunity.ValueConfidence.MEDIUM, "Corporate sponsorship value for mentors, events, and program support."),
+        "Civic Tech Training Fellowship": ("22000.00", Opportunity.ValueConfidence.MEDIUM, "Training fellowship value based on cohort support."),
+        "County Community Development Contract": ("125000.00", Opportunity.ValueConfidence.MEDIUM, "County contract estimate for outreach and service navigation."),
+        "Small Business Digital Skills Grant": ("60000.00", Opportunity.ValueConfidence.MEDIUM, "Moderate grant estimate for digital skills programming."),
+        "Arts Workforce Youth Residency": ("18000.00", Opportunity.ValueConfidence.LOW, "Lower confidence because fit and scope are less direct."),
+        "Regional Education Innovation Grant": ("95000.00", Opportunity.ValueConfidence.HIGH, "Submitted education grant with clearer request assumptions."),
+        "National Health Access Training Program": ("12000.00", Opportunity.ValueConfidence.LOW, "Training value is modest and weaker fit for the demo profile."),
+        "Technology Equipment Donation Round": ("40000.00", Opportunity.ValueConfidence.HIGH, "Won equipment value based on device and software support."),
+        "Library Digital Navigator Contract": ("210000.00", Opportunity.ValueConfidence.HIGH, "Local government service contract with strong digital navigation fit."),
+        "Housing Stability Outreach Mini Grant": ("20000.00", Opportunity.ValueConfidence.LOW, "Mini grant value for adjacent community outreach work."),
+        "Youth Career Exploration Sponsorship": ("45000.00", Opportunity.ValueConfidence.HIGH, "High-priority sponsorship for youth career events."),
+        "Community Arts Technology Lab": ("14000.00", Opportunity.ValueConfidence.LOW, "Lower confidence value for an adjacent capacity-building cohort."),
+        "National Volunteer Tutor Network": ("5000.00", Opportunity.ValueConfidence.LOW, "Archived weak-fit volunteer partnership with limited forecast value."),
+        "Workforce Board Incumbent Worker Training": ("85000.00", Opportunity.ValueConfidence.MEDIUM, "Workforce training value based on provider support assumptions."),
+        "Community Data Evaluation Support": ("18000.00", Opportunity.ValueConfidence.MEDIUM, "Technical assistance value tied to evaluation support."),
+        "Veterans Digital Career Transition Grant": ("70000.00", Opportunity.ValueConfidence.MEDIUM, "Moderate grant value for specialized workforce transition work."),
+        "LGBTQ+ Youth Mental Health Partnership": ("22000.00", Opportunity.ValueConfidence.LOW, "Partnership value is useful but outside the core demo lane."),
+        "Inclusive Technology Access Resource Round": ("35000.00", Opportunity.ValueConfidence.MEDIUM, "Resource value for accessibility and assistive technology support."),
+        "Neighborhood Food Access Volunteer Program": ("8000.00", Opportunity.ValueConfidence.LOW, "Volunteer support value for adjacent wraparound services."),
+        "Justice-Involved Workforce Reentry Contract": ("160000.00", Opportunity.ValueConfidence.MEDIUM, "Contract value for specialized workforce reentry services."),
+        "Senior Digital Inclusion Training": ("28000.00", Opportunity.ValueConfidence.MEDIUM, "Training value for local digital inclusion programming."),
+        "Immigrant Career Pathways Partnership": ("55000.00", Opportunity.ValueConfidence.MEDIUM, "Partnership value from local workforce and referral activity."),
+        "Environmental Justice Youth Civic Lab": ("24000.00", Opportunity.ValueConfidence.LOW, "Capacity-building estimate for an adjacent civic learning lane."),
+        "Rural Communities Broadband Learning Grant": ("50000.00", Opportunity.ValueConfidence.LOW, "Digital equity overlap but lower confidence because geography is weak."),
+    }
     for opportunity in opportunities:
         name = opportunity.pop("name")
         source_name = opportunity.get("source_name", "")
         opportunity["source_organization"] = sources.get(source_name)
+        estimated_value, confidence, notes = forecast_values[name]
+        opportunity["estimated_value"] = estimated_value
+        opportunity["value_confidence"] = confidence
+        opportunity["forecast_notes"] = notes
         Opportunity.objects.update_or_create(name=name, defaults=opportunity)
 
 

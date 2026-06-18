@@ -71,6 +71,9 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "National Health Access Training Program",
         "Youth Career Exploration Sponsorship",
     ]).count() == 7
+    assert Opportunity.objects.filter(estimated_value__isnull=False).count() >= 20
+    assert Opportunity.objects.filter(value_confidence=Opportunity.ValueConfidence.HIGH).exists()
+    assert Opportunity.objects.filter(value_confidence=Opportunity.ValueConfidence.LOW).exists()
     assert Celebration.objects.filter(project=first_project).count() == 8
     assert Celebration.objects.filter(title__in=[
         "Digital Equity Grant Awarded",

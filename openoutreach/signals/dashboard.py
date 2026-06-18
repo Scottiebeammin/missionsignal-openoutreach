@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from openoutreach.funding.models import Opportunity, SourceOrganization
 from openoutreach.signals.celebrations import CelebrationOverview, build_celebration_overview
 from openoutreach.signals.documents import DocumentEvidenceHealth, build_document_evidence_health
+from openoutreach.signals.forecasting import PipelineForecast, build_pipeline_forecast
 from openoutreach.signals.lifecycle import LifecycleSummary
 from openoutreach.signals.models import OrganizationAnalysisRun
 from openoutreach.signals.opportunity_work import OpportunityWorkSummary, build_work_summary
@@ -80,6 +81,7 @@ class ExecutiveDashboard:
     pursuit_summary: OpportunityPursuitSummary
     document_evidence_health: DocumentEvidenceHealth
     celebration_overview: CelebrationOverview
+    forecast: PipelineForecast
 
 
 def _top_insight(readiness) -> str:
@@ -238,4 +240,5 @@ def build_executive_dashboard(
         pursuit_summary=pursuit_summary,
         document_evidence_health=document_evidence_health,
         celebration_overview=build_celebration_overview(project),
+        forecast=build_pipeline_forecast(),
     )

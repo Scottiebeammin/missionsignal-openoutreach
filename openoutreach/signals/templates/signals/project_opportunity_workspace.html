@@ -92,7 +92,26 @@
         <div class="metric-card"><strong>{{ opportunity.get_lifecycle_status_display }}</strong><span>Lifecycle Status</span></div>
         <div class="metric-card"><strong>{% if opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</strong><span>Owner</span><p class="muted">{{ opportunity.assigned_owner|default:"Owner: Unassigned" }}</p></div>
         <div class="metric-card"><strong>{{ opportunity.deadline|date:"M j, Y"|default:"Not set" }}</strong><span>Deadline</span><p><span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }} Priority</span></p></div>
+        <div class="metric-card"><strong>${{ workspace.forecast.estimated_value|floatformat:0|default:"0" }}</strong><span>Estimated Value</span><p><span class="pill">{{ workspace.forecast.value_confidence }} Confidence</span></p></div>
+        <div class="metric-card"><strong>${{ workspace.forecast.weighted_value|floatformat:0 }}</strong><span>Weighted Forecast Contribution</span><p class="muted">{{ workspace.forecast.stage_weight_percent }}% stage weight</p></div>
       </div>
+      <details style="margin-top: 12px;">
+        <summary>Forecast</summary>
+        <div class="requirement-grid" style="margin-top: 10px;">
+          <article class="requirement-card">
+            <h3>Estimated Value</h3>
+            <p class="muted">${{ workspace.forecast.estimated_value|floatformat:0|default:"0" }}</p>
+          </article>
+          <article class="requirement-card">
+            <h3>Value Confidence</h3>
+            <p class="muted">{{ workspace.forecast.value_confidence }}</p>
+          </article>
+          <article class="requirement-card">
+            <h3>Forecast Notes</h3>
+            <p class="muted">{{ workspace.forecast.forecast_notes|default:"No forecast notes yet." }}</p>
+          </article>
+        </div>
+      </details>
       <details style="margin-top: 12px;">
         <summary>Readiness Details</summary>
         <div class="requirement-grid" style="margin-top: 10px;">
