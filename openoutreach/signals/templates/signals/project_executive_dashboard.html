@@ -244,7 +244,10 @@
       <section class="panel">
         <div class="panel-header">
           <h2>Opportunity Web Summary</h2>
-          <a class="pill" href="{% url 'project-opportunity-web' project.pk %}">View Opportunity Web</a>
+          <div class="actions">
+            <a class="pill" href="{% url 'project-opportunity-web' project.pk %}">View Opportunity Web</a>
+            <a class="pill" href="{% url 'project-snapshot' project.pk %}">View Opportunity Web Snapshot</a>
+          </div>
         </div>
         <div class="metric-grid">
           <div class="metric-card"><strong>{{ opportunity_web.relationship_health_score }}</strong><span>Relationship Health</span></div>

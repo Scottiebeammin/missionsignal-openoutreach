@@ -1,5 +1,7 @@
 from django import forms
 
+from openoutreach.signals.models import InterestSignup
+
 
 def _split_lines(value: str) -> list[str]:
     return [line.strip() for line in value.splitlines() if line.strip()]
@@ -70,3 +72,20 @@ class OrganizationIntakeForm(forms.Form):
 
     def clean_existing_partnerships(self):
         return _split_lines(self.cleaned_data["existing_partnerships"])
+
+
+class InterestSignupForm(forms.ModelForm):
+    class Meta:
+        model = InterestSignup
+        fields = [
+            "name",
+            "organization",
+            "email",
+            "role",
+            "website",
+            "interest_type",
+            "message",
+        ]
+        widgets = {
+            "message": forms.Textarea(attrs={"rows": 4}),
+        }

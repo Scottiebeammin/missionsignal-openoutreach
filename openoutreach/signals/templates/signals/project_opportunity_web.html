@@ -73,6 +73,7 @@
       <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
       <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
       <a class="active" href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
+      <a href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
       <a href="{% url 'project-relationships' project.pk %}">Relationships</a>
       <a href="{% url 'project-opportunities' project.pk %}">Opportunities</a>
     </nav>
@@ -88,6 +89,7 @@
         <strong>{{ web.relationship_health_score }}</strong>
         <span>Relationship Health</span>
         <p class="muted">{{ web.active_opportunities }} active opportunities · ${{ web.forecast_value|floatformat:0 }} weighted forecast</p>
+        <p><a class="pill" href="{% url 'project-snapshot' project.pk %}">View Opportunity Web Snapshot</a></p>
       </section>
     </header>
 

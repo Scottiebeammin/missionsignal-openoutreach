@@ -3,6 +3,9 @@ from django.urls import path
 from openoutreach.signals import views
 
 urlpatterns = [
+    path("anansi-atlas/", views.public_landing_page, name="anansi-atlas-landing"),
+    path("anansi-atlas/thanks/", views.public_landing_thanks, name="anansi-atlas-thanks"),
+    path("pilot/", views.pilot_onboarding, name="pilot-onboarding"),
     path("", views.project_intake, name="project-intake"),
     path("projects/<int:pk>/created/", views.project_intake_success, name="project-intake-success"),
     path("projects/<int:pk>/analysis/", views.project_analysis_detail, name="project-analysis-detail"),
@@ -40,6 +43,11 @@ urlpatterns = [
         "projects/<int:pk>/web/",
         views.project_opportunity_web,
         name="project-opportunity-web",
+    ),
+    path(
+        "projects/<int:pk>/snapshot/",
+        views.project_snapshot,
+        name="project-snapshot",
     ),
     path(
         "projects/<int:pk>/matches/",

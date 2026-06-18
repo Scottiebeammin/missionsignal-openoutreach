@@ -10,12 +10,13 @@ from openoutreach.signals.celebrations import build_celebration_overview
 from openoutreach.signals.dashboard import build_executive_dashboard
 from openoutreach.signals.discovery import build_discovery_overview
 from openoutreach.signals.documents import (
+    build_document_evidence_health,
     build_document_vault_summary,
     build_evidence_library_summary,
     build_opportunity_document_summary,
 )
 from openoutreach.signals.ecosystem import build_ecosystem_overview
-from openoutreach.signals.forms import OrganizationIntakeForm
+from openoutreach.signals.forms import InterestSignupForm, OrganizationIntakeForm
 from openoutreach.signals.forecasting import build_pipeline_forecast
 from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_opportunity_lifecycle
@@ -43,6 +44,7 @@ from openoutreach.signals.score_transparency import (
     explain_relationship_health,
 )
 from openoutreach.signals.services import create_organization_intake
+from openoutreach.signals.snapshot import build_opportunity_web_snapshot
 
 
 MODULE_PLACEHOLDERS = {
@@ -55,6 +57,26 @@ MODULE_PLACEHOLDERS = {
         ),
     },
 }
+
+
+def public_landing_page(request):
+    if request.method == "POST":
+        form = InterestSignupForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("anansi-atlas-thanks")
+    else:
+        form = InterestSignupForm()
+    return render(request, "signals/public_landing.html", {"form": form})
+
+
+def public_landing_thanks(request):
+    return render(request, "signals/public_landing_thanks.html")
+
+
+def pilot_onboarding(request):
+    form = InterestSignupForm(initial={"interest_type": "founding_atlas_partners"})
+    return render(request, "signals/pilot_onboarding.html", {"form": form})
 
 
 @login_required
@@ -286,6 +308,44 @@ def project_opportunity_web(request, pk):
             "project": project,
             "organization": project.organization,
             "web": build_opportunity_web(project, discovery),
+        },
+    )
+
+
+@login_required
+def project_snapshot(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    funding_criteria = getattr(project, "funding_criteria", None)
+    funding_readiness = build_funding_readiness(project, funding_criteria)
+    government_readiness = build_government_readiness(project, funding_criteria)
+    resource_readiness = build_resource_readiness(project, funding_criteria)
+    partnership_readiness = build_partnership_readiness(project, funding_criteria)
+    discovery = build_discovery_overview(project, funding_criteria)
+    match_overview = build_opportunity_matches(project, funding_criteria)
+    readiness = build_readiness_overview(
+        project, funding_readiness, government_readiness, resource_readiness, partnership_readiness,
+    )
+    web = build_opportunity_web(project, discovery)
+    snapshot = build_opportunity_web_snapshot(
+        project,
+        web,
+        readiness,
+        funding_readiness,
+        partnership_readiness,
+        discovery,
+        build_document_evidence_health(project),
+        match_overview,
+    )
+    return render(
+        request,
+        "signals/project_snapshot.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "snapshot": snapshot,
+            "web": web,
         },
     )
 

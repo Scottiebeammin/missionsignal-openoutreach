@@ -24,7 +24,7 @@ from openoutreach.funding.models import (
     SourceOrganization,
     default_scoring_weights,
 )
-from openoutreach.signals.models import Celebration, OrganizationAnalysisRun, OrganizationSourcePage
+from openoutreach.signals.models import Celebration, InterestSignup, OrganizationAnalysisRun, OrganizationSourcePage
 from openoutreach.signals.models import OrganizationContact, PartnerOrganization as RelationshipPartnerOrganization
 from openoutreach.sources.models import SearchQuery, Source, SourceRecord
 
@@ -129,6 +129,21 @@ def test_celebration_model_defaults_and_string(project):
     assert celebration.organization_name == ""
     assert celebration.website == ""
     assert celebration.celebration_type == Celebration.CelebrationType.IMPACT_MILESTONE
+
+
+def test_interest_signup_model_defaults_and_string():
+    signup = InterestSignup.objects.create(
+        name="Jordan Lee",
+        organization="Mission Works",
+        email="jordan@example.org",
+        interest_type=InterestSignup.InterestType.OPPORTUNITY_WEB_SNAPSHOT,
+    )
+
+    assert str(signup) == "Mission Works — jordan@example.org"
+    assert signup.status == InterestSignup.Status.NEW
+    assert signup.role == ""
+    assert signup.website == ""
+    assert signup.message == ""
 
 
 def test_relationship_contact_model_defaults_and_string(project):
@@ -363,6 +378,7 @@ def test_opportunity_database_models_are_registered_in_admin():
     assert admin.site.is_registered(SourceOrganization)
     assert admin.site.is_registered(OrganizationContact)
     assert admin.site.is_registered(RelationshipPartnerOrganization)
+    assert admin.site.is_registered(InterestSignup)
 
 
 

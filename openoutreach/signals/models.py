@@ -37,6 +37,41 @@ class OrganizationSourcePage(models.Model):
         return self.title or self.url
 
 
+class InterestSignup(models.Model):
+    class InterestType(models.TextChoices):
+        OPPORTUNITY_WEB_SNAPSHOT = "opportunity_web_snapshot", "Get Opportunity Web Snapshot"
+        FOUNDING_ATLAS_PARTNERS = "founding_atlas_partners", "Join Founding Atlas Partners"
+        NEWSLETTER_UPDATES = "newsletter_updates", "Newsletter / Updates"
+        PARTNERSHIP_INQUIRY = "partnership_inquiry", "Partnership Inquiry"
+
+    class Status(models.TextChoices):
+        NEW = "new", "New"
+        REVIEWED = "reviewed", "Reviewed"
+        CONTACTED = "contacted", "Contacted"
+        CONVERTED = "converted", "Converted"
+        ARCHIVED = "archived", "Archived"
+
+    name = models.CharField(max_length=300)
+    organization = models.CharField(max_length=300)
+    email = models.EmailField()
+    role = models.CharField(max_length=300, blank=True, default="")
+    website = models.URLField(max_length=500, blank=True, default="")
+    interest_type = models.CharField(
+        max_length=40,
+        choices=InterestType.choices,
+        default=InterestType.OPPORTUNITY_WEB_SNAPSHOT,
+    )
+    message = models.TextField(blank=True, default="")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at", "organization", "name")
+
+    def __str__(self):
+        return f"{self.organization} — {self.email}"
+
+
 class OrganizationAnalysisRun(models.Model):
     class Status(models.TextChoices):
         PENDING = "pending", "Pending"

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Opportunity Web Snapshot - {{ organization.name }}</title>
+  {% include "signals/_app_shell_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="snapshot" %}
+  <main>
+    <nav class="workspace-tabs" aria-label="Snapshot navigation">
+      <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
+      <a href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
+      <a class="active" href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
+      <a href="{% url 'project-readiness' project.pk %}">Readiness</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Opportunities</a>
+    </nav>
+
+    <header class="hero">
+      <section>
+        <p class="eyebrow">Opportunity Web Snapshot V1</p>
+        <h1>Opportunity Web Snapshot</h1>
+        <p class="muted">{{ organization.name }} - {{ project.name }}</p>
+      </section>
+      <section class="metric-card advisor-panel">
+        <h2>Readiness Score</h2>
+        <strong>{{ snapshot.readiness_score }}</strong>
+        <span>{{ snapshot.readiness_level }}</span>
+      </section>
+    </header>
+
+    <section class="panel">
+      <h2>Mission Overview</h2>
+      <p class="muted">{{ snapshot.mission_overview }}</p>
+    </section>
+
+    <section class="panel">
+      <h2>Opportunity Web Summary</h2>
+      <div class="metric-grid">
+        {% for label, value in snapshot.opportunity_web_summary %}
+          <div class="metric-card"><strong>{{ value }}</strong><span>{{ label }}</span></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Pathways</h2>
+      <div class="insight-grid">
+        <section>
+          <h3>Top Funder Pathways</h3>
+          <ul>
+            {% for pathway in snapshot.top_funder_pathways %}
+              <li>{{ pathway }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+        <section>
+          <h3>Top Partner Pathways</h3>
+          <ul>
+            {% for pathway in snapshot.top_partner_pathways %}
+              <li>{{ pathway }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Top Opportunities</h2>
+      <div class="compact-grid">
+        {% for item in snapshot.top_opportunities %}
+          <article class="compact-card">
+            <strong>{{ item.opportunity.name }}</strong>
+            <span class="score-badge">Score {{ item.match.score }}</span>
+            <p class="muted">{{ item.opportunity.get_opportunity_type_display }} · {{ item.opportunity.get_priority_level_display }} priority</p>
+          </article>
+        {% empty %}
+          <div class="empty-state"><strong>No opportunities yet</strong>Add opportunities to Discovery to populate the Snapshot.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Top Resource Gaps</h2>
+      <div class="summary-grid">
+        {% for gap in snapshot.top_resource_gaps %}
+          <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Resource gap</span></article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Top Risks / Gaps</h2>
+      <div class="summary-grid">
+        {% for gap in snapshot.top_risks_gaps %}
+          <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Snapshot gap</span></article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="advisor-panel">
+      <h2>Top 5 Recommended Next Actions</h2>
+      <ol class="advisor-list">
+        {% for action in snapshot.recommended_next_actions %}
+          <li>{{ action }}<span class="impact-label">Impact: Improves the Opportunity Web Snapshot and future pursuit readiness.</span></li>
+        {% endfor %}
+      </ol>
+    </section>
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>
