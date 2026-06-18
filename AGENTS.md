@@ -10,6 +10,20 @@
 - **Error handling**: App should crash on unexpected errors. `try/except` only for expected, recoverable errors. Custom exceptions in `exceptions.py`.
 - **No API backward compat**: Project has no external users yet — don't preserve old Python APIs, function signatures, or import paths. Rename, delete, and rewrite freely; no shims or re-export modules. DB schema changes still go through Django migrations as normal — existing installs must upgrade cleanly.
 
+## Ponytail Development Guidance
+
+Use Ponytail-style judgment before writing custom code: first ask whether the requested thing needs to exist at all, then prefer the standard library, Django/framework features, native platform behavior, installed dependencies, existing project utilities, and one-line/simple solutions before adding new infrastructure.
+
+- Prefer existing project patterns before inventing new ones.
+- Prefer Django and framework features before custom infrastructure.
+- Reuse existing helpers, templates, services, management commands, and tests wherever practical.
+- Check installed packages and `requirements/*.txt` before adding dependencies.
+- Avoid unnecessary dependencies, premature abstraction, broad refactors, and clever code when a small readable change will do.
+- Keep changes scoped to the requested feature and preserve app behavior unless the prompt explicitly asks for behavior changes.
+- Do not reduce validation, security, accessibility, data-loss handling, or expected error handling just to make code shorter.
+- Update or add tests near the changed behavior.
+- Run the standard validation commands before committing: `.venv/bin/python manage.py check`, `.venv/bin/python manage.py makemigrations --check --dry-run`, and `.venv/bin/python -m pytest -q tests/missionsignal`.
+
 ## Project Overview
 
 OpenOutreach — self-hosted LinkedIn automation for B2B lead generation. Playwright + stealth for browser automation, LinkedIn Voyager API for profile data, Django + Django Admin for CRM (models owned by this project).
