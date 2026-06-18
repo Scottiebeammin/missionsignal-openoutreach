@@ -55,6 +55,17 @@
     </section>
 
     <section class="panel">
+      <h2>Connected to Pursuit Readiness</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ document_summary.readiness_score }}</strong><span>Document readiness score</span></div>
+        <div class="metric-card"><strong>{{ document_summary.missing_critical_documents|length }}</strong><span>Critical gaps affecting opportunities</span></div>
+        <div class="metric-card"><strong>{{ document_summary.available_documents }}</strong><span>Ready for reuse</span></div>
+        <div class="metric-card"><strong>{{ document_summary.needs_update_documents }}</strong><span>Needs refresh before pursuit</span></div>
+      </div>
+      <p class="muted" style="margin-top: 10px;">Documents support readiness, submission quality, and opportunity pursuit. Use this page to close gaps that block applications and contracts.</p>
+    </section>
+
+    <section class="panel">
       <h2>Missing Critical Documents</h2>
       <div class="item-grid">
         {% for item in document_summary.missing_critical_documents %}
@@ -65,10 +76,11 @@
       </div>
     </section>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Document List by Status</summary>
       <h2>Document List by Status</h2>
       {% for label, items in document_summary.grouped_by_status %}
-        <details open>
+        <details>
           <summary>{{ label }} ({{ items|length }})</summary>
           <div class="item-grid" style="margin-top: 10px;">
             {% for item in items %}
@@ -81,9 +93,10 @@
           </div>
         </details>
       {% endfor %}
-    </section>
+    </details>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Document List by Type</summary>
       <h2>Document List by Type</h2>
       {% for label, items in document_summary.grouped_by_type %}
         <details>
@@ -95,7 +108,7 @@
           </div>
         </details>
       {% endfor %}
-    </section>
+    </details>
     {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>

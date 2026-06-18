@@ -60,6 +60,19 @@
     </header>
 
     <section class="panel">
+      <h2>Readiness Health</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ readiness.overall_score }}</strong><span>Overall Readiness</span><p><span class="pill">{{ readiness.level }}</span></p></div>
+        <div class="metric-card"><strong>{{ readiness.organization_completeness.score }}</strong><span>Organization Completeness</span><p><span class="pill">{{ readiness.organization_completeness.level }}</span></p></div>
+        <div class="metric-card"><strong>{{ readiness.document_readiness_score }}</strong><span>Document Readiness</span></div>
+        <div class="metric-card"><strong>{{ readiness.evidence_readiness_score }}</strong><span>Evidence Readiness</span></div>
+        <div class="metric-card"><strong>{{ readiness.gaps.0|default:"No readiness gap" }}</strong><span>Top Gap</span></div>
+        <div class="metric-card"><strong>{{ readiness.recommended_actions.0|default:"Maintain readiness" }}</strong><span>Highest Leverage Action</span></div>
+      </div>
+    </section>
+
+    <details class="panel">
+      <summary>Organization Completeness</summary>
       <h2>Organization Completeness</h2>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ readiness.organization_completeness.score }}</strong><span>Organization Completeness Score</span><p><span class="pill">{{ readiness.organization_completeness.level }}</span></p></div>
@@ -76,9 +89,10 @@
           </article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Readiness Dimensions</summary>
       <h2>Readiness Dimensions</h2>
       <div class="metric-grid">
         {% for dimension in readiness.dimensions %}
@@ -90,7 +104,7 @@
           </article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Document and Evidence Readiness</h2>
@@ -101,7 +115,8 @@
       </div>
     </section>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Opportunity Pursuit Readiness Summary</summary>
       <h2>Opportunity Pursuit Readiness Summary</h2>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ pursuit_summary.average_score }}</strong><span>Opportunity Readiness Average</span></div>
@@ -109,9 +124,10 @@
         <div class="metric-card"><strong>{{ pursuit_summary.needs_preparation_opportunities }}</strong><span>Needs Preparation</span></div>
         <div class="metric-card"><strong>{{ pursuit_summary.strongest_opportunity.name|default:"None" }}</strong><span>Strongest Opportunity</span></div>
       </div>
-    </section>
+    </details>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Readiness Strengths and Gaps</summary>
       <h2>Readiness Strengths and Gaps</h2>
       <div class="insight-grid">
         <section>
@@ -131,7 +147,7 @@
           </ul>
         </section>
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Highest Leverage Actions</h2>

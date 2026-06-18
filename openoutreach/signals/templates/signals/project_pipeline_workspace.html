@@ -108,11 +108,14 @@
           <article class="stage-column">
             <header><span>{{ stage.label }}</span><span class="pill">{{ stage.count }}</span></header>
             <p class="muted stage-description">{{ stage.description }}</p>
-            <ul class="stage-actions">
-              {% for action in stage.recommended_actions %}
-                <li>{{ action }}</li>
-              {% endfor %}
-            </ul>
+            <details>
+              <summary>Stage prompts</summary>
+              <ul class="stage-actions">
+                {% for action in stage.recommended_actions %}
+                  <li>{{ action }}</li>
+                {% endfor %}
+              </ul>
+            </details>
             {% for item in stage.opportunities %}
               <section class="opportunity-card">
                 <h3>{{ item.opportunity.name }}</h3>
@@ -130,7 +133,6 @@
                 <p class="muted">Owner: {% if item.opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</p>
                 <p class="muted">Open tasks: {{ item.task_summary.open_tasks }} · Overdue tasks: {{ item.task_summary.overdue_tasks }}</p>
                 <p class="muted">Next deadline: {{ item.deadline_summary.next_deadline.deadline.deadline_date|date:"M j, Y"|default:"Not set" }}</p>
-                <p class="muted">Docs Ready: {{ item.document_summary.available_requirements }} · Docs Missing: {{ item.document_summary.missing_requirements }} · Evidence Missing: {{ item.document_summary.needed_evidence|length }}</p>
                 <p><strong>Next:</strong> {{ stage.recommended_next_step }}</p>
                 <div class="card-actions" aria-label="Lifecycle actions">
                   <a class="action-button" href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">Open Workspace</a>
@@ -165,6 +167,12 @@
                     <section class="detail-block">
                       <strong>Lifecycle Notes</strong>
                       <p class="muted">{{ item.opportunity.lifecycle_notes|default:"No lifecycle notes yet." }}</p>
+                    </section>
+                    <section class="detail-block">
+                      <strong>Submission Context</strong>
+                      <p class="muted">Docs Ready: {{ item.document_summary.available_requirements }}</p>
+                      <p class="muted">Docs Missing: {{ item.document_summary.missing_requirements }}</p>
+                      <p class="muted">Evidence Missing: {{ item.document_summary.needed_evidence|length }}</p>
                     </section>
                     <section class="detail-block">
                       <strong>Eligibility Notes</strong>

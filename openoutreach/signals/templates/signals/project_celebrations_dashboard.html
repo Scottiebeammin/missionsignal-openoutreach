@@ -57,6 +57,17 @@
       </div>
     </section>
 
+    <section class="panel submission-placeholder">
+      <h2>Executive Celebration Brief</h2>
+      <p class="muted">Use celebrations to preserve evidence of momentum: awards, partnerships, program launches, and impact stories that strengthen board updates, funder conversations, and opportunity pursuit.</p>
+      <div class="metrics">
+        <div class="metric"><span class="muted">Most recent win</span><strong>{{ celebrations.recent_celebrations.0.title|default:"None yet" }}</strong></div>
+        <div class="metric"><span class="muted">Featured highlights</span><strong>{{ celebrations.featured_celebrations|length }}</strong></div>
+        <div class="metric"><span class="muted">Opportunity wins</span><strong>{{ celebrations.metrics.opportunities_awarded }}</strong></div>
+        <div class="metric"><span class="muted">Partnership momentum</span><strong>{{ celebrations.metrics.partnerships_formed }}</strong></div>
+      </div>
+    </section>
+
     <section class="panel">
       <h2>Impact Highlights</h2>
       <div class="grid">
@@ -73,7 +84,8 @@
       </div>
     </section>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Recent Celebration Feed</summary>
       <h2>Recent Celebration Feed</h2>
       <div class="grid">
         {% for celebration in celebrations.recent_celebrations %}
@@ -88,7 +100,7 @@
           <div class="empty-state"><strong>No celebrations yet</strong>Wins, milestones, and progress highlights will appear here.</div>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     {% include "signals/_app_shell_footer.html" %}
   </main>
