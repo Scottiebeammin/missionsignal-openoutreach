@@ -1,5 +1,7 @@
 import pytest
+from django.core import mail
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from django.urls import reverse
 
 from openoutreach.signals.demo import seed_missionsignal_demo
@@ -31,7 +33,9 @@ def test_public_landing_page_renders_without_login(client):
     assert "Scott Foundry Group LLC" in content
 
 
-def test_interest_signup_form_submission_stores_local_record(client):
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+def test_interest_signup_form_submission_stores_local_record_and_sends_email(client):
+    mail.outbox = []
     response = client.post(
         reverse("anansi-atlas-landing"),
         {
@@ -51,6 +55,46 @@ def test_interest_signup_form_submission_stores_local_record(client):
     assert signup.name == "Jordan Lee"
     assert signup.organization == "Mission Works"
     assert signup.email == "jordan@example.org"
+    assert signup.status == InterestSignup.Status.NEW
+    assert len(mail.outbox) == 1
+    notification = mail.outbox[0]
+    assert notification.to == ["info@anansiatlas.com"]
+    assert notification.subject == "New Anansi Atlas interest signup"
+    assert "Name: Jordan Lee" in notification.body
+    assert "Organization: Mission Works" in notification.body
+    assert "Email: jordan@example.org" in notification.body
+    assert "Role / Title: Executive Director" in notification.body
+    assert "Website: https://mission.example.org" in notification.body
+    assert "Interest Type: Get Opportunity Web Snapshot" in notification.body
+    assert "Message: We want a snapshot." in notification.body
+    assert "Created At:" in notification.body
+
+
+def test_interest_signup_email_failure_does_not_break_signup(client, monkeypatch):
+    def fail_send_mail(*args, **kwargs):
+        raise RuntimeError("email server unavailable")
+
+    monkeypatch.setattr("openoutreach.signals.notifications.send_mail", fail_send_mail)
+
+    response = client.post(
+        reverse("anansi-atlas-landing"),
+        {
+            "name": "Taylor Kim",
+            "organization": "Neighborhood Futures",
+            "email": "taylor@example.org",
+            "role": "Development Director",
+            "website": "https://neighborhood.example.org",
+            "interest_type": InterestSignup.InterestType.FOUNDING_ATLAS_PARTNERS,
+            "message": "We want to join the pilot.",
+        },
+    )
+
+    signup = InterestSignup.objects.get()
+    assert response.status_code == 302
+    assert response.url == reverse("anansi-atlas-thanks")
+    assert signup.name == "Taylor Kim"
+    assert signup.organization == "Neighborhood Futures"
+    assert signup.email == "taylor@example.org"
     assert signup.status == InterestSignup.Status.NEW
 
 

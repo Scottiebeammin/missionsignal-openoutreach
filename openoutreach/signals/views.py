@@ -17,6 +17,7 @@ from openoutreach.signals.documents import (
 )
 from openoutreach.signals.ecosystem import build_ecosystem_overview
 from openoutreach.signals.forms import InterestSignupForm, OrganizationIntakeForm
+from openoutreach.signals.notifications import notify_interest_signup
 from openoutreach.signals.forecasting import build_pipeline_forecast
 from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_opportunity_lifecycle
@@ -63,7 +64,8 @@ def public_landing_page(request):
     if request.method == "POST":
         form = InterestSignupForm(request.POST)
         if form.is_valid():
-            form.save()
+            signup = form.save()
+            notify_interest_signup(signup)
             return redirect("anansi-atlas-thanks")
     else:
         form = InterestSignupForm()
