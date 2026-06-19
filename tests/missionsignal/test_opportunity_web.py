@@ -37,6 +37,17 @@ def test_opportunity_web_overview_builds_nodes_and_gaps(opportunity_web_project)
     assert web.forecast_value > 0
     assert web.opportunity_gaps
     assert web.highest_leverage_actions
+    assert web.ecosystem_health > 0
+    assert web.ecosystem_health_level
+    assert web.strongest_asset
+    assert web.biggest_constraint
+    assert web.highest_leverage_relationship
+    assert web.highest_leverage_opportunity
+    assert web.opportunity_insight
+    assert web.relationship_insight
+    assert web.readiness_insight
+    assert web.ecosystem_insight
+    assert len(web.strategic_moves) == 3
 
 
 def test_project_member_can_view_opportunity_web_page(client, opportunity_web_project):
@@ -47,9 +58,24 @@ def test_project_member_can_view_opportunity_web_page(client, opportunity_web_pr
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Opportunity Web Visualization V1" in content
+    assert "Opportunity Web V2" in content
     assert "The Web of Opportunity" in content
-    assert "Opportunity Web Pathway" in content
+    assert "Executive Ecosystem Summary" in content
+    assert "Ecosystem Health" in content
+    assert "Strongest Asset" in content
+    assert "Biggest Constraint" in content
+    assert "Highest Leverage Relationship" in content
+    assert "Highest Leverage Opportunity" in content
+    assert "Web of Opportunity Story" in content
+    assert "Mission creates the center" in content
+    assert "Top 3 Strategic Moves" in content
+    assert "Opportunity Web Insights" in content
+    assert "Opportunity Insight" in content
+    assert "Relationship Insight" in content
+    assert "Readiness Insight" in content
+    assert "Ecosystem Insight" in content
+    assert "Snapshot is the executive interpretation of this web" in content
+    assert "Connected Ecosystem Detail" in content
     assert "Mission Node" in content
     assert "Funders Node" in content
     assert "Partners Node" in content

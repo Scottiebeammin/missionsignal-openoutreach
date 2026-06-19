@@ -24,6 +24,17 @@ class OpportunityWebOverview:
     relationship_health_score: int
     active_opportunities: int
     forecast_value: object
+    ecosystem_health: int
+    ecosystem_health_level: str
+    strongest_asset: str
+    biggest_constraint: str
+    highest_leverage_relationship: str
+    highest_leverage_opportunity: str
+    opportunity_insight: str
+    relationship_insight: str
+    readiness_insight: str
+    ecosystem_insight: str
+    strategic_moves: list[str]
 
 
 def _has_text(value) -> bool:
@@ -245,6 +256,69 @@ def _outcomes_node(project) -> WebNode:
     )
 
 
+def _health_level(score: int) -> str:
+    if score >= 85:
+        return "Advanced"
+    if score >= 70:
+        return "Competitive"
+    if score >= 50:
+        return "Developing"
+    return "Emerging"
+
+
+def _first_specific_highlight(nodes: list[WebNode]) -> str:
+    for node in nodes:
+        for highlight in node.highlights:
+            if highlight and not highlight.startswith("No ") and "not defined" not in highlight:
+                return highlight
+    return "Mission clarity"
+
+
+def _highest_leverage_opportunity(discovery_overview) -> str:
+    if discovery_overview.top_opportunities:
+        item = discovery_overview.top_opportunities[0]
+        return f"{item.opportunity.name} - match score {item.match.score}"
+    return "No priority pathway selected yet"
+
+
+def _opportunity_insight(discovery_overview) -> str:
+    if discovery_overview.top_opportunities:
+        item = discovery_overview.top_opportunities[0]
+        return f"Pay attention to {item.opportunity.name}; it is the clearest current pathway in the inventory."
+    return "Pay attention to Discovery; the web needs active opportunities before it can guide pursuit decisions."
+
+
+def _readiness_insight(project) -> str:
+    health = build_document_evidence_health(project)
+    missing_documents = health.document_summary.missing_critical_documents
+    missing_evidence = health.evidence_summary.missing_evidence_items
+    if missing_documents:
+        return f"Pay attention to document readiness; {missing_documents[0]} is still missing."
+    if missing_evidence:
+        return f"Pay attention to evidence readiness; {missing_evidence[0]} would strengthen future pursuits."
+    return "Pay attention to keeping documents and evidence current as opportunities move into pursuit."
+
+
+def _strategic_moves(relationships, discovery_overview, opportunity_gaps: list[str], project) -> list[str]:
+    moves = []
+    if relationships.key_contacts:
+        contact = relationships.key_contacts[0]
+        moves.append(f"Strengthen relationship with {contact.name} at {contact.organization}.")
+    elif relationships.key_partners:
+        partner = relationships.key_partners[0]
+        moves.append(f"Formalize partnership with {partner.organization_name}.")
+    if discovery_overview.top_opportunities:
+        moves.append(f"Pursue {discovery_overview.top_opportunities[0].opportunity.name}.")
+    health = build_document_evidence_health(project)
+    if health.document_summary.missing_critical_documents:
+        moves.append(f"Improve readiness documentation: {health.document_summary.missing_critical_documents[0]}.")
+    elif health.evidence_summary.missing_evidence_items:
+        moves.append(f"Add evidence: {health.evidence_summary.missing_evidence_items[0]}.")
+    if opportunity_gaps and len(moves) < 3:
+        moves.append(f"Close web gap: {opportunity_gaps[0]}.")
+    return _dedupe(moves, 3)
+
+
 def build_opportunity_web(project, discovery_overview) -> OpportunityWebOverview:
     relationships = build_relationship_overview(project)
     forecast = build_pipeline_forecast()
@@ -290,6 +364,23 @@ def build_opportunity_web(project, discovery_overview) -> OpportunityWebOverview
         relationships.health.highest_leverage_action,
         "Use the Opportunity Web to connect priority opportunities to contacts, partners, resources, and outcomes.",
     ])
+    ecosystem_health = round(
+        (
+            relationships.health.score
+            + nodes[4].metrics[3][1]
+            + min(discovery_overview.active_opportunities * 10, 100)
+        )
+        / 3
+    )
+    strongest_asset = _first_specific_highlight(nodes)
+    biggest_constraint = opportunity_gaps[0] if opportunity_gaps else "No major constraint detected"
+    highest_leverage_opportunity = _highest_leverage_opportunity(discovery_overview)
+    relationship_insight = relationships.health.highest_leverage_action
+    readiness_insight = _readiness_insight(project)
+    opportunity_insight = _opportunity_insight(discovery_overview)
+    ecosystem_insight = (
+        "The web is strongest when priority opportunities are connected to named relationships, reusable resources, and outcome proof."
+    )
     return OpportunityWebOverview(
         nodes=nodes,
         opportunity_gaps=opportunity_gaps,
@@ -297,4 +388,15 @@ def build_opportunity_web(project, discovery_overview) -> OpportunityWebOverview
         relationship_health_score=relationships.health.score,
         active_opportunities=discovery_overview.active_opportunities,
         forecast_value=forecast.weighted_forecast_value,
+        ecosystem_health=ecosystem_health,
+        ecosystem_health_level=_health_level(ecosystem_health),
+        strongest_asset=strongest_asset,
+        biggest_constraint=biggest_constraint,
+        highest_leverage_relationship=relationships.health.highest_leverage_action,
+        highest_leverage_opportunity=highest_leverage_opportunity,
+        opportunity_insight=opportunity_insight,
+        relationship_insight=relationship_insight,
+        readiness_insight=readiness_insight,
+        ecosystem_insight=ecosystem_insight,
+        strategic_moves=_strategic_moves(relationships, discovery_overview, opportunity_gaps, project),
     )

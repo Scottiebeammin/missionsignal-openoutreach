@@ -74,8 +74,56 @@
       border-left: 4px solid var(--accent);
       background: linear-gradient(180deg, #fff 0%, var(--surface-subtle) 180%);
     }
+    .ecosystem-hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .ecosystem-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .ecosystem-map {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+    .ecosystem-zone {
+      position: relative;
+      min-height: 150px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fff 0%, #fffaf0 170%);
+      box-shadow: var(--shadow);
+    }
+    .ecosystem-zone::after {
+      content: "";
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      width: 24px;
+      border-top: 2px solid rgba(212, 160, 23, .42);
+    }
+    .ecosystem-zone:nth-child(3n)::after,
+    .ecosystem-zone:last-child::after {
+      display: none;
+    }
+    .ecosystem-zone strong {
+      display: block;
+      color: var(--ink);
+      font-size: 1.05rem;
+    }
+    .insight-card {
+      padding: 16px;
+      border-left: 4px solid var(--accent);
+    }
     @media (max-width: 900px) {
-      .executive-web-summary { grid-template-columns: 1fr; }
+      .executive-web-summary, .ecosystem-hero-grid, .ecosystem-summary-grid, .ecosystem-map { grid-template-columns: 1fr; }
+      .ecosystem-zone::after { display: none; }
     }
   </style>
 </head>
@@ -93,43 +141,78 @@
 
     <header class="hero">
       <section>
-        <p class="eyebrow">Opportunity Web Visualization V1</p>
+        <p class="eyebrow">Opportunity Web V2 · Flagship Ecosystem View</p>
         <h1>The Web of Opportunity</h1>
         <p class="muted">{{ organization.name }} - {{ project.name }}</p>
-        <p class="muted">A strategic map of the assets, gaps, relationships, resources, and opportunities that shape mission growth.</p>
+        <p class="muted">The ecosystem surrounding your mission: funders, partners, relationships, resources, pathways, and outcomes connected in one executive view.</p>
       </section>
       <section class="metric-card advisor-panel">
-        <h2>Opportunity Web Summary</h2>
-        <strong>{{ web.relationship_health_score }}</strong>
-        <span>Relationship Health</span>
-        <p class="muted">{{ web.active_opportunities }} active opportunities · ${{ web.forecast_value|floatformat:0 }} weighted forecast</p>
+        <h2>Ecosystem Health</h2>
+        <strong>{{ web.ecosystem_health }}</strong>
+        <span>{{ web.ecosystem_health_level }}</span>
+        <p class="muted">Relationship Health {{ web.relationship_health_score }} · {{ web.active_opportunities }} active pathways · ${{ web.forecast_value|floatformat:0 }} weighted forecast</p>
         <p><a class="pill" href="{% url 'project-snapshot' project.pk %}">View Opportunity Web Snapshot</a></p>
       </section>
     </header>
 
     {% include "signals/_workflow_guidance.html" %}
 
-    <section class="executive-web-summary" aria-label="Opportunity Web executive summary">
-      <article class="metric-card web-story">
-        <h2>Strongest Asset</h2>
-        <strong>{{ web.nodes.0.highlights.0|default:"Mission clarity" }}</strong>
-        <span>What the web can build around first</span>
+    <section class="ecosystem-hero-grid" aria-label="Executive ecosystem summary">
+      <article class="panel web-story">
+        <h2>Executive Ecosystem Summary</h2>
+        <p class="muted">A nonprofit leader should be able to see the current situation quickly: what is strong, what is constrained, who matters, which pathway matters, and what to do next.</p>
+        <div class="ecosystem-summary-grid" style="margin-top: 12px;">
+          <div class="metric-card"><strong>{{ web.ecosystem_health }}</strong><span>Ecosystem Health</span><p class="muted">{{ web.ecosystem_health_level }}</p></div>
+          <div class="metric-card"><strong>{{ web.strongest_asset }}</strong><span>Strongest Asset</span></div>
+          <div class="metric-card"><strong>{{ web.biggest_constraint }}</strong><span>Biggest Constraint</span></div>
+          <div class="metric-card"><strong>{{ web.highest_leverage_relationship }}</strong><span>Highest Leverage Relationship</span></div>
+          <div class="metric-card"><strong>{{ web.highest_leverage_opportunity }}</strong><span>Highest Leverage Opportunity</span></div>
+          <div class="metric-card"><strong>{{ web.highest_leverage_actions.0|default:"Review the Snapshot" }}</strong><span>Highest Leverage Action</span></div>
+        </div>
       </article>
-      <article class="metric-card web-story">
-        <h2>Biggest Gap</h2>
-        <strong>{{ web.opportunity_gaps.0|default:"No major web gap" }}</strong>
-        <span>Where leadership attention matters most</span>
-      </article>
-      <article class="metric-card web-story">
-        <h2>Highest Leverage Action</h2>
-        <strong>{{ web.highest_leverage_actions.0|default:"Review the Opportunity Web Snapshot" }}</strong>
-        <span>Next move to strengthen the ecosystem</span>
+      <article class="panel action-panel">
+        <h2>Snapshot Connection</h2>
+        <p><strong>The Snapshot is the executive interpretation of this web.</strong></p>
+        <p class="muted">Use the Opportunity Web to see the ecosystem. Use the Snapshot to summarize the story for board, funder, partner, or pilot conversations.</p>
+        <p><a class="button" href="{% url 'project-snapshot' project.pk %}">Open Opportunity Web Snapshot</a></p>
       </article>
     </section>
 
     <section class="panel">
-      <h2>Opportunity Web Pathway</h2>
-      <p class="muted">A summary-first pathway showing how mission assets become funder, government, partner, resource, opportunity, and outcome movement.</p>
+      <h2>Web of Opportunity Story</h2>
+      <p class="muted">The Web of Opportunity is the ecosystem surrounding your mission. Mission creates the center. Funders and partners bring support. Relationships create access. Resources and evidence build readiness. Pathways become active pursuits. Outcomes prove the work and strengthen the next cycle.</p>
+      <div class="ecosystem-map" style="margin-top: 14px;">
+        <article class="ecosystem-zone"><span class="pill">Mission</span><strong>Purpose and focus</strong><p class="muted">The reason the web exists and the work every opportunity must serve.</p></article>
+        <article class="ecosystem-zone"><span class="pill">Funders</span><strong>Capital and credibility</strong><p class="muted">Aligned grant, sponsorship, and public funding lanes.</p></article>
+        <article class="ecosystem-zone"><span class="pill">Partners</span><strong>Reach and delivery</strong><p class="muted">Organizations that expand capacity, trust, referrals, and execution.</p></article>
+        <article class="ecosystem-zone"><span class="pill">Relationships</span><strong>Access and momentum</strong><p class="muted">Contacts who can open doors, clarify fit, and accelerate decisions.</p></article>
+        <article class="ecosystem-zone"><span class="pill">Resources</span><strong>Readiness assets</strong><p class="muted">Documents, evidence, capacity, tools, and proof needed to pursue.</p></article>
+        <article class="ecosystem-zone"><span class="pill">Pathways</span><strong>Actionable pursuits</strong><p class="muted">The selected opportunities that move from intelligence to execution.</p></article>
+      </div>
+    </section>
+
+    <section class="advisor-panel">
+      <h2>Top 3 Strategic Moves</h2>
+      <ol class="advisor-list">
+        {% for move in web.strategic_moves %}
+          <li>{{ move }}<span class="impact-label">Impact: Strengthens the web around funding, relationships, readiness, or pursuit execution.</span></li>
+        {% endfor %}
+      </ol>
+    </section>
+
+    <section class="panel">
+      <h2>Opportunity Web Insights</h2>
+      <div class="summary-grid">
+        <article class="summary-card insight-card"><strong>Opportunity Insight</strong><span class="muted">{{ web.opportunity_insight }}</span></article>
+        <article class="summary-card insight-card"><strong>Relationship Insight</strong><span class="muted">{{ web.relationship_insight }}</span></article>
+        <article class="summary-card insight-card"><strong>Readiness Insight</strong><span class="muted">{{ web.readiness_insight }}</span></article>
+        <article class="summary-card insight-card"><strong>Ecosystem Insight</strong><span class="muted">{{ web.ecosystem_insight }}</span></article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Connected Ecosystem Detail</h2>
+      <p class="muted">The detailed web below shows where the ecosystem is strong and where gaps could slow opportunity movement.</p>
       <div class="web-path" style="margin-top: 14px;">
         {% for node in web.nodes %}
           <article class="web-node">
