@@ -28,6 +28,9 @@ def test_public_landing_page_renders_without_login(client):
     assert "funders, potential partners, community resources, strategic risks, pathways" in content
     assert "Explore the Opportunity Web Snapshot" in content
     assert "Become a Founding Atlas Partner" in content
+    assert "$100 pilot package" in content
+    assert "Limited to the first 10 partners" in content
+    assert "30-day action plan" in content
     assert "Marcus Scott" in content
     assert "anansiatlas.com" in content
     assert "Scott Foundry Group LLC" in content
@@ -114,7 +117,37 @@ def test_pilot_onboarding_route_renders_without_login(client):
 
     assert response.status_code == 200
     assert "Founding Atlas Partners" in content
-    assert "Shape a smarter way to see opportunity" in content
+    assert "Become a Founding Atlas Partner" in content
+    assert "$100" in content
+    assert "Limited to the first 10 Founding Atlas Partners" in content
+    assert "Opportunity Web Snapshot" in content
+    assert "30 Days Platform Access" in content
+    assert "Executive Dashboard Access" in content
+    assert "Readiness Review" in content
+    assert "Relationship Review" in content
+    assert "Founder-Led Walkthrough" in content
+    assert "30-Day Action Plan" in content
+    assert "Founding Atlas Partner Recognition" in content
+    assert "Pilot onboarding flow" in content
+    assert "Submit interest" in content
+    assert "Welcome and scheduling" in content
+    assert "Organization intake" in content
+    assert "Opportunity Web Snapshot generation" in content
+    assert "Founder walkthrough" in content
+    assert "30-day action period" in content
+    assert "Feedback and refinement" in content
+    assert "Snapshot deliverable" in content
+    assert "Executive Summary" in content
+    assert "Top Opportunities" in content
+    assert "Relationship Gaps" in content
+    assert "Readiness Gaps" in content
+    assert "Strategic Moves" in content
+    assert "30-Day Recommendations" in content
+    assert "Marcus Scott, Founder, Anansi Atlas" in content
+    assert "Pilot FAQ" in content
+    assert "What is Anansi Atlas?" in content
+    assert "What is an Opportunity Web Snapshot?" in content
+    assert "How long does the pilot last?" in content
     assert "Mission and programs" in content
     assert "Geography" in content
     assert "Funders and partners" in content

@@ -84,6 +84,19 @@
       padding: 20px;
       background: rgba(8, 17, 31, 0.45);
     }
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 10px 0 12px;
+    }
+    .price strong {
+      color: #fff;
+      font-size: clamp(2.6rem, 6vw, 4.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+    .price span { color: #d4ddec; font-weight: 800; }
     .eyebrow {
       margin: 0 0 12px;
       color: #ffe1a1;
@@ -111,12 +124,39 @@
     .muted { color: var(--muted); }
     .lead { font-size: 1.08rem; max-width: 780px; }
     .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .card {
       min-height: 154px;
       border: 1px solid var(--line);
       border-radius: 22px;
       background: rgba(255,255,255,0.78);
       padding: 20px;
+    }
+    .offer-list, .faq-list {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .offer-list li, .faq-item {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.82);
+      padding: 14px 16px;
+    }
+    .offer-list li::before {
+      content: "Included";
+      display: inline-flex;
+      margin-right: 10px;
+      color: #171007;
+      background: rgba(229, 173, 63, 0.72);
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
     .card p:last-child { margin-bottom: 0; }
     .steps {
@@ -140,8 +180,55 @@
       color: #171007;
       margin-bottom: 12px;
     }
+    .timeline {
+      display: grid;
+      gap: 12px;
+      counter-reset: pilot;
+    }
+    .timeline article {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #fff;
+      padding: 18px 18px 18px 62px;
+    }
+    .timeline article::before {
+      counter-increment: pilot;
+      content: counter(pilot);
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--gold);
+      color: #171007;
+      font-weight: 900;
+    }
+    .founder-note {
+      border: 1px solid rgba(229, 173, 63, 0.32);
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(8,17,31,0.96), rgba(16,26,50,0.94));
+      color: #fff;
+    }
+    .founder-note h2 { color: #fff; }
+    .founder-note .muted { color: #d4ddec; }
+    .availability {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: rgba(229, 173, 63, 0.2);
+      color: #ffe1a1;
+      padding: 8px 12px;
+      font-weight: 900;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
     @media (max-width: 920px) {
-      .hero, .grid, .steps { grid-template-columns: 1fr; }
+      .hero, .grid, .grid.two, .steps { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
       main { padding: 20px 18px 36px; }
@@ -160,19 +247,37 @@
     <section class="panel hero">
       <div>
         <p class="eyebrow">Founding Atlas Partners</p>
-        <h1>Shape a smarter way to see opportunity.</h1>
-        <p class="muted lead">Founding Atlas Partners are mission-driven organizations helping shape Anansi Atlas while receiving practical opportunity insight through the Snapshot process.</p>
+        <h1>Become a Founding Atlas Partner.</h1>
+        <p class="muted lead">A founder-led pilot for mission-driven organizations that want a clearer Opportunity Web, a consulting-grade Snapshot, and a practical 30-day action plan.</p>
         <a class="button primary" href="{% url 'anansi-atlas-landing' %}#interest">Request pilot access</a>
       </div>
       <aside class="hero-card">
-        <p class="eyebrow">Pilot Focus</p>
-        <p class="muted">Clarity, access, strategy, and impact for nonprofit leaders ready to connect the right dots.</p>
+        <p class="eyebrow">Pilot Rate</p>
+        <div class="price"><strong>$100</strong><span>Founding Atlas Partner</span></div>
+        <p class="muted">Limited to the first 10 Founding Atlas Partners.</p>
       </aside>
     </section>
 
     <section class="panel">
-      <p class="eyebrow dark">What the pilot clarifies</p>
-      <h2>Early access should feel selective, useful, and grounded in real nonprofit decisions.</h2>
+      <p class="eyebrow dark">The offer</p>
+      <h2>A practical pilot package built to create value before software ever becomes the point.</h2>
+      <p class="muted lead">The Founding Atlas Partner experience combines platform access, founder guidance, and a focused Snapshot deliverable that helps leaders decide where to focus next.</p>
+      <ul class="offer-list">
+        <li>Opportunity Web Snapshot</li>
+        <li>30 Days Platform Access</li>
+        <li>Executive Dashboard Access</li>
+        <li>Opportunity Web Access</li>
+        <li>Readiness Review</li>
+        <li>Relationship Review</li>
+        <li>Founder-Led Walkthrough</li>
+        <li>30-Day Action Plan</li>
+        <li>Founding Atlas Partner Recognition</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow dark">Who it is for</p>
+      <h2>For leaders who need opportunity clarity before adding more pursuit work.</h2>
       <div class="grid">
         <article class="card"><h3>Mission and programs</h3><p class="muted">The work, services, and pathways your organization is trying to move forward.</p></article>
         <article class="card"><h3>Funders and partners</h3><p class="muted">The relationships and opportunity lanes that may strengthen reach and credibility.</p></article>
@@ -184,12 +289,50 @@
     </section>
 
     <section class="panel">
-      <p class="eyebrow dark">How it works</p>
-      <div class="steps">
-        <article class="step"><strong>1</strong><h3>Share context</h3><p class="muted">Tell us about mission, programs, geography, goals, and current opportunity work.</p></article>
-        <article class="step"><strong>2</strong><h3>Map the web</h3><p class="muted">Anansi Atlas organizes funders, partners, resources, risks, and pathways around the mission.</p></article>
-        <article class="step"><strong>3</strong><h3>Review the Snapshot</h3><p class="muted">You receive a focused view of what matters most and what to do next.</p></article>
-        <article class="step"><strong>4</strong><h3>Shape the platform</h3><p class="muted">Your feedback helps refine the operating system for mission-driven opportunity work.</p></article>
+      <p class="eyebrow dark">Pilot onboarding flow</p>
+      <h2>Seven simple steps from interest to action.</h2>
+      <div class="timeline">
+        <article><h3>Submit interest</h3><p class="muted">Share your organization, role, goals, and why the pilot may be useful now.</p></article>
+        <article><h3>Welcome and scheduling</h3><p class="muted">We confirm fit, timing, and the founder-led walkthrough window.</p></article>
+        <article><h3>Organization intake</h3><p class="muted">You provide mission, programs, geography, readiness, relationship, and pursuit context.</p></article>
+        <article><h3>Opportunity Web Snapshot generation</h3><p class="muted">Anansi Atlas turns the intake into a focused view of opportunities, gaps, and strategic moves.</p></article>
+        <article><h3>Founder walkthrough</h3><p class="muted">Marcus Scott walks through the Snapshot, dashboard, Opportunity Web, and priority actions.</p></article>
+        <article><h3>30-day action period</h3><p class="muted">Your team uses the Snapshot, Readiness, Relationships, Pathways, and Pipeline views to focus execution.</p></article>
+        <article><h3>Feedback and refinement</h3><p class="muted">We capture what worked, what was unclear, and what should improve before broader release.</p></article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow dark">Snapshot deliverable</p>
+      <h2>What your organization receives.</h2>
+      <div class="grid two">
+        <article class="card"><h3>Executive Summary</h3><p class="muted">A concise leadership view of the opportunity ecosystem around your mission.</p></article>
+        <article class="card"><h3>Top Opportunities</h3><p class="muted">A prioritized view of the pathways most worth reviewing first.</p></article>
+        <article class="card"><h3>Relationship Gaps</h3><p class="muted">The missing people, partners, or categories that may limit access or credibility.</p></article>
+        <article class="card"><h3>Readiness Gaps</h3><p class="muted">The documents, evidence, outcomes, or profile details that could slow pursuit.</p></article>
+        <article class="card"><h3>Strategic Moves</h3><p class="muted">The few actions most likely to improve readiness, relationships, and pathway quality.</p></article>
+        <article class="card"><h3>30-Day Recommendations</h3><p class="muted">A practical action plan for the first month after the walkthrough.</p></article>
+      </div>
+    </section>
+
+    <section class="panel founder-note">
+      <p class="eyebrow">Founder-led</p>
+      <h2>Marcus Scott, Founder, Anansi Atlas</h2>
+      <p class="muted lead">Anansi Atlas is built to help mission-driven organizations see the opportunity ecosystem around their work, choose clearer next moves, and turn scattered access into strategic action.</p>
+      <span class="availability">Limited to the first 10 Founding Atlas Partners</span>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow dark">Pilot FAQ</p>
+      <h2>Clear expectations before you raise your hand.</h2>
+      <div class="faq-list">
+        <article class="faq-item"><h3>What is Anansi Atlas?</h3><p class="muted">Anansi Atlas is an Opportunity Command Center for seeing funders, partners, relationships, readiness gaps, resources, pathways, and next actions around a mission.</p></article>
+        <article class="faq-item"><h3>What is an Opportunity Web Snapshot?</h3><p class="muted">It is a consulting-style executive summary of your Opportunity Web, including top opportunities, relationship gaps, readiness gaps, strategic moves, and a 30-day action plan.</p></article>
+        <article class="faq-item"><h3>How long does the pilot last?</h3><p class="muted">The pilot includes 30 days of platform access after the walkthrough.</p></article>
+        <article class="faq-item"><h3>Who is this for?</h3><p class="muted">Nonprofits, workforce organizations, community initiatives, consultants, and mission-driven teams that want clearer opportunity strategy.</p></article>
+        <article class="faq-item"><h3>What happens after the pilot?</h3><p class="muted">We review feedback, identify what changed for your organization, and discuss whether continued access makes sense.</p></article>
+        <article class="faq-item"><h3>Do I need technical experience?</h3><p class="muted">No. The pilot is founder-led and designed for executive, development, program, and strategy leaders.</p></article>
+        <article class="faq-item"><h3>How much time is required?</h3><p class="muted">Plan for one intake, one walkthrough, and focused use during the 30-day action period.</p></article>
       </div>
     </section>
   </main>
