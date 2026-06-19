@@ -1,0 +1,30 @@
+{% if workflow %}
+  <section class="workflow-panel" aria-label="Anansi Atlas Workflow">
+    <div class="workflow-panel-header">
+      <div>
+        <p class="eyebrow">Workflow Progress · Anansi Atlas Workflow</p>
+        <h2>{{ workflow.current_stage.label }}</h2>
+        <p class="muted">{{ workflow.context_statement }}</p>
+      </div>
+      <div>
+        <span class="pill">Next: {{ workflow.recommended_next_stage.short_label }}</span>
+      </div>
+    </div>
+    <div class="workflow-stage-row">
+      {% for stage in workflow.stages %}
+        <a class="workflow-stage{% if stage.is_current %} current{% endif %}{% if stage.is_recommended_next %} next{% endif %}" href="{% url stage.href_name project.pk %}">
+          <strong>{{ forloop.counter }}. {{ stage.label }}</strong>
+          <span>{{ stage.description }}</span>
+        </a>
+      {% endfor %}
+    </div>
+    <div>
+      <h2>Recommended Next Action</h2>
+      <ol class="workflow-next-actions">
+        {% for action in workflow.next_actions %}
+          <li data-step="{{ forloop.counter }}">{{ action }}</li>
+        {% endfor %}
+      </ol>
+    </div>
+  </section>
+{% endif %}

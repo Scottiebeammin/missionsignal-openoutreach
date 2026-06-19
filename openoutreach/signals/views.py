@@ -46,6 +46,7 @@ from openoutreach.signals.score_transparency import (
 )
 from openoutreach.signals.services import create_organization_intake
 from openoutreach.signals.snapshot import build_opportunity_web_snapshot
+from openoutreach.signals.workflow import build_workflow_guidance
 
 
 MODULE_PLACEHOLDERS = {
@@ -58,6 +59,10 @@ MODULE_PLACEHOLDERS = {
         ),
     },
 }
+
+
+def _workflow_context(project, stage, primary_actions=()):
+    return {"workflow": build_workflow_guidance(project, stage, primary_actions)}
 
 
 def public_landing_page(request):
@@ -242,6 +247,7 @@ def project_executive_dashboard(request, pk):
                 "forecast": explain_forecast(forecast),
                 "relationship": explain_relationship_health(relationships),
             },
+            **_workflow_context(project, "understand", dashboard.executive_actions[:2]),
         },
     )
 
@@ -272,6 +278,7 @@ def project_readiness_dashboard(request, pk):
                 "readiness": explain_readiness(readiness),
                 "completeness": explain_organization_completeness(readiness.organization_completeness),
             },
+            **_workflow_context(project, "prepare", readiness.recommended_actions[:2]),
         },
     )
 
@@ -292,6 +299,7 @@ def project_relationships_dashboard(request, pk):
             "score_transparency": {
                 "relationship": explain_relationship_health(relationships),
             },
+            **_workflow_context(project, "connect", (relationships.health.highest_leverage_action,)),
         },
     )
 
@@ -310,6 +318,7 @@ def project_opportunity_web(request, pk):
             "project": project,
             "organization": project.organization,
             "web": build_opportunity_web(project, discovery),
+            **_workflow_context(project, "understand"),
         },
     )
 
@@ -348,6 +357,7 @@ def project_snapshot(request, pk):
             "organization": project.organization,
             "snapshot": snapshot,
             "web": web,
+            **_workflow_context(project, "understand", snapshot.recommended_next_actions[:2]),
         },
     )
 
@@ -364,6 +374,7 @@ def project_documents_dashboard(request, pk):
             "project": project,
             "organization": project.organization,
             "document_summary": build_document_vault_summary(project),
+            **_workflow_context(project, "prepare"),
         },
     )
 
@@ -380,6 +391,7 @@ def project_evidence_dashboard(request, pk):
             "project": project,
             "organization": project.organization,
             "evidence_summary": build_evidence_library_summary(project),
+            **_workflow_context(project, "prepare"),
         },
     )
 
@@ -477,6 +489,7 @@ def project_match_dashboard(request, pk):
                 "match": explain_match_overview(match_overview),
                 "readiness": explain_readiness(readiness),
             },
+            **_workflow_context(project, "prioritize", match_overview.highest_leverage_actions[:2]),
         },
     )
 
@@ -496,6 +509,7 @@ def project_discovery_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "discovery": discovery,
+            **_workflow_context(project, "prioritize"),
         },
     )
 
@@ -520,6 +534,7 @@ def project_opportunities_workspace(request, pk):
             "match_overview": match_overview,
             "recommended_actions": actions[:5],
             "lifecycle": discovery.lifecycle_summary,
+            **_workflow_context(project, "prioritize", actions[:2]),
         },
     )
 
@@ -544,6 +559,14 @@ def project_pipeline_workspace(request, pk):
             "score_transparency": {
                 "forecast": explain_forecast(forecast),
             },
+            **_workflow_context(
+                project,
+                "execute",
+                (
+                    discovery.lifecycle_summary.highest_priority_active_opportunity.name
+                    if discovery.lifecycle_summary.highest_priority_active_opportunity else ""
+                ),
+            ),
         },
     )
 

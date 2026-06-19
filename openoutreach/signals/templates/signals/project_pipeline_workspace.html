@@ -56,6 +56,7 @@
       <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
       <a href="{% url 'project-matches' project.pk %}">Match Intelligence</a>
       <a class="active" href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
+      <a href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
     </nav>
 
     <header class="hero">
@@ -70,6 +71,8 @@
         <p class="muted">Use this board to move opportunities from inventory to pursuit, submission, award, or closeout.</p>
       </section>
     </header>
+
+    {% include "signals/_workflow_guidance.html" %}
 
     <section class="panel">
       <h2>Opportunity Pipeline Summary</h2>

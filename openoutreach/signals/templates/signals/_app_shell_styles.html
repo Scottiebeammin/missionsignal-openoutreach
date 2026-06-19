@@ -475,6 +475,85 @@
     transform: translateY(-1px);
     box-shadow: 0 10px 24px rgba(16, 30, 44, .12);
   }
+  .workflow-panel {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding: 18px;
+    border: 1px solid var(--line, #d9e2e8);
+    border-radius: var(--radius-lg, 22px);
+    background: linear-gradient(135deg, #ffffff 0%, #fffaf0 170%);
+    box-shadow: var(--shadow);
+  }
+  .workflow-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .workflow-panel-header p { margin-bottom: 0; }
+  .workflow-stage-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .workflow-stage {
+    min-height: 84px;
+    padding: 11px;
+    border: 1px solid var(--line, #d9e2e8);
+    border-radius: 14px;
+    background: rgba(255,255,255,.82);
+    text-decoration: none;
+  }
+  .workflow-stage strong {
+    display: block;
+    color: var(--ink, #172334);
+    font-size: .9rem;
+    line-height: 1.15;
+  }
+  .workflow-stage span {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted, #687789);
+    font-size: .78rem;
+    line-height: 1.25;
+  }
+  .workflow-stage.current {
+    border-color: rgba(212, 160, 23, .72);
+    background: var(--accent-soft, #fff6dd);
+    box-shadow: inset 0 0 0 1px rgba(212, 160, 23, .26);
+  }
+  .workflow-stage.next { border-color: rgba(15, 118, 110, .32); }
+  .workflow-next-actions {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  .workflow-next-actions li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border: 1px solid rgba(13, 27, 61, .08);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--ink, #172334);
+    font-weight: 750;
+  }
+  .workflow-next-actions li::before {
+    content: attr(data-step);
+    display: grid;
+    place-items: center;
+    flex: 0 0 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--deep, #0d1b3d);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 950;
+  }
   @media (max-width: 1180px) {
     body { padding-left: 0; }
     body > main { padding: 14px !important; }
@@ -489,6 +568,8 @@
     .nav { grid-template-columns: 1fr; }
     .workspace-tabs { overflow-x: auto; flex-wrap: nowrap; }
     .page-header { grid-template-columns: 1fr; }
+    .workflow-panel-header { display: grid; }
+    .workflow-stage-row { grid-template-columns: 1fr; }
     .hero, .panel { padding: 16px !important; }
     .premium-table { min-width: 680px; }
   }
