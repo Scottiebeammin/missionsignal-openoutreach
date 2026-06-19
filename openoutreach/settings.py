@@ -4,6 +4,7 @@ Minimal Django settings for using DjangoCRM's ORM + admin.
 """
 import os
 import sys
+from urllib.parse import parse_qsl, urlparse
 from pathlib import Path
 
 # Playwright's sync API runs inside an async event loop, which triggers
@@ -14,11 +15,41 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 
 BASE_DIR = ROOT_DIR
 
-SECRET_KEY = "openoutreach-local-dev-key-change-in-production"
+def _env_bool(name: str, default: bool = False) -> bool:
+    return os.getenv(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
 
-DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+def _env_list(name: str, default: list[str]) -> list[str]:
+    raw = os.getenv(name, "")
+    if not raw:
+        return default
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+def _database_from_url(url: str) -> dict:
+    parsed = urlparse(url)
+    if parsed.scheme not in {"postgres", "postgresql"}:
+        raise ValueError("Only postgres:// or postgresql:// DATABASE_URL values are supported.")
+    config = {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": parsed.path.lstrip("/"),
+        "USER": parsed.username or "",
+        "PASSWORD": parsed.password or "",
+        "HOST": parsed.hostname or "",
+        "PORT": str(parsed.port or ""),
+    }
+    options = dict(parse_qsl(parsed.query))
+    if options:
+        config["OPTIONS"] = options
+    return config
+
+
+SECRET_KEY = os.getenv("SECRET_KEY", "openoutreach-local-dev-key-change-in-production")
+
+DEBUG = _env_bool("DEBUG", True)
+
+ALLOWED_HOSTS = _env_list("ALLOWED_HOSTS", ["*"])
+CSRF_TRUSTED_ORIGINS = _env_list("CSRF_TRUSTED_ORIGINS", [])
 
 INSTALLED_APPS = [
     "django.contrib.sites",
@@ -67,12 +98,16 @@ TEMPLATES = [
     },
 ]
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": str(ROOT_DIR / "data" / "db.sqlite3"),
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if DATABASE_URL:
+    DATABASES = {"default": _database_from_url(DATABASE_URL)}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": str(ROOT_DIR / "data" / "db.sqlite3"),
+        }
     }
-}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
