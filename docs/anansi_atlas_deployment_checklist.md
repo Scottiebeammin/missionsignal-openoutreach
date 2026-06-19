@@ -22,6 +22,14 @@ Why Render:
 5. Confirm static file strategy.
 6. Confirm admin access plan.
 
+For Render Docker deployment, use:
+
+```bash
+gunicorn openoutreach.wsgi:application --bind 0.0.0.0:$PORT
+```
+
+Do not use the Dockerfile default daemon command for the public landing site.
+
 ## Required Environment Variables
 
 Set these in the deployment host. Do not commit real values.
