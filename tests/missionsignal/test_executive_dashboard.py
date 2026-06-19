@@ -36,6 +36,13 @@ def test_project_member_can_view_executive_dashboard(client, dashboard_project):
     assert "Forecast Health Transparency" in content
     assert "Relationship Health Transparency" in content
     assert "Opportunity Command Center" not in content
+    assert "Start Here" in content
+    assert "Review your Opportunity Web" in content
+    assert "Open the Snapshot" in content
+    assert "Review top Pathways" in content
+    assert "Check readiness gaps" in content
+    assert "Review relationship gaps" in content
+    assert "Decide the next action" in content
 
 
 def test_executive_dashboard_renders_celebration_area(client, dashboard_project):

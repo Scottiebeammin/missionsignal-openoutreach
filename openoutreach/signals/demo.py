@@ -749,14 +749,14 @@ def _seed_document_and_evidence_data(project):
             "document_type": DocumentVaultItem.DocumentType.IRS_DETERMINATION_LETTER,
             "status": DocumentVaultItem.Status.AVAILABLE,
             "file_reference": "vault://irs-determination-letter.pdf",
-            "notes": "Current nonprofit determination letter placeholder.",
+            "notes": "Current 501(c)(3) determination letter ready for grant and contract packets.",
         },
         {
             "title": "W-9",
             "document_type": DocumentVaultItem.DocumentType.W9,
             "status": DocumentVaultItem.Status.AVAILABLE,
             "file_reference": "vault://w9.pdf",
-            "notes": "Current W-9 placeholder.",
+            "notes": "Signed W-9 ready for funder, sponsor, and public-sector vendor requests.",
         },
         {
             "title": "Annual Budget",
@@ -777,13 +777,13 @@ def _seed_document_and_evidence_data(project):
             "document_type": DocumentVaultItem.DocumentType.BOARD_LIST,
             "status": DocumentVaultItem.Status.AVAILABLE,
             "file_reference": "vault://board-list.pdf",
-            "notes": "Current board list placeholder.",
+            "notes": "Current board roster with affiliations for credibility and governance review.",
         },
         {
             "title": "Outcome Report",
             "document_type": DocumentVaultItem.DocumentType.OUTCOME_REPORT,
             "status": DocumentVaultItem.Status.MISSING,
-            "notes": "Outcome report needs to be assembled from current metrics.",
+            "notes": "Assemble workshop completions, internship placement, and device access outcomes into a board-ready impact brief.",
         },
         {
             "title": "Insurance",
@@ -796,7 +796,7 @@ def _seed_document_and_evidence_data(project):
             "title": "Policy Document",
             "document_type": DocumentVaultItem.DocumentType.POLICY_DOCUMENT,
             "status": DocumentVaultItem.Status.MISSING,
-            "notes": "Policy packet needed for public-sector contracts.",
+            "notes": "Prepare safeguarding, data privacy, procurement, and accessibility policies for public-sector contract review.",
         },
     ]
     for document in documents:
@@ -812,7 +812,7 @@ def _seed_document_and_evidence_data(project):
             "metric_value": "180 participants",
             "evidence_date": date(2026, 5, 1),
             "status": EvidenceLibraryItem.Status.AVAILABLE,
-            "notes": "Demo outcome metric for digital skills participation.",
+            "notes": "Quarterly participation metric used in foundation reports and digital equity grant narratives.",
         },
         {
             "title": "Youth internship placement result",
@@ -822,7 +822,7 @@ def _seed_document_and_evidence_data(project):
             "metric_value": "68%",
             "evidence_date": date(2026, 4, 20),
             "status": EvidenceLibraryItem.Status.AVAILABLE,
-            "notes": "Demo placement result for career pathway programs.",
+            "notes": "Career pathway result showing participants moving from training into internships or entry-level roles.",
         },
         {
             "title": "Participant impact story",
@@ -837,7 +837,7 @@ def _seed_document_and_evidence_data(project):
             "related_program": "Device access",
             "status": EvidenceLibraryItem.Status.AVAILABLE,
             "evidence_date": date(2026, 3, 15),
-            "notes": "Demo local digital access need data.",
+            "notes": "Local digital access data used to explain why device support and digital navigation remain urgent.",
         },
         {
             "title": "Employer testimonial",
@@ -866,7 +866,7 @@ def _seed_document_and_evidence_data(project):
             "related_program": "Digital inclusion",
             "status": EvidenceLibraryItem.Status.AVAILABLE,
             "evidence_date": date(2026, 2, 10),
-            "notes": "Demo media mention for community digital inclusion work.",
+            "notes": "Community press mention that helps validate demand and local trust for digital inclusion programming.",
         },
     ]
     for evidence in evidence_items:

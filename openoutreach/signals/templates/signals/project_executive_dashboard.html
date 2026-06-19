@@ -66,6 +66,16 @@
     .mini-opportunity strong { display: block; font-size: .88rem; }
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
     .advisor-panel { margin-bottom: 16px; padding: 18px; border-left: 5px solid var(--accent); background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%); }
+    details.panel > summary,
+    details.advisor-panel > summary { cursor: pointer; color: var(--ink); font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+    details.panel > summary::marker,
+    details.advisor-panel > summary::marker { color: var(--accent); }
+    .demo-flow-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+    .demo-step { display: grid; gap: 8px; min-height: 132px; padding: 14px; border: 1px solid rgba(13, 27, 61, .1); border-radius: 12px; background: linear-gradient(180deg, #ffffff 0%, #fffaf0 155%); text-decoration: none; }
+    .demo-step:hover { border-color: rgba(212, 160, 23, .55); transform: translateY(-1px); transition: border-color .16s ease, transform .16s ease; }
+    .demo-step .step-number { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 999px; background: var(--ink); color: white; font-weight: 950; }
+    .demo-step strong { font-size: .94rem; line-height: 1.15; }
+    .demo-step span:last-child { color: var(--muted); font-size: .82rem; }
     .bar-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 42px; gap: 8px; align-items: center; margin-top: 9px; }
     .bar-track { height: 10px; border-radius: 999px; background: var(--soft); overflow: hidden; }
     .bar-fill { height: 100%; min-width: 3px; border-radius: inherit; background: var(--accent); }
@@ -88,11 +98,11 @@
       .shell { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; }
       .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .celebration-grid, .header-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .celebration-grid, .header-metrics, .demo-flow-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 720px) {
       main { padding: 14px; }
-      .nav, .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .header-metrics, .celebration-grid { grid-template-columns: 1fr; }
+      .nav, .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .header-metrics, .celebration-grid, .demo-flow-grid { grid-template-columns: 1fr; }
       .actions-list { columns: 1; }
     }
   </style>
@@ -117,6 +127,48 @@
           <div class="metric-card"><span class="score-card-title">What To Do Next</span><strong class="text-metric">{{ dashboard.executive_actions.0|default:"Review the organization profile" }}</strong><p class="muted">Highest leverage action</p></div>
         </section>
       </header>
+
+      <section class="panel" aria-label="Demo Flow">
+        <div class="panel-header">
+          <div>
+            <h2>Start Here</h2>
+            <p class="muted">A clean recording path through the Web of Opportunity, from executive scan to next action.</p>
+          </div>
+          <a class="pill" href="{% url 'project-snapshot' project.pk %}">Open Snapshot</a>
+        </div>
+        <div class="demo-flow-grid">
+          <a class="demo-step" href="{% url 'project-opportunity-web' project.pk %}">
+            <span class="step-number">1</span>
+            <strong>Review your Opportunity Web</strong>
+            <span>Show how mission, relationships, resources, opportunities, and outcomes connect.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-snapshot' project.pk %}">
+            <span class="step-number">2</span>
+            <strong>Open the Snapshot</strong>
+            <span>Use the consulting-style summary as the premium takeaway screen.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-opportunities' project.pk %}">
+            <span class="step-number">3</span>
+            <strong>Review top Pathways</strong>
+            <span>Move from opportunity intelligence into active pursuit decisions.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-readiness' project.pk %}">
+            <span class="step-number">4</span>
+            <strong>Check readiness gaps</strong>
+            <span>Explain what would make the organization more fundable and pursuit-ready.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-relationships' project.pk %}">
+            <span class="step-number">5</span>
+            <strong>Review relationship gaps</strong>
+            <span>Connect partners, funders, and contacts to the opportunity strategy.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-pipeline' project.pk %}">
+            <span class="step-number">6</span>
+            <strong>Decide the next action</strong>
+            <span>End on ownership, deadlines, and pathway movement.</span>
+          </a>
+        </div>
+      </section>
 
       <section class="advisor-panel">
         <h2>What To Do Next</h2>
@@ -211,7 +263,8 @@
         </div>
       </details>
 
-      <section class="panel">
+      <details class="panel">
+        <summary>Readiness Health</summary>
         <div class="panel-header">
           <h2>Readiness Health</h2>
           <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness Dashboard</a>
@@ -223,9 +276,10 @@
           <div class="metric-card"><strong>{{ dashboard.readiness.recommended_actions.0|default:"Maintain readiness" }}</strong><span>Top Readiness Action</span></div>
           <div class="metric-card"><strong>{{ dashboard.pursuit_summary.average_score }}</strong><span>Opportunity Readiness Average</span></div>
         </div>
-      </section>
+      </details>
 
-      <section class="panel">
+      <details class="panel">
+        <summary>Forecast Summary</summary>
         <div class="panel-header">
           <h2>Forecast Summary</h2>
           <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline Forecast</a>
@@ -238,7 +292,7 @@
           <div class="metric-card"><strong>{{ dashboard.forecast.highest_value_opportunity.name|default:"None" }}</strong><span>Highest Value Opportunity</span></div>
           <div class="metric-card"><strong>{{ dashboard.forecast.highest_confidence_opportunity.name|default:"None" }}</strong><span>Highest Confidence Opportunity</span></div>
         </div>
-      </section>
+      </details>
 
       <details class="panel">
         <summary>Document / Evidence Summary</summary>
@@ -276,7 +330,8 @@
         </ol>
       </details>
 
-      <section class="panel">
+      <details class="panel">
+        <summary>Relationship Snapshot</summary>
         <div class="panel-header">
           <h2>Relationship Snapshot</h2>
           <a class="pill" href="{% url 'project-relationships' project.pk %}">Open Relationships</a>
@@ -287,9 +342,10 @@
           <div class="metric-card"><strong>{{ dashboard.relationships.relationship_gaps.0|default:"No relationship gap" }}</strong><span>Key Gaps</span></div>
           <div class="metric-card"><strong>{{ dashboard.relationships.health.highest_leverage_action }}</strong><span>Recommended Next Action</span></div>
         </div>
-      </section>
+      </details>
 
-      <section class="panel">
+      <details class="panel">
+        <summary>Opportunity Web Summary</summary>
         <div class="panel-header">
           <h2>Opportunity Web Summary</h2>
           <div class="actions">
@@ -303,7 +359,7 @@
           <div class="metric-card"><strong>${{ opportunity_web.forecast_value|floatformat:0 }}</strong><span>Weighted Forecast</span></div>
           <div class="metric-card"><strong>{{ opportunity_web.opportunity_gaps.0|default:"No web gap" }}</strong><span>Top Opportunity Gap</span></div>
         </div>
-      </section>
+      </details>
 
       <details class="panel" aria-label="Wins Across the Web">
         <summary>More Wins Across the Web</summary>
