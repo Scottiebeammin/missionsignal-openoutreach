@@ -79,14 +79,14 @@
       </div>
     </details>
 
-    <section class="panel">
-      <h2>Recommended Relationship Actions</h2>
+    <details class="panel" open>
+      <summary>Recommended Relationship Actions</summary>
       <ol class="advisor-list">
         {% for action in relationships.recommended_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Strengthens introductions, credibility, and opportunity pursuit.</span></li>
         {% endfor %}
       </ol>
-    </section>
+    </details>
 
     <details id="partners" class="panel">
       <summary>Key Partners</summary>

@@ -191,24 +191,24 @@
       </div>
     </section>
 
-    <section class="advisor-panel">
-      <h2>Top 3 Strategic Moves</h2>
+    <details class="advisor-panel">
+      <summary>Top 3 Strategic Moves</summary>
       <ol class="advisor-list">
         {% for move in web.strategic_moves %}
           <li>{{ move }}<span class="impact-label">Impact: Strengthens the web around funding, relationships, readiness, or pursuit execution.</span></li>
         {% endfor %}
       </ol>
-    </section>
+    </details>
 
-    <section class="panel">
-      <h2>Opportunity Web Insights</h2>
+    <details class="panel">
+      <summary>Opportunity Web Insights</summary>
       <div class="summary-grid">
         <article class="summary-card insight-card"><strong>Opportunity Insight</strong><span class="muted">{{ web.opportunity_insight }}</span></article>
         <article class="summary-card insight-card"><strong>Relationship Insight</strong><span class="muted">{{ web.relationship_insight }}</span></article>
         <article class="summary-card insight-card"><strong>Readiness Insight</strong><span class="muted">{{ web.readiness_insight }}</span></article>
         <article class="summary-card insight-card"><strong>Ecosystem Insight</strong><span class="muted">{{ web.ecosystem_insight }}</span></article>
       </div>
-    </section>
+    </details>
 
     <details class="panel">
       <summary>Connected Ecosystem Detail</summary>

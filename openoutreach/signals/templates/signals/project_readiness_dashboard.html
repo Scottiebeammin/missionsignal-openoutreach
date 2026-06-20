@@ -64,8 +64,8 @@
       {% include "signals/_workflow_guidance.html" %}
     </details>
 
-    <section class="panel">
-      <h2>Readiness Health</h2>
+    <details class="panel">
+      <summary>Readiness Health</summary>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ readiness.overall_score }}</strong><span>Overall Readiness</span><p><span class="pill">{{ readiness.level }}</span></p></div>
         <div class="metric-card"><strong>{{ readiness.organization_completeness.score }}</strong><span>Organization Completeness</span><p><span class="pill">{{ readiness.organization_completeness.level }}</span></p></div>
@@ -74,7 +74,7 @@
         <div class="metric-card"><strong>{{ readiness.gaps.0|default:"No readiness gap" }}</strong><span>Top Gap</span></div>
         <div class="metric-card"><strong>{{ readiness.recommended_actions.0|default:"Maintain readiness" }}</strong><span>Highest Leverage Action</span></div>
       </div>
-    </section>
+    </details>
 
     <details class="panel">
       <summary>Score Transparency</summary>

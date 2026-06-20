@@ -63,14 +63,14 @@
       </section>
     </header>
 
-    <section class="panel">
-      <h2>Organization Profile</h2>
+    <details class="panel">
+      <summary>Organization Profile</summary>
       <div class="metrics">
         <div class="metric"><span class="muted">Type</span><strong>{{ organization.organization_type|default:"Not provided" }}</strong></div>
         <div class="metric"><span class="muted">Geography</span><strong>{{ organization.city|default:"" }}{% if organization.county %}, {{ organization.county }}{% endif %}{% if organization.state %}, {{ organization.state }}{% endif %}</strong></div>
         <div class="metric"><span class="muted">Budget Range</span><strong>{{ organization.budget_range|default:"Not provided" }}</strong></div>
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Profile Workspace</h2>

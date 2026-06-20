@@ -73,8 +73,8 @@
       {% include "signals/_workflow_guidance.html" %}
     </details>
 
-    <section class="panel">
-      <h2>Pathway Health</h2>
+    <details class="panel">
+      <summary>Pathway Health</summary>
       <div class="metrics">
         <div class="metric"><span class="muted">Opportunity Health</span><strong>{{ match_overview.overall_score }}</strong></div>
         <div class="metric"><span class="muted">High Priority Pathways</span><strong>{{ discovery.high_priority_opportunities }}</strong></div>
@@ -90,7 +90,7 @@
           <div class="metric"><span class="muted">Won</span><strong>{{ discovery.won_opportunities }}</strong></div>
         </div>
       </details>
-    </section>
+    </details>
 
     <details class="panel">
       <summary>Pipeline Summary</summary>
