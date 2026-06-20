@@ -21,11 +21,19 @@ def test_primary_navigation_is_workflow_based(client, ux_project):
     response = client.get(reverse("project-dashboard", kwargs={"pk": project.pk}))
 
     content = response.content.decode()
+    assert "Executive" in content
+    assert "Action" in content
+    assert "Prepare" in content
+    assert "Workspace" in content
+    assert "Settings" in content
     assert "Dashboard" in content
     assert "Organization" in content
-    assert "Opportunities" in content
+    assert "Strategic Pathways" in content
+    assert "Discovery" in content
+    assert "Matches" in content
     assert "Ecosystem" in content
     assert "Readiness" in content
+    assert "Relationships" in content
     assert "Documents" in content
     assert "Evidence" in content
     assert "Celebrations" in content

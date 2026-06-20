@@ -154,6 +154,8 @@ def test_executive_dashboard_navigation_and_view_switcher_render(client, dashboa
     assert "Dashboard View" in content
     assert "Table View" in content
     assert "Chart View" in content
+    assert "Strategic Pathways" in content
+    assert "Matches" in content
     assert reverse("project-dashboard", kwargs={"pk": project.pk}) in content
     assert reverse("project-mission-brief", kwargs={"pk": project.pk}) in content
     assert reverse("project-funding", kwargs={"pk": project.pk}) in content

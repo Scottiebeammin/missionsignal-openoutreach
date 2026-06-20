@@ -48,17 +48,28 @@
   .brand { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.12); }
   .brand strong { display: block; color: #f7f3eb; font-size: 1.08rem; letter-spacing: .02em; }
   .brand span { color: #d4a017; font-size: .85rem; font-weight: 800; }
-  .nav { display: grid; gap: 6px; }
+  .nav { display: grid; gap: 16px; padding-bottom: 18px; }
+  .nav-section { display: grid; gap: 5px; }
+  .nav-label {
+    margin: 2px 0 3px;
+    padding: 0 12px;
+    color: rgba(244, 213, 141, .78);
+    font-size: .66rem;
+    font-weight: 950;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
   .nav a {
     display: flex;
     justify-content: space-between;
     gap: 10px;
-    min-height: 40px;
+    min-height: 38px;
     align-items: center;
-    padding: 10px 12px;
+    padding: 9px 12px;
     border-radius: 12px;
     color: #dce7ef;
     text-decoration: none;
+    font-weight: 820;
     transition: background .16s ease, color .16s ease, transform .16s ease;
   }
   .nav a span {
@@ -73,6 +84,29 @@
     box-shadow: inset 3px 0 0 #d4a017, 0 10px 24px rgba(0,0,0,.16);
   }
   .nav a.active span, .nav a:hover span { color: #f4d58d; }
+  .nav-sublinks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0 0 2px 10px;
+    padding-left: 10px;
+    border-left: 1px solid rgba(255,255,255,.14);
+  }
+  .nav-sublinks a {
+    min-height: 30px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.045);
+    color: rgba(220, 231, 239, .78);
+    font-size: .78rem;
+    font-weight: 850;
+  }
+  .nav-sublinks a.active,
+  .nav-sublinks a:hover {
+    background: rgba(212,160,23,.18);
+    color: #fff;
+    box-shadow: none;
+  }
   .app-footer {
     display: flex;
     flex-wrap: wrap;
@@ -562,10 +596,11 @@
       width: auto;
       height: auto;
     }
-    .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   }
   @media (max-width: 720px) {
     .nav { grid-template-columns: 1fr; }
+    .nav-sublinks { grid-template-columns: 1fr 1fr; }
     .workspace-tabs { overflow-x: auto; flex-wrap: nowrap; }
     .page-header { grid-template-columns: 1fr; }
     .workflow-panel-header { display: grid; }

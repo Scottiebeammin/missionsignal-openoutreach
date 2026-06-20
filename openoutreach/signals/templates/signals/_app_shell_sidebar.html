@@ -4,20 +4,41 @@
     <span>The Web of Opportunity</span>
   </div>
   <nav class="nav" aria-label="Anansi Atlas navigation">
-    <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'project-dashboard' project.pk %}">Dashboard <span>Mission control</span></a>
-    <a class="{% if active_page == 'opportunity-web' %}active{% endif %}" href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web <span>Ecosystem</span></a>
-    <a class="{% if active_page == 'opportunities' %}active{% endif %}" href="{% url 'project-opportunities' project.pk %}">Pathways <span>Opportunities</span></a>
-    <a class="{% if active_page == 'pipeline' %}active{% endif %}" href="{% url 'project-pipeline' project.pk %}">Pipeline <span>Pursuits</span></a>
-    <a class="{% if active_page == 'discovery' %}active{% endif %}" href="{% url 'project-discovery' project.pk %}">Discovery <span>Inventory</span></a>
-    <a class="{% if active_page == 'matching' %}active{% endif %}" href="{% url 'project-matches' project.pk %}">Match Intelligence <span>Fit</span></a>
-    <a class="{% if active_page == 'organization' or active_page == 'mission' %}active{% endif %}" href="{% url 'project-organization' project.pk %}">Organization <span>Profile</span></a>
-    <a class="{% if active_page == 'ecosystem' or active_page == 'funding' or active_page == 'government' or active_page == 'resources' or active_page == 'partnerships' %}active{% endif %}" href="{% url 'project-ecosystem' project.pk %}">Ecosystem <span>Signals</span></a>
-    <a class="{% if active_page == 'snapshot' %}active{% endif %}" href="{% url 'project-snapshot' project.pk %}">Snapshot <span>Report</span></a>
-    <a class="{% if active_page == 'readiness' %}active{% endif %}" href="{% url 'project-readiness' project.pk %}">Readiness</a>
-    <a class="{% if active_page == 'documents' %}active{% endif %}" href="{% url 'project-documents' project.pk %}">Documents</a>
-    <a class="{% if active_page == 'evidence' %}active{% endif %}" href="{% url 'project-evidence' project.pk %}">Evidence</a>
-    <a class="{% if active_page == 'relationships' %}active{% endif %}" href="{% url 'project-relationships' project.pk %}">Relationships</a>
-    <a class="{% if active_page == 'celebrations' %}active{% endif %}" href="{% url 'project-celebrations' project.pk %}">Celebrations</a>
-    <a class="{% if active_page == 'settings' %}active{% endif %}" href="{% url 'project-analysis-detail' project.pk %}">Workspace Settings</a>
+    <div class="nav-section">
+      <span class="nav-label">Executive</span>
+      <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'project-dashboard' project.pk %}">Dashboard <span>Command</span></a>
+      <a class="{% if active_page == 'opportunity-web' %}active{% endif %}" href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web <span>Ecosystem</span></a>
+      <a class="{% if active_page == 'snapshot' %}active{% endif %}" href="{% url 'project-snapshot' project.pk %}">Snapshot <span>Executive brief</span></a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Action</span>
+      <a class="{% if active_page == 'opportunities' or active_page == 'discovery' or active_page == 'matching' %}active{% endif %}" href="{% url 'project-opportunities' project.pk %}">Strategic Pathways <span>Prioritize</span></a>
+      <div class="nav-sublinks" aria-label="Strategic Pathways tools">
+        <a class="{% if active_page == 'discovery' %}active{% endif %}" href="{% url 'project-discovery' project.pk %}">Discovery</a>
+        <a class="{% if active_page == 'matching' %}active{% endif %}" href="{% url 'project-matches' project.pk %}">Matches</a>
+      </div>
+      <a class="{% if active_page == 'pipeline' %}active{% endif %}" href="{% url 'project-pipeline' project.pk %}">Pipeline <span>Active pursuits</span></a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Prepare</span>
+      <a class="{% if active_page == 'readiness' %}active{% endif %}" href="{% url 'project-readiness' project.pk %}">Readiness <span>Gaps</span></a>
+      <a class="{% if active_page == 'relationships' %}active{% endif %}" href="{% url 'project-relationships' project.pk %}">Relationships <span>Access</span></a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Workspace</span>
+      <a class="{% if active_page == 'organization' or active_page == 'mission' %}active{% endif %}" href="{% url 'project-organization' project.pk %}">Organization <span>Profile</span></a>
+      <a class="{% if active_page == 'ecosystem' or active_page == 'funding' or active_page == 'government' or active_page == 'resources' or active_page == 'partnerships' %}active{% endif %}" href="{% url 'project-ecosystem' project.pk %}">Ecosystem <span>Signals</span></a>
+      <a class="{% if active_page == 'documents' %}active{% endif %}" href="{% url 'project-documents' project.pk %}">Documents</a>
+      <a class="{% if active_page == 'evidence' %}active{% endif %}" href="{% url 'project-evidence' project.pk %}">Evidence</a>
+      <a class="{% if active_page == 'celebrations' %}active{% endif %}" href="{% url 'project-celebrations' project.pk %}">Celebrations</a>
+    </div>
+
+    <div class="nav-section">
+      <span class="nav-label">Settings</span>
+      <a class="{% if active_page == 'settings' %}active{% endif %}" href="{% url 'project-analysis-detail' project.pk %}">Workspace Settings</a>
+    </div>
   </nav>
 </aside>
