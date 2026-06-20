@@ -141,14 +141,13 @@
       <section>
         <p class="eyebrow">Opportunity Web V2 · Flagship Ecosystem View</p>
         <h1>The Web of Opportunity</h1>
-        <p class="muted">{{ organization.name }} - {{ project.name }}</p>
-        <p class="muted">The ecosystem surrounding your mission: funders, partners, relationships, resources, pathways, and outcomes connected in one executive view.</p>
+        <p class="muted">Funders, partners, relationships, resources, pathways, and outcomes in one executive view.</p>
       </section>
       <section class="metric-card advisor-panel">
         <h2>Ecosystem Health</h2>
         <strong>{{ web.ecosystem_health }}</strong>
         <span>{{ web.ecosystem_health_level }}</span>
-        <p class="muted">Relationship Health {{ web.relationship_health_score }} · {{ web.active_opportunities }} active pathways · ${{ web.forecast_value|floatformat:0 }} weighted forecast</p>
+        <p class="muted">Relationship Health is surfaced in the connected web.</p>
         <p><a class="pill" href="{% url 'project-snapshot' project.pk %}">View Opportunity Web Snapshot</a></p>
       </section>
     </header>
@@ -161,7 +160,6 @@
     <section id="overview" class="ecosystem-hero-grid" aria-label="Executive ecosystem summary">
       <article class="panel web-story">
         <h2>Executive Ecosystem Summary</h2>
-        <p class="muted">A nonprofit leader should be able to see the current situation quickly: what is strong, what is constrained, who matters, which pathway matters, and what to do next.</p>
         <div class="ecosystem-summary-grid" style="margin-top: 12px;">
           <div class="metric-card"><strong>{{ web.ecosystem_health }}</strong><span>Ecosystem Health</span><p class="muted">{{ web.ecosystem_health_level }}</p></div>
           <div class="metric-card"><strong>{{ web.strongest_asset }}</strong><span>Strongest Asset</span></div>
