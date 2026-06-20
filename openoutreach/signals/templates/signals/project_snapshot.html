@@ -49,12 +49,6 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="snapshot" %}
   <main>
-    <nav class="workspace-tabs" aria-label="Snapshot navigation">
-      <a class="active" href="#summary">Executive Summary</a>
-      <a href="#plan">30-Day Plan</a>
-      <a href="#risks-gaps">Risks &amp; Gaps</a>
-    </nav>
-
     <header class="hero">
       <section>
         <p class="eyebrow">Opportunity Web Snapshot · Consulting Deliverable</p>
@@ -92,8 +86,31 @@
       </article>
     </section>
 
+    <section id="risks-gaps" class="panel">
+      <h2>Risks and Gaps</h2>
+      <div class="summary-grid">
+        <section>
+          <h3>Top Risks</h3>
+          {% for gap in snapshot.top_risks_gaps|slice:":3" %}
+            <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Snapshot risk</span></article>
+          {% endfor %}
+        </section>
+        <section>
+          <h3>Top Resource Gaps</h3>
+          {% for gap in snapshot.top_resource_gaps|slice:":3" %}
+            <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Resource gap</span></article>
+          {% endfor %}
+        </section>
+        <section>
+          <h3>Top Relationship Gaps</h3>
+          <p class="muted">Funder and partner pathways most worth strengthening.</p>
+        </section>
+      </div>
+    </section>
+
     <details class="panel">
-      <summary>What This Delivers</summary>
+      <summary>Supporting Snapshot Detail</summary>
+      <h2>What This Delivers</h2>
       <p class="muted">A board-ready interpretation of the Opportunity Web.</p>
       <ul class="deliverable-list">
         <li>Executive Summary</li>
@@ -103,25 +120,24 @@
         <li>Strategic Moves</li>
         <li>30-Day Recommendations</li>
       </ul>
-    </details>
 
-    <details class="panel">
-      <summary>Workflow Guidance</summary>
-      {% include "signals/_workflow_guidance.html" %}
-    </details>
+      <details style="margin-top: 14px;">
+        <summary>Workflow Guidance</summary>
+        {% include "signals/_workflow_guidance.html" %}
+      </details>
 
-    <details class="panel">
-      <summary>Opportunity Overview</summary>
+      <details style="margin-top: 14px;">
+        <summary>Opportunity Overview</summary>
       <h2>Opportunity Overview</h2>
       <div class="metric-grid">
         {% for label, value in snapshot.opportunity_web_summary %}
           <div class="metric-card"><strong>{{ value }}</strong><span>{{ label }}</span></div>
         {% endfor %}
       </div>
-    </details>
+      </details>
 
-    <details class="panel">
-      <summary>Top Opportunities</summary>
+      <details style="margin-top: 14px;">
+        <summary>Top Opportunities</summary>
       <div class="compact-grid">
         {% for item in snapshot.top_opportunities %}
           <article class="compact-card">
@@ -133,30 +149,10 @@
           <div class="empty-state"><strong>No opportunities yet</strong>Add opportunities to Discovery to populate the Snapshot.</div>
         {% endfor %}
       </div>
-    </details>
+      </details>
 
-    <details id="risks-gaps" class="panel">
-      <summary>Top Risks</summary>
-      <h2>Top Risks</h2>
-      <div class="summary-grid">
-        {% for gap in snapshot.top_risks_gaps %}
-          <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Snapshot risk</span></article>
-        {% endfor %}
-      </div>
-    </details>
-
-    <details class="panel">
-      <summary>Top Resource Gaps</summary>
-      <h2>Top Resource Gaps</h2>
-      <div class="summary-grid">
-        {% for gap in snapshot.top_resource_gaps %}
-          <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Resource gap</span></article>
-        {% endfor %}
-      </div>
-    </details>
-
-    <details class="panel">
-      <summary>Top Relationship Gaps</summary>
+      <details style="margin-top: 14px;">
+        <summary>Top Relationship Gaps</summary>
       <div class="insight-grid">
         <section>
           <h3>Top Funder Pathways</h3>
@@ -175,15 +171,16 @@
           </ul>
         </section>
       </div>
-    </details>
+      </details>
 
-    <details class="advisor-panel">
-      <summary>Top Recommended Actions</summary>
+      <details style="margin-top: 14px;">
+        <summary>Top Recommended Actions</summary>
       <ol class="advisor-list">
         {% for action in snapshot.recommended_next_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Improves the Opportunity Web Snapshot and future pursuit readiness.</span></li>
         {% endfor %}
       </ol>
+      </details>
     </details>
 
     {% include "signals/_app_shell_footer.html" %}

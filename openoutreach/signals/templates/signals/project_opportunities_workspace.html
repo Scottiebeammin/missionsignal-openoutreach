@@ -52,6 +52,7 @@
       </section>
       <section class="panel action-panel">
         <h2>Recommended Next Actions</h2>
+        <p><span class="pill">Pathway Health {{ match_overview.overall_score }}</span></p>
         <ol class="advisor-list">
           {% for action in recommended_actions|slice:":3" %}
             <li>
@@ -116,7 +117,8 @@
     </details>
 
     <details class="panel">
-      <summary>Pathway Health and Pipeline Context</summary>
+      <summary>Supporting Pathway Detail</summary>
+      <h2>Pathway Health and Pipeline Context</h2>
       <div class="section-toolbar">
         <h2>Opportunity Pipeline Summary</h2>
         <a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open full pipeline board</a>
@@ -139,15 +141,14 @@
           <div class="metric"><span class="muted">Highest Priority Active</span><strong>{{ lifecycle.highest_priority_active_opportunity.name|default:"None" }}</strong></div>
         </div>
       </details>
-    </details>
 
-    <details class="panel">
-      <summary>Workflow Context</summary>
-      {% include "signals/_workflow_guidance.html" %}
-    </details>
+      <details style="margin-top: 14px;">
+        <summary>Workflow Context</summary>
+        {% include "signals/_workflow_guidance.html" %}
+      </details>
 
-    <details class="panel">
-      <summary>Opportunity Categories</summary>
+      <details style="margin-top: 14px;">
+        <summary>Opportunity Categories</summary>
       <div class="section-toolbar">
         <p class="muted">What can wait: broader sector coverage is grouped below the top categories.</p>
         <div class="section-actions">
@@ -178,10 +179,10 @@
           {% endfor %}
         </div>
       </details>
-    </details>
+      </details>
 
-    <details id="pipeline" class="panel">
-      <summary>Lifecycle Pipeline Preview</summary>
+      <details id="pipeline" style="margin-top: 14px;">
+        <summary>Lifecycle Pipeline Preview</summary>
       <div class="pipeline">
         {% for group in lifecycle.summary_stages %}
           <article class="pipeline-card">
@@ -198,10 +199,10 @@
         {% endfor %}
       </div>
       <p style="margin-top: 12px;"><a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open full pipeline</a></p>
-    </details>
+      </details>
 
-    <details class="panel">
-      <summary>Advanced Match Health</summary>
+      <details style="margin-top: 14px;">
+        <summary>Advanced Match Health</summary>
       <div class="grid" style="margin-top: 12px;">
         {% for category in match_overview.categories %}
           <article class="opportunity-card">
@@ -210,6 +211,7 @@
           </article>
         {% endfor %}
       </div>
+      </details>
     </details>
     {% include "signals/_app_shell_footer.html" %}
   </main>

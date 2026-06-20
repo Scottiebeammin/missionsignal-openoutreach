@@ -37,12 +37,6 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="relationships" %}
   <main>
-    <nav class="workspace-tabs" aria-label="Relationship workspace navigation">
-      <a class="active" href="{% url 'project-relationships' project.pk %}">Overview</a>
-      <a href="#partners">Partners</a>
-      <a href="#contacts">Contacts</a>
-    </nav>
-
     <header class="hero">
       <section>
         <p class="eyebrow">Relationships</p>
@@ -58,47 +52,60 @@
     </header>
 
     <section class="panel">
-      <h2>Relationship Snapshot</h2>
+      <h2>Who Matters Next</h2>
       <div class="metric-grid">
-        <div class="metric-card"><strong>{{ relationships.health.score }}</strong><span>Relationship Health</span><p><span class="pill">{{ relationships.health.level }}</span></p></div>
-        <div class="metric-card"><strong>{{ relationships.strong_relationships }}</strong><span>Strongest Relationship Signal</span></div>
         <div class="metric-card"><strong>{{ relationships.relationship_gaps.0|default:"No relationship gap" }}</strong><span>Biggest Gap</span></div>
         <div class="metric-card"><strong>{{ relationships.recommended_actions.0|default:relationships.health.highest_leverage_action }}</strong><span>Next Contact Action</span></div>
+      </div>
+      <div class="relationship-grid" style="margin-top: 12px;">
+        {% for partner in relationships.key_partners|slice:":1" %}
+          <article class="relationship-card">
+            <h3>{{ partner.organization_name }}</h3>
+            <p><span class="pill">{{ partner.get_partner_type_display }}</span> <span class="pill">{{ partner.get_relationship_strength_display }}</span></p>
+          </article>
+        {% endfor %}
+        {% for contact in relationships.key_contacts|slice:":1" %}
+          <article class="relationship-card">
+            <h3>{{ contact.name }}</h3>
+            <p class="muted">{{ contact.title|default:"Role not set" }} · {{ contact.organization|default:"Organization not set" }}</p>
+          </article>
+        {% endfor %}
       </div>
     </section>
 
     <details class="panel">
-      <summary>Relationship Detail</summary>
+      <summary>Supporting Relationship Detail</summary>
+      <h2>Relationship Snapshot</h2>
       <div class="metric-grid">
+        <div class="metric-card"><strong>{{ relationships.health.score }}</strong><span>Relationship Health</span><p><span class="pill">{{ relationships.health.level }}</span></p></div>
         <div class="metric-card"><strong>{{ relationships.total_contacts }}</strong><span>Total Contacts</span></div>
         <div class="metric-card"><strong>{{ relationships.total_partners }}</strong><span>Total Partners</span></div>
         <div class="metric-card"><strong>{{ relationships.strong_relationships }}</strong><span>Strong Relationships</span></div>
         <div class="metric-card"><strong>{{ relationships.developing_relationships }}</strong><span>Developing Relationships</span></div>
         <div class="metric-card"><strong>{{ relationships.active_partner_count }}</strong><span>Active Partners</span></div>
       </div>
-    </details>
 
-    <details class="panel">
-      <summary>Recommended Relationship Actions</summary>
+      <details style="margin-top: 14px;">
+        <summary>Recommended Relationship Actions</summary>
       <ol class="advisor-list">
         {% for action in relationships.recommended_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Strengthens introductions, credibility, and opportunity pursuit.</span></li>
         {% endfor %}
       </ol>
-    </details>
+      </details>
 
-    <details class="panel">
-      <summary>Workflow Context</summary>
-      {% include "signals/_workflow_guidance.html" %}
-    </details>
+      <details style="margin-top: 14px;">
+        <summary>Workflow Context</summary>
+        {% include "signals/_workflow_guidance.html" %}
+      </details>
 
-    <details class="panel">
-      <summary>Relationship Health Transparency</summary>
-      {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
-    </details>
+      <details style="margin-top: 14px;">
+        <summary>Relationship Health Transparency</summary>
+        {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
+      </details>
 
-    <details id="partners" class="panel">
-      <summary>Key Partners</summary>
+      <details id="partners" style="margin-top: 14px;">
+        <summary>Key Partners</summary>
       <h2>Key Partners</h2>
       <div class="relationship-grid">
         {% for partner in relationships.key_partners %}
@@ -111,10 +118,10 @@
           <div class="empty-state"><strong>No key partners yet</strong>Add community, government, academic, corporate, and service partners.</div>
         {% endfor %}
       </div>
-    </details>
+      </details>
 
-    <details id="contacts" class="panel">
-      <summary>Key Contacts</summary>
+      <details id="contacts" style="margin-top: 14px;">
+        <summary>Key Contacts</summary>
       <h2>Key Contacts</h2>
       <div class="relationship-grid">
         {% for contact in relationships.key_contacts %}
@@ -127,10 +134,10 @@
           <div class="empty-state"><strong>No key contacts yet</strong>Add program officers, government contacts, community leaders, and partner contacts.</div>
         {% endfor %}
       </div>
-    </details>
+      </details>
 
-    <details class="panel">
-      <summary>Relationship Strengths and Gaps</summary>
+      <details style="margin-top: 14px;">
+        <summary>Relationship Strengths and Gaps</summary>
       <div class="insight-grid" style="margin-top: 12px;">
         <section>
           <h3>Strengths</h3>
@@ -153,6 +160,7 @@
           </ul>
         </section>
       </div>
+      </details>
     </details>
     {% include "signals/_app_shell_footer.html" %}
   </main>

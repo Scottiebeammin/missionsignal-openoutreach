@@ -51,12 +51,6 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="pipeline" %}
   <main>
-    <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
-      <a class="active" href="#board">Board</a>
-      <a href="#health">Health</a>
-      <a href="#forecast">Forecast</a>
-    </nav>
-
     <header class="hero">
       <section>
         <p class="eyebrow">Pipeline</p>
@@ -125,20 +119,13 @@
                 <h3>{{ item.opportunity.name }}</h3>
                 <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
                 <div class="card-meta">
-                  <span class="pill">{{ item.opportunity.get_opportunity_type_display }}</span>
                   <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
                   <span class="score-badge">Match {{ item.match.score }}</span>
                   <span class="pill">Ready {{ item.pursuit_readiness.score }}</span>
-                  <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
-                  <span class="pill">{{ item.match.level }}</span>
-                  <span class="pill">Value ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</span>
                   <span class="pill">{{ item.relationship_context.compact_status }}</span>
                 </div>
                 <p class="muted" style="margin: 8px 0 0;">Deadline: {{ item.opportunity.deadline|date:"M j, Y"|default:"Not set" }}</p>
                 <p class="muted">Owner: {% if item.opportunity.assigned_owner %}Assigned{% else %}Unassigned{% endif %}</p>
-                <p class="muted">Open tasks: {{ item.task_summary.open_tasks }} · Overdue tasks: {{ item.task_summary.overdue_tasks }}</p>
-                <p class="muted">Next deadline: {{ item.deadline_summary.next_deadline.deadline.deadline_date|date:"M j, Y"|default:"Not set" }}</p>
-                <p><strong>Next:</strong> {{ stage.recommended_next_step }}</p>
                 <div class="card-actions" aria-label="Lifecycle actions">
                   <a class="action-button" href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">Open Workspace</a>
                   {% for transition in item.lifecycle_transitions %}
@@ -168,6 +155,15 @@
                 </div>
                 <details>
                   <summary>View Details</summary>
+                  <div class="card-meta">
+                    <span class="pill">{{ item.opportunity.get_opportunity_type_display }}</span>
+                    <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
+                    <span class="pill">{{ item.match.level }}</span>
+                    <span class="pill">Value ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</span>
+                  </div>
+                  <p class="muted">Open tasks: {{ item.task_summary.open_tasks }} · Overdue tasks: {{ item.task_summary.overdue_tasks }}</p>
+                  <p class="muted">Next deadline: {{ item.deadline_summary.next_deadline.deadline.deadline_date|date:"M j, Y"|default:"Not set" }}</p>
+                  <p><strong>Next:</strong> {{ stage.recommended_next_step }}</p>
                   <div class="detail-grid">
                     <section class="detail-block">
                       <strong>Lifecycle Notes</strong>

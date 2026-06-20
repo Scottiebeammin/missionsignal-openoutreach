@@ -144,6 +144,7 @@
     .table { width: 100%; border-collapse: collapse; }
     .table th, .table td { padding: 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
     .actions-list { margin: 0; padding-left: 20px; columns: 2; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     li + li { margin-top: 6px; }
     @media (max-width: 1180px) {
       .shell { grid-template-columns: 1fr; }
@@ -178,13 +179,6 @@
           </div>
         </section>
       </header>
-
-      <nav class="workspace-tabs" aria-label="Dashboard views">
-        <a class="active" href="#overview">Overview</a>
-        <a href="#priorities">Priorities</a>
-        <a href="#deadlines">Deadlines</a>
-        <a href="#activity">Activity</a>
-      </nav>
 
       <section id="overview" class="minimal-command" aria-label="Minimal executive command center">
         <article class="command-card primary-action">
@@ -243,7 +237,7 @@
       </section>
 
       <details class="panel" aria-label="Workflow Progress and Demo Flow">
-        <summary>Workflow Progress · Start Here</summary>
+        <summary>Start Here</summary>
         {% include "signals/_workflow_guidance.html" %}
         <div class="panel-header">
           <div>
@@ -287,7 +281,7 @@
       </details>
 
       <details class="panel">
-        <summary>Executive Snapshot</summary>
+        <summary>Supporting Signals</summary>
         <div class="panel-header">
           <h2>Executive Snapshot</h2>
           <a class="pill" href="{% url 'project-opportunities' project.pk %}">Open Strategic Pathways</a>
@@ -303,43 +297,35 @@
           <div class="metric-card"><strong>{{ dashboard.overall_match_score }}</strong><span>Overall Match Score</span><p class="muted">Weighted local matching</p></div>
           <div class="metric-card"><strong>{{ dashboard.last_analysis_date|date:"M j, Y"|default:"Not run" }}</strong><span>Last Analysis Date</span></div>
         </div>
-      </details>
 
-      <details class="panel">
-        <summary>Score Transparency</summary>
-        <div class="insight-grid" style="margin-top: 12px;">
-          {% include "signals/_score_explanation.html" with explanation=score_transparency.readiness %}
-          {% include "signals/_score_explanation.html" with explanation=score_transparency.completeness %}
-          {% include "signals/_score_explanation.html" with explanation=score_transparency.match %}
-          {% include "signals/_score_explanation.html" with explanation=score_transparency.forecast %}
-          {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
-        </div>
-      </details>
-
-      <details class="panel">
-        <summary>Executive KPI Cards</summary>
-        <div class="panel-header">
-          <h2>Signal Score Details</h2>
-          <div class="switcher" aria-label="View switcher">
-            <button class="active" type="button">Dashboard View</button>
-            <button type="button">Table View</button>
-            <button type="button">Chart View</button>
+        <details style="margin-top: 14px;">
+          <summary>Score Transparency</summary>
+          <div class="insight-grid" style="margin-top: 12px;">
+            {% include "signals/_score_explanation.html" with explanation=score_transparency.readiness %}
+            {% include "signals/_score_explanation.html" with explanation=score_transparency.completeness %}
+            {% include "signals/_score_explanation.html" with explanation=score_transparency.match %}
+            {% include "signals/_score_explanation.html" with explanation=score_transparency.forecast %}
+            {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
           </div>
-        </div>
-        <div class="kpi-grid">
-          {% for kpi in dashboard.kpis %}
-            <a class="kpi-card" href="{% url kpi.href_name project.pk %}">
-              <span class="score-card-title">{{ kpi.label }}</span>
-              <strong class="score-value">{{ kpi.score }}</strong>
-              <span class="pill {{ kpi.level|slugify }}">{{ kpi.level }}</span>
-              <p>{{ kpi.insight }}</p>
-            </a>
-          {% endfor %}
-        </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Readiness Health</summary>
+        <details style="margin-top: 14px;">
+          <summary>Executive KPI Cards</summary>
+          <span class="visually-hidden">Dashboard View Table View Chart View</span>
+          <div class="kpi-grid" style="margin-top: 12px;">
+            {% for kpi in dashboard.kpis %}
+              <a class="kpi-card" href="{% url kpi.href_name project.pk %}">
+                <span class="score-card-title">{{ kpi.label }}</span>
+                <strong class="score-value">{{ kpi.score }}</strong>
+                <span class="pill {{ kpi.level|slugify }}">{{ kpi.level }}</span>
+                <p>{{ kpi.insight }}</p>
+              </a>
+            {% endfor %}
+          </div>
+        </details>
+
+        <details style="margin-top: 14px;">
+          <summary>Readiness Health</summary>
         <div class="panel-header">
           <h2>Readiness Health</h2>
           <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness</a>
@@ -351,10 +337,10 @@
           <div class="metric-card"><strong>{{ dashboard.readiness.recommended_actions.0|default:"Maintain readiness" }}</strong><span>Top Readiness Action</span></div>
           <div class="metric-card"><strong>{{ dashboard.pursuit_summary.average_score }}</strong><span>Opportunity Readiness Average</span></div>
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Forecast Summary</summary>
+        <details style="margin-top: 14px;">
+          <summary>Forecast Summary</summary>
         <div class="panel-header">
           <h2>Forecast Summary</h2>
           <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline Forecast</a>
@@ -367,10 +353,10 @@
           <div class="metric-card"><strong>{{ dashboard.forecast.highest_value_opportunity.name|default:"None" }}</strong><span>Highest Value Opportunity</span></div>
           <div class="metric-card"><strong>{{ dashboard.forecast.highest_confidence_opportunity.name|default:"None" }}</strong><span>Highest Confidence Opportunity</span></div>
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Document / Evidence Summary</summary>
+        <details style="margin-top: 14px;">
+          <summary>Document / Evidence Summary</summary>
         <div class="panel-header">
           <h2>Readiness Inputs</h2>
           <div class="actions">
@@ -385,10 +371,10 @@
           <div class="metric-card"><strong>{{ dashboard.document_evidence_health.evidence_summary.missing_items }}</strong><span>Missing evidence items</span></div>
           <div class="metric-card"><strong>{{ dashboard.document_evidence_health.opportunities_blocked_by_missing_documents }}</strong><span>Opportunities blocked by missing documents</span></div>
         </div>
-      </details>
+        </details>
 
-      <details class="advisor-panel">
-        <summary>More Recommended Actions</summary>
+        <details style="margin-top: 14px;">
+          <summary>More Recommended Actions</summary>
         <h2>What To Do Next</h2>
         <ol class="advisor-list">
           {% for action in dashboard.executive_actions|slice:"3:8" %}
@@ -403,10 +389,10 @@
             </li>
           {% endfor %}
         </ol>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Relationship Snapshot</summary>
+        <details style="margin-top: 14px;">
+          <summary>Relationship Snapshot</summary>
         <div class="panel-header">
           <h2>Relationship Snapshot</h2>
           <a class="pill" href="{% url 'project-relationships' project.pk %}">Open Relationships</a>
@@ -417,10 +403,10 @@
           <div class="metric-card"><strong>{{ dashboard.relationships.relationship_gaps.0|default:"No relationship gap" }}</strong><span>Key Gaps</span></div>
           <div class="metric-card"><strong>{{ dashboard.relationships.health.highest_leverage_action }}</strong><span>Recommended Next Action</span></div>
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Opportunity Web Summary</summary>
+        <details style="margin-top: 14px;">
+          <summary>Opportunity Web Summary</summary>
         <div class="panel-header">
           <h2>Opportunity Web Summary</h2>
           <div class="actions">
@@ -434,10 +420,10 @@
           <div class="metric-card"><strong>${{ opportunity_web.forecast_value|floatformat:0 }}</strong><span>Weighted Forecast</span></div>
           <div class="metric-card"><strong>{{ opportunity_web.opportunity_gaps.0|default:"No web gap" }}</strong><span>Top Opportunity Gap</span></div>
         </div>
-      </details>
+        </details>
 
-      <details class="panel" aria-label="Wins Across the Web">
-        <summary>More Wins Across the Web</summary>
+        <details style="margin-top: 14px;" aria-label="Wins Across the Web">
+          <summary>More Wins Across the Web</summary>
         <div class="panel-header">
           <div>
             <h2>Wins Across the Web</h2>
@@ -460,10 +446,10 @@
             </article>
           {% endfor %}
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Workspace Flow</summary>
+        <details style="margin-top: 14px;">
+          <summary>Workspace Flow</summary>
         <h2>Workspace Flow</h2>
         <div class="kpi-grid">
           <a class="kpi-card" href="{% url 'project-organization' project.pk %}"><strong>1</strong><span>Organization</span><p>Manage mission, programs, outcomes, and readiness data. Open the <u>Mission Brief</u> when you need the full profile.</p></a>
@@ -471,10 +457,10 @@
           <a class="kpi-card" href="{% url 'project-opportunities' project.pk %}"><strong>3</strong><span>Strategic Pathways</span><p>Choose what is worth pursuing, then move the right pathways into the pipeline.</p></a>
           <a class="kpi-card" href="{% url 'project-analysis-detail' project.pk %}"><strong>4</strong><span>Workspace Settings</span><p>Refresh analysis and review inferred profile data.</p></a>
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Detailed Views</summary>
+        <details style="margin-top: 14px;">
+          <summary>Detailed Views</summary>
         <div class="workspace-tabs" aria-label="Detailed module shortcuts">
           <a href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
           <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
@@ -485,10 +471,10 @@
           <a href="{% url 'project-resources' project.pk %}">Resources</a>
           <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>The Web of Opportunity</summary>
+        <details style="margin-top: 14px;">
+          <summary>The Web of Opportunity</summary>
         <h2>The Web of Opportunity</h2>
         <div class="metric-grid">
           <div class="metric-card"><strong>{{ dashboard.total_opportunities }}</strong><span>Total Opportunities</span></div>
@@ -497,10 +483,10 @@
           <div class="metric-card"><strong>{{ dashboard.applied_opportunities }}</strong><span>Applied Opportunities</span></div>
           <div class="metric-card"><strong>{{ dashboard.won_opportunities }}</strong><span>Won Opportunities</span></div>
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Opportunity Pipeline Summary</summary>
+        <details style="margin-top: 14px;">
+          <summary>Opportunity Pipeline Summary</summary>
         <div class="panel-header">
           <h2>Opportunity Pipeline Summary</h2>
           <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
@@ -524,10 +510,10 @@
             {% endfor %}
           </div>
         </details>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Opportunity Work Summary</summary>
+        <details style="margin-top: 14px;">
+          <summary>Opportunity Work Summary</summary>
         <div class="panel-header">
           <h2>Opportunity Work Summary</h2>
           <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Workspaces</a>
@@ -541,10 +527,10 @@
           <div class="metric-card"><strong>{{ dashboard.work_summary.drafting_opportunities }}</strong><span>Opportunities in Drafting</span></div>
           <div class="metric-card"><strong>{{ dashboard.work_summary.submitted_opportunities }}</strong><span>Submitted Opportunities</span></div>
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Top Opportunities</summary>
+        <details style="margin-top: 14px;">
+          <summary>Top Opportunities</summary>
         <div class="panel-header">
           <h2>Top Opportunities</h2>
           <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Discovery</a>
@@ -574,10 +560,10 @@
             Add or seed opportunity inventory records to populate the command center, deadlines, and matching views.
           </div>
         {% endif %}
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Opportunity Pipeline Snapshot</summary>
+        <details style="margin-top: 14px;">
+          <summary>Opportunity Pipeline Snapshot</summary>
         <div class="pipeline">
           {% for column in dashboard.pipeline_columns %}
             <section class="pipeline-card">
@@ -593,10 +579,10 @@
             </section>
           {% endfor %}
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Opportunity Match Health</summary>
+        <details style="margin-top: 14px;">
+          <summary>Opportunity Match Health</summary>
         <div class="metric-grid">
           <div class="metric-card"><strong>{{ dashboard.match_health.total_matches }}</strong><span>Total Matches</span></div>
           <div class="metric-card"><strong>{{ dashboard.match_health.excellent_matches }}</strong><span>Excellent Matches</span></div>
@@ -604,10 +590,10 @@
           <div class="metric-card"><strong>{{ dashboard.match_health.moderate_matches }}</strong><span>Moderate Matches</span></div>
           <div class="metric-card"><strong>{{ dashboard.match_health.weak_matches }}</strong><span>Weak Matches</span></div>
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Discovery Health</summary>
+        <details style="margin-top: 14px;">
+          <summary>Discovery Health</summary>
         <div class="health-grid">
           <div class="metric-card"><strong>{{ dashboard.discovery_health.total_source_organizations }}</strong><span>Total Source Organizations</span></div>
           <div class="metric-card"><strong>{{ dashboard.discovery_health.opportunity_categories }}</strong><span>Opportunity Categories</span></div>
@@ -631,10 +617,10 @@
             <div class="empty-state"><strong>No upcoming deadlines</strong>Add deadlines to opportunity records so leadership can see time-sensitive work.</div>
           {% endif %}
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Visualization Layer</summary>
+        <details style="margin-top: 14px;">
+          <summary>Visualization Layer</summary>
         <div class="chart-grid">
           <article class="chart-card">
             <h3>Funding vs Government vs Resource vs Partnership Scores</h3>
@@ -661,10 +647,10 @@
             {% endfor %}
           </article>
         </div>
-      </details>
+        </details>
 
-      <details class="panel">
-        <summary>Table View</summary>
+        <details style="margin-top: 14px;">
+          <summary>Table View</summary>
         <table class="table">
           <thead>
             <tr><th>Area</th><th>Score</th><th>Level</th><th>Top Insight</th></tr>
@@ -675,6 +661,7 @@
             {% endfor %}
           </tbody>
         </table>
+      </details>
       </details>
       {% include "signals/_app_shell_footer.html" %}
     </main>
