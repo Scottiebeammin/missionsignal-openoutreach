@@ -165,15 +165,14 @@
           <div class="metric-card"><strong>{{ web.ecosystem_health }}</strong><span>Ecosystem Health</span><p class="muted">{{ web.ecosystem_health_level }}</p></div>
           <div class="metric-card"><strong>{{ web.strongest_asset }}</strong><span>Strongest Asset</span></div>
           <div class="metric-card"><strong>{{ web.biggest_constraint }}</strong><span>Biggest Constraint</span></div>
-          <div class="metric-card"><strong>{{ web.highest_leverage_relationship }}</strong><span>Highest Leverage Relationship</span></div>
-          <div class="metric-card"><strong>{{ web.highest_leverage_opportunity }}</strong><span>Highest Leverage Opportunity</span></div>
-          <div class="metric-card"><strong>{{ web.highest_leverage_actions.0|default:"Review the Snapshot" }}</strong><span>Highest Leverage Action</span></div>
         </div>
       </article>
       <article class="panel action-panel">
-        <h2>Snapshot Connection</h2>
-        <p><strong>The Snapshot is the executive interpretation of this web.</strong></p>
-        <p class="muted">Use the Opportunity Web to see the ecosystem. Use the Snapshot to summarize the story for board, funder, partner, or pilot conversations.</p>
+        <h2>Dominant Insight</h2>
+        <p><strong>{{ web.highest_leverage_actions.0|default:"Review the Snapshot" }}</strong></p>
+        <p class="muted">Highest Leverage Relationship: {{ web.highest_leverage_relationship }}</p>
+        <p class="muted">Highest Leverage Opportunity: {{ web.highest_leverage_opportunity }}</p>
+        <p class="muted">Snapshot Connection: the Snapshot is the executive interpretation of this web.</p>
         <p><a class="button" href="{% url 'project-snapshot' project.pk %}">Open Opportunity Web Snapshot</a></p>
       </article>
     </section>

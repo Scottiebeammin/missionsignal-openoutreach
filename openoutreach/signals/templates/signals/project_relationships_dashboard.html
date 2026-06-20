@@ -39,8 +39,8 @@
   <main>
     <nav class="workspace-tabs" aria-label="Relationship workspace navigation">
       <a class="active" href="{% url 'project-relationships' project.pk %}">Overview</a>
-      <a href="#partners">Partners</a>
-      <a href="#contacts">Contacts</a>
+      <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem Context</a>
+      <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
 
     <header class="hero">
