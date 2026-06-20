@@ -50,9 +50,9 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="snapshot" %}
   <main>
     <nav class="workspace-tabs" aria-label="Snapshot navigation">
-      <a href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
-      <a class="active" href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
-      <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
+      <a class="active" href="#summary">Executive Summary</a>
+      <a href="#plan">30-Day Plan</a>
+      <a href="#risks-gaps">Risks &amp; Gaps</a>
     </nav>
 
     <header class="hero">
@@ -70,7 +70,7 @@
     </header>
 
     <section class="snapshot-command">
-      <article class="panel deliverable-cover">
+      <article id="summary" class="panel deliverable-cover">
         <h2>Executive Summary</h2>
         <p class="muted">{{ snapshot.mission_overview }}</p>
         <div class="metric-grid" style="margin-top: 12px;">
@@ -80,7 +80,7 @@
           {% endfor %}
         </div>
       </article>
-      <article class="snapshot-action">
+      <article id="plan" class="snapshot-action">
         <h2>30-Day Action Plan</h2>
         <ol>
           {% for action in snapshot.recommended_next_actions|slice:":3" %}
@@ -133,7 +133,7 @@
       </div>
     </details>
 
-    <details class="panel">
+    <details id="risks-gaps" class="panel">
       <summary>Top Risks</summary>
       <h2>Top Risks</h2>
       <div class="summary-grid">

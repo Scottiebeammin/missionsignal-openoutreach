@@ -131,9 +131,10 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="opportunity-web" %}
   <main>
     <nav class="workspace-tabs" aria-label="Opportunity Web navigation">
-      <a class="active" href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
-      <a href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
-      <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
+      <a class="active" href="#overview">Overview</a>
+      <a href="#relationships">Relationships</a>
+      <a href="#opportunities">Opportunities</a>
+      <a href="#insights">Insights</a>
     </nav>
 
     <header class="hero">
@@ -157,7 +158,7 @@
       {% include "signals/_workflow_guidance.html" %}
     </details>
 
-    <section class="ecosystem-hero-grid" aria-label="Executive ecosystem summary">
+    <section id="overview" class="ecosystem-hero-grid" aria-label="Executive ecosystem summary">
       <article class="panel web-story">
         <h2>Executive Ecosystem Summary</h2>
         <p class="muted">A nonprofit leader should be able to see the current situation quickly: what is strong, what is constrained, who matters, which pathway matters, and what to do next.</p>
@@ -177,7 +178,7 @@
       </article>
     </section>
 
-    <section class="panel">
+    <section id="relationships" class="panel">
       <h2>Web of Opportunity Story</h2>
       <p class="muted">The Web of Opportunity is the ecosystem surrounding your mission. Mission creates the center. Funders and partners bring support. Relationships create access. Resources and evidence build readiness. Pathways become active pursuits. Outcomes prove the work and strengthen the next cycle.</p>
       <div class="ecosystem-map" style="margin-top: 14px;">
@@ -199,7 +200,7 @@
       </ol>
     </details>
 
-    <details class="panel">
+    <details id="insights" class="panel">
       <summary>Opportunity Web Insights</summary>
       <div class="summary-grid">
         <article class="summary-card insight-card"><strong>Opportunity Insight</strong><span class="muted">{{ web.opportunity_insight }}</span></article>
@@ -253,7 +254,7 @@
       </div>
     </details>
 
-    <details class="panel">
+    <details id="opportunities" class="panel">
       <summary>Opportunity Gaps</summary>
       <div class="summary-grid">
         {% for gap in web.opportunity_gaps %}

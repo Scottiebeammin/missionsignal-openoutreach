@@ -80,10 +80,10 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="organization" %}
   <main>
     <nav class="workspace-tabs" aria-label="Organization workspace tabs">
-      <a class="active" href="{% url 'project-mission-brief' project.pk %}">Mission</a>
-      <a href="{% url 'project-programs' project.pk %}">Programs</a>
-      <a href="{% url 'project-organization' project.pk %}">Workspace</a>
-      <a href="{% url 'project-readiness' project.pk %}">Readiness</a>
+      <a class="active" href="#mission-summary">Mission</a>
+      <a href="#identity">Identity</a>
+      <a href="#portfolio">Portfolio</a>
+      <a href="#modules">Modules</a>
     </nav>
     <nav class="topbar" aria-label="Mission Brief actions">
       <a class="button" href="{% url 'project-analysis-detail' project.pk %}">&larr; Analysis Review</a>
@@ -110,7 +110,7 @@
 
     <div class="dashboard">
       <div class="stack">
-        <section class="panel">
+        <section id="mission-summary" class="panel">
           <h2>Mission Summary</h2>
           {% if organization.organization_summary %}
             <div class="finding">{{ organization.organization_summary }}</div>
@@ -119,7 +119,7 @@
           {% endif %}
         </section>
 
-        <section class="panel">
+        <section id="identity" class="panel">
           <h2>Organization Identity</h2>
           <div class="identity-grid">
             <div class="datum"><h3>Organization Type</h3><p>{{ organization.organization_type|default:"Not provided yet." }}</p></div>
@@ -131,7 +131,7 @@
           </div>
         </section>
 
-        <section class="panel">
+        <section id="portfolio" class="panel">
           <h2>Opportunity Snapshot</h2>
           {% if funding_criteria %}
             <div class="opportunity-grid">
@@ -145,7 +145,7 @@
           {% endif %}
         </section>
 
-        <section class="panel">
+        <section id="modules" class="panel">
           <h2>Program Portfolio</h2>
           <div class="preview">
             <h3>Preview only</h3>

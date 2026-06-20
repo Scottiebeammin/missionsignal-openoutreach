@@ -179,7 +179,14 @@
         </section>
       </header>
 
-      <section class="minimal-command" aria-label="Minimal executive command center">
+      <nav class="workspace-tabs" aria-label="Dashboard views">
+        <a class="active" href="#overview">Overview</a>
+        <a href="#priorities">Priorities</a>
+        <a href="#deadlines">Deadlines</a>
+        <a href="#activity">Activity</a>
+      </nav>
+
+      <section id="overview" class="minimal-command" aria-label="Minimal executive command center">
         <article class="command-card primary-action">
           <div>
             <h2>What To Do Next</h2>
@@ -188,7 +195,7 @@
           </div>
           <a class="button" href="{% url 'project-readiness' project.pk %}">Open Readiness</a>
         </article>
-        <article class="command-card">
+        <article id="deadlines" class="command-card">
           <h2>Upcoming Deadlines</h2>
           {% if dashboard.discovery_health.upcoming_deadlines %}
             <ul class="deadline-list">
@@ -216,7 +223,7 @@
         <div class="metric-card compact"><span class="score-card-title">Forecast Value</span><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
       </section>
 
-      <section class="command-grid" aria-label="Strategic moves and opportunity focus">
+      <section id="priorities" class="command-grid" aria-label="Strategic moves and opportunity focus">
         <article class="command-card">
           <h2>Top 3 Strategic Moves</h2>
           <ol class="strategic-list">
@@ -283,7 +290,7 @@
         </div>
       </details>
 
-      <details class="panel" aria-label="Wins Across the Web">
+      <details id="activity" class="panel" aria-label="Wins Across the Web">
         <summary>Wins Across the Web</summary>
         <div class="panel-header">
           <div>

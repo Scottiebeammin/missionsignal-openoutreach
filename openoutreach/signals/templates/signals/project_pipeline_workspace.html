@@ -52,9 +52,9 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="pipeline" %}
   <main>
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
-      <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
-      <a class="active" href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
-      <a href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
+      <a class="active" href="#board">Board</a>
+      <a href="#health">Health</a>
+      <a href="#forecast">Forecast</a>
     </nav>
 
     <header class="hero">
@@ -75,7 +75,7 @@
       {% include "signals/_workflow_guidance.html" %}
     </details>
 
-    <section class="panel">
+    <section id="health" class="panel">
       <h2>Opportunity Pipeline Summary</h2>
       <div class="metrics">
         <div class="metric"><span class="muted">Pipeline Health</span><strong>{{ lifecycle.health.score }}</strong><span class="pill">{{ lifecycle.health.level }}</span></div>
@@ -94,7 +94,7 @@
       </details>
     </section>
 
-    <details class="panel">
+    <details id="forecast" class="panel">
       <summary>Pipeline Forecast</summary>
       <div class="metrics">
         <div class="metric"><span class="muted">Total Value</span><strong>${{ forecast.total_pipeline_value|floatformat:0 }}</strong></div>
@@ -111,7 +111,7 @@
       </details>
     </details>
 
-    <section class="panel">
+    <section id="board" class="panel">
       <h2>Lifecycle Board</h2>
       <div class="board">
         {% for stage in discovery.lifecycle_stages %}
