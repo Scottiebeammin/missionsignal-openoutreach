@@ -94,8 +94,7 @@ def test_project_member_can_view_pipeline(client, lifecycle_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Opportunity Lifecycle V2" in content
-    assert "Opportunity Pipeline" in content
+    assert "Manage active pursuits." in content
     assert "Lifecycle Board" in content
     assert "Pipeline Health" in content
     assert "Excellent" in content or "Healthy" in content or "Needs Attention" in content or "At Risk" in content

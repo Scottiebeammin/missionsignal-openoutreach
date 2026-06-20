@@ -40,14 +40,14 @@
     <nav class="workspace-tabs" aria-label="Relationship workspace navigation">
       <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
       <a class="active" href="{% url 'project-relationships' project.pk %}">Relationships</a>
-      <a href="{% url 'project-opportunities' project.pk %}">Opportunities</a>
-      <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
+      <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
     </nav>
 
     <header class="hero">
       <section>
-        <p class="eyebrow">Relationship Intelligence V1</p>
-        <h1>Relationship Dashboard</h1>
+        <p class="eyebrow">Relationships</p>
+        <h1>Strengthen the connections that support your mission.</h1>
         <p class="muted">{{ organization.name }} - {{ project.name }}</p>
       </section>
       <section class="metric-card advisor-panel">

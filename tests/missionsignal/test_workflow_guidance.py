@@ -21,14 +21,14 @@ def test_workflow_guidance_builds_operating_model(workflow_project):
 
     assert [stage.short_label for stage in workflow.stages] == [
         "Understand",
-        "Prioritize",
+        "Pathways",
         "Prepare",
-        "Connect",
-        "Execute",
+        "Relationships",
+        "Pipeline",
     ]
-    assert workflow.current_stage.label == "Prioritize Opportunities"
-    assert workflow.recommended_next_stage.label == "Prepare To Win"
-    assert workflow.context_statement == "Prioritize the opportunities most aligned to your mission."
+    assert workflow.current_stage.label == "Choose Strategic Pathways"
+    assert workflow.recommended_next_stage.label == "Prepare To Compete"
+    assert workflow.context_statement == "Choose what is worth pursuing next."
     assert 1 <= len(workflow.next_actions) <= 3
 
 
@@ -42,10 +42,10 @@ def test_dashboard_renders_workflow_progress(client, workflow_project):
     assert response.status_code == 200
     assert "Workflow Progress" in content
     assert "Understand Your Ecosystem" in content
-    assert "Prioritize Opportunities" in content
-    assert "Prepare To Win" in content
-    assert "Activate Relationships" in content
-    assert "Execute Pursuits" in content
+    assert "Choose Strategic Pathways" in content
+    assert "Prepare To Compete" in content
+    assert "Strengthen Relationships" in content
+    assert "Manage Active Pursuits" in content
     assert "Recommended Next Action" in content
 
 
@@ -54,14 +54,14 @@ def test_dashboard_renders_workflow_progress(client, workflow_project):
     [
         ("project-opportunity-web", "Understand the ecosystem around your mission.", "project-opportunities"),
         ("project-snapshot", "Understand the ecosystem around your mission.", "project-opportunities"),
-        ("project-opportunities", "Prioritize the opportunities most aligned to your mission.", "project-readiness"),
-        ("project-readiness", "Prepare your organization to pursue opportunities successfully.", "project-relationships"),
-        ("project-relationships", "Activate the people and organizations that can accelerate your mission.", "project-pipeline"),
+        ("project-opportunities", "Choose what is worth pursuing next.", "project-readiness"),
+        ("project-readiness", "Prepare your organization to compete for the right opportunities.", "project-relationships"),
+        ("project-relationships", "Strengthen the relationships that support your mission.", "project-pipeline"),
         ("project-pipeline", "Manage active pursuits and execution.", "project-snapshot"),
-        ("project-discovery", "Prioritize the opportunities most aligned to your mission.", "project-readiness"),
-        ("project-matches", "Prioritize the opportunities most aligned to your mission.", "project-readiness"),
-        ("project-documents", "Prepare your organization to pursue opportunities successfully.", "project-relationships"),
-        ("project-evidence", "Prepare your organization to pursue opportunities successfully.", "project-relationships"),
+        ("project-discovery", "Choose what is worth pursuing next.", "project-readiness"),
+        ("project-matches", "Choose what is worth pursuing next.", "project-readiness"),
+        ("project-documents", "Prepare your organization to compete for the right opportunities.", "project-relationships"),
+        ("project-evidence", "Prepare your organization to compete for the right opportunities.", "project-relationships"),
     ],
 )
 def test_workflow_pages_render_orientation_and_next_links(

@@ -69,8 +69,7 @@ def test_project_member_can_view_relationship_dashboard(client, relationship_pro
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Relationship Intelligence V1" in content
-    assert "Relationship Dashboard" in content
+    assert "Strengthen the connections that support your mission." in content
     assert "Relationship Health" in content
     assert "Relationship Health Transparency" in content
     assert "Score Contributors" in content

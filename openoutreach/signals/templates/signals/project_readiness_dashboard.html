@@ -41,15 +41,16 @@
     <nav class="workspace-tabs" aria-label="Readiness navigation">
       <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
       <a class="active" href="{% url 'project-readiness' project.pk %}">Readiness</a>
-      <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
-      <a href="{% url 'project-opportunities' project.pk %}">Opportunities</a>
+      <a href="{% url 'project-relationships' project.pk %}">Relationships</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
     </nav>
 
     <header class="hero">
       <section>
-        <p class="eyebrow">Readiness Engine V1</p>
-        <h1>Readiness Dashboard</h1>
+        <p class="eyebrow">Readiness</p>
+        <h1>Prepare to compete.</h1>
         <p class="muted">{{ organization.name }} - {{ project.name }}</p>
+        <p class="muted">Close the gaps that make strong pathways harder to pursue.</p>
       </section>
       <section class="metric-card">
         <h2>Overall Readiness</h2>

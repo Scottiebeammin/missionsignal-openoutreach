@@ -22,8 +22,9 @@ def test_primary_navigation_is_workflow_based(client, ux_project):
 
     content = response.content.decode()
     assert "Executive" in content
-    assert "Action" in content
+    assert "Prioritize" in content
     assert "Prepare" in content
+    assert "Execute" in content
     assert "Workspace" in content
     assert "Settings" in content
     assert "Dashboard" in content
@@ -31,7 +32,6 @@ def test_primary_navigation_is_workflow_based(client, ux_project):
     assert "Strategic Pathways" in content
     assert "Discovery" in content
     assert "Matches" in content
-    assert "Ecosystem" in content
     assert "Readiness" in content
     assert "Relationships" in content
     assert "Documents" in content

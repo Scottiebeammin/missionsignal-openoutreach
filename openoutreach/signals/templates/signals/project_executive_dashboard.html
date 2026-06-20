@@ -313,7 +313,7 @@
         <summary>Executive Snapshot</summary>
         <div class="panel-header">
           <h2>Executive Snapshot</h2>
-          <a class="pill" href="{% url 'project-opportunities' project.pk %}">Open Opportunities</a>
+          <a class="pill" href="{% url 'project-opportunities' project.pk %}">Open Strategic Pathways</a>
         </div>
         <div class="metric-grid">
           <div class="metric-card"><strong>{{ dashboard.readiness.overall_score }}</strong><span>Readiness</span><p class="muted">{{ dashboard.readiness.level }}</p></div>
@@ -365,7 +365,7 @@
         <summary>Readiness Health</summary>
         <div class="panel-header">
           <h2>Readiness Health</h2>
-          <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness Dashboard</a>
+          <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness</a>
         </div>
         <div class="metric-grid">
           <div class="metric-card"><strong>{{ dashboard.readiness.organization_completeness.score }}</strong><span>Organization Completeness</span><p class="muted">{{ dashboard.readiness.organization_completeness.level }}</p></div>
@@ -491,7 +491,7 @@
         <div class="kpi-grid">
           <a class="kpi-card" href="{% url 'project-organization' project.pk %}"><strong>1</strong><span>Organization</span><p>Manage mission, programs, outcomes, and readiness data. Open the <u>Mission Brief</u> when you need the full profile.</p></a>
           <a class="kpi-card" href="{% url 'project-ecosystem' project.pk %}"><strong>2</strong><span>Ecosystem</span><p>Review funding, government, resources, and partnerships together.</p></a>
-          <a class="kpi-card" href="{% url 'project-opportunities' project.pk %}"><strong>3</strong><span>Opportunities</span><p>Move from discovery and matching into the pipeline.</p></a>
+          <a class="kpi-card" href="{% url 'project-opportunities' project.pk %}"><strong>3</strong><span>Strategic Pathways</span><p>Choose what is worth pursuing, then move the right pathways into the pipeline.</p></a>
           <a class="kpi-card" href="{% url 'project-analysis-detail' project.pk %}"><strong>4</strong><span>Workspace Settings</span><p>Refresh analysis and review inferred profile data.</p></a>
         </div>
       </details>

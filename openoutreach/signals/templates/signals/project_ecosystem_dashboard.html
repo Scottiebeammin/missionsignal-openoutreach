@@ -159,7 +159,7 @@
     <section class="panel">
       <div class="section-toolbar">
         <h2>Readiness Health</h2>
-        <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness Dashboard</a>
+        <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness</a>
       </div>
       <div class="summary-grid">
         <div class="summary-card"><strong>{{ readiness.organization_completeness.score }}</strong><span class="muted">Completeness Score</span><span class="pill">{{ readiness.organization_completeness.level }}</span></div>

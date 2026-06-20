@@ -52,17 +52,17 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="pipeline" %}
   <main>
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
-      <a href="{% url 'project-opportunities' project.pk %}">Pathways Overview</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
       <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
-      <a href="{% url 'project-matches' project.pk %}">Match Intelligence</a>
+      <a href="{% url 'project-matches' project.pk %}">Matches</a>
       <a class="active" href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
       <a href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
     </nav>
 
     <header class="hero">
       <section>
-        <p class="eyebrow">Opportunity Lifecycle V2 · Pipeline · Pathway Operations</p>
-        <h1>Opportunity Pipeline</h1>
+        <p class="eyebrow">Pipeline</p>
+        <h1>Manage active pursuits.</h1>
         <p class="muted">{{ organization.name }} - {{ project.name }}</p>
       </section>
       <section class="panel action-panel">

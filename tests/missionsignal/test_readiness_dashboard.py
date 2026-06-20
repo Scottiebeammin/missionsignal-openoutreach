@@ -112,8 +112,7 @@ def test_project_member_can_view_readiness_dashboard(client, readiness_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Readiness Engine V1" in content
-    assert "Readiness Dashboard" in content
+    assert "Prepare to compete." in content
     assert "Overall Readiness" in content
     assert "Organization Completeness" in content
     assert "Organization Completeness Score" in content

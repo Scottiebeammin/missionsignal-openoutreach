@@ -12,13 +12,12 @@
     </div>
 
     <div class="nav-section">
-      <span class="nav-label">Action</span>
+      <span class="nav-label">Prioritize</span>
       <a class="{% if active_page == 'opportunities' or active_page == 'discovery' or active_page == 'matching' %}active{% endif %}" href="{% url 'project-opportunities' project.pk %}">Strategic Pathways <span>Prioritize</span></a>
       <div class="nav-sublinks" aria-label="Strategic Pathways tools">
         <a class="{% if active_page == 'discovery' %}active{% endif %}" href="{% url 'project-discovery' project.pk %}">Discovery</a>
         <a class="{% if active_page == 'matching' %}active{% endif %}" href="{% url 'project-matches' project.pk %}">Matches</a>
       </div>
-      <a class="{% if active_page == 'pipeline' %}active{% endif %}" href="{% url 'project-pipeline' project.pk %}">Pipeline <span>Active pursuits</span></a>
     </div>
 
     <div class="nav-section">
@@ -28,9 +27,13 @@
     </div>
 
     <div class="nav-section">
+      <span class="nav-label">Execute</span>
+      <a class="{% if active_page == 'pipeline' %}active{% endif %}" href="{% url 'project-pipeline' project.pk %}">Pipeline <span>Active pursuits</span></a>
+    </div>
+
+    <div class="nav-section">
       <span class="nav-label">Workspace</span>
       <a class="{% if active_page == 'organization' or active_page == 'mission' %}active{% endif %}" href="{% url 'project-organization' project.pk %}">Organization <span>Profile</span></a>
-      <a class="{% if active_page == 'ecosystem' or active_page == 'funding' or active_page == 'government' or active_page == 'resources' or active_page == 'partnerships' %}active{% endif %}" href="{% url 'project-ecosystem' project.pk %}">Ecosystem <span>Signals</span></a>
       <a class="{% if active_page == 'documents' %}active{% endif %}" href="{% url 'project-documents' project.pk %}">Documents</a>
       <a class="{% if active_page == 'evidence' %}active{% endif %}" href="{% url 'project-evidence' project.pk %}">Evidence</a>
       <a class="{% if active_page == 'celebrations' %}active{% endif %}" href="{% url 'project-celebrations' project.pk %}">Celebrations</a>

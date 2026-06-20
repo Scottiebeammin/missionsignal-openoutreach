@@ -20,8 +20,8 @@ def test_project_member_can_view_match_dashboard(client, match_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Matching V3" in content
-    assert "Opportunity Match Dashboard" in content
+    assert "Matches · Supporting Tool" in content
+    assert "Review pathway fit." in content
     assert "Overall Match Score" in content
     assert "Total Matches" in content.lower() or "total matches" in content
     assert "Match Categories" in content

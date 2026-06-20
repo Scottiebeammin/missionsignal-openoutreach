@@ -44,29 +44,29 @@ WORKFLOW_STAGES = (
     ),
     WorkflowStage(
         key="prioritize",
-        label="Prioritize Opportunities",
-        short_label="Prioritize",
+        label="Choose Strategic Pathways",
+        short_label="Pathways",
         description="Choose the pathways most aligned to your mission.",
         href_name="project-opportunities",
     ),
     WorkflowStage(
         key="prepare",
-        label="Prepare To Win",
+        label="Prepare To Compete",
         short_label="Prepare",
         description="Close readiness, document, and evidence gaps.",
         href_name="project-readiness",
     ),
     WorkflowStage(
         key="connect",
-        label="Activate Relationships",
-        short_label="Connect",
+        label="Strengthen Relationships",
+        short_label="Relationships",
         description="Use partners, funders, and contacts to accelerate progress.",
         href_name="project-relationships",
     ),
     WorkflowStage(
         key="execute",
-        label="Execute Pursuits",
-        short_label="Execute",
+        label="Manage Active Pursuits",
+        short_label="Pipeline",
         description="Manage active opportunities through the pipeline.",
         href_name="project-pipeline",
     ),
@@ -74,9 +74,9 @@ WORKFLOW_STAGES = (
 
 CONTEXT_STATEMENTS = {
     "understand": "Understand the ecosystem around your mission.",
-    "prioritize": "Prioritize the opportunities most aligned to your mission.",
-    "prepare": "Prepare your organization to pursue opportunities successfully.",
-    "connect": "Activate the people and organizations that can accelerate your mission.",
+    "prioritize": "Choose what is worth pursuing next.",
+    "prepare": "Prepare your organization to compete for the right opportunities.",
+    "connect": "Strengthen the relationships that support your mission.",
     "execute": "Manage active pursuits and execution.",
 }
 
