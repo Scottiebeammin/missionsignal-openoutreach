@@ -9,6 +9,41 @@
       border-left: 5px solid var(--accent);
       background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%);
     }
+    .snapshot-command {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .snapshot-action {
+      border: 1px solid rgba(212, 160, 23, .32);
+      border-radius: var(--radius, 16px);
+      padding: 18px;
+      background: linear-gradient(145deg, #0d1b3d 0%, #17284f 100%);
+      color: #fff;
+      box-shadow: var(--shadow);
+    }
+    .snapshot-action h2 { color: #fff; }
+    .snapshot-action .muted { color: #cbd6e4; }
+    .snapshot-action li + li { margin-top: 8px; }
+    .deliverable-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .deliverable-list li {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      font-weight: 850;
+    }
+    @media (max-width: 900px) {
+      .snapshot-command, .deliverable-list { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -19,15 +54,15 @@
       <a href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
       <a class="active" href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
       <a href="{% url 'project-readiness' project.pk %}">Readiness</a>
-      <a href="{% url 'project-opportunities' project.pk %}">Opportunities</a>
+      <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
     </nav>
 
     <header class="hero">
       <section>
-        <p class="eyebrow">Opportunity Web Snapshot V1</p>
+        <p class="eyebrow">Opportunity Web Snapshot · Consulting Deliverable</p>
         <h1>Opportunity Web Snapshot</h1>
         <p class="muted">{{ organization.name }} - {{ project.name }}</p>
-        <p class="muted">A concise executive deliverable for deciding where to focus opportunity, readiness, relationship, and resource work next.</p>
+        <p class="muted">A concise executive deliverable for deciding where to focus opportunity, readiness, relationship, and resource work over the next 30 days.</p>
       </section>
       <section class="metric-card advisor-panel">
         <h2>Readiness Score</h2>
@@ -36,7 +71,33 @@
       </section>
     </header>
 
-    {% include "signals/_workflow_guidance.html" %}
+    <section class="snapshot-command">
+      <article class="snapshot-action">
+        <h2>30-Day Action Plan</h2>
+        <ol>
+          {% for action in snapshot.recommended_next_actions|slice:":3" %}
+            <li>{{ action }}</li>
+          {% endfor %}
+        </ol>
+      </article>
+      <article class="panel deliverable-cover">
+        <h2>What This Delivers</h2>
+        <p class="muted">A board-ready, founder-led interpretation of the Opportunity Web.</p>
+        <ul class="deliverable-list">
+          <li>Executive Summary</li>
+          <li>Top Opportunities</li>
+          <li>Relationship Gaps</li>
+          <li>Readiness Gaps</li>
+          <li>Strategic Moves</li>
+          <li>30-Day Recommendations</li>
+        </ul>
+      </article>
+    </section>
+
+    <details class="panel">
+      <summary>Workflow Guidance</summary>
+      {% include "signals/_workflow_guidance.html" %}
+    </details>
 
     <section class="panel deliverable-cover">
       <h2>Executive Summary</h2>
@@ -49,14 +110,15 @@
       </div>
     </section>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Opportunity Overview</summary>
       <h2>Opportunity Overview</h2>
       <div class="metric-grid">
         {% for label, value in snapshot.opportunity_web_summary %}
           <div class="metric-card"><strong>{{ value }}</strong><span>{{ label }}</span></div>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Top Opportunities</h2>
@@ -73,23 +135,25 @@
       </div>
     </section>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Top Risks</summary>
       <h2>Top Risks</h2>
       <div class="summary-grid">
         {% for gap in snapshot.top_risks_gaps %}
           <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Snapshot risk</span></article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Top Resource Gaps</summary>
       <h2>Top Resource Gaps</h2>
       <div class="summary-grid">
         {% for gap in snapshot.top_resource_gaps %}
           <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Resource gap</span></article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Top Relationship Gaps</h2>

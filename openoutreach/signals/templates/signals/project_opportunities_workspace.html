@@ -39,17 +39,17 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="opportunities" %}
   <main>
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
-      <a class="active" href="{% url 'project-opportunities' project.pk %}">Pathways Overview</a>
+      <a class="active" href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
       <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
-      <a href="{% url 'project-matches' project.pk %}">Match Intelligence</a>
+      <a href="{% url 'project-matches' project.pk %}">Matches</a>
       <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
 
     <header class="hero">
       <section>
-        <p class="eyebrow">Pathways · Opportunities Workspace</p>
-        <h1>Turn opportunity into active pathways.</h1>
-        <p class="muted">Discovery, Match Intelligence, and Pipeline work are grouped here so teams can move from inventory to action without losing the executive view.</p>
+        <p class="eyebrow">Strategic Pathways</p>
+        <h1>Choose what is worth pursuing.</h1>
+        <p class="muted">Review the strongest pathways, understand what requires attention, and move the right opportunities into active pursuit.</p>
       </section>
       <section class="panel action-panel">
         <h2>Recommended Next Actions</h2>

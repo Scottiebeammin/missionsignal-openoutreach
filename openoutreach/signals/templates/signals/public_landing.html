@@ -121,11 +121,11 @@
       grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
       gap: 28px;
       align-items: stretch;
-      padding-bottom: 34px;
+      padding-bottom: 22px;
     }
     .hero-copy {
       color: var(--white);
-      padding: 58px 0 42px;
+      padding: 48px 0 32px;
     }
     .eyebrow {
       margin: 0 0 14px;
@@ -163,6 +163,12 @@
       font-size: clamp(1.05rem, 2vw, 1.35rem);
       margin-bottom: 28px;
     }
+    .hero-note {
+      max-width: 680px;
+      margin: 0 0 18px;
+      color: var(--gold-soft);
+      font-weight: 850;
+    }
     .hero-proof {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -179,6 +185,22 @@
     }
     .proof strong { display: block; font-size: 1.35rem; color: var(--white); }
     .proof span { color: var(--muted-dark); font-size: 0.92rem; }
+    .trust-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+    .trust-strip span {
+      min-height: 42px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,.07);
+      color: var(--muted-dark);
+      font-weight: 850;
+      text-align: center;
+    }
     .web-panel {
       position: relative;
       overflow: hidden;
@@ -232,7 +254,7 @@
     .node:nth-child(5) { left: 37%; top: 7%; }
     .node:nth-child(6) { left: 36%; bottom: 7%; }
     .section {
-      margin: 18px 0;
+      margin: 16px 0;
       padding: clamp(28px, 5vw, 54px);
       border: 1px solid var(--line-soft);
       border-radius: 30px;
@@ -291,6 +313,12 @@
       color: var(--navy);
       font-weight: 800;
       text-align: center;
+    }
+    .quiet-details summary {
+      cursor: pointer;
+      color: var(--navy);
+      font-weight: 900;
+      letter-spacing: .02em;
     }
     .ecosystem {
       display: grid;
@@ -398,7 +426,7 @@
       .topnav { align-items: flex-start; }
       .nav-actions { width: 100%; }
       .nav-actions .button, .hero-actions .button, .section-actions .button, .final-cta .button { width: 100%; }
-      .hero-proof, .grid, .grid.two, .ecosystem, .problem-list, .snapshot-list, .form-grid { grid-template-columns: 1fr; }
+      .hero-proof, .grid, .grid.two, .ecosystem, .problem-list, .snapshot-list, .form-grid, .trust-strip { grid-template-columns: 1fr; }
       .web-panel { min-height: 560px; }
       .node { width: 132px; }
       .node:nth-child(1) { left: 4%; top: 8%; }
@@ -429,14 +457,15 @@
           <p class="eyebrow">anansiatlas.com</p>
           <h1>Map the Web of Opportunity Around Your Mission</h1>
           <p class="subtitle">Anansi Atlas helps nonprofits and mission-driven organizations identify aligned funders, potential partners, community resources, strategic risks, pathways, and practical next steps.</p>
+          <p class="hero-note">Start with one paid Snapshot, one founder-led walkthrough, and one focused 30-day action plan.</p>
           <div class="hero-actions">
             <a class="button primary" href="#snapshot">Explore the Opportunity Web Snapshot</a>
             <a class="button" href="{% url 'pilot-onboarding' %}">Become a Founding Atlas Partner</a>
           </div>
           <div class="hero-proof" aria-label="What the Snapshot clarifies">
-            <div class="proof"><strong>Funders</strong><span>aligned funding lanes</span></div>
-            <div class="proof"><strong>Partners</strong><span>relationship pathways</span></div>
-            <div class="proof"><strong>Actions</strong><span>next moves to focus</span></div>
+            <div class="proof"><strong>Snapshot</strong><span>consulting-grade entry deliverable</span></div>
+            <div class="proof"><strong>$100</strong><span>Founding Atlas Partner pilot</span></div>
+            <div class="proof"><strong>30 Days</strong><span>platform access and action plan</span></div>
           </div>
         </section>
 
@@ -451,24 +480,34 @@
         </section>
       </header>
 
+      <div class="trust-strip" aria-label="Pilot trust signals">
+        <span>Founder-led</span>
+        <span>Selective pilot</span>
+        <span>No grant promises</span>
+        <span>Action-first strategy</span>
+      </div>
+
       <section class="section">
         <p class="eyebrow dark">The Problem</p>
         <div class="section-header">
           <h2>Nonprofits are not lacking purpose. Opportunity is scattered.</h2>
           <p class="muted lead">Funders, partners, resources, risks, relationships, deadlines, and timing often sit in different places. The hard part is knowing which dots matter now.</p>
         </div>
-        <div class="problem-list" aria-label="Scattered opportunity signals">
-          <span>Funders</span>
-          <span>Partners</span>
-          <span>Resources</span>
-          <span>Risks</span>
-          <span>Pathways</span>
-          <span>Readiness gaps</span>
-          <span>Relationships</span>
-          <span>Deadlines</span>
-          <span>Evidence</span>
-          <span>Next actions</span>
-        </div>
+        <details class="quiet-details">
+          <summary>Show the scattered signals Anansi Atlas organizes</summary>
+          <div class="problem-list" aria-label="Scattered opportunity signals">
+            <span>Funders</span>
+            <span>Partners</span>
+            <span>Resources</span>
+            <span>Risks</span>
+            <span>Pathways</span>
+            <span>Readiness gaps</span>
+            <span>Relationships</span>
+            <span>Deadlines</span>
+            <span>Evidence</span>
+            <span>Next actions</span>
+          </div>
+        </details>
       </section>
 
       <section class="section dark">
@@ -491,8 +530,8 @@
         <p class="eyebrow dark">Opportunity Web Snapshot</p>
         <div class="section-header">
           <div>
-            <h2>A focused view of the opportunities, relationships, risks, and next steps connected to your mission.</h2>
-            <p class="muted lead">The Opportunity Web Snapshot helps your organization see what opportunities are already around your mission and which actions can move scattered opportunity into focused action.</p>
+            <h2>A paid entry deliverable that turns scattered opportunity into a focused executive brief.</h2>
+            <p class="muted lead">The Opportunity Web Snapshot helps your organization see aligned opportunities, relationship gaps, readiness gaps, and the few actions most worth taking next.</p>
           </div>
           <div class="section-actions">
             <a class="button primary" href="#interest">Explore the Opportunity Web Snapshot</a>

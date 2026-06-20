@@ -72,7 +72,8 @@ def test_opportunities_workspace_connects_discovery_matching_and_pipeline(client
 
     assert response.status_code == 200
     content = response.content.decode()
-    assert "Opportunities Workspace" in content
+    assert "Strategic Pathways" in content
+    assert "Choose what is worth pursuing." in content
     assert "Discovery" in content
     assert "Matches" in content
     assert "Pipeline" in content

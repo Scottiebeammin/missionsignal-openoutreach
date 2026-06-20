@@ -162,7 +162,9 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Opportunity Web Snapshot V1" in content
+    assert "Opportunity Web Snapshot · Consulting Deliverable" in content
+    assert "30-Day Action Plan" in content
+    assert "What This Delivers" in content
     assert "Executive Summary" in content
     assert "Opportunity Overview" in content
     assert "Readiness Score" in content
