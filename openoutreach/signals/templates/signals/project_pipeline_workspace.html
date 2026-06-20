@@ -53,8 +53,6 @@
   <main>
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
       <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
-      <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
-      <a href="{% url 'project-matches' project.pk %}">Matches</a>
       <a class="active" href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
       <a href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
     </nav>
@@ -72,7 +70,10 @@
       </section>
     </header>
 
-    {% include "signals/_workflow_guidance.html" %}
+    <details class="panel">
+      <summary>Workflow Context</summary>
+      {% include "signals/_workflow_guidance.html" %}
+    </details>
 
     <section class="panel">
       <h2>Opportunity Pipeline Summary</h2>
@@ -93,8 +94,8 @@
       </details>
     </section>
 
-    <section class="panel">
-      <h2>Pipeline Forecast</h2>
+    <details class="panel">
+      <summary>Pipeline Forecast</summary>
       <div class="metrics">
         <div class="metric"><span class="muted">Total Value</span><strong>${{ forecast.total_pipeline_value|floatformat:0 }}</strong></div>
         <div class="metric"><span class="muted">Weighted Value</span><strong>${{ forecast.weighted_forecast_value|floatformat:0 }}</strong><span class="pill">{{ forecast.forecast_confidence }} confidence</span></div>
@@ -108,7 +109,7 @@
           {% include "signals/_score_explanation.html" with explanation=score_transparency.forecast %}
         </div>
       </details>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Lifecycle Board</h2>

@@ -131,11 +131,8 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="opportunity-web" %}
   <main>
     <nav class="workspace-tabs" aria-label="Opportunity Web navigation">
-      <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
-      <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
       <a class="active" href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
       <a href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
-      <a href="{% url 'project-relationships' project.pk %}">Relationships</a>
       <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
     </nav>
 
@@ -155,7 +152,10 @@
       </section>
     </header>
 
-    {% include "signals/_workflow_guidance.html" %}
+    <details class="panel">
+      <summary>Workflow Context</summary>
+      {% include "signals/_workflow_guidance.html" %}
+    </details>
 
     <section class="ecosystem-hero-grid" aria-label="Executive ecosystem summary">
       <article class="panel web-story">
@@ -210,8 +210,8 @@
       </div>
     </section>
 
-    <section class="panel">
-      <h2>Connected Ecosystem Detail</h2>
+    <details class="panel">
+      <summary>Connected Ecosystem Detail</summary>
       <p class="muted">The detailed web below shows where the ecosystem is strong and where gaps could slow opportunity movement.</p>
       <div class="web-path" style="margin-top: 14px;">
         {% for node in web.nodes %}
@@ -252,10 +252,10 @@
           </article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
-    <section class="panel">
-      <h2>Opportunity Gaps</h2>
+    <details class="panel">
+      <summary>Opportunity Gaps</summary>
       <div class="summary-grid">
         {% for gap in web.opportunity_gaps %}
           <article class="summary-card">
@@ -264,16 +264,16 @@
           </article>
         {% endfor %}
       </div>
-    </section>
+    </details>
 
-    <section class="advisor-panel">
-      <h2>Highest Leverage Actions</h2>
+    <details class="advisor-panel">
+      <summary>Highest Leverage Actions</summary>
       <ol class="advisor-list">
         {% for action in web.highest_leverage_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Strengthens the web between mission, relationships, resources, opportunities, and outcomes.</span></li>
         {% endfor %}
       </ol>
-    </section>
+    </details>
 
     {% include "signals/_app_shell_footer.html" %}
   </main>

@@ -128,9 +128,9 @@ def test_project_member_can_view_readiness_dashboard(client, readiness_project):
     assert "Score Contributors" in content
     assert "Score Gaps" in content
     assert "Opportunity Pursuit Readiness Summary" in content
-    assert "Document and Evidence Readiness" in content
-    assert "Document readiness" in content
-    assert "Evidence readiness" in content
+    assert "Requirements and Files" in content
+    assert "Requirement readiness" in content
+    assert "File readiness" in content
     assert "Submission readiness" in content
 
 

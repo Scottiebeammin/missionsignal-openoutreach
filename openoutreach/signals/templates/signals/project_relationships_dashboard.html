@@ -38,12 +38,9 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="relationships" %}
   <main>
     <nav class="workspace-tabs" aria-label="Relationship workspace navigation">
-      <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
-      <a class="active" href="{% url 'project-relationships' project.pk %}">Relationships</a>
-      <a href="#contacts">Contacts</a>
+      <a class="active" href="{% url 'project-relationships' project.pk %}">Overview</a>
       <a href="#partners">Partners</a>
-      <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem Context</a>
-      <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
+      <a href="#contacts">Contacts</a>
     </nav>
 
     <header class="hero">
@@ -60,14 +57,18 @@
       </section>
     </header>
 
-    {% include "signals/_workflow_guidance.html" %}
+    <details class="panel">
+      <summary>Workflow Context</summary>
+      {% include "signals/_workflow_guidance.html" %}
+    </details>
 
-    <section class="panel">
-      <h2>Score Transparency</h2>
+    <details class="panel">
+      <summary>Score Transparency</summary>
       {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
-    </section>
+    </details>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Relationship Snapshot</summary>
       <h2>Relationship Snapshot</h2>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ relationships.total_contacts }}</strong><span>Total Contacts</span></div>
@@ -76,7 +77,7 @@
         <div class="metric-card"><strong>{{ relationships.developing_relationships }}</strong><span>Developing Relationships</span></div>
         <div class="metric-card"><strong>{{ relationships.active_partner_count }}</strong><span>Active Partners</span></div>
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <h2>Recommended Relationship Actions</h2>
@@ -87,22 +88,8 @@
       </ol>
     </section>
 
-    <section id="contacts" class="panel">
-      <h2>Key Contacts</h2>
-      <div class="relationship-grid">
-        {% for contact in relationships.key_contacts %}
-          <article class="relationship-card">
-            <h3>{{ contact.name }}</h3>
-            <p class="muted">{{ contact.title|default:"Role not set" }} · {{ contact.organization|default:"Organization not set" }}</p>
-            <p><span class="pill">{{ contact.get_contact_type_display }}</span> <span class="pill">{{ contact.get_relationship_strength_display }}</span></p>
-          </article>
-        {% empty %}
-          <div class="empty-state"><strong>No key contacts yet</strong>Add program officers, government contacts, community leaders, and partner contacts.</div>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section id="partners" class="panel">
+    <details id="partners" class="panel">
+      <summary>Key Partners</summary>
       <h2>Key Partners</h2>
       <div class="relationship-grid">
         {% for partner in relationships.key_partners %}
@@ -115,7 +102,23 @@
           <div class="empty-state"><strong>No key partners yet</strong>Add community, government, academic, corporate, and service partners.</div>
         {% endfor %}
       </div>
-    </section>
+    </details>
+
+    <details id="contacts" class="panel">
+      <summary>Key Contacts</summary>
+      <h2>Key Contacts</h2>
+      <div class="relationship-grid">
+        {% for contact in relationships.key_contacts %}
+          <article class="relationship-card">
+            <h3>{{ contact.name }}</h3>
+            <p class="muted">{{ contact.title|default:"Role not set" }} · {{ contact.organization|default:"Organization not set" }}</p>
+            <p><span class="pill">{{ contact.get_contact_type_display }}</span> <span class="pill">{{ contact.get_relationship_strength_display }}</span></p>
+          </article>
+        {% empty %}
+          <div class="empty-state"><strong>No key contacts yet</strong>Add program officers, government contacts, community leaders, and partner contacts.</div>
+        {% endfor %}
+      </div>
+    </details>
 
     <details class="panel">
       <summary>Relationship Strengths and Gaps</summary>

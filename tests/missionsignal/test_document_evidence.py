@@ -92,7 +92,8 @@ def test_member_can_view_document_vault(client, document_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Document Vault V1" in content
+    assert "Readiness Requirements" in content
+    assert "Requirements" in content
     assert "Document readiness score" in content
     assert "Total documents" in content
     assert "Available documents" in content
@@ -110,7 +111,8 @@ def test_member_can_view_evidence_library(client, document_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Evidence Library V1" in content
+    assert "Readiness Files" in content
+    assert "Files" in content
     assert "Evidence readiness score" in content
     assert "Total evidence items" in content
     assert "Outcome evidence" in content

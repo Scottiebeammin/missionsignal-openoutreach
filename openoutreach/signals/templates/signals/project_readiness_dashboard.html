@@ -39,11 +39,9 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="readiness" %}
   <main>
     <nav class="workspace-tabs" aria-label="Readiness navigation">
-      <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
-      <a class="active" href="{% url 'project-readiness' project.pk %}">Readiness</a>
-      <a href="{% url 'project-documents' project.pk %}">Documents</a>
-      <a href="{% url 'project-evidence' project.pk %}">Evidence</a>
-      <a href="{% url 'project-relationships' project.pk %}">Relationships</a>
+      <a class="active" href="{% url 'project-readiness' project.pk %}">Overview</a>
+      <a href="{% url 'project-documents' project.pk %}">Requirements</a>
+      <a href="{% url 'project-evidence' project.pk %}">Files</a>
     </nav>
 
     <header class="hero">
@@ -61,7 +59,10 @@
       </section>
     </header>
 
-    {% include "signals/_workflow_guidance.html" %}
+    <details class="panel">
+      <summary>Workflow Context</summary>
+      {% include "signals/_workflow_guidance.html" %}
+    </details>
 
     <section class="panel">
       <h2>Readiness Health</h2>
@@ -75,13 +76,13 @@
       </div>
     </section>
 
-    <section class="panel">
-      <h2>Score Transparency</h2>
+    <details class="panel">
+      <summary>Score Transparency</summary>
       <div class="insight-grid">
         {% include "signals/_score_explanation.html" with explanation=score_transparency.readiness %}
         {% include "signals/_score_explanation.html" with explanation=score_transparency.completeness %}
       </div>
-    </section>
+    </details>
 
     <details class="panel">
       <summary>Organization Completeness</summary>
@@ -118,14 +119,14 @@
       </div>
     </details>
 
-    <section class="panel">
-      <h2>Document and Evidence Readiness</h2>
+    <details class="panel">
+      <summary>Requirements and Files</summary>
       <div class="metric-grid">
-        <div class="metric-card"><strong>{{ readiness.document_readiness_score }}</strong><span>Document readiness</span><p><a class="pill" href="{% url 'project-documents' project.pk %}">Open Document Vault</a></p></div>
-        <div class="metric-card"><strong>{{ readiness.evidence_readiness_score }}</strong><span>Evidence readiness</span><p><a class="pill" href="{% url 'project-evidence' project.pk %}">Open Evidence Library</a></p></div>
+        <div class="metric-card"><strong>{{ readiness.document_readiness_score }}</strong><span>Requirement readiness</span><p><a class="pill" href="{% url 'project-documents' project.pk %}">Open Requirements</a></p></div>
+        <div class="metric-card"><strong>{{ readiness.evidence_readiness_score }}</strong><span>File readiness</span><p><a class="pill" href="{% url 'project-evidence' project.pk %}">Open Files</a></p></div>
         <div class="metric-card"><strong>{{ readiness.submission_readiness_score }}</strong><span>Submission readiness</span></div>
       </div>
-    </section>
+    </details>
 
     <details class="panel">
       <summary>Opportunity Pursuit Readiness Summary</summary>

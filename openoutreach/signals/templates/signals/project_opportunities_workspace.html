@@ -39,10 +39,9 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="opportunities" %}
   <main>
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
-      <a class="active" href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
-      <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
+      <a class="active" href="{% url 'project-opportunities' project.pk %}">Prioritized</a>
+      <a href="{% url 'project-discovery' project.pk %}">Discover</a>
       <a href="{% url 'project-matches' project.pk %}">Matches</a>
-      <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
     </nav>
 
     <header class="hero">
@@ -69,7 +68,10 @@
       </section>
     </header>
 
-    {% include "signals/_workflow_guidance.html" %}
+    <details class="panel">
+      <summary>Workflow Context</summary>
+      {% include "signals/_workflow_guidance.html" %}
+    </details>
 
     <section class="panel">
       <h2>Pathway Health</h2>
@@ -90,7 +92,8 @@
       </details>
     </section>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Pipeline Summary</summary>
       <div class="section-toolbar">
         <h2>Opportunity Pipeline Summary</h2>
         <a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open full pipeline board</a>
@@ -110,7 +113,7 @@
           {% endfor %}
         </div>
       </details>
-    </section>
+    </details>
 
     <details class="panel" open>
       <summary>Top Opportunities</summary>
@@ -159,7 +162,7 @@
       </details>
     </details>
 
-    <details class="panel" open>
+    <details class="panel">
       <summary>Opportunity Categories</summary>
       <div class="section-toolbar">
         <p class="muted">What can wait: broader sector coverage is grouped below the top categories.</p>

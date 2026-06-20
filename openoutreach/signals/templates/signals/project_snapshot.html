@@ -50,10 +50,8 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="snapshot" %}
   <main>
     <nav class="workspace-tabs" aria-label="Snapshot navigation">
-      <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
       <a href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
       <a class="active" href="{% url 'project-snapshot' project.pk %}">Snapshot</a>
-      <a href="{% url 'project-readiness' project.pk %}">Readiness</a>
       <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
     </nav>
 
@@ -177,14 +175,14 @@
       </div>
     </section>
 
-    <section class="advisor-panel">
-      <h2>Top Recommended Actions</h2>
+    <details class="advisor-panel">
+      <summary>Top Recommended Actions</summary>
       <ol class="advisor-list">
         {% for action in snapshot.recommended_next_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Improves the Opportunity Web Snapshot and future pursuit readiness.</span></li>
         {% endfor %}
       </ol>
-    </section>
+    </details>
 
     {% include "signals/_app_shell_footer.html" %}
   </main>
