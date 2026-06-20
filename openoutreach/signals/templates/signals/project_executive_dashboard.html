@@ -40,20 +40,20 @@
     .nav a.active, .nav a:hover { background: rgba(255,255,255,.12); color: white; }
     main { padding: 22px; }
     .hero, .panel, .metric-card, .kpi-card, .pipeline-card, .chart-card, .advisor-panel, .command-card { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: var(--shadow); }
-    .hero { margin-bottom: 12px; padding: 20px 22px; }
-    .hero-top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-end; margin-bottom: 16px; }
-    .hero-top p { max-width: 720px; margin-bottom: 0; }
+    .hero { margin-bottom: 14px; padding: 8px 4px 2px; border: 0; background: transparent; box-shadow: none; }
+    .hero-top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-end; }
+    .hero-top p { max-width: 680px; margin-bottom: 0; }
     .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     .muted { color: var(--muted); }
     .header-metrics, .metric-grid, .kpi-grid, .health-grid, .chart-grid { display: grid; gap: 10px; }
-    .header-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .header-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 14px; }
     .metric-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .health-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .metric-card, .kpi-card, .chart-card { padding: 15px; }
     .metric-card strong, .kpi-card strong { display: block; color: var(--accent); font-size: 1.75rem; line-height: 1; }
-    .metric-card.compact { min-height: 118px; }
+    .metric-card.compact { min-height: 104px; border-color: rgba(13, 27, 61, .08); box-shadow: none; }
     .metric-card.compact strong { font-size: clamp(1.45rem, 2.5vw, 2rem); }
     .metric-card span, .kpi-card span { display: block; margin-top: 5px; color: var(--muted); font-weight: 700; }
     .kpi-card { text-decoration: none; }
@@ -70,8 +70,9 @@
     .mini-opportunity strong { display: block; font-size: .88rem; }
     .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
     .advisor-panel { margin-bottom: 16px; padding: 18px; border-left: 5px solid var(--accent); background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%); }
-    .command-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr) minmax(260px, .75fr); gap: 12px; margin-bottom: 16px; }
-    .command-card { padding: 18px; min-height: 216px; }
+    .minimal-command { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, .7fr); gap: 16px; margin-bottom: 14px; }
+    .command-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 14px; margin-bottom: 18px; }
+    .command-card { padding: 18px; min-height: 168px; border-color: rgba(13, 27, 61, .08); box-shadow: 0 1px 2px rgba(16, 30, 44, .035), 0 10px 24px rgba(16, 30, 44, .04); }
     .command-card.primary-action {
       display: flex;
       flex-direction: column;
@@ -84,15 +85,15 @@
     .command-card.primary-action h3 { color: white; }
     .command-card.primary-action .muted { color: #c8d3df; }
     .command-card.primary-action .button { background: var(--gold); color: #171007; }
-    .command-card h2 { margin-bottom: 14px; }
+    .command-card h2 { margin-bottom: 10px; }
     .strategic-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; counter-reset: moves; }
-    .strategic-list li { position: relative; min-height: 54px; padding: 12px 12px 12px 48px; border: 1px solid rgba(13,27,61,.1); border-radius: 10px; background: #fff; font-weight: 850; }
+    .strategic-list li { position: relative; min-height: 42px; padding: 10px 10px 10px 42px; border: 1px solid rgba(13,27,61,.08); border-radius: 10px; background: #fff; font-weight: 850; }
     .strategic-list li::before {
       counter-increment: moves;
       content: counter(moves);
       position: absolute;
-      left: 12px;
-      top: 12px;
+      left: 10px;
+      top: 10px;
       display: grid;
       place-items: center;
       width: 26px;
@@ -102,7 +103,7 @@
       color: white;
       font-weight: 950;
     }
-    .next-action-text { margin: 18px 0; font-size: clamp(1.25rem, 2.4vw, 1.9rem); line-height: 1.08; letter-spacing: -.03em; font-weight: 950; }
+    .next-action-text { margin: 18px 0 26px; max-width: 900px; font-size: clamp(1.75rem, 4.2vw, 3.4rem); line-height: .98; letter-spacing: -.055em; font-weight: 950; }
     .deadline-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
     .deadline-list li { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .deadline-list li:last-child { border-bottom: 0; }
@@ -141,14 +142,14 @@
       .sidebar { position: static; height: auto; }
       .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .hero-top { display: block; }
-      .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .celebration-grid, .header-metrics, .demo-flow-grid, .command-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .command-grid { display: grid; }
+      .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .celebration-grid, .header-metrics, .demo-flow-grid, .command-grid, .minimal-command { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .command-grid, .minimal-command { display: grid; }
       .command-card:first-child { grid-column: 1 / -1; }
     }
     @media (max-width: 720px) {
       main { padding: 14px; }
-      .nav, .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .header-metrics, .celebration-grid, .demo-flow-grid, .command-grid { grid-template-columns: 1fr; }
-      .hero { padding: 18px; }
+      .nav, .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .header-metrics, .celebration-grid, .demo-flow-grid, .command-grid, .minimal-command { grid-template-columns: 1fr; }
+      .hero { padding: 4px 0; }
       .command-card:first-child { grid-column: auto; }
       .actions-list { columns: 1; }
     }
@@ -164,29 +165,12 @@
           <div>
           <p class="eyebrow">Anansi Atlas Executive Dashboard · Executive Command Center</p>
           <h1>{{ dashboard.organization_name }}</h1>
-          <p class="muted">The first scan: health, value, relationships, pathways, the next move, and deadlines that need attention now.</p>
+          <p class="muted">A calm executive scan: decide the next move, check health, notice urgency, then expand only what needs attention.</p>
           </div>
-          <a class="button" href="{% url 'project-opportunity-web' project.pk %}">Open Opportunity Web</a>
-        </section>
-        <section class="header-metrics" aria-label="Executive header metrics">
-          <div class="metric-card compact"><span class="score-card-title">Readiness Score</span><strong>{{ dashboard.readiness.overall_score }}</strong><p class="muted">{{ dashboard.readiness.level }}</p></div>
-          <div class="metric-card compact"><span class="score-card-title">Relationship Health</span><strong>{{ dashboard.relationships.health.score }}</strong><p class="muted">{{ dashboard.relationships.health.level }}</p></div>
-          <div class="metric-card compact"><span class="score-card-title">Pathway Health</span><strong>{{ dashboard.lifecycle_summary.health.score }}</strong><p class="muted">{{ dashboard.lifecycle_summary.health.level }}</p></div>
-          <div class="metric-card compact"><span class="score-card-title">Forecast Opportunity Value</span><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
         </section>
       </header>
 
-      <section class="command-grid" aria-label="Executive command center">
-        <article class="command-card">
-          <h2>Top 3 Strategic Moves</h2>
-          <ol class="strategic-list">
-            {% for action in dashboard.executive_actions|slice:":3" %}
-              <li>{{ action }}</li>
-            {% empty %}
-              <li>Review the organization profile and refresh deterministic analysis.</li>
-            {% endfor %}
-          </ol>
-        </article>
+      <section class="minimal-command" aria-label="Minimal executive command center">
         <article class="command-card primary-action">
           <div>
             <h2>What To Do Next</h2>
@@ -209,7 +193,36 @@
           {% else %}
             <p class="muted">No upcoming deadlines are currently attached to opportunity records.</p>
           {% endif %}
-          <p class="muted">Next critical deadline: {{ dashboard.work_summary.next_critical_deadline.deadline.deadline_date|date:"M j, Y"|default:"No deadline set" }}</p>
+          <details>
+            <summary>View all deadline details</summary>
+            <p class="muted">Next critical deadline: {{ dashboard.work_summary.next_critical_deadline.deadline.deadline_date|date:"M j, Y"|default:"No deadline set" }}</p>
+          </details>
+        </article>
+      </section>
+
+      <section class="header-metrics" aria-label="Organization Health Row">
+        <div class="metric-card compact"><span class="score-card-title">Readiness</span><strong>{{ dashboard.readiness.overall_score }}</strong><p class="muted">{{ dashboard.readiness.level }}</p></div>
+        <div class="metric-card compact"><span class="score-card-title">Relationship Health</span><strong>{{ dashboard.relationships.health.score }}</strong><p class="muted">{{ dashboard.relationships.health.level }}</p></div>
+        <div class="metric-card compact"><span class="score-card-title">Pathway Health</span><strong>{{ dashboard.lifecycle_summary.health.score }}</strong><p class="muted">{{ dashboard.lifecycle_summary.health.level }}</p></div>
+        <div class="metric-card compact"><span class="score-card-title">Forecast Value</span><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
+      </section>
+
+      <section class="command-grid" aria-label="Strategic moves and opportunity focus">
+        <article class="command-card">
+          <h2>Top 3 Strategic Moves</h2>
+          <ol class="strategic-list">
+            {% for action in dashboard.executive_actions|slice:":3" %}
+              <li>{{ action }}</li>
+            {% empty %}
+              <li>Review the organization profile and refresh deterministic analysis.</li>
+            {% endfor %}
+          </ol>
+        </article>
+        <article class="command-card">
+          <h2>Opportunity To Watch</h2>
+          <h3>{{ dashboard.lifecycle_summary.highest_priority_active_opportunity.name|default:dashboard.forecast.highest_value_opportunity.name|default:"No active opportunity selected" }}</h3>
+          <p class="muted">The pathway most worth executive attention before opening the deeper workspace.</p>
+          <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
         </article>
       </section>
 

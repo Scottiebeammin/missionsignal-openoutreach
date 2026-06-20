@@ -35,9 +35,11 @@ def test_project_member_can_view_executive_dashboard(client, dashboard_project):
     assert "Match Score Transparency" in content
     assert "Forecast Health Transparency" in content
     assert "Relationship Health Transparency" in content
-    assert "Forecast Opportunity Value" in content
+    assert "Forecast Value" in content
     assert "Top 3 Strategic Moves" in content
     assert "Single highest-leverage action for leadership attention." in content
+    assert "Opportunity To Watch" in content
+    assert "View all deadline details" in content
     assert "Workflow Progress" in content
     assert "Opportunity Command Center" not in content
     assert "Start Here" in content
