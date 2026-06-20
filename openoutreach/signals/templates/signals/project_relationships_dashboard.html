@@ -40,8 +40,10 @@
     <nav class="workspace-tabs" aria-label="Relationship workspace navigation">
       <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
       <a class="active" href="{% url 'project-relationships' project.pk %}">Relationships</a>
+      <a href="#contacts">Contacts</a>
+      <a href="#partners">Partners</a>
+      <a href="{% url 'project-ecosystem' project.pk %}">Ecosystem Context</a>
       <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
-      <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
     </nav>
 
     <header class="hero">
@@ -85,7 +87,7 @@
       </ol>
     </section>
 
-    <section class="panel">
+    <section id="contacts" class="panel">
       <h2>Key Contacts</h2>
       <div class="relationship-grid">
         {% for contact in relationships.key_contacts %}
@@ -100,7 +102,7 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section id="partners" class="panel">
       <h2>Key Partners</h2>
       <div class="relationship-grid">
         {% for partner in relationships.key_partners %}

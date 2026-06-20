@@ -74,4 +74,4 @@ def test_global_footer_and_navigation_render_on_celebrations_page(client, celebr
     assert "Documents" in content
     assert "Evidence" in content
     assert "Celebrations" in content
-    assert "Workspace Settings" in content
+    assert "Settings" in content

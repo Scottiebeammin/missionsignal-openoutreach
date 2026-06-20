@@ -22,13 +22,11 @@ def test_primary_navigation_is_workflow_based(client, ux_project):
 
     content = response.content.decode()
     assert "Executive" in content
-    assert "Prioritize" in content
+    assert "Action" in content
     assert "Prepare" in content
-    assert "Execute" in content
+    assert "Connect" in content
     assert "Workspace" in content
-    assert "Settings" in content
     assert "Dashboard" in content
-    assert "Organization" in content
     assert "Strategic Pathways" in content
     assert "Discovery" in content
     assert "Matches" in content
@@ -37,7 +35,7 @@ def test_primary_navigation_is_workflow_based(client, ux_project):
     assert "Documents" in content
     assert "Evidence" in content
     assert "Celebrations" in content
-    assert "Workspace Settings" in content
+    assert "Settings" in content
     assert reverse("project-organization", kwargs={"pk": project.pk}) in content
     assert reverse("project-opportunities", kwargs={"pk": project.pk}) in content
     assert reverse("project-readiness", kwargs={"pk": project.pk}) in content
@@ -56,7 +54,9 @@ def test_organization_workspace_groups_profile_work(client, ux_project):
 
     assert response.status_code == 200
     content = response.content.decode()
-    assert "Organization Workspace" in content
+    assert "Manage your organization workspace." in content
+    assert "Celebrations" in content
+    assert "Settings" in content
     assert "Mission Brief" in content
     assert "Programs" in content
     assert "Outcomes" in content

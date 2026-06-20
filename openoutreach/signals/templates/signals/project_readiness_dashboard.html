@@ -41,8 +41,9 @@
     <nav class="workspace-tabs" aria-label="Readiness navigation">
       <a href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
       <a class="active" href="{% url 'project-readiness' project.pk %}">Readiness</a>
+      <a href="{% url 'project-documents' project.pk %}">Documents</a>
+      <a href="{% url 'project-evidence' project.pk %}">Evidence</a>
       <a href="{% url 'project-relationships' project.pk %}">Relationships</a>
-      <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
     </nav>
 
     <header class="hero">

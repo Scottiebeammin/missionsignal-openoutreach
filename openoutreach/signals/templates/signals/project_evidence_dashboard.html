@@ -32,10 +32,9 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="evidence" %}
   <main>
     <nav class="workspace-tabs" aria-label="Evidence workspace navigation">
-      <a href="{% url 'project-organization' project.pk %}">Organization</a>
+      <a href="{% url 'project-readiness' project.pk %}">Readiness</a>
       <a href="{% url 'project-documents' project.pk %}">Documents</a>
       <a class="active" href="{% url 'project-evidence' project.pk %}">Evidence</a>
-      <a href="{% url 'project-readiness' project.pk %}">Readiness</a>
     </nav>
     <header class="hero">
       <p class="eyebrow">Evidence Library V1</p>

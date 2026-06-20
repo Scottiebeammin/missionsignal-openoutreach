@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Organization - {{ organization.name }}</title>
+  <title>Workspace - {{ organization.name }}</title>
   <style>
     :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --accent:#0f766e; --accent-soft:#e8f5f2; --blue:#235789; --blue-soft:#edf5fb; --gold:#8a5b00; --gold-soft:#fff7df; }
     * { box-sizing: border-box; }
@@ -34,7 +34,10 @@
   {% include "signals/_app_shell_sidebar.html" with active_page="organization" %}
   <main>
     <nav class="workspace-tabs" aria-label="Organization workspace tabs">
-      <a class="active" href="#mission">Mission</a>
+      <a class="active" href="{% url 'project-organization' project.pk %}">Organization</a>
+      <a href="{% url 'project-celebrations' project.pk %}">Celebrations</a>
+      <a href="{% url 'project-analysis-detail' project.pk %}">Settings</a>
+      <a href="#mission">Mission</a>
       <a href="#programs">Programs</a>
       <a href="#outcomes">Outcomes</a>
       <a href="#readiness">Readiness</a>
@@ -42,9 +45,9 @@
 
     <header class="hero">
       <section>
-        <p class="eyebrow">Organization Workspace</p>
-        <h1>{{ organization.name }}</h1>
-        <p class="muted">{{ project.name }} profile, programs, outcomes, and readiness data.</p>
+        <p class="eyebrow">Workspace</p>
+        <h1>Manage your organization workspace.</h1>
+        <p class="muted">{{ organization.name }} - {{ project.name }} profile, programs, outcomes, celebrations, and settings.</p>
       </section>
       <section class="panel action-panel">
         <h2>Recommended Next Actions</h2>
