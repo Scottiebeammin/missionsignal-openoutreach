@@ -242,13 +242,9 @@
         </article>
       </section>
 
-      <details class="panel">
-        <summary>Workflow Progress</summary>
+      <details class="panel" aria-label="Workflow Progress and Demo Flow">
+        <summary>Workflow Progress · Start Here</summary>
         {% include "signals/_workflow_guidance.html" %}
-      </details>
-
-      <details class="panel" aria-label="Demo Flow">
-        <summary>Start Here</summary>
         <div class="panel-header">
           <div>
             <h2>Start Here</h2>
@@ -287,32 +283,6 @@
             <strong>Decide the next action</strong>
             <span>End on ownership, deadlines, and pathway movement.</span>
           </a>
-        </div>
-      </details>
-
-      <details id="activity" class="panel" aria-label="Wins Across the Web">
-        <summary>Wins Across the Web</summary>
-        <div class="panel-header">
-          <div>
-            <h2>Wins Across the Web</h2>
-            <p class="muted">Latest celebrations and stories of mission progress.</p>
-          </div>
-          <a class="button" href="{% url 'project-celebrations' project.pk %}">View All Celebrations</a>
-        </div>
-        <div class="celebration-grid">
-          {% for celebration in dashboard.celebration_overview.recent_celebrations|slice:":3" %}
-            <article class="celebration-card">
-              <span class="pill">{{ celebration.get_celebration_type_display }}</span>
-              <h3>{{ celebration.title }}</h3>
-              <p>{{ celebration.description }}</p>
-              <p class="muted">{{ celebration.impact }}</p>
-            </article>
-          {% empty %}
-            <article class="celebration-card">
-              <h3>Progress across your opportunity web</h3>
-              <p class="muted">Celebrations will appear here as awards, submissions, partnerships, and impact milestones are recorded.</p>
-            </article>
-          {% endfor %}
         </div>
       </details>
 

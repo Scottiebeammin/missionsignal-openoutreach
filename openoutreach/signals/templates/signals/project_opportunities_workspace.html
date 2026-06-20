@@ -68,53 +68,6 @@
       </section>
     </header>
 
-    <details class="panel">
-      <summary>Workflow Context</summary>
-      {% include "signals/_workflow_guidance.html" %}
-    </details>
-
-    <details class="panel">
-      <summary>Pathway Health</summary>
-      <div class="metrics">
-        <div class="metric"><span class="muted">Opportunity Health</span><strong>{{ match_overview.overall_score }}</strong></div>
-        <div class="metric"><span class="muted">High Priority Pathways</span><strong>{{ discovery.high_priority_opportunities }}</strong></div>
-        <div class="metric"><span class="muted">Active Opportunities</span><strong>{{ discovery.active_opportunities }}</strong></div>
-        <div class="metric"><span class="muted">Upcoming Deadlines</span><strong>{{ discovery.upcoming_opportunities }}</strong></div>
-      </div>
-      <details style="margin-top: 12px;">
-        <summary>Secondary opportunity details</summary>
-        <div class="metrics" style="margin-top: 10px;">
-          <div class="metric"><span class="muted">Total Opportunities</span><strong>{{ discovery.total_opportunities }}</strong></div>
-          <div class="metric"><span class="muted">Total Matches</span><strong>{{ match_overview.total_matches }}</strong></div>
-          <div class="metric"><span class="muted">Applied</span><strong>{{ discovery.applied_opportunities }}</strong></div>
-          <div class="metric"><span class="muted">Won</span><strong>{{ discovery.won_opportunities }}</strong></div>
-        </div>
-      </details>
-    </details>
-
-    <details class="panel">
-      <summary>Pipeline Summary</summary>
-      <div class="section-toolbar">
-        <h2>Opportunity Pipeline Summary</h2>
-        <a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open full pipeline board</a>
-      </div>
-      <div class="metrics">
-        <div class="metric"><span class="muted">Pipeline Health</span><strong>{{ lifecycle.health.score }}</strong></div>
-        <div class="metric"><span class="muted">Active Lifecycle Opportunities</span><strong>{{ lifecycle.active_opportunities }}</strong></div>
-        <div class="metric"><span class="muted">Submitted</span><strong>{{ lifecycle.submitted_opportunities }}</strong></div>
-        <div class="metric"><span class="muted">Awarded</span><strong>{{ lifecycle.awarded_opportunities }}</strong></div>
-        <div class="metric"><span class="muted">Highest Priority Active</span><strong>{{ lifecycle.highest_priority_active_opportunity.name|default:"None" }}</strong></div>
-      </div>
-      <details style="margin-top: 12px;">
-        <summary>Lifecycle stage counts</summary>
-        <div class="metrics" style="margin-top: 10px;">
-          {% for stage in lifecycle.summary_stages %}
-            <div class="metric"><span class="muted">{{ stage.label }}</span><strong>{{ stage.count }}</strong></div>
-          {% endfor %}
-        </div>
-      </details>
-    </details>
-
     <details class="panel" open>
       <summary>Top Opportunities</summary>
       <div class="section-toolbar">
@@ -160,6 +113,37 @@
           {% endfor %}
         </div>
       </details>
+    </details>
+
+    <details class="panel">
+      <summary>Pathway Health and Pipeline Context</summary>
+      <div class="section-toolbar">
+        <h2>Opportunity Pipeline Summary</h2>
+        <a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open full pipeline board</a>
+      </div>
+      <div class="metrics">
+        <div class="metric"><span class="muted">Opportunity Health</span><strong>{{ match_overview.overall_score }}</strong></div>
+        <div class="metric"><span class="muted">High Priority Pathways</span><strong>{{ discovery.high_priority_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Active Opportunities</span><strong>{{ discovery.active_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Upcoming Deadlines</span><strong>{{ discovery.upcoming_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Pipeline Health</span><strong>{{ lifecycle.health.score }}</strong></div>
+        <div class="metric"><span class="muted">Active Lifecycle Opportunities</span><strong>{{ lifecycle.active_opportunities }}</strong></div>
+      </div>
+      <details style="margin-top: 12px;">
+        <summary>Secondary opportunity and lifecycle details</summary>
+        <div class="metrics" style="margin-top: 10px;">
+          <div class="metric"><span class="muted">Total Opportunities</span><strong>{{ discovery.total_opportunities }}</strong></div>
+          <div class="metric"><span class="muted">Total Matches</span><strong>{{ match_overview.total_matches }}</strong></div>
+          <div class="metric"><span class="muted">Submitted</span><strong>{{ lifecycle.submitted_opportunities }}</strong></div>
+          <div class="metric"><span class="muted">Awarded</span><strong>{{ lifecycle.awarded_opportunities }}</strong></div>
+          <div class="metric"><span class="muted">Highest Priority Active</span><strong>{{ lifecycle.highest_priority_active_opportunity.name|default:"None" }}</strong></div>
+        </div>
+      </details>
+    </details>
+
+    <details class="panel">
+      <summary>Workflow Context</summary>
+      {% include "signals/_workflow_guidance.html" %}
     </details>
 
     <details class="panel">

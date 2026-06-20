@@ -72,12 +72,15 @@
       <article id="summary" class="panel deliverable-cover">
         <h2>Executive Summary</h2>
         <p class="muted">{{ snapshot.mission_overview }}</p>
+        <details style="margin-top: 12px;">
+          <summary>Snapshot metrics</summary>
         <div class="metric-grid" style="margin-top: 12px;">
           <div class="metric-card"><strong>{{ snapshot.readiness_score }}</strong><span>Readiness Score</span><p class="muted">{{ snapshot.readiness_level }}</p></div>
           {% for label, value in snapshot.opportunity_web_summary|slice:":3" %}
             <div class="metric-card"><strong>{{ value }}</strong><span>{{ label }}</span></div>
           {% endfor %}
         </div>
+        </details>
       </article>
       <article id="plan" class="snapshot-action">
         <h2>30-Day Action Plan</h2>

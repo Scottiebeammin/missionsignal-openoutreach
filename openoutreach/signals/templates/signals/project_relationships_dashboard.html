@@ -57,19 +57,18 @@
       </section>
     </header>
 
-    <details class="panel">
-      <summary>Workflow Context</summary>
-      {% include "signals/_workflow_guidance.html" %}
-    </details>
-
-    <details class="panel">
-      <summary>Score Transparency</summary>
-      {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
-    </details>
-
-    <details class="panel">
-      <summary>Relationship Snapshot</summary>
+    <section class="panel">
       <h2>Relationship Snapshot</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ relationships.health.score }}</strong><span>Relationship Health</span><p><span class="pill">{{ relationships.health.level }}</span></p></div>
+        <div class="metric-card"><strong>{{ relationships.strong_relationships }}</strong><span>Strongest Relationship Signal</span></div>
+        <div class="metric-card"><strong>{{ relationships.relationship_gaps.0|default:"No relationship gap" }}</strong><span>Biggest Gap</span></div>
+        <div class="metric-card"><strong>{{ relationships.recommended_actions.0|default:relationships.health.highest_leverage_action }}</strong><span>Next Contact Action</span></div>
+      </div>
+    </section>
+
+    <details class="panel">
+      <summary>Relationship Detail</summary>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ relationships.total_contacts }}</strong><span>Total Contacts</span></div>
         <div class="metric-card"><strong>{{ relationships.total_partners }}</strong><span>Total Partners</span></div>
@@ -79,13 +78,23 @@
       </div>
     </details>
 
-    <details class="panel" open>
+    <details class="panel">
       <summary>Recommended Relationship Actions</summary>
       <ol class="advisor-list">
         {% for action in relationships.recommended_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Strengthens introductions, credibility, and opportunity pursuit.</span></li>
         {% endfor %}
       </ol>
+    </details>
+
+    <details class="panel">
+      <summary>Workflow Context</summary>
+      {% include "signals/_workflow_guidance.html" %}
+    </details>
+
+    <details class="panel">
+      <summary>Relationship Health Transparency</summary>
+      {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
     </details>
 
     <details id="partners" class="panel">

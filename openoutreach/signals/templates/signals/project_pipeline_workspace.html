@@ -69,11 +69,6 @@
       </section>
     </header>
 
-    <details class="panel">
-      <summary>Workflow Context</summary>
-      {% include "signals/_workflow_guidance.html" %}
-    </details>
-
     <section id="health" class="panel">
       <h2>Opportunity Pipeline Summary</h2>
       <div class="metrics">
@@ -125,7 +120,7 @@
                 {% endfor %}
               </ul>
             </details>
-            {% for item in stage.opportunities %}
+            {% for item in stage.opportunities|slice:":3" %}
               <section class="opportunity-card">
                 <h3>{{ item.opportunity.name }}</h3>
                 <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
@@ -250,10 +245,25 @@
             {% empty %}
               <div class="empty-state"><strong>No opportunities</strong>Move opportunities into this lifecycle stage as work progresses.</div>
             {% endfor %}
+            {% if stage.opportunities|length > 3 %}
+              <details>
+                <summary>Show remaining pursuits</summary>
+                <ul>
+                  {% for item in stage.opportunities|slice:"3:" %}
+                    <li><a href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">{{ item.opportunity.name }}</a> <span class="pill">{{ item.opportunity.get_priority_level_display }}</span></li>
+                  {% endfor %}
+                </ul>
+              </details>
+            {% endif %}
           </article>
         {% endfor %}
       </div>
     </section>
+
+    <details class="panel">
+      <summary>Workflow Context</summary>
+      {% include "signals/_workflow_guidance.html" %}
+    </details>
     {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>

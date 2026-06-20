@@ -59,20 +59,27 @@
       </section>
     </header>
 
+    <section class="panel">
+      <h2>Readiness Health</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><strong>{{ readiness.overall_score }}</strong><span>Overall Readiness</span><p><span class="pill">{{ readiness.level }}</span></p></div>
+        <div class="metric-card"><strong>{{ readiness.gaps.0|default:"No readiness gap" }}</strong><span>Top Gap</span></div>
+        <div class="metric-card"><strong>{{ readiness.recommended_actions.0|default:"Maintain readiness" }}</strong><span>Highest Leverage Action</span></div>
+      </div>
+    </section>
+
     <details class="panel">
       <summary>Workflow Context</summary>
       {% include "signals/_workflow_guidance.html" %}
     </details>
 
     <details class="panel">
-      <summary>Readiness Health</summary>
+      <summary>Readiness Detail</summary>
       <div class="metric-grid">
-        <div class="metric-card"><strong>{{ readiness.overall_score }}</strong><span>Overall Readiness</span><p><span class="pill">{{ readiness.level }}</span></p></div>
         <div class="metric-card"><strong>{{ readiness.organization_completeness.score }}</strong><span>Organization Completeness</span><p><span class="pill">{{ readiness.organization_completeness.level }}</span></p></div>
         <div class="metric-card"><strong>{{ readiness.document_readiness_score }}</strong><span>Document Readiness</span></div>
         <div class="metric-card"><strong>{{ readiness.evidence_readiness_score }}</strong><span>Evidence Readiness</span></div>
-        <div class="metric-card"><strong>{{ readiness.gaps.0|default:"No readiness gap" }}</strong><span>Top Gap</span></div>
-        <div class="metric-card"><strong>{{ readiness.recommended_actions.0|default:"Maintain readiness" }}</strong><span>Highest Leverage Action</span></div>
+        <div class="metric-card"><strong>{{ readiness.submission_readiness_score }}</strong><span>Submission Readiness</span></div>
       </div>
     </details>
 
@@ -162,14 +169,15 @@
       </div>
     </details>
 
-    <section class="panel">
+    <details class="panel">
+      <summary>Highest Leverage Actions</summary>
       <h2>Highest Leverage Actions</h2>
       <ol class="advisor-list">
         {% for action in readiness.recommended_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Improves organization and opportunity pursuit readiness.</span></li>
         {% endfor %}
       </ol>
-    </section>
+    </details>
     {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>
