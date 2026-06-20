@@ -522,7 +522,8 @@
         </div>
       </details>
 
-      <section class="panel">
+      <details class="panel">
+        <summary>Opportunity Pipeline Summary</summary>
         <div class="panel-header">
           <h2>Opportunity Pipeline Summary</h2>
           <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
@@ -546,9 +547,10 @@
             {% endfor %}
           </div>
         </details>
-      </section>
+      </details>
 
-      <section class="panel">
+      <details class="panel">
+        <summary>Opportunity Work Summary</summary>
         <div class="panel-header">
           <h2>Opportunity Work Summary</h2>
           <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Workspaces</a>
@@ -562,9 +564,10 @@
           <div class="metric-card"><strong>{{ dashboard.work_summary.drafting_opportunities }}</strong><span>Opportunities in Drafting</span></div>
           <div class="metric-card"><strong>{{ dashboard.work_summary.submitted_opportunities }}</strong><span>Submitted Opportunities</span></div>
         </div>
-      </section>
+      </details>
 
-      <section class="panel">
+      <details class="panel">
+        <summary>Top Opportunities</summary>
         <div class="panel-header">
           <h2>Top Opportunities</h2>
           <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Discovery</a>
@@ -594,7 +597,7 @@
             Add or seed opportunity inventory records to populate the command center, deadlines, and matching views.
           </div>
         {% endif %}
-      </section>
+      </details>
 
       <details class="panel">
         <summary>Opportunity Pipeline Snapshot</summary>

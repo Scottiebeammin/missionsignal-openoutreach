@@ -320,6 +320,17 @@
       font-weight: 900;
       letter-spacing: .02em;
     }
+    details.section > summary {
+      cursor: pointer;
+      color: var(--navy);
+      font-size: clamp(1.55rem, 3vw, 2.45rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      font-weight: 950;
+      list-style-position: inside;
+    }
+    details.section.dark > summary { color: var(--white); }
+    details.section > summary::marker { color: var(--gold); }
     .ecosystem {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -549,16 +560,17 @@
         </ul>
       </section>
 
-      <section class="section">
-        <p class="eyebrow dark">How It Helps</p>
+      <details class="section">
+        <summary>How It Helps</summary>
         <div class="grid">
           <article class="card"><h3>Connect the right dots</h3><p class="muted">Bring funders, partners, resources, readiness, and opportunity movement into one leadership view.</p></article>
           <article class="card"><h3>Move with more focus</h3><p class="muted">Prioritize the few actions most likely to strengthen access, credibility, and pursuit readiness.</p></article>
           <article class="card"><h3>Reduce wasted pursuit</h3><p class="muted">Spot risks and gaps before your team spends time chasing poorly aligned opportunities.</p></article>
         </div>
-      </section>
+      </details>
 
-      <section class="section dark">
+      <details class="section dark">
+        <summary>Founder-led</summary>
         <div class="founder">
           <div class="founder-badge">
             <p class="eyebrow">Founder-led</p>
@@ -570,7 +582,7 @@
             <p class="muted lead">Built by Marcus Scott through Scott Foundry Group LLC, Anansi Atlas reflects a belief that mission-driven organizations deserve a serious way to see the opportunities, relationships, risks, and pathways already connected to their work.</p>
           </div>
         </div>
-      </section>
+      </details>
 
       <section class="section">
         <p class="eyebrow dark">Founding Atlas Partners</p>
@@ -621,7 +633,8 @@
         </div>
       </section>
 
-      <section class="section dark">
+      <details class="section dark">
+        <summary>Final Call To Action</summary>
         <div class="final-cta">
           <div>
             <p class="eyebrow">The Web of Opportunity</p>
@@ -633,7 +646,7 @@
             <a class="button" href="{% url 'pilot-onboarding' %}">Ask About Founding Atlas Partners</a>
           </div>
         </div>
-      </section>
+      </details>
 
       <footer class="footer">
         <span>Anansi Atlas is operated by Scott Foundry Group LLC.</span>
