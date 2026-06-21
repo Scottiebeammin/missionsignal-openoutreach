@@ -219,6 +219,12 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     assert "Top Risks" in content
     assert "Top Relationship Gaps" in content
     assert "Top Recommended Actions" in content
+    assert "Why this appears" in content
+    assert "Mission Alignment" in content
+    assert "Geographic Alignment" in content
+    assert "Skills Training Funders" in content
+    assert "Named Relationship Targets" in content
+    assert "Pursue County Workforce Board" in content
 
 
 def test_non_member_cannot_view_opportunity_web_snapshot(client, snapshot_project):

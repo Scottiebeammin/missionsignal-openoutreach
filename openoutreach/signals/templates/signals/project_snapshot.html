@@ -79,8 +79,11 @@
       <article id="plan" class="snapshot-action">
         <h2>30-Day Action Plan</h2>
         <ol>
-          {% for action in snapshot.recommended_next_actions|slice:":3" %}
-            <li>{{ action }}</li>
+          {% for action in snapshot.recommended_action_insights|slice:":3" %}
+            <li>
+              <strong>{{ action.label }}</strong>
+              <span class="impact-label">{{ action.rationale }}</span>
+            </li>
           {% endfor %}
         </ol>
       </article>
@@ -139,11 +142,13 @@
       <details style="margin-top: 14px;">
         <summary>Top Opportunities</summary>
       <div class="compact-grid">
-        {% for item in snapshot.top_opportunities %}
+        {% for item in snapshot.top_opportunity_insights %}
           <article class="compact-card">
-            <strong>{{ item.opportunity.name }}</strong>
-            <span class="score-badge">Score {{ item.match.score }}</span>
-            <p class="muted">{{ item.opportunity.get_opportunity_type_display }} · {{ item.opportunity.get_priority_level_display }} priority</p>
+            <strong>{{ item.name }}</strong>
+            <span class="score-badge">Score {{ item.score }}</span>
+            <p class="muted">{{ item.opportunity_type }} · {{ item.priority }} priority · {{ item.level }}</p>
+            <p class="muted"><strong>Why this appears:</strong> {{ item.rationale }}</p>
+            <p class="muted">{{ item.factors|join:", " }}</p>
           </article>
         {% empty %}
           <div class="empty-state"><strong>No opportunities yet</strong>Add opportunities to Discovery to populate the Snapshot.</div>
@@ -157,16 +162,24 @@
         <section>
           <h3>Top Funder Pathways</h3>
           <ul>
-            {% for pathway in snapshot.top_funder_pathways %}
-              <li>{{ pathway }}</li>
+            {% for pathway in snapshot.top_funder_pathway_insights %}
+              <li><strong>{{ pathway.label }}</strong><br><span class="muted">{{ pathway.rationale }}</span><br><span class="muted">{{ pathway.factors|join:", " }}</span></li>
             {% endfor %}
           </ul>
         </section>
         <section>
           <h3>Top Partner Pathways</h3>
           <ul>
-            {% for pathway in snapshot.top_partner_pathways %}
-              <li>{{ pathway }}</li>
+            {% for pathway in snapshot.top_partner_pathway_insights %}
+              <li><strong>{{ pathway.label }}</strong><br><span class="muted">{{ pathway.rationale }}</span><br><span class="muted">{{ pathway.factors|join:", " }}</span></li>
+            {% endfor %}
+          </ul>
+        </section>
+        <section>
+          <h3>Named Relationship Targets</h3>
+          <ul>
+            {% for target in snapshot.relationship_target_insights %}
+              <li><strong>{{ target.label }}</strong><br><span class="muted">{{ target.rationale }}</span><br><span class="muted">{{ target.factors|join:", " }}</span></li>
             {% endfor %}
           </ul>
         </section>
@@ -176,8 +189,8 @@
       <details style="margin-top: 14px;">
         <summary>Top Recommended Actions</summary>
       <ol class="advisor-list">
-        {% for action in snapshot.recommended_next_actions %}
-          <li>{{ action }}<span class="impact-label">Impact: Improves the Opportunity Web Snapshot and future pursuit readiness.</span></li>
+        {% for action in snapshot.recommended_action_insights %}
+          <li>{{ action.label }}<span class="impact-label">{{ action.rationale }}</span></li>
         {% endfor %}
       </ol>
       </details>
