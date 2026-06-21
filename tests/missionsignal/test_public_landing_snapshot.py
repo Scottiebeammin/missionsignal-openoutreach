@@ -36,6 +36,22 @@ def test_public_landing_page_renders_without_login(client):
     assert "Scott Foundry Group LLC" in content
 
 
+def test_public_landing_page_renders_waitlist_form_fields(client):
+    response = client.get(reverse("anansi-atlas-landing"))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert '<form method="post">' in content
+    assert 'name="name"' in content
+    assert 'name="organization"' in content
+    assert 'name="email"' in content
+    assert 'name="role"' in content
+    assert 'name="website"' in content
+    assert 'name="interest_type"' in content
+    assert 'name="message"' in content
+    assert "Explore the Opportunity Web Snapshot" in content
+
+
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 def test_interest_signup_form_submission_stores_local_record_and_sends_email(client):
     mail.outbox = []
@@ -99,6 +115,28 @@ def test_interest_signup_email_failure_does_not_break_signup(client, monkeypatch
     assert signup.organization == "Neighborhood Futures"
     assert signup.email == "taylor@example.org"
     assert signup.status == InterestSignup.Status.NEW
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+def test_interest_signup_invalid_submission_shows_errors_and_does_not_save(client):
+    mail.outbox = []
+
+    response = client.post(
+        reverse("anansi-atlas-landing"),
+        {
+            "name": "",
+            "organization": "Mission Works",
+            "email": "not-an-email",
+            "interest_type": InterestSignup.InterestType.OPPORTUNITY_WEB_SNAPSHOT,
+        },
+    )
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert InterestSignup.objects.count() == 0
+    assert len(mail.outbox) == 0
+    assert "This field is required." in content
+    assert "Enter a valid email address." in content
 
 
 def test_interest_signup_confirmation_page(client):
