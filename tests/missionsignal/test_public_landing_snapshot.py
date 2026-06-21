@@ -260,6 +260,18 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     assert "Funders reviewed" in content
     assert "Opportunities reviewed" in content
     assert "Ecosystem entities reviewed" in content
+    assert "Organization Intelligence" in content
+    assert "Mission Themes" in content
+    assert "Workforce Development" in content
+    assert "Digital Access" in content
+    assert "Strategic Priorities" in content
+    assert "Build Partner Pipeline" in content
+    assert "Funding Priorities" in content
+    assert "Institutional Grants" in content
+    assert "Partnership Priorities" in content
+    assert "Founder Insights" in content
+    assert "Leadership is concerned with partner evidence and relationship depth." in content
+    assert "This aligns with the organizational priority:" in content
     assert "Founder research notes" in content
     assert "Missing Source Guidance" in content
     assert "Add program descriptions to improve opportunity matching." in content

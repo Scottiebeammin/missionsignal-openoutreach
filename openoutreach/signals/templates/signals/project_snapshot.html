@@ -178,6 +178,60 @@
       </details>
 
       <details style="margin-top: 14px;">
+        <summary>Organization Intelligence</summary>
+        <div class="insight-grid" style="margin-top: 14px;">
+          <section>
+            <h3>Mission Themes</h3>
+            <ul>
+              {% for theme in snapshot.organization_intelligence.mission_themes %}
+                <li>{{ theme }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Strategic Priorities</h3>
+            <ul>
+              {% for priority in snapshot.organization_intelligence.strategic_priorities %}
+                <li>{{ priority }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Key Growth Areas</h3>
+            <ul>
+              {% for area in snapshot.organization_intelligence.growth_areas %}
+                <li>{{ area }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Funding Priorities</h3>
+            <ul>
+              {% for priority in snapshot.organization_intelligence.funding_priorities %}
+                <li>{{ priority }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Partnership Priorities</h3>
+            <ul>
+              {% for priority in snapshot.organization_intelligence.partnership_priorities %}
+                <li>{{ priority }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Founder Insights</h3>
+            <ul>
+              {% for insight in snapshot.organization_intelligence.founder_insights %}
+                <li>{{ insight }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+        </div>
+      </details>
+
+      <details style="margin-top: 14px;">
         <summary>Top Opportunities</summary>
       <div class="compact-grid">
         {% for item in snapshot.top_opportunity_insights %}

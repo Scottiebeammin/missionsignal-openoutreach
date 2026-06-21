@@ -45,6 +45,18 @@ class SnapshotSourceSummary:
 
 
 @dataclass(frozen=True)
+class OrganizationIntelligence:
+    mission_themes: list[str]
+    beneficiary_themes: list[str]
+    service_themes: list[str]
+    funding_priorities: list[str]
+    partnership_priorities: list[str]
+    strategic_priorities: list[str]
+    growth_areas: list[str]
+    founder_insights: list[str]
+
+
+@dataclass(frozen=True)
 class OpportunityWebSnapshot:
     mission_overview: str
     readiness_score: int
@@ -65,6 +77,7 @@ class OpportunityWebSnapshot:
     funder_fit_insights: list[SnapshotFunderFit]
     ecosystem_gap_insights: list[SnapshotInsight]
     readiness_context_insights: list[SnapshotInsight]
+    organization_intelligence: OrganizationIntelligence
 
 
 SECTOR_INTELLIGENCE = {
@@ -192,6 +205,46 @@ SECTOR_INTELLIGENCE = {
 }
 
 
+THEME_KEYWORDS = {
+    "Mission Themes": {
+        "Workforce Mobility": ["workforce", "career", "job", "employment", "credential", "skills"],
+        "Digital Access": ["digital", "technology", "broadband", "device", "computer", "tech"],
+        "Youth Advancement": ["youth", "student", "school", "teen", "young adult", "afterschool"],
+        "Community Stability": ["community", "neighborhood", "resident", "families", "housing"],
+        "Health and Wellness": ["health", "wellness", "mental health", "clinic", "hospital"],
+        "Food Access": ["food", "hunger", "nutrition", "pantry", "meal"],
+        "Environmental Stewardship": ["environment", "climate", "watershed", "conservation", "sustainability"],
+    },
+    "Service Themes": {
+        "Training and Workshops": ["training", "workshop", "cohort", "classes", "learning"],
+        "Navigation and Referrals": ["navigation", "referral", "case management", "support services"],
+        "Mentorship and Coaching": ["mentor", "coaching", "advisor", "career exposure"],
+        "Device and Resource Access": ["device", "equipment", "software", "access"],
+        "Evaluation and Evidence": ["outcomes", "evaluation", "impact", "metrics", "evidence"],
+    },
+    "Funding Priorities": {
+        "Institutional Grants": ["grant", "foundation", "funder", "institutional"],
+        "Government Contracts": ["contract", "rfp", "procurement", "government", "city", "county"],
+        "Corporate Sponsorship": ["sponsor", "corporate", "employer", "business"],
+        "Capacity Funding": ["capacity", "operations", "infrastructure", "sustainability"],
+    },
+    "Partnership Priorities": {
+        "Government Partners": ["city", "county", "government", "agency", "public-sector"],
+        "Education Partners": ["school", "college", "university", "district", "education"],
+        "Employer Partners": ["employer", "corporate", "business", "chamber"],
+        "Community Coalitions": ["coalition", "network", "community partner", "collaborative"],
+        "Service Providers": ["clinic", "food bank", "library", "provider"],
+    },
+    "Strategic Priorities": {
+        "Expand Program Reach": ["expand", "scale", "growth", "serve more", "reach"],
+        "Improve Evidence": ["outcome", "evidence", "evaluation", "measure", "impact"],
+        "Strengthen Funding Base": ["funding", "fundraising", "grant", "revenue", "sustainability"],
+        "Build Partner Pipeline": ["partner", "relationship", "collaboration", "referral"],
+        "Prepare for Larger Pursuits": ["larger", "institutional", "major", "competitive", "proposal"],
+    },
+}
+
+
 def _dedupe(values: list[str], limit: int = 5) -> list[str]:
     seen = set()
     unique = []
@@ -204,6 +257,23 @@ def _dedupe(values: list[str], limit: int = 5) -> list[str]:
         if len(unique) >= limit:
             break
     return unique
+
+
+def _keyword_matches(text: str, mapping: dict[str, list[str]], limit: int = 5) -> list[str]:
+    matches = []
+    haystack = text.casefold()
+    for label, keywords in mapping.items():
+        if any(keyword.casefold() in haystack for keyword in keywords):
+            matches.append(label)
+    return _dedupe(matches, limit)
+
+
+def _first_nonempty(values: list[str], fallback: str) -> str:
+    for value in values:
+        clean = str(value or "").strip()
+        if clean:
+            return clean
+    return fallback
 
 
 def _context_text(project) -> str:
@@ -225,6 +295,68 @@ def _context_text(project) -> str:
         *organization.existing_partnerships,
     ]
     return "\n".join(str(value or "") for value in values).casefold()
+
+
+def _source_material_text(project) -> str:
+    organization = project.organization
+    values = [
+        organization.name,
+        organization.mission,
+        organization.organization_summary,
+        project.programs,
+        organization.budget_range,
+        organization.service_area_notes,
+        *organization.focus_areas,
+        *organization.beneficiaries,
+        *organization.service_geographies,
+        *organization.outcomes_and_impact,
+        *organization.current_funding_sources,
+        *organization.existing_partnerships,
+    ]
+    for source in _reviewed_source_pages(project):
+        values.extend([
+            source.title,
+            source.get_source_type_display(),
+            source.notes,
+            source.raw_text,
+        ])
+    for document in project.document_vault_items.all():
+        values.extend([document.title, document.notes, document.get_document_type_display()])
+    for evidence in project.evidence_library_items.all():
+        values.extend([
+            evidence.title,
+            evidence.notes,
+            evidence.related_program,
+            evidence.metric_name,
+            evidence.metric_value,
+            evidence.get_evidence_type_display(),
+        ])
+    pilot = getattr(project, "pilot_profile", None)
+    if pilot:
+        values.extend([
+            pilot.mission,
+            pilot.primary_programs,
+            pilot.communities_served,
+            pilot.current_initiatives,
+            pilot.geographic_reach,
+            pilot.current_revenue_sources,
+            pilot.grant_experience,
+            pilot.major_funders,
+            pilot.funding_challenges,
+            pilot.key_partners,
+            pilot.strategic_relationships,
+            pilot.government_relationships,
+            pilot.corporate_relationships,
+            pilot.top_goals,
+            pilot.biggest_challenges,
+            pilot.desired_outcomes,
+            pilot.success_definition,
+            pilot.document_notes,
+            pilot.snapshot_notes,
+            pilot.internal_comments,
+            pilot.recommended_next_steps,
+        ])
+    return "\n".join(str(value or "") for value in values)
 
 
 def _sector_profile(project) -> dict:
@@ -281,6 +413,90 @@ def _organization_context(project) -> dict:
         "funding_defined": bool(organization.current_funding_sources),
         "budget_defined": bool(str(organization.budget_range or "").strip()),
     }
+
+
+def _beneficiary_themes(project, source_text: str) -> list[str]:
+    organization = project.organization
+    direct = _dedupe(organization.beneficiaries, 4)
+    inferred = _keyword_matches(
+        source_text,
+        {
+            "Youth and Students": ["youth", "student", "teen", "young adult"],
+            "Job Seekers": ["job seeker", "employment", "workforce", "career"],
+            "Families": ["families", "parents", "households"],
+            "Low-Income Residents": ["low-income", "underserved", "disinvested"],
+            "Community Organizations": ["nonprofit", "community organizations", "partners"],
+            "Older Adults": ["senior", "older adults"],
+        },
+        4,
+    )
+    return _dedupe(direct + inferred, 5)
+
+
+def _founder_insights(project, source_text: str) -> list[str]:
+    insights = []
+    founder_sources = [
+        source for source in _reviewed_source_pages(project)
+        if source.source_type == source.SourceType.FOUNDER_NOTES
+    ]
+    for source in founder_sources:
+        text = " ".join([source.notes, source.raw_text]).casefold()
+        if "partner" in text:
+            insights.append("Leadership is concerned with partner evidence and relationship depth.")
+        if "fund" in text or "grant" in text:
+            insights.append("Leadership is tracking funder readiness and funding fit.")
+        if "workforce" in text or "program" in text:
+            insights.append("Leadership is prioritizing program alignment before outreach.")
+        if "growth" in text or "scale" in text:
+            insights.append("Leadership is thinking about growth readiness and scalability.")
+    pilot = getattr(project, "pilot_profile", None)
+    if pilot:
+        if pilot.top_goals:
+            insights.append(f"Pilot intake names growth goals: {pilot.top_goals[:120]}.")
+        if pilot.biggest_challenges:
+            insights.append(f"Pilot intake names constraints: {pilot.biggest_challenges[:120]}.")
+    if not insights and "partner" in source_text.casefold():
+        insights.append("Available notes point to partnership development as a strategic concern.")
+    return _dedupe(insights, 4) or ["No founder-specific concerns have been captured yet."]
+
+
+def _organization_intelligence(project, sector: dict) -> OrganizationIntelligence:
+    source_text = _source_material_text(project)
+    organization = project.organization
+    mission_themes = _keyword_matches(source_text, THEME_KEYWORDS["Mission Themes"], 5)
+    if sector["label"] not in mission_themes:
+        mission_themes.insert(0, sector["label"])
+    service_themes = _keyword_matches(source_text, THEME_KEYWORDS["Service Themes"], 5)
+    funding_priorities = _keyword_matches(source_text, THEME_KEYWORDS["Funding Priorities"], 4)
+    partnership_priorities = _keyword_matches(source_text, THEME_KEYWORDS["Partnership Priorities"], 4)
+    strategic_priorities = _keyword_matches(source_text, THEME_KEYWORDS["Strategic Priorities"], 5)
+
+    if organization.current_funding_sources and "Strengthen Funding Base" not in strategic_priorities:
+        strategic_priorities.append("Strengthen Funding Base")
+    if organization.existing_partnerships and "Build Partner Pipeline" not in strategic_priorities:
+        strategic_priorities.append("Build Partner Pipeline")
+    if organization.outcomes_and_impact:
+        strategic_priorities.append("Improve Evidence")
+
+    growth_areas = _dedupe(
+        [
+            *strategic_priorities,
+            _first_nonempty(organization.focus_areas, sector["label"]),
+            _first_nonempty(organization.service_geographies, organization.city or "Service Area"),
+        ],
+        5,
+    )
+
+    return OrganizationIntelligence(
+        mission_themes=_dedupe(mission_themes, 5),
+        beneficiary_themes=_beneficiary_themes(project, source_text),
+        service_themes=service_themes or ["Program delivery"],
+        funding_priorities=funding_priorities or ["Institutional Grants"],
+        partnership_priorities=partnership_priorities or ["Community Coalitions"],
+        strategic_priorities=_dedupe(strategic_priorities, 5) or ["Clarify growth priorities"],
+        growth_areas=growth_areas,
+        founder_insights=_founder_insights(project, source_text),
+    )
 
 
 def _pathway_rationale(pathway: str, sector: dict, context: dict) -> SnapshotInsight:
@@ -544,7 +760,7 @@ def _opportunity_preparation(match, context: dict) -> str:
     return "Confirm requirements, decision-maker, and submission materials before moving into pursuit."
 
 
-def _named_opportunity_rationale(item, context: dict) -> str:
+def _named_opportunity_rationale(item, context: dict, organization_intelligence: OrganizationIntelligence) -> str:
     opportunity = item.opportunity
     reasons = _dedupe(item.match.reasons, 3)
     if reasons:
@@ -555,6 +771,8 @@ def _named_opportunity_rationale(item, context: dict) -> str:
         rationale += " Geography matches the service area."
     if item.match.score >= 75:
         rationale += " Current readiness and match signals support near-term review."
+    if organization_intelligence.strategic_priorities:
+        rationale += f" This aligns with the organizational priority: {organization_intelligence.strategic_priorities[0]}."
     if opportunity.source_references:
         rationale += _record_source_label(opportunity.source_references)
     return rationale
@@ -570,12 +788,16 @@ def _opportunity_risk(match, context: dict) -> str:
     return "No major strategic risk is visible, but eligibility should still be verified."
 
 
-def _opportunity_insights(discovery, context: dict) -> list[SnapshotOpportunityInsight]:
+def _opportunity_insights(
+    discovery,
+    context: dict,
+    organization_intelligence: OrganizationIntelligence,
+) -> list[SnapshotOpportunityInsight]:
     insights = []
     for item in discovery.top_opportunities[:5]:
         match = item.match
         factors = _factor_summary(match.match_factors, ["Mission Alignment"])
-        rationale = _named_opportunity_rationale(item, context)
+        rationale = _named_opportunity_rationale(item, context, organization_intelligence)
         insights.append(
             SnapshotOpportunityInsight(
                 name=item.opportunity.name,
@@ -689,6 +911,14 @@ def _readiness_context_insights(
         if "partner" in clean.casefold() or "relationship" in clean.casefold():
             consequence = (
                 f"{clean} may limit access to warm introductions, referral partners, and collaborative pathways."
+            )
+        elif "strategic plan" in clean.casefold():
+            consequence = (
+                f"{clean} may reduce competitiveness for larger institutional grants because funders often look for board-approved direction and growth discipline."
+            )
+        elif "program" in clean.casefold() and ("material" in clean.casefold() or "description" in clean.casefold()):
+            consequence = (
+                f"{clean} may reduce partner confidence and funding competitiveness because reviewers need a clear program model."
             )
         elif "outcome" in clean.casefold() or "evidence" in clean.casefold():
             consequence = (
@@ -938,6 +1168,7 @@ def build_opportunity_web_snapshot(
     organization = project.organization
     sector = _sector_profile(project)
     context = _organization_context(project)
+    organization_intelligence = _organization_intelligence(project, sector)
     mission_overview = organization.organization_summary or organization.mission
     top_resource_gaps = _dedupe(
         document_evidence_health.document_summary.missing_critical_documents
@@ -965,7 +1196,7 @@ def build_opportunity_web_snapshot(
         context,
     )
     relationship_target_insights = _relationship_target_insights(project, sector, context)
-    top_opportunity_insights = _opportunity_insights(discovery, context)
+    top_opportunity_insights = _opportunity_insights(discovery, context, organization_intelligence)
     funder_fit_insights = _funder_fit_insights(funder_pathway_insights, sector, context)
     ecosystem_gap_insights = _ecosystem_gap_insights(relationship_target_insights, sector)
     readiness_context_insights = _readiness_context_insights(top_resource_gaps, top_risks_gaps, sector)
@@ -1007,4 +1238,5 @@ def build_opportunity_web_snapshot(
         funder_fit_insights=funder_fit_insights,
         ecosystem_gap_insights=ecosystem_gap_insights,
         readiness_context_insights=readiness_context_insights,
+        organization_intelligence=organization_intelligence,
     )
