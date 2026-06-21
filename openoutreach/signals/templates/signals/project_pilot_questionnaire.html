@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discovery Questionnaire - {{ organization.name }}</title>
+  <style>
+    :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --accent:#d4a017; --deep:#0d1b3d; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.42 system-ui, sans-serif; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1; }
+    .hero, .panel { border: 1px solid var(--line); border-radius: 10px; background: white; }
+    .hero { margin-bottom: 14px; padding: 24px; }
+    .panel { margin-bottom: 14px; padding: 18px; }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .field { display: grid; gap: 6px; }
+    label { font-weight: 900; }
+    input, textarea, select { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--ink); font: inherit; }
+    textarea { min-height: 110px; resize: vertical; }
+    .wide { grid-column: 1 / -1; }
+    .errorlist { margin: 0 0 8px; padding-left: 18px; color: #9f1239; font-weight: 800; }
+    .button { display: inline-flex; align-items: center; min-height: 38px; border: 0; border-radius: 999px; padding: 9px 14px; background: var(--deep); color: white; font-weight: 950; text-decoration: none; cursor: pointer; }
+    @media (max-width: 800px) { .form-grid { grid-template-columns: 1fr; } .wide { grid-column: auto; } }
+  </style>
+  {% include "signals/_app_shell_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="pilot" %}
+  <main>
+    <nav class="workspace-tabs" aria-label="Founding Atlas Partner tabs">
+      <a href="{% url 'project-pilot-workspace' project.pk %}">Partner Workspace</a>
+      <a class="active" href="{% url 'project-pilot-questionnaire' project.pk %}">Discovery Questionnaire</a>
+      <a href="{% url 'project-pilot-feedback' project.pk %}">Pilot Feedback</a>
+    </nav>
+
+    <header class="hero">
+      <p class="eyebrow">Discovery Questionnaire</p>
+      <h1>Tell the story behind the Snapshot.</h1>
+      <p class="muted">Organization, programs, funding, partnerships, growth goals, and optional supporting documents.</p>
+    </header>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <section class="panel">
+        <h2>Organization</h2>
+        <div class="form-grid">
+          {% for field in form %}
+            {% if field.name in "organization_name website mission location year_founded annual_budget_range team_size" %}
+              <div class="field {% if field.name == 'mission' %}wide{% endif %}">
+                {{ field.errors }}{{ field.label_tag }}{{ field }}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Programs</h2>
+        <div class="form-grid">
+          {% for field in form %}
+            {% if field.name in "primary_programs communities_served current_initiatives geographic_reach" %}
+              <div class="field wide">{{ field.errors }}{{ field.label_tag }}{{ field }}</div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Funding</h2>
+        <div class="form-grid">
+          {% for field in form %}
+            {% if field.name in "current_revenue_sources grant_experience major_funders fundraising_activities funding_challenges" %}
+              <div class="field wide">{{ field.errors }}{{ field.label_tag }}{{ field }}</div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Partnerships</h2>
+        <div class="form-grid">
+          {% for field in form %}
+            {% if field.name in "key_partners community_relationships strategic_relationships government_relationships corporate_relationships" %}
+              <div class="field wide">{{ field.errors }}{{ field.label_tag }}{{ field }}</div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Growth Goals</h2>
+        <div class="form-grid">
+          {% for field in form %}
+            {% if field.name in "top_goals biggest_challenges desired_outcomes success_definition" %}
+              <div class="field wide">{{ field.errors }}{{ field.label_tag }}{{ field }}</div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Documents</h2>
+        <p class="muted">Optional uploads. These help the internal Snapshot workflow but are not required to submit intake.</p>
+        <div class="form-grid">
+          {% for field in form %}
+            {% if field.name in "strategic_plan annual_report grant_materials program_information other_documents document_notes" %}
+              <div class="field {% if field.name == 'document_notes' %}wide{% endif %}">{{ field.errors }}{{ field.label_tag }}{{ field }}</div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <button class="button" type="submit">Submit Discovery Questionnaire</button>
+        <a class="button" style="background:#edf2f6;color:#172334;margin-left:8px;" href="{% url 'project-pilot-workspace' project.pk %}">Back to Partner Workspace</a>
+      </section>
+    </form>
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>

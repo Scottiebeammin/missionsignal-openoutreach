@@ -7,6 +7,8 @@ from openoutreach.signals.models import (
     OrganizationContact,
     OrganizationSourcePage,
     PartnerOrganization,
+    PilotFeedback,
+    PilotProfile,
 )
 
 
@@ -42,6 +44,59 @@ class InterestSignupAdmin(admin.ModelAdmin):
     list_display = ("organization", "name", "email", "interest_type", "status", "created_at")
     list_filter = ("interest_type", "status", "created_at")
     search_fields = ("name", "organization", "email", "role", "website", "message")
+    date_hierarchy = "created_at"
+
+
+@admin.register(PilotProfile)
+class PilotProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        "organization_name",
+        "contact_name",
+        "email",
+        "lifecycle_status",
+        "snapshot_status",
+        "walkthrough_status",
+        "assigned_reviewer",
+        "updated_at",
+    )
+    list_filter = ("lifecycle_status", "snapshot_status", "walkthrough_status", "created_at", "updated_at")
+    search_fields = (
+        "organization_name",
+        "contact_name",
+        "email",
+        "website",
+        "mission",
+        "assigned_reviewer",
+        "snapshot_notes",
+        "internal_comments",
+    )
+    raw_id_fields = ("signup", "project")
+    date_hierarchy = "updated_at"
+    fieldsets = (
+        ("Pilot Lifecycle", {"fields": ("signup", "project", "lifecycle_status")}),
+        ("Organization", {"fields": ("organization_name", "contact_name", "email", "website", "mission", "location", "year_founded", "annual_budget_range", "team_size")}),
+        ("Programs", {"fields": ("primary_programs", "communities_served", "current_initiatives", "geographic_reach")}),
+        ("Funding", {"fields": ("current_revenue_sources", "grant_experience", "major_funders", "fundraising_activities", "funding_challenges")}),
+        ("Partnerships", {"fields": ("key_partners", "community_relationships", "strategic_relationships", "government_relationships", "corporate_relationships")}),
+        ("Growth Goals", {"fields": ("top_goals", "biggest_challenges", "desired_outcomes", "success_definition")}),
+        ("Documents", {"fields": ("strategic_plan", "annual_report", "grant_materials", "program_information", "other_documents", "document_notes")}),
+        ("Snapshot Workflow", {"fields": ("snapshot_status", "assigned_reviewer", "snapshot_notes", "snapshot_delivery_date", "internal_comments")}),
+        ("Founder Walkthrough", {"fields": ("walkthrough_status", "meeting_date", "meeting_notes", "follow_up_actions", "recommended_next_steps", "action_plan_started")}),
+    )
+
+
+@admin.register(PilotFeedback)
+class PilotFeedbackAdmin(admin.ModelAdmin):
+    list_display = ("pilot", "would_recommend", "created_at", "updated_at")
+    list_filter = ("would_recommend", "created_at")
+    search_fields = (
+        "pilot__organization_name",
+        "most_valuable",
+        "confusing",
+        "indispensable",
+        "additional_feedback",
+    )
+    raw_id_fields = ("pilot",)
     date_hierarchy = "created_at"
 
 

@@ -217,6 +217,25 @@
         <div class="metric-card compact"><span class="score-card-title">Forecast Value</span><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
       </section>
 
+      {% if pilot %}
+        <section class="advisor-panel" aria-label="Founding Atlas Partner status">
+          <div class="panel-header">
+            <div>
+              <h2>Founding Atlas Partner</h2>
+              <h3>{{ pilot.current_stage }}</h3>
+              <p class="muted">{{ pilot.next_step }}</p>
+            </div>
+            <a class="button" href="{% url 'project-pilot-workspace' project.pk %}">Open Partner Workspace</a>
+          </div>
+          <div class="metric-grid">
+            <div class="metric-card compact"><strong>{{ pilot.progress_percentage }}%</strong><span>Pilot Progress</span></div>
+            <div class="metric-card compact"><strong>{{ pilot.profile.get_snapshot_status_display }}</strong><span>Snapshot Status</span></div>
+            <div class="metric-card compact"><strong>{{ pilot.profile.get_walkthrough_status_display }}</strong><span>Walkthrough Status</span></div>
+            <div class="metric-card compact"><strong>{% if pilot.snapshot_ready %}Ready{% else %}In Progress{% endif %}</strong><span>Snapshot Delivery</span></div>
+          </div>
+        </section>
+      {% endif %}
+
       <section id="priorities" class="command-grid" aria-label="Strategic moves and opportunity focus">
         <article class="command-card">
           <h2>Top 3 Strategic Moves</h2>

@@ -5,7 +5,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from openoutreach.signals.demo import seed_missionsignal_demo
-from openoutreach.signals.models import InterestSignup
+from openoutreach.signals.models import InterestSignup, PilotProfile
 
 
 pytestmark = pytest.mark.django_db
@@ -75,6 +75,11 @@ def test_interest_signup_form_submission_stores_local_record_and_sends_email(cli
     assert signup.organization == "Mission Works"
     assert signup.email == "jordan@example.org"
     assert signup.status == InterestSignup.Status.NEW
+    pilot = PilotProfile.objects.get(signup=signup)
+    assert pilot.organization_name == "Mission Works"
+    assert pilot.contact_name == "Jordan Lee"
+    assert pilot.email == "jordan@example.org"
+    assert pilot.lifecycle_status == PilotProfile.LifecycleStatus.WAITLIST
     assert len(mail.outbox) == 1
     notification = mail.outbox[0]
     assert notification.to == ["info@anansiatlas.com"]
@@ -115,6 +120,7 @@ def test_interest_signup_email_failure_does_not_break_signup(client, monkeypatch
     assert signup.organization == "Neighborhood Futures"
     assert signup.email == "taylor@example.org"
     assert signup.status == InterestSignup.Status.NEW
+    assert PilotProfile.objects.filter(signup=signup).exists()
 
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")

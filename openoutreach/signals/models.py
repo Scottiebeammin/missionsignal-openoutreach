@@ -72,6 +72,152 @@ class InterestSignup(models.Model):
         return f"{self.organization} — {self.email}"
 
 
+class PilotProfile(models.Model):
+    class LifecycleStatus(models.TextChoices):
+        WAITLIST = "waitlist", "Waitlist"
+        QUALIFIED = "qualified", "Qualified"
+        INVITED = "invited", "Invited"
+        QUESTIONNAIRE_SENT = "questionnaire_sent", "Discovery Questionnaire Sent"
+        QUESTIONNAIRE_COMPLETED = "questionnaire_completed", "Discovery Questionnaire Completed"
+        SNAPSHOT_IN_PROGRESS = "snapshot_in_progress", "Snapshot In Progress"
+        SNAPSHOT_DELIVERED = "snapshot_delivered", "Snapshot Delivered"
+        WALKTHROUGH_SCHEDULED = "walkthrough_scheduled", "Walkthrough Scheduled"
+        ACTIVE_PILOT = "active_pilot", "Active Pilot"
+        PILOT_COMPLETE = "pilot_complete", "Pilot Complete"
+
+    class SnapshotStatus(models.TextChoices):
+        INTAKE_COMPLETE = "intake_complete", "Intake Complete"
+        REVIEWING_ORGANIZATION = "reviewing_organization", "Reviewing Organization"
+        BUILDING_OPPORTUNITY_WEB = "building_opportunity_web", "Building Opportunity Web"
+        BUILDING_SNAPSHOT = "building_snapshot", "Building Snapshot"
+        INTERNAL_REVIEW = "internal_review", "Internal Review"
+        READY_FOR_DELIVERY = "ready_for_delivery", "Ready For Delivery"
+        DELIVERED = "delivered", "Delivered"
+
+    class WalkthroughStatus(models.TextChoices):
+        NOT_SCHEDULED = "not_scheduled", "Not Scheduled"
+        REQUESTED = "requested", "Requested"
+        SCHEDULED = "scheduled", "Scheduled"
+        COMPLETED = "completed", "Completed"
+
+    signup = models.OneToOneField(
+        InterestSignup,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="pilot_profile",
+    )
+    project = models.OneToOneField(
+        Project,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="pilot_profile",
+    )
+
+    organization_name = models.CharField(max_length=300)
+    contact_name = models.CharField(max_length=300, blank=True, default="")
+    email = models.EmailField(blank=True, default="")
+    website = models.URLField(max_length=500, blank=True, default="")
+
+    lifecycle_status = models.CharField(
+        max_length=40,
+        choices=LifecycleStatus.choices,
+        default=LifecycleStatus.WAITLIST,
+    )
+
+    mission = models.TextField(blank=True, default="")
+    location = models.CharField(max_length=300, blank=True, default="")
+    year_founded = models.CharField(max_length=50, blank=True, default="")
+    annual_budget_range = models.CharField(max_length=100, blank=True, default="")
+    team_size = models.CharField(max_length=100, blank=True, default="")
+
+    primary_programs = models.TextField(blank=True, default="")
+    communities_served = models.TextField(blank=True, default="")
+    current_initiatives = models.TextField(blank=True, default="")
+    geographic_reach = models.TextField(blank=True, default="")
+
+    current_revenue_sources = models.TextField(blank=True, default="")
+    grant_experience = models.TextField(blank=True, default="")
+    major_funders = models.TextField(blank=True, default="")
+    fundraising_activities = models.TextField(blank=True, default="")
+    funding_challenges = models.TextField(blank=True, default="")
+
+    key_partners = models.TextField(blank=True, default="")
+    community_relationships = models.TextField(blank=True, default="")
+    strategic_relationships = models.TextField(blank=True, default="")
+    government_relationships = models.TextField(blank=True, default="")
+    corporate_relationships = models.TextField(blank=True, default="")
+
+    top_goals = models.TextField(blank=True, default="")
+    biggest_challenges = models.TextField(blank=True, default="")
+    desired_outcomes = models.TextField(blank=True, default="")
+    success_definition = models.TextField(blank=True, default="")
+
+    strategic_plan = models.FileField(upload_to="pilot_documents/", blank=True, default="")
+    annual_report = models.FileField(upload_to="pilot_documents/", blank=True, default="")
+    grant_materials = models.FileField(upload_to="pilot_documents/", blank=True, default="")
+    program_information = models.FileField(upload_to="pilot_documents/", blank=True, default="")
+    other_documents = models.FileField(upload_to="pilot_documents/", blank=True, default="")
+    document_notes = models.TextField(blank=True, default="")
+
+    snapshot_status = models.CharField(
+        max_length=40,
+        choices=SnapshotStatus.choices,
+        default=SnapshotStatus.REVIEWING_ORGANIZATION,
+    )
+    assigned_reviewer = models.CharField(max_length=300, blank=True, default="")
+    snapshot_notes = models.TextField(blank=True, default="")
+    snapshot_delivery_date = models.DateField(null=True, blank=True)
+    internal_comments = models.TextField(blank=True, default="")
+
+    walkthrough_status = models.CharField(
+        max_length=30,
+        choices=WalkthroughStatus.choices,
+        default=WalkthroughStatus.NOT_SCHEDULED,
+    )
+    meeting_date = models.DateTimeField(null=True, blank=True)
+    meeting_notes = models.TextField(blank=True, default="")
+    follow_up_actions = models.TextField(blank=True, default="")
+    recommended_next_steps = models.TextField(blank=True, default="")
+
+    action_plan_started = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("organization_name", "email")
+
+    def __str__(self):
+        return f"{self.organization_name} pilot"
+
+
+class PilotFeedback(models.Model):
+    class Recommendation(models.TextChoices):
+        YES = "yes", "Yes"
+        MAYBE = "maybe", "Maybe"
+        NO = "no", "No"
+
+    pilot = models.OneToOneField(PilotProfile, on_delete=models.CASCADE, related_name="feedback")
+    most_valuable = models.TextField()
+    confusing = models.TextField(blank=True, default="")
+    indispensable = models.TextField(blank=True, default="")
+    would_recommend = models.CharField(
+        max_length=20,
+        choices=Recommendation.choices,
+        default=Recommendation.MAYBE,
+    )
+    additional_feedback = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        return f"Pilot feedback — {self.pilot.organization_name}"
+
+
 class OrganizationAnalysisRun(models.Model):
     class Status(models.TextChoices):
         PENDING = "pending", "Pending"

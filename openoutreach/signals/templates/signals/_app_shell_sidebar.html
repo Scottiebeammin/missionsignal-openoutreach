@@ -40,8 +40,9 @@
 
     <div class="nav-section">
       <span class="nav-label">Workspace</span>
-      <a class="{% if active_page == 'organization' or active_page == 'mission' or active_page == 'celebrations' or active_page == 'settings' %}active{% endif %}" href="{% url 'project-organization' project.pk %}">Workspace <span>Admin</span></a>
+      <a class="{% if active_page == 'organization' or active_page == 'mission' or active_page == 'celebrations' or active_page == 'settings' or active_page == 'pilot' %}active{% endif %}" href="{% url 'project-organization' project.pk %}">Workspace <span>Admin</span></a>
       <div class="nav-sublinks" aria-label="Workspace tools">
+        <a class="{% if active_page == 'pilot' %}active{% endif %}" href="{% url 'project-pilot-workspace' project.pk %}">Pilot</a>
         <a class="{% if active_page == 'celebrations' %}active{% endif %}" href="{% url 'project-celebrations' project.pk %}">Celebrations</a>
         <a class="{% if active_page == 'settings' %}active{% endif %}" href="{% url 'project-analysis-detail' project.pk %}">Settings</a>
       </div>

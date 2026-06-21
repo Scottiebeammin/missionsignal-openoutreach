@@ -1,6 +1,6 @@
 from django import forms
 
-from openoutreach.signals.models import InterestSignup
+from openoutreach.signals.models import InterestSignup, PilotFeedback, PilotProfile
 
 
 def _split_lines(value: str) -> list[str]:
@@ -88,4 +88,82 @@ class InterestSignupForm(forms.ModelForm):
         ]
         widgets = {
             "message": forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+class PilotDiscoveryQuestionnaireForm(forms.ModelForm):
+    class Meta:
+        model = PilotProfile
+        fields = [
+            "organization_name",
+            "website",
+            "mission",
+            "location",
+            "year_founded",
+            "annual_budget_range",
+            "team_size",
+            "primary_programs",
+            "communities_served",
+            "current_initiatives",
+            "geographic_reach",
+            "current_revenue_sources",
+            "grant_experience",
+            "major_funders",
+            "fundraising_activities",
+            "funding_challenges",
+            "key_partners",
+            "community_relationships",
+            "strategic_relationships",
+            "government_relationships",
+            "corporate_relationships",
+            "top_goals",
+            "biggest_challenges",
+            "desired_outcomes",
+            "success_definition",
+            "strategic_plan",
+            "annual_report",
+            "grant_materials",
+            "program_information",
+            "other_documents",
+            "document_notes",
+        ]
+        widgets = {
+            "mission": forms.Textarea(attrs={"rows": 4}),
+            "primary_programs": forms.Textarea(attrs={"rows": 4}),
+            "communities_served": forms.Textarea(attrs={"rows": 3}),
+            "current_initiatives": forms.Textarea(attrs={"rows": 3}),
+            "geographic_reach": forms.Textarea(attrs={"rows": 3}),
+            "current_revenue_sources": forms.Textarea(attrs={"rows": 3}),
+            "grant_experience": forms.Textarea(attrs={"rows": 3}),
+            "major_funders": forms.Textarea(attrs={"rows": 3}),
+            "fundraising_activities": forms.Textarea(attrs={"rows": 3}),
+            "funding_challenges": forms.Textarea(attrs={"rows": 3}),
+            "key_partners": forms.Textarea(attrs={"rows": 3}),
+            "community_relationships": forms.Textarea(attrs={"rows": 3}),
+            "strategic_relationships": forms.Textarea(attrs={"rows": 3}),
+            "government_relationships": forms.Textarea(attrs={"rows": 3}),
+            "corporate_relationships": forms.Textarea(attrs={"rows": 3}),
+            "top_goals": forms.Textarea(attrs={"rows": 3}),
+            "biggest_challenges": forms.Textarea(attrs={"rows": 3}),
+            "desired_outcomes": forms.Textarea(attrs={"rows": 3}),
+            "success_definition": forms.Textarea(attrs={"rows": 3}),
+            "document_notes": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class PilotFeedbackForm(forms.ModelForm):
+    class Meta:
+        model = PilotFeedback
+        fields = [
+            "most_valuable",
+            "confusing",
+            "indispensable",
+            "would_recommend",
+            "additional_feedback",
+        ]
+        widgets = {
+            "most_valuable": forms.Textarea(attrs={"rows": 4}),
+            "confusing": forms.Textarea(attrs={"rows": 4}),
+            "indispensable": forms.Textarea(attrs={"rows": 4}),
+            "additional_feedback": forms.Textarea(attrs={"rows": 4}),
         }

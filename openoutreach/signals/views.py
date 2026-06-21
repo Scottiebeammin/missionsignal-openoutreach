@@ -16,16 +16,27 @@ from openoutreach.signals.documents import (
     build_opportunity_document_summary,
 )
 from openoutreach.signals.ecosystem import build_ecosystem_overview
-from openoutreach.signals.forms import InterestSignupForm, OrganizationIntakeForm
+from openoutreach.signals.forms import (
+    InterestSignupForm,
+    OrganizationIntakeForm,
+    PilotDiscoveryQuestionnaireForm,
+    PilotFeedbackForm,
+)
 from openoutreach.signals.notifications import notify_interest_signup
 from openoutreach.signals.forecasting import build_pipeline_forecast
 from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_opportunity_lifecycle
 from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
+from openoutreach.signals.models import PilotProfile
 from openoutreach.signals.opportunity_work import build_opportunity_workspace, ensure_default_tasks
 from openoutreach.signals.opportunity_web import build_opportunity_web
 from openoutreach.signals.partnerships import build_partnership_readiness
+from openoutreach.signals.pilot import (
+    build_pilot_context,
+    create_pilot_profile_from_signup,
+    get_or_create_project_pilot_profile,
+)
 from openoutreach.signals.readiness import (
     build_opportunity_pursuit_readiness,
     build_opportunity_pursuit_summary,
@@ -70,6 +81,7 @@ def public_landing_page(request):
         form = InterestSignupForm(request.POST)
         if form.is_valid():
             signup = form.save()
+            create_pilot_profile_from_signup(signup)
             notify_interest_signup(signup)
             return redirect("anansi-atlas-thanks")
     else:
@@ -172,6 +184,81 @@ def project_organization_workspace(request, pk):
 
 
 @login_required
+def project_pilot_workspace(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    profile = get_or_create_project_pilot_profile(project)
+    return render(
+        request,
+        "signals/project_pilot_workspace.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "pilot": build_pilot_context(profile),
+        },
+    )
+
+
+@login_required
+def project_pilot_questionnaire(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    profile = get_or_create_project_pilot_profile(project)
+    if request.method == "POST":
+        form = PilotDiscoveryQuestionnaireForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.lifecycle_status = PilotProfile.LifecycleStatus.QUESTIONNAIRE_COMPLETED
+            profile.snapshot_status = PilotProfile.SnapshotStatus.REVIEWING_ORGANIZATION
+            profile.save()
+            return redirect("project-pilot-workspace", pk=project.pk)
+    else:
+        form = PilotDiscoveryQuestionnaireForm(instance=profile)
+    return render(
+        request,
+        "signals/project_pilot_questionnaire.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "pilot": build_pilot_context(profile),
+            "form": form,
+        },
+    )
+
+
+@login_required
+def project_pilot_feedback(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    profile = get_or_create_project_pilot_profile(project)
+    feedback = getattr(profile, "feedback", None)
+    if request.method == "POST":
+        form = PilotFeedbackForm(request.POST, instance=feedback)
+        if form.is_valid():
+            feedback = form.save(commit=False)
+            feedback.pilot = profile
+            feedback.save()
+            profile.lifecycle_status = PilotProfile.LifecycleStatus.PILOT_COMPLETE
+            profile.save(update_fields=["lifecycle_status", "updated_at"])
+            return redirect("project-pilot-workspace", pk=project.pk)
+    else:
+        form = PilotFeedbackForm(instance=feedback)
+    return render(
+        request,
+        "signals/project_pilot_feedback.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "pilot": build_pilot_context(profile),
+            "form": form,
+        },
+    )
+
+
+@login_required
 def project_funding_dashboard(request, pk):
     project = get_object_or_404(
         Project.objects.select_related("organization"), pk=pk, users=request.user,
@@ -232,6 +319,10 @@ def project_executive_dashboard(request, pk):
     forecast = dashboard.forecast
     relationships = dashboard.relationships
     opportunity_web = build_opportunity_web(project, discovery_overview)
+    try:
+        pilot = build_pilot_context(project.pilot_profile)
+    except PilotProfile.DoesNotExist:
+        pilot = None
     return render(
         request,
         "signals/project_executive_dashboard.html",
@@ -240,6 +331,7 @@ def project_executive_dashboard(request, pk):
             "organization": project.organization,
             "dashboard": dashboard,
             "opportunity_web": opportunity_web,
+            "pilot": pilot,
             "score_transparency": {
                 "readiness": explain_readiness(dashboard.readiness),
                 "completeness": explain_organization_completeness(dashboard.readiness.organization_completeness),

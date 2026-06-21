@@ -35,6 +35,7 @@
   <main>
     <nav class="workspace-tabs" aria-label="Organization workspace tabs">
       <a class="active" href="{% url 'project-organization' project.pk %}">Organization</a>
+      <a href="{% url 'project-pilot-workspace' project.pk %}">Pilot</a>
       <a href="{% url 'project-celebrations' project.pk %}">Wins</a>
       <a href="{% url 'project-analysis-detail' project.pk %}">Settings</a>
     </nav>

@@ -17,6 +17,13 @@ urlpatterns = [
     path("projects/<int:pk>/evidence/", views.project_evidence_dashboard, name="project-evidence"),
     path("projects/<int:pk>/celebrations/", views.project_celebrations_dashboard, name="project-celebrations"),
     path("projects/<int:pk>/organization/", views.project_organization_workspace, name="project-organization"),
+    path("projects/<int:pk>/pilot/", views.project_pilot_workspace, name="project-pilot-workspace"),
+    path(
+        "projects/<int:pk>/pilot/questionnaire/",
+        views.project_pilot_questionnaire,
+        name="project-pilot-questionnaire",
+    ),
+    path("projects/<int:pk>/pilot/feedback/", views.project_pilot_feedback, name="project-pilot-feedback"),
     path("projects/<int:pk>/mission-brief/", views.project_mission_brief, name="project-mission-brief"),
     path(
         "projects/<int:pk>/programs/",

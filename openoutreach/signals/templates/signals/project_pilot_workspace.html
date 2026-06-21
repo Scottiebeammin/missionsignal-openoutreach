@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Founding Atlas Partner - {{ organization.name }}</title>
+  <style>
+    :root { color-scheme: light; --ink:#172334; --muted:#687789; --line:#d9e2e8; --accent:#d4a017; --accent-soft:#fff6dd; --deep:#0d1b3d; --green:#0f766e; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.42 system-ui, sans-serif; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1; }
+    h2 { margin-bottom: 12px; }
+    h3 { margin-bottom: 6px; }
+    a { color: inherit; }
+    .hero, .panel, .metric, .pilot-card { border: 1px solid var(--line); border-radius: 10px; background: white; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; margin-bottom: 14px; padding: 24px; }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .panel { margin-bottom: 14px; padding: 18px; }
+    .metrics, .grid, .checklist { display: grid; gap: 10px; }
+    .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .metric, .pilot-card { padding: 14px; }
+    .metric strong { display: block; color: var(--accent); font-size: 1.45rem; }
+    .progress-track { height: 10px; overflow: hidden; border-radius: 999px; background: #edf2f6; }
+    .progress-fill { height: 100%; min-width: 4px; border-radius: inherit; background: var(--accent); }
+    .checklist { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+    .checklist li { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(13, 27, 61, .08); }
+    .status-dot { display: grid; flex: 0 0 24px; place-items: center; width: 24px; height: 24px; border-radius: 999px; background: #edf2f6; color: var(--muted); font-weight: 950; }
+    .status-dot.done { background: rgba(15, 118, 110, .12); color: var(--green); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .button, .pill { display: inline-flex; align-items: center; min-height: 34px; padding: 8px 12px; border-radius: 999px; font-weight: 900; text-decoration: none; }
+    .button { background: var(--deep); color: white; }
+    .pill { background: var(--accent-soft); color: #7a5600; }
+    .snapshot-ready { border-left: 5px solid var(--accent); background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 190%); }
+    ul.clean { margin: 0; padding-left: 18px; }
+    li + li { margin-top: 6px; }
+    @media (max-width: 980px) { .hero, .metrics, .grid, .checklist { grid-template-columns: 1fr; } }
+  </style>
+  {% include "signals/_app_shell_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="pilot" %}
+  <main>
+    <nav class="workspace-tabs" aria-label="Founding Atlas Partner tabs">
+      <a class="active" href="{% url 'project-pilot-workspace' project.pk %}">Partner Workspace</a>
+      <a href="{% url 'project-pilot-questionnaire' project.pk %}">Discovery Questionnaire</a>
+      <a href="{% url 'project-pilot-feedback' project.pk %}">Pilot Feedback</a>
+    </nav>
+
+    <header class="hero">
+      <section>
+        <p class="eyebrow">Founding Atlas Partner</p>
+        <h1>Your pilot command center.</h1>
+        <p class="muted">Track onboarding, discovery intake, Snapshot delivery, founder walkthrough, and the 30-day pilot action period.</p>
+      </section>
+      <section class="panel snapshot-ready">
+        <h2>Current Stage</h2>
+        <h3>{{ pilot.current_stage }}</h3>
+        <p class="muted">{{ pilot.next_step }}</p>
+        <div class="progress-track" aria-label="Pilot progress">
+          <div class="progress-fill" style="width: {{ pilot.progress_percentage }}%;"></div>
+        </div>
+        <p class="muted" style="margin-top: 8px;">{{ pilot.progress_percentage }}% complete</p>
+      </section>
+    </header>
+
+    <section class="metrics" aria-label="Pilot status">
+      <div class="metric"><span class="muted">Lifecycle</span><strong>{{ pilot.current_stage }}</strong></div>
+      <div class="metric"><span class="muted">Snapshot</span><strong>{{ pilot.profile.get_snapshot_status_display }}</strong></div>
+      <div class="metric"><span class="muted">Walkthrough</span><strong>{{ pilot.profile.get_walkthrough_status_display }}</strong></div>
+      <div class="metric"><span class="muted">Reviewer</span><strong>{{ pilot.profile.assigned_reviewer|default:"Unassigned" }}</strong></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Pilot Checklist</h2>
+          <p class="muted">The lightweight operating list for the Founding Atlas Partner experience.</p>
+        </div>
+        <a class="button" href="{% url 'project-pilot-questionnaire' project.pk %}">Complete Questionnaire</a>
+      </div>
+      <ul class="checklist">
+        {% for item in pilot.checklist %}
+          <li>
+            <span class="status-dot {% if item.complete %}done{% endif %}">{% if item.complete %}✓{% else %}•{% endif %}</span>
+            <strong>{{ item.label }}</strong>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="panel snapshot-ready">
+      <div class="panel-header">
+        <div>
+          <h2>Snapshot Delivery</h2>
+          {% if pilot.snapshot_ready %}
+            <p class="muted">The Opportunity Web Snapshot is marked delivered and ready for review.</p>
+          {% else %}
+            <p class="muted">Snapshot workflow is active. Delivery appears here when internal review is complete.</p>
+          {% endif %}
+        </div>
+        <div class="actions">
+          <a class="pill" href="{% url 'project-snapshot' project.pk %}">View Snapshot</a>
+          <a class="pill" href="{% url 'project-pilot-workspace' project.pk %}">Schedule Walkthrough</a>
+          <a class="pill" href="{% url 'project-pipeline' project.pk %}">Start 30-Day Action Plan</a>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="pilot-card">
+          <h3>Snapshot Includes</h3>
+          <ul class="clean">
+            <li>Executive Summary</li>
+            <li>Opportunity Web</li>
+            <li>Readiness Review</li>
+            <li>Relationship Review</li>
+            <li>Risks and Gaps</li>
+            <li>Top Opportunities</li>
+            <li>30-Day Action Plan</li>
+          </ul>
+        </article>
+        <article class="pilot-card">
+          <h3>Founder Walkthrough</h3>
+          <p>Status: <strong>{{ pilot.profile.get_walkthrough_status_display }}</strong></p>
+          <p class="muted">{{ pilot.profile.meeting_date|date:"M j, Y g:i A"|default:"Meeting date not scheduled yet." }}</p>
+        </article>
+        <article class="pilot-card">
+          <h3>Feedback Loop</h3>
+          <p class="muted">Capture what was valuable, confusing, indispensable, and worth improving after the walkthrough.</p>
+          <a class="button" href="{% url 'project-pilot-feedback' project.pk %}">Submit Feedback</a>
+        </article>
+      </div>
+    </section>
+
+    <details class="panel">
+      <summary>Internal pilot notes</summary>
+      <div class="grid" style="margin-top: 12px;">
+        <article class="pilot-card"><h3>Snapshot Notes</h3><p>{{ pilot.profile.snapshot_notes|default:"No snapshot notes yet." }}</p></article>
+        <article class="pilot-card"><h3>Meeting Notes</h3><p>{{ pilot.profile.meeting_notes|default:"No walkthrough notes yet." }}</p></article>
+        <article class="pilot-card"><h3>Follow-Up Actions</h3><p>{{ pilot.profile.follow_up_actions|default:"No follow-up actions yet." }}</p></article>
+      </div>
+    </details>
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>
