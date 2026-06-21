@@ -16,7 +16,18 @@ class SnapshotOpportunityInsight:
     opportunity_type: str
     priority: str
     rationale: str
+    why_now: str
+    preparation_required: str
+    risks: str
     factors: list[str]
+
+
+@dataclass(frozen=True)
+class SnapshotFunderFit:
+    archetype: str
+    alignment_level: str
+    rationale: str
+    preparation_steps: list[str]
 
 
 @dataclass(frozen=True)
@@ -46,6 +57,9 @@ class OpportunityWebSnapshot:
     top_opportunity_insights: list[SnapshotOpportunityInsight]
     recommended_action_insights: list[SnapshotInsight]
     source_summary: SnapshotSourceSummary
+    funder_fit_insights: list[SnapshotFunderFit]
+    ecosystem_gap_insights: list[SnapshotInsight]
+    readiness_context_insights: list[SnapshotInsight]
 
 
 SECTOR_INTELLIGENCE = {
@@ -292,9 +306,20 @@ def _relationship_target_insights(sector: dict, context: dict) -> list[SnapshotI
         factors = ["Relationship Alignment", "Mission Alignment"]
         if context["geography"]:
             factors.append("Geographic Alignment")
+        unlock = "funding conversations, partner referrals, and stronger opportunity credibility"
+        if "Workforce" in target or "Employer" in target or "Chamber" in target:
+            unlock = "workforce grants, employer-backed pathways, and placement credibility"
+        elif "School" in target or "Youth" in target or "Afterschool" in target:
+            unlock = "youth services funding, student referral channels, and school partnership evidence"
+        elif "Health" in target or "Hospital" in target or "Clinic" in target:
+            unlock = "public health partnerships, community benefit funding, and referral pathways"
+        elif "Food" in target or "Grower" in target or "Senior Center" in target:
+            unlock = "food access funding, distribution partnerships, and community need evidence"
+        elif "Watershed" in target or "Parks" in target or "Conservation" in target:
+            unlock = "conservation funding, place-based stewardship partnerships, and environmental proof"
         rationale = (
             f"Use this target archetype to turn {sector['label']} strategy into a named outreach list "
-            f"for {geography}."
+            f"for {geography}; it can unlock {unlock}."
         )
         insights.append(SnapshotInsight(f"Pursue {target}", rationale, factors))
     return insights
@@ -305,7 +330,40 @@ def _factor_summary(factors: list[str], fallback: list[str]) -> list[str]:
     return clean or fallback[:3]
 
 
-def _opportunity_insights(discovery) -> list[SnapshotOpportunityInsight]:
+def _opportunity_timing(item) -> str:
+    opportunity = item.opportunity
+    if getattr(opportunity, "deadline", None):
+        return f"Deadline is visible for {opportunity.deadline:%b %-d, %Y}, so fit should be confirmed before preparation time is lost."
+    if opportunity.priority_level == opportunity.PriorityLevel.HIGH:
+        return "It is marked high priority, so it should be reviewed before lower-value inventory."
+    if opportunity.status in {opportunity.Status.ACTIVE, opportunity.Status.UPCOMING}:
+        return f"It is currently {opportunity.get_status_display().lower()}, making it timely enough for near-term screening."
+    return "It remains useful as a monitored pathway, but timing should be confirmed before pursuit."
+
+
+def _opportunity_preparation(match, context: dict) -> str:
+    if match.improvement_suggestions:
+        return match.improvement_suggestions[0] + "."
+    if not context["outcomes_defined"]:
+        return "Add outcome evidence before outreach or submission."
+    if not context["budget_defined"]:
+        return "Add budget range and program cost assumptions before screening award fit."
+    if not context["partnerships_defined"]:
+        return "Document partner roles before positioning this as a collaborative opportunity."
+    return "Confirm requirements, decision-maker, and submission materials before moving into pursuit."
+
+
+def _opportunity_risk(match, context: dict) -> str:
+    if match.missing_factors:
+        return match.missing_factors[0] + " may reduce competitiveness."
+    if not context["funding_defined"]:
+        return "Limited funding history may weaken credibility with funders."
+    if not context["partnerships_defined"]:
+        return "Limited partnership evidence may weaken collaborative fit."
+    return "No major strategic risk is visible, but eligibility should still be verified."
+
+
+def _opportunity_insights(discovery, context: dict) -> list[SnapshotOpportunityInsight]:
     insights = []
     for item in discovery.top_opportunities[:5]:
         match = item.match
@@ -323,10 +381,126 @@ def _opportunity_insights(discovery) -> list[SnapshotOpportunityInsight]:
                 opportunity_type=item.opportunity.get_opportunity_type_display(),
                 priority=item.opportunity.get_priority_level_display(),
                 rationale=rationale,
+                why_now=_opportunity_timing(item),
+                preparation_required=_opportunity_preparation(match, context),
+                risks=_opportunity_risk(match, context),
                 factors=factors,
             )
         )
     return insights
+
+
+def _alignment_level(score: int) -> str:
+    if score >= 90:
+        return "Excellent Fit"
+    if score >= 80:
+        return "Strong Fit"
+    if score >= 70:
+        return "Promising Fit"
+    return "Exploratory Fit"
+
+
+def _funder_fit_insights(
+    funder_pathways: list[SnapshotInsight],
+    sector: dict,
+    context: dict,
+) -> list[SnapshotFunderFit]:
+    prep = []
+    if not context["outcomes_defined"]:
+        prep.append(f"Add measurable {sector['label'].lower()} outcomes.")
+    if not context["budget_defined"]:
+        prep.append("Prepare a clear budget range and funding use.")
+    if not context["partnerships_defined"]:
+        prep.append("Document partner roles and referral pathways.")
+    if not context["funding_defined"]:
+        prep.append("List current and recent funding sources.")
+    prep.append(f"Create a one-page {sector['label']} funding brief.")
+    insights = []
+    for index, pathway in enumerate(funder_pathways[:5]):
+        score = 92 - (index * 4)
+        if "Community Foundations" in pathway.label:
+            score = max(score, 88)
+        if "Government" in pathway.label or "Workforce" in pathway.label:
+            score = max(score, 90)
+        rationale = (
+            f"{pathway.label} fits because the profile points to {sector['label']} work"
+            " with clear mission and beneficiary alignment."
+        )
+        if context["geography"]:
+            rationale += f" The fit can be localized around {context['geography'][0]}."
+        insights.append(
+            SnapshotFunderFit(
+                archetype=pathway.label,
+                alignment_level=_alignment_level(score),
+                rationale=rationale,
+                preparation_steps=_dedupe(prep, 3),
+            )
+        )
+    return insights
+
+
+def _ecosystem_gap_insights(relationship_targets: list[SnapshotInsight], sector: dict) -> list[SnapshotInsight]:
+    insights = []
+    for target in relationship_targets[:4]:
+        label = target.label.replace("Pursue ", "Missing ")
+        insights.append(
+            SnapshotInsight(
+                label,
+                f"This gap matters because {target.rationale[0].lower() + target.rationale[1:]}",
+                target.factors,
+            )
+        )
+    if not insights:
+        insights.append(
+            SnapshotInsight(
+                f"Missing {sector['label']} relationship map",
+                "A named relationship map would make the Web of Opportunity more actionable.",
+                ["Relationship Alignment", "Strategic Value"],
+            )
+        )
+    return insights
+
+
+def _readiness_context_insights(
+    top_resource_gaps: list[str],
+    top_risks_gaps: list[str],
+    sector: dict,
+) -> list[SnapshotInsight]:
+    insights = []
+    for gap in _dedupe(top_resource_gaps + top_risks_gaps, 5):
+        if "No major" in gap:
+            continue
+        clean = gap.rstrip(".")
+        consequence = (
+            f"{clean} may reduce competitiveness for {sector['label'].lower()} opportunities "
+            "because funders and partners need proof that the organization can execute."
+        )
+        if "partner" in clean.casefold() or "relationship" in clean.casefold():
+            consequence = (
+                f"{clean} may limit access to warm introductions, referral partners, and collaborative pathways."
+            )
+        elif "outcome" in clean.casefold() or "evidence" in clean.casefold():
+            consequence = (
+                f"{clean} may weaken the case for impact in grants, contracts, and partner conversations."
+            )
+        elif "budget" in clean.casefold() or "financial" in clean.casefold():
+            consequence = (
+                f"{clean} may make it harder to judge award-size fit and implementation capacity."
+            )
+        insights.append(
+            SnapshotInsight(
+                clean,
+                consequence,
+                ["Readiness Alignment", "Pursuit Risk"],
+            )
+        )
+    return insights or [
+        SnapshotInsight(
+            "Maintain readiness evidence",
+            f"Current readiness looks usable, but {sector['label'].lower()} pathways will still need current documents and proof.",
+            ["Readiness Alignment"],
+        )
+    ]
 
 
 def _action_insights(
@@ -553,7 +727,10 @@ def build_opportunity_web_snapshot(
         context,
     )
     relationship_target_insights = _relationship_target_insights(sector, context)
-    top_opportunity_insights = _opportunity_insights(discovery)
+    top_opportunity_insights = _opportunity_insights(discovery, context)
+    funder_fit_insights = _funder_fit_insights(funder_pathway_insights, sector, context)
+    ecosystem_gap_insights = _ecosystem_gap_insights(relationship_target_insights, sector)
+    readiness_context_insights = _readiness_context_insights(top_resource_gaps, top_risks_gaps, sector)
     recommended_action_insights = _action_insights(
         sector,
         context,
@@ -588,4 +765,7 @@ def build_opportunity_web_snapshot(
         top_opportunity_insights=top_opportunity_insights,
         recommended_action_insights=recommended_action_insights,
         source_summary=source_summary,
+        funder_fit_insights=funder_fit_insights,
+        ecosystem_gap_insights=ecosystem_gap_insights,
+        readiness_context_insights=readiness_context_insights,
     )

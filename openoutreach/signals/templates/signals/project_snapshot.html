@@ -183,6 +183,9 @@
             <span class="score-badge">Score {{ item.score }}</span>
             <p class="muted">{{ item.opportunity_type }} · {{ item.priority }} priority · {{ item.level }}</p>
             <p class="muted"><strong>Why this appears:</strong> {{ item.rationale }}</p>
+            <p class="muted"><strong>Why now:</strong> {{ item.why_now }}</p>
+            <p class="muted"><strong>Preparation required:</strong> {{ item.preparation_required }}</p>
+            <p class="muted"><strong>Risk:</strong> {{ item.risks }}</p>
             <p class="muted">{{ item.factors|join:", " }}</p>
           </article>
         {% empty %}
@@ -196,9 +199,14 @@
       <div class="insight-grid">
         <section>
           <h3>Top Funder Pathways</h3>
+          <p class="muted">Funder Fit</p>
           <ul>
-            {% for pathway in snapshot.top_funder_pathway_insights %}
-              <li><strong>{{ pathway.label }}</strong><br><span class="muted">{{ pathway.rationale }}</span><br><span class="muted">{{ pathway.factors|join:", " }}</span></li>
+            {% for funder in snapshot.funder_fit_insights %}
+              <li>
+                <strong>{{ funder.archetype }}</strong><br>
+                <span class="muted">{{ funder.alignment_level }} · {{ funder.rationale }}</span><br>
+                <span class="muted">Prepare: {{ funder.preparation_steps|join:", " }}</span>
+              </li>
             {% endfor %}
           </ul>
         </section>
@@ -218,7 +226,28 @@
             {% endfor %}
           </ul>
         </section>
+        <section>
+          <h3>Ecosystem Gaps</h3>
+          <ul>
+            {% for gap in snapshot.ecosystem_gap_insights %}
+              <li><strong>{{ gap.label }}</strong><br><span class="muted">{{ gap.rationale }}</span></li>
+            {% endfor %}
+          </ul>
+        </section>
       </div>
+      </details>
+
+      <details style="margin-top: 14px;">
+        <summary>Readiness Context</summary>
+        <div class="compact-grid">
+          {% for item in snapshot.readiness_context_insights %}
+            <article class="compact-card">
+              <strong>{{ item.label }}</strong>
+              <p class="muted">{{ item.rationale }}</p>
+              <p class="muted">{{ item.factors|join:", " }}</p>
+            </article>
+          {% endfor %}
+        </div>
       </details>
 
       <details style="margin-top: 14px;">

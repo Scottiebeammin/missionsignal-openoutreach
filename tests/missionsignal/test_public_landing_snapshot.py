@@ -235,6 +235,14 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     assert "Skills Training Funders" in content
     assert "Named Relationship Targets" in content
     assert "Pursue County Workforce Board" in content
+    assert "Why now" in content
+    assert "Preparation required" in content
+    assert "Risk" in content
+    assert "Funder Fit" in content
+    assert "Strong Fit" in content
+    assert "Ecosystem Gaps" in content
+    assert "Readiness Context" in content
+    assert "may reduce competitiveness for workforce development opportunities" in content
     assert "Source Summary" in content
     assert "Sources reviewed" in content
     assert "Founder research notes" in content
