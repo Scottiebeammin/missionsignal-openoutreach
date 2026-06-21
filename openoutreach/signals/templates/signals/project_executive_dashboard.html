@@ -236,52 +236,52 @@
         </article>
       </section>
 
-      <details class="panel" aria-label="Workflow Progress and Demo Flow">
-        <summary>Start Here</summary>
-        {% include "signals/_workflow_guidance.html" %}
-        <div class="panel-header">
-          <div>
-            <h2>Start Here</h2>
-            <p class="muted">A clean recording path through the Web of Opportunity, from executive scan to next action.</p>
-          </div>
-          <a class="pill" href="{% url 'project-snapshot' project.pk %}">Open Snapshot</a>
-        </div>
-        <div class="demo-flow-grid">
-          <a class="demo-step" href="{% url 'project-opportunity-web' project.pk %}">
-            <span class="step-number">1</span>
-            <strong>Review your Opportunity Web</strong>
-            <span>Show how mission, relationships, resources, opportunities, and outcomes connect.</span>
-          </a>
-          <a class="demo-step" href="{% url 'project-snapshot' project.pk %}">
-            <span class="step-number">2</span>
-            <strong>Open the Snapshot</strong>
-            <span>Use the consulting-style summary as the premium takeaway screen.</span>
-          </a>
-          <a class="demo-step" href="{% url 'project-opportunities' project.pk %}">
-            <span class="step-number">3</span>
-            <strong>Review top Pathways</strong>
-            <span>Move from opportunity intelligence into active pursuit decisions.</span>
-          </a>
-          <a class="demo-step" href="{% url 'project-readiness' project.pk %}">
-            <span class="step-number">4</span>
-            <strong>Check readiness gaps</strong>
-            <span>Explain what would make the organization more fundable and pursuit-ready.</span>
-          </a>
-          <a class="demo-step" href="{% url 'project-relationships' project.pk %}">
-            <span class="step-number">5</span>
-            <strong>Review relationship gaps</strong>
-            <span>Connect partners, funders, and contacts to the opportunity strategy.</span>
-          </a>
-          <a class="demo-step" href="{% url 'project-pipeline' project.pk %}">
-            <span class="step-number">6</span>
-            <strong>Decide the next action</strong>
-            <span>End on ownership, deadlines, and pathway movement.</span>
-          </a>
-        </div>
-      </details>
-
       <details class="panel">
         <summary>Supporting Signals</summary>
+        <details style="margin-top: 14px;">
+          <summary>Workflow Progress · Start Here</summary>
+          {% include "signals/_workflow_guidance.html" %}
+          <div class="panel-header">
+            <div>
+              <h2>Start Here</h2>
+              <p class="muted">A clean recording path through the Web of Opportunity, from executive scan to next action.</p>
+            </div>
+            <a class="pill" href="{% url 'project-snapshot' project.pk %}">Open Snapshot</a>
+          </div>
+          <div class="demo-flow-grid">
+            <a class="demo-step" href="{% url 'project-opportunity-web' project.pk %}">
+              <span class="step-number">1</span>
+              <strong>Review your Opportunity Web</strong>
+              <span>Show how mission, relationships, resources, opportunities, and outcomes connect.</span>
+            </a>
+            <a class="demo-step" href="{% url 'project-snapshot' project.pk %}">
+              <span class="step-number">2</span>
+              <strong>Open the Snapshot</strong>
+              <span>Use the consulting-style summary as the premium takeaway screen.</span>
+            </a>
+            <a class="demo-step" href="{% url 'project-opportunities' project.pk %}">
+              <span class="step-number">3</span>
+              <strong>Review top Pathways</strong>
+              <span>Move from opportunity intelligence into active pursuit decisions.</span>
+            </a>
+            <a class="demo-step" href="{% url 'project-readiness' project.pk %}">
+              <span class="step-number">4</span>
+              <strong>Check readiness gaps</strong>
+              <span>Explain what would make the organization more fundable and pursuit-ready.</span>
+            </a>
+            <a class="demo-step" href="{% url 'project-relationships' project.pk %}">
+              <span class="step-number">5</span>
+              <strong>Review relationship gaps</strong>
+              <span>Connect partners, funders, and contacts to the opportunity strategy.</span>
+            </a>
+            <a class="demo-step" href="{% url 'project-pipeline' project.pk %}">
+              <span class="step-number">6</span>
+              <strong>Decide the next action</strong>
+              <span>End on ownership, deadlines, and pathway movement.</span>
+            </a>
+          </div>
+        </details>
+
         <div class="panel-header">
           <h2>Executive Snapshot</h2>
           <a class="pill" href="{% url 'project-opportunities' project.pk %}">Open Strategic Pathways</a>
