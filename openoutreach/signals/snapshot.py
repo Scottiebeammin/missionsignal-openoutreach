@@ -35,6 +35,9 @@ class SnapshotFunderFit:
 @dataclass(frozen=True)
 class SnapshotSourceSummary:
     sources_reviewed: int
+    funders_reviewed: int
+    opportunities_reviewed: int
+    ecosystem_entities_reviewed: int
     source_types_used: list[str]
     important_sources: list[str]
     missing_source_types: list[str]
@@ -328,6 +331,11 @@ def _opportunity_source_indicators(item, context: dict) -> list[str]:
     indicators = []
     if opportunity.source_references:
         indicators.append("Verified Opportunity")
+    if opportunity.verification_status in {
+        opportunity.VerificationStatus.REVIEWED,
+        opportunity.VerificationStatus.VERIFIED,
+    }:
+        indicators.append("Reviewed Source")
     if _geography_overlap(opportunity.geography, context):
         indicators.append("Strong Geographic Fit")
     if item.match.score >= 85:
@@ -343,6 +351,11 @@ def _funder_source_indicators(funder, score: int, context: dict) -> list[str]:
     indicators = ["Named Funder"]
     if funder.source_references:
         indicators.append("Source-backed Funder")
+    if funder.verification_status in {
+        funder.VerificationStatus.REVIEWED,
+        funder.VerificationStatus.VERIFIED,
+    }:
+        indicators.append("Reviewed Source")
     if _geography_overlap(funder.geography, context):
         indicators.append("Strong Geographic Fit")
     if score >= 85:
@@ -809,7 +822,7 @@ def _reviewed_source_pages(project):
 
 
 def _source_summary(project) -> SnapshotSourceSummary:
-    from openoutreach.funding.models import DocumentVaultItem, EvidenceLibraryItem
+    from openoutreach.funding.models import DocumentVaultItem, EvidenceLibraryItem, Funder, Opportunity, PartnerOrganization
     from openoutreach.signals.models import OrganizationSourcePage
 
     source_pages = _reviewed_source_pages(project)
@@ -892,8 +905,19 @@ def _source_summary(project) -> SnapshotSourceSummary:
         missing.append("Outcome Evidence")
         guidance.append("Add outcome evidence so Snapshot recommendations feel more provable.")
 
+    funders_reviewed = Funder.objects.filter(active=True).exclude(
+        intelligence_status=Funder.IntelligenceStatus.ARCHIVED,
+    ).count()
+    opportunities_reviewed = Opportunity.objects.exclude(status=Opportunity.Status.ARCHIVED).count()
+    ecosystem_entities_reviewed = PartnerOrganization.objects.filter(active=True).exclude(
+        intelligence_status=PartnerOrganization.IntelligenceStatus.ARCHIVED,
+    ).count()
+
     return SnapshotSourceSummary(
         sources_reviewed=reviewed_count,
+        funders_reviewed=funders_reviewed,
+        opportunities_reviewed=opportunities_reviewed,
+        ecosystem_entities_reviewed=ecosystem_entities_reviewed,
         source_types_used=_dedupe(source_types, 8) or ["Organization Profile"],
         important_sources=_dedupe(important_sources, 5) or ["Organization profile and project narrative"],
         missing_source_types=_dedupe(missing, 6) or ["No major source gaps detected."],

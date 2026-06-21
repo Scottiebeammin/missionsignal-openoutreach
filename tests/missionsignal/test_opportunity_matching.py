@@ -130,20 +130,20 @@ def test_match_scoring_is_deterministic(match_project):
     second = build_opportunity_matches(project, funding_criteria)
 
     assert first.overall_score == second.overall_score
-    assert first.total_matches == 12
-    assert first.funding_count == 3
+    assert first.total_matches == 18
+    assert first.funding_count == 9
     assert first.government_count == 3
     assert first.resource_count == 3
     assert first.partnership_count == 3
     assert first.top_recommended[0].score == 100
     assert match_level(first.top_recommended[0].score) == first.top_recommended[0].level
     assert first.highest_score == 100
-    assert first.strongest_category == "Funding"
+    assert first.strongest_category == "Partnership"
     assert first.weakest_category == "Resource"
     assert first.highest_leverage_improvement == "Add measurable outcomes."
     assert first.readiness_signals == ["Outcomes", "Partnerships", "Budget", "Geography", "Beneficiaries"]
     assert first.top_gaps[0].label == "Outcomes not documented"
-    assert first.top_gaps[0].count == 12
+    assert first.top_gaps[0].count == first.total_matches
     assert first.top_recommended[0].suggested_lifecycle_stage == "Discovered"
     assert first.top_recommended[0].current_lifecycle_status == "Not in pipeline"
     assert first.top_recommended[0].owner_label == "Unassigned"
@@ -160,9 +160,10 @@ def test_weighted_scoring_and_ranking_order(match_project):
     assert scores == sorted(scores, reverse=True)
     assert overview.top_recommended[0].matching_factor_count >= overview.top_recommended[-1].matching_factor_count
     assert overview.categories[0].highest_score == 100
-    assert overview.categories[0].lowest_score == 92
+    assert overview.categories[0].lowest_score == 62
+    assert overview.categories[0].lowest_score < overview.categories[0].highest_score
     assert overview.categories[2].average_score == 71
-    assert overview.heatmap[0].label == "Funding"
+    assert overview.heatmap[0].label == "Partnership"
     assert overview.heatmap[-1].label == "Resource"
 
 

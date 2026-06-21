@@ -46,7 +46,17 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "North Coast Corporate Giving Fund",
         "Ohio Workforce Innovation Fund",
     ]).count() == 3
+    assert Funder.objects.count() >= 9
     assert Funder.objects.filter(source_references__0__title__icontains="public funding profile").exists()
+    assert Funder.objects.filter(verification_status=Funder.VerificationStatus.REVIEWED).count() >= 9
+    funder_focus_areas = {
+        focus_area
+        for funder in Funder.objects.all()
+        for focus_area in funder.focus_areas
+    }
+    assert "food security" in funder_focus_areas
+    assert "environmental justice" in funder_focus_areas
+    assert "healthcare" in funder_focus_areas
     assert GovernmentEntity.objects.filter(name__in=[
         "City of Cleveland Youth and Workforce Office",
         "Cuyahoga County Workforce Partnership",
@@ -64,6 +74,7 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
     ]).count() == 3
     assert PartnerOrganization.objects.filter(mission_alignment_notes__icontains="BridgeForward").exists()
     assert SourceOrganization.objects.count() >= 10
+    assert SourceOrganization.objects.filter(verification_status=SourceOrganization.VerificationStatus.REVIEWED).count() >= 10
     assert Opportunity.objects.count() >= 20
     assert Opportunity.objects.filter(name__in=[
         "Digital Equity Grant",
@@ -77,6 +88,7 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
     assert Opportunity.objects.filter(estimated_value__isnull=False).count() >= 20
     assert Opportunity.objects.filter(funding_amount__isnull=False).count() >= 10
     assert Opportunity.objects.filter(source_references__0__source="Demo opportunity inventory").exists()
+    assert Opportunity.objects.filter(verification_status=Opportunity.VerificationStatus.REVIEWED).count() >= 20
     assert Opportunity.objects.filter(value_confidence=Opportunity.ValueConfidence.HIGH).exists()
     assert Opportunity.objects.filter(value_confidence=Opportunity.ValueConfidence.LOW).exists()
     assert OrganizationContact.objects.filter(project=first_project).count() >= 6
@@ -85,6 +97,7 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         project=first_project,
         opportunity_notes__icontains="unlock",
     ).exists()
+    assert PartnerOrganization.objects.filter(verification_status=PartnerOrganization.VerificationStatus.REVIEWED).count() >= 3
     assert OrganizationContact.objects.filter(
         project=first_project,
         relationship_strength=OrganizationContact.RelationshipStrength.STRONG,

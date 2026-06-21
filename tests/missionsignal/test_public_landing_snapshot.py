@@ -232,7 +232,7 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     assert "Why this appears" in content
     assert "Mission Alignment" in content
     assert "Geographic Alignment" in content
-    assert "Skills Training Funders" in content
+    assert "Great Lakes Corporate Giving Program" in content
     assert "Named Relationship Targets" in content
     assert "Pursue County Workforce Board" in content
     assert "Why now" in content
@@ -244,8 +244,9 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     assert "Ohio Workforce Innovation Fund" in content
     assert "Source reference:" in content
     assert "Source-backed Funder" in content
+    assert "Reviewed Source" in content
     assert "Strong Geographic Fit" in content
-    assert "Strong Fit" in content
+    assert "Excellent Fit" in content
     assert "Ecosystem Gaps" in content
     assert "Strengthen City of Cleveland Youth and Workforce Office" in content
     assert "Cleveland Community College Career Pathways" in content
@@ -256,6 +257,9 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     assert "Initiate conversation with" in content
     assert "Source Summary" in content
     assert "Sources reviewed" in content
+    assert "Funders reviewed" in content
+    assert "Opportunities reviewed" in content
+    assert "Ecosystem entities reviewed" in content
     assert "Founder research notes" in content
     assert "Missing Source Guidance" in content
     assert "Add program descriptions to improve opportunity matching." in content

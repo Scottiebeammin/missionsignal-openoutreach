@@ -29,10 +29,13 @@ class FundingCriteriaAdmin(admin.ModelAdmin):
 
 @admin.register(Funder)
 class FunderAdmin(admin.ModelAdmin):
-    list_display = ("name", "funder_type", "intelligence_status", "geography", "active", "website")
-    list_filter = ("funder_type", "intelligence_status", "active")
-    list_editable = ("intelligence_status",)
-    search_fields = ("name", "eligibility_notes", "notes", "website")
+    list_display = (
+        "name", "funder_type", "intelligence_status", "verification_status",
+        "geography", "active", "last_reviewed_at", "website",
+    )
+    list_filter = ("funder_type", "intelligence_status", "verification_status", "active")
+    list_editable = ("intelligence_status", "verification_status")
+    search_fields = ("name", "eligibility_notes", "notes", "source_notes", "website")
 
 
 @admin.register(GovernmentEntity)
@@ -51,20 +54,24 @@ class ResourceProviderAdmin(admin.ModelAdmin):
 
 @admin.register(PartnerOrganization)
 class PartnerOrganizationAdmin(admin.ModelAdmin):
-    list_display = ("name", "partner_type", "intelligence_status", "geography", "active", "website")
-    list_filter = ("partner_type", "intelligence_status", "active")
-    list_editable = ("intelligence_status",)
+    list_display = (
+        "name", "partner_type", "intelligence_status", "verification_status",
+        "geography", "active", "last_reviewed_at", "website",
+    )
+    list_filter = ("partner_type", "intelligence_status", "verification_status", "active")
+    list_editable = ("intelligence_status", "verification_status")
     search_fields = (
         "name", "notes", "mission_alignment_notes", "opportunity_notes",
-        "relationship_notes", "website",
+        "relationship_notes", "source_notes", "website",
     )
 
 
 @admin.register(SourceOrganization)
 class SourceOrganizationAdmin(admin.ModelAdmin):
-    list_display = ("name", "organization_type", "geography", "active", "website")
-    list_filter = ("organization_type", "active")
-    search_fields = ("name", "notes", "website")
+    list_display = ("name", "organization_type", "verification_status", "geography", "active", "last_reviewed_at", "website")
+    list_filter = ("organization_type", "verification_status", "active")
+    list_editable = ("verification_status",)
+    search_fields = ("name", "notes", "source_notes", "website")
 
 
 @admin.register(Opportunity)
@@ -72,15 +79,15 @@ class OpportunityAdmin(admin.ModelAdmin):
     list_display = (
         "name", "opportunity_type", "source_organization", "source_type",
         "status", "lifecycle_status", "priority_level", "estimated_value",
-        "funding_amount", "value_confidence", "assigned_owner", "deadline",
+        "funding_amount", "value_confidence", "verification_status", "assigned_owner", "deadline",
     )
     list_filter = (
         "opportunity_type", "source_type", "status", "lifecycle_status",
-        "priority_level", "value_confidence", "source_organization", "assigned_owner",
+        "priority_level", "value_confidence", "verification_status", "source_organization", "assigned_owner",
     )
     search_fields = (
         "name", "source_name", "source_organization__name",
-        "eligibility_notes", "notes", "forecast_notes",
+        "eligibility_notes", "notes", "forecast_notes", "source_notes",
     )
     raw_id_fields = ("source_organization", "assigned_owner")
     date_hierarchy = "deadline"

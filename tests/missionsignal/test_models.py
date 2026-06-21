@@ -250,6 +250,10 @@ def test_funder_model():
     assert funder.active is True
     assert funder.intelligence_status == Funder.IntelligenceStatus.ACTIVE
     assert funder.source_references == []
+    assert funder.source_urls == []
+    assert funder.source_notes == ""
+    assert funder.verification_status == Funder.VerificationStatus.UNVERIFIED
+    assert funder.last_reviewed_at is None
     assert funder.geography == []
     assert funder.focus_areas == ["workforce development"]
     assert funder.beneficiaries == ["youth"]
@@ -294,6 +298,10 @@ def test_partner_organization_model_defaults_and_string():
     assert partner.opportunity_notes == ""
     assert partner.relationship_notes == ""
     assert partner.source_references == []
+    assert partner.source_urls == []
+    assert partner.source_notes == ""
+    assert partner.verification_status == PartnerOrganization.VerificationStatus.UNVERIFIED
+    assert partner.last_reviewed_at is None
     assert partner.geography == []
     assert partner.focus_areas == []
     assert partner.collaboration_opportunities == ["credential pathways", "referrals"]
@@ -315,6 +323,10 @@ def test_opportunity_model_defaults_and_string():
     assert opportunity.value_confidence == Opportunity.ValueConfidence.MEDIUM
     assert opportunity.forecast_notes == ""
     assert opportunity.source_references == []
+    assert opportunity.source_urls == []
+    assert opportunity.source_notes == ""
+    assert opportunity.verification_status == Opportunity.VerificationStatus.UNVERIFIED
+    assert opportunity.last_reviewed_at is None
     assert opportunity.lifecycle_status == Opportunity.LifecycleStatus.DISCOVERED
     assert opportunity.assigned_owner is None
     assert opportunity.lifecycle_notes == ""
@@ -400,6 +412,10 @@ def test_source_organization_model_defaults_and_string():
     assert source.active is True
     assert source.website == ""
     assert source.geography == ["Cleveland"]
+    assert source.source_urls == []
+    assert source.source_notes == ""
+    assert source.verification_status == SourceOrganization.VerificationStatus.UNVERIFIED
+    assert source.last_reviewed_at is None
 
 
 def test_opportunity_database_models_are_registered_in_admin():

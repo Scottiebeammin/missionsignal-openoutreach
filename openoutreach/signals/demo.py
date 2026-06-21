@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.utils import timezone
 from datetime import date
 
 from openoutreach.core.models import Organization, Project
@@ -28,6 +29,7 @@ DEMO_WEBSITE = "https://bridgeforward.example.org"
 
 
 def _seed_opportunity_database():
+    reviewed_at = timezone.now()
     funders = [
         {
             "name": "Cuyahoga Community Foundation",
@@ -59,6 +61,66 @@ def _seed_opportunity_database():
             "website": "https://workforce-innovation.example.ohio.gov",
             "notes": "Demo state government funding lane for workforce readiness.",
         },
+        {
+            "name": "Lake Erie Environmental Justice Fund",
+            "funder_type": Funder.FunderType.FAMILY_FOUNDATION,
+            "geography": ["Ohio", "Regional"],
+            "focus_areas": ["environmental justice", "youth development", "community development"],
+            "beneficiaries": ["youth", "residents", "community organizations"],
+            "eligibility_notes": "Supports place-based environmental justice, civic learning, and stewardship programs.",
+            "website": "https://lake-erie-ej.example.org",
+            "notes": "Named environmental funder for stewardship and youth civic lab pathways.",
+        },
+        {
+            "name": "Greater Cleveland Food Security Fund",
+            "funder_type": Funder.FunderType.COMMUNITY_FOUNDATION,
+            "geography": ["Cleveland", "Cuyahoga County"],
+            "focus_areas": ["food security", "community development", "volunteer resources"],
+            "beneficiaries": ["families", "low-income residents", "seniors"],
+            "eligibility_notes": "Supports neighborhood food access, distribution partnerships, and resident support programs.",
+            "website": "https://cleveland-food-security-fund.example.org",
+            "notes": "Named food security funder for adjacent community support pathways.",
+        },
+        {
+            "name": "North Coast Health Equity Foundation",
+            "funder_type": Funder.FunderType.FAMILY_FOUNDATION,
+            "geography": ["Ohio", "Regional"],
+            "focus_areas": ["healthcare", "mental health", "community health"],
+            "beneficiaries": ["patients", "families", "low-income residents"],
+            "eligibility_notes": "Funds public health, wellness, access, and community benefit partnerships.",
+            "website": "https://north-coast-health-equity.example.org",
+            "notes": "Named health funder for community health validation profiles.",
+        },
+        {
+            "name": "Ohio Education Pathways Fund",
+            "funder_type": Funder.FunderType.CORPORATE_FOUNDATION,
+            "geography": ["Ohio"],
+            "focus_areas": ["education", "career readiness", "youth development"],
+            "beneficiaries": ["students", "youth", "young adults"],
+            "eligibility_notes": "Supports school-linked education, career exploration, and youth advancement programs.",
+            "website": "https://ohio-education-pathways.example.org",
+            "notes": "Named education funder for youth development and career readiness pathways.",
+        },
+        {
+            "name": "United Way of Greater Cleveland",
+            "funder_type": Funder.FunderType.UNITED_WAY,
+            "geography": ["Cleveland", "Cuyahoga County"],
+            "focus_areas": ["youth development", "housing", "food security", "community development"],
+            "beneficiaries": ["families", "youth", "low-income residents"],
+            "eligibility_notes": "Supports community partners addressing basic needs, youth outcomes, and resident stability.",
+            "website": "https://united-way-cleveland.example.org",
+            "notes": "Named United Way chapter for multi-sector nonprofit validation.",
+        },
+        {
+            "name": "Great Lakes Corporate Giving Program",
+            "funder_type": Funder.FunderType.CORPORATE_FOUNDATION,
+            "geography": ["Regional", "Ohio"],
+            "focus_areas": ["workforce development", "volunteer resources", "sponsorships"],
+            "beneficiaries": ["students", "job seekers", "community organizations"],
+            "eligibility_notes": "Supports employer-connected sponsorships, volunteer engagement, and skills programs.",
+            "website": "https://great-lakes-giving.example.com",
+            "notes": "Named corporate giving program for sponsorship and employer pathways.",
+        },
     ]
     for funder in funders:
         name = funder.pop("name")
@@ -66,6 +128,10 @@ def _seed_opportunity_database():
         funder.setdefault("source_references", [
             {"title": f"{name} public funding profile", "source": "Demo research note"},
         ])
+        funder.setdefault("source_urls", [funder.get("website", "")] if funder.get("website") else [])
+        funder.setdefault("source_notes", f"Reviewed demo intelligence profile for {name}.")
+        funder.setdefault("verification_status", Funder.VerificationStatus.REVIEWED)
+        funder.setdefault("last_reviewed_at", reviewed_at)
         Funder.objects.update_or_create(name=name, defaults=funder)
 
     government_entities = [
@@ -181,6 +247,10 @@ def _seed_opportunity_database():
         partner.setdefault("source_references", [
             {"title": f"{name} partner profile", "source": "Demo research note"},
         ])
+        partner.setdefault("source_urls", [partner.get("website", "")] if partner.get("website") else [])
+        partner.setdefault("source_notes", f"Reviewed ecosystem organization profile for {name}.")
+        partner.setdefault("verification_status", PartnerOrganization.VerificationStatus.REVIEWED)
+        partner.setdefault("last_reviewed_at", reviewed_at)
         PartnerOrganization.objects.update_or_create(name=name, defaults=partner)
 
     source_organizations = [
@@ -300,6 +370,10 @@ def _seed_opportunity_database():
     sources = {}
     for source in source_organizations:
         name = source.pop("name")
+        source.setdefault("source_urls", [source.get("website", "")] if source.get("website") else [])
+        source.setdefault("source_notes", f"Reviewed source organization profile for {name}.")
+        source.setdefault("verification_status", SourceOrganization.VerificationStatus.REVIEWED)
+        source.setdefault("last_reviewed_at", reviewed_at)
         source_org, _ = SourceOrganization.objects.update_or_create(name=name, defaults=source)
         sources[name] = source_org
 
@@ -762,6 +836,12 @@ def _seed_opportunity_database():
                 "source": "Demo opportunity inventory",
             }
         ]
+        opportunity["source_urls"] = [
+            opportunity["source_organization"].website
+        ] if opportunity["source_organization"] and opportunity["source_organization"].website else []
+        opportunity["source_notes"] = f"Reviewed deterministic opportunity record for {name}."
+        opportunity["verification_status"] = Opportunity.VerificationStatus.REVIEWED
+        opportunity["last_reviewed_at"] = reviewed_at
         Opportunity.objects.update_or_create(name=name, defaults=opportunity)
 
 

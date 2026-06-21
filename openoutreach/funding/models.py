@@ -64,6 +64,12 @@ class Funder(models.Model):
         PROSPECT = "prospect", "Prospect"
         ARCHIVED = "archived", "Archived"
 
+    class VerificationStatus(models.TextChoices):
+        UNVERIFIED = "unverified", "Unverified"
+        NEEDS_REVIEW = "needs_review", "Needs Review"
+        REVIEWED = "reviewed", "Reviewed"
+        VERIFIED = "verified", "Verified"
+
     name = models.CharField(max_length=500)
     funder_type = models.CharField(max_length=40, choices=FunderType.choices, default=FunderType.OTHER)
     geography = models.JSONField(default=list, blank=True)
@@ -73,6 +79,12 @@ class Funder(models.Model):
     website = models.URLField(max_length=500, blank=True, default="")
     notes = models.TextField(blank=True, default="")
     source_references = models.JSONField(default=list, blank=True)
+    source_urls = models.JSONField(default=list, blank=True)
+    source_notes = models.TextField(blank=True, default="")
+    verification_status = models.CharField(
+        max_length=20, choices=VerificationStatus.choices, default=VerificationStatus.UNVERIFIED,
+    )
+    last_reviewed_at = models.DateTimeField(null=True, blank=True)
     intelligence_status = models.CharField(
         max_length=20, choices=IntelligenceStatus.choices, default=IntelligenceStatus.ACTIVE,
     )
@@ -172,6 +184,12 @@ class PartnerOrganization(models.Model):
         PROSPECT = "prospect", "Prospect"
         ARCHIVED = "archived", "Archived"
 
+    class VerificationStatus(models.TextChoices):
+        UNVERIFIED = "unverified", "Unverified"
+        NEEDS_REVIEW = "needs_review", "Needs Review"
+        REVIEWED = "reviewed", "Reviewed"
+        VERIFIED = "verified", "Verified"
+
     name = models.CharField(max_length=500)
     partner_type = models.CharField(max_length=60, choices=PartnerType.choices, default=PartnerType.OTHER)
     geography = models.JSONField(default=list, blank=True)
@@ -184,6 +202,12 @@ class PartnerOrganization(models.Model):
     opportunity_notes = models.TextField(blank=True, default="")
     relationship_notes = models.TextField(blank=True, default="")
     source_references = models.JSONField(default=list, blank=True)
+    source_urls = models.JSONField(default=list, blank=True)
+    source_notes = models.TextField(blank=True, default="")
+    verification_status = models.CharField(
+        max_length=20, choices=VerificationStatus.choices, default=VerificationStatus.UNVERIFIED,
+    )
+    last_reviewed_at = models.DateTimeField(null=True, blank=True)
     intelligence_status = models.CharField(
         max_length=20, choices=IntelligenceStatus.choices, default=IntelligenceStatus.ACTIVE,
     )
@@ -206,6 +230,12 @@ class SourceOrganization(models.Model):
         WORKFORCE_BOARD = "workforce_board", "Workforce Board"
         OTHER = "other", "Other"
 
+    class VerificationStatus(models.TextChoices):
+        UNVERIFIED = "unverified", "Unverified"
+        NEEDS_REVIEW = "needs_review", "Needs Review"
+        REVIEWED = "reviewed", "Reviewed"
+        VERIFIED = "verified", "Verified"
+
     name = models.CharField(max_length=500, unique=True)
     organization_type = models.CharField(
         max_length=40, choices=OrganizationType.choices, default=OrganizationType.OTHER,
@@ -213,6 +243,12 @@ class SourceOrganization(models.Model):
     website = models.URLField(max_length=500, blank=True, default="")
     geography = models.JSONField(default=list, blank=True)
     notes = models.TextField(blank=True, default="")
+    source_urls = models.JSONField(default=list, blank=True)
+    source_notes = models.TextField(blank=True, default="")
+    verification_status = models.CharField(
+        max_length=20, choices=VerificationStatus.choices, default=VerificationStatus.UNVERIFIED,
+    )
+    last_reviewed_at = models.DateTimeField(null=True, blank=True)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -267,6 +303,12 @@ class Opportunity(models.Model):
         DECLINED = "declined", "Declined"
         CLOSED = "closed", "Closed"
 
+    class VerificationStatus(models.TextChoices):
+        UNVERIFIED = "unverified", "Unverified"
+        NEEDS_REVIEW = "needs_review", "Needs Review"
+        REVIEWED = "reviewed", "Reviewed"
+        VERIFIED = "verified", "Verified"
+
     name = models.CharField(max_length=500)
     opportunity_type = models.CharField(
         max_length=40, choices=OpportunityType.choices, default=OpportunityType.GRANT,
@@ -302,6 +344,12 @@ class Opportunity(models.Model):
     lifecycle_status_history = models.JSONField(default=list, blank=True)
     notes = models.TextField(blank=True, default="")
     source_references = models.JSONField(default=list, blank=True)
+    source_urls = models.JSONField(default=list, blank=True)
+    source_notes = models.TextField(blank=True, default="")
+    verification_status = models.CharField(
+        max_length=20, choices=VerificationStatus.choices, default=VerificationStatus.UNVERIFIED,
+    )
+    last_reviewed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
