@@ -5,7 +5,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from openoutreach.signals.demo import seed_missionsignal_demo
-from openoutreach.signals.models import InterestSignup, PilotProfile
+from openoutreach.signals.models import InterestSignup, OrganizationSourcePage, PilotProfile
 
 
 pytestmark = pytest.mark.django_db
@@ -200,6 +200,16 @@ def test_pilot_onboarding_route_renders_without_login(client):
 
 def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_project):
     project, user = snapshot_project
+    OrganizationSourcePage.objects.create(
+        organization=project.organization,
+        project=project,
+        title="Founder research notes",
+        source_type=OrganizationSourcePage.SourceType.FOUNDER_NOTES,
+        notes="Website observations and local funder research for Snapshot production.",
+        raw_text="BridgeForward has strong workforce alignment and needs partner evidence.",
+        relevance=OrganizationSourcePage.Relevance.HIGH,
+        review_status=OrganizationSourcePage.ReviewStatus.USED_IN_SNAPSHOT,
+    )
     client.force_login(user)
 
     response = client.get(reverse("project-snapshot", kwargs={"pk": project.pk}))
@@ -225,6 +235,11 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     assert "Skills Training Funders" in content
     assert "Named Relationship Targets" in content
     assert "Pursue County Workforce Board" in content
+    assert "Source Summary" in content
+    assert "Sources reviewed" in content
+    assert "Founder research notes" in content
+    assert "Missing Source Guidance" in content
+    assert "Add program descriptions to improve opportunity matching." in content
 
 
 def test_non_member_cannot_view_opportunity_web_snapshot(client, snapshot_project):

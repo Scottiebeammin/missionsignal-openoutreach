@@ -107,6 +107,30 @@ def test_organization_source_page_is_unique_per_organization_and_url(organizatio
         )
 
 
+def test_organization_source_page_supports_manual_research_notes(project, organization):
+    first = OrganizationSourcePage.objects.create(
+        organization=organization,
+        project=project,
+        title="County workforce notes",
+        source_type=OrganizationSourcePage.SourceType.FUNDER_RESEARCH,
+        notes="Local workforce funder appears aligned with career training.",
+        raw_text="Eligibility notes and staff observations.",
+        relevance=OrganizationSourcePage.Relevance.HIGH,
+        review_status=OrganizationSourcePage.ReviewStatus.REVIEWED,
+    )
+    second = OrganizationSourcePage.objects.create(
+        organization=organization,
+        project=project,
+        title="Partner landscape notes",
+        source_type=OrganizationSourcePage.SourceType.PARTNER_RESEARCH,
+    )
+
+    assert first.url == ""
+    assert str(first) == "County workforce notes"
+    assert second.url == ""
+    assert first.project == project
+
+
 def test_organization_analysis_run_records_snapshots(organization):
     run = OrganizationAnalysisRun.objects.create(
         organization=organization,
@@ -379,6 +403,10 @@ def test_opportunity_database_models_are_registered_in_admin():
     assert admin.site.is_registered(OrganizationContact)
     assert admin.site.is_registered(RelationshipPartnerOrganization)
     assert admin.site.is_registered(InterestSignup)
+    source_admin = admin.site._registry[OrganizationSourcePage]
+    assert "source_type" in source_admin.list_filter
+    assert "review_status" in source_admin.list_filter
+    assert source_admin.list_editable == ("review_status", "relevance")
 
 
 

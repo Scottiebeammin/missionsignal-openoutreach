@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 from openoutreach.core.models import Organization, Project
 
@@ -9,19 +10,55 @@ class OrganizationSourcePage(models.Model):
         FETCHED = "fetched", "Fetched"
         FAILED = "failed", "Failed"
 
+    class SourceType(models.TextChoices):
+        WEBSITE_PAGE = "website_page", "Website Page"
+        ANNUAL_REPORT = "annual_report", "Annual Report"
+        STRATEGIC_PLAN = "strategic_plan", "Strategic Plan"
+        GRANT_MATERIALS = "grant_materials", "Grant Materials"
+        PROGRAM_DESCRIPTION = "program_description", "Program Description"
+        FUNDER_RESEARCH = "funder_research", "Funder Research"
+        PARTNER_RESEARCH = "partner_research", "Partner Research"
+        FOUNDER_NOTES = "founder_notes", "Founder Notes"
+        OTHER = "other", "Other"
+
+    class ReviewStatus(models.TextChoices):
+        NEW = "new", "New"
+        NEEDS_REVIEW = "needs_review", "Needs Review"
+        REVIEWED = "reviewed", "Reviewed"
+        USED_IN_SNAPSHOT = "used_in_snapshot", "Used In Snapshot"
+        ARCHIVED = "archived", "Archived"
+
+    class Relevance(models.TextChoices):
+        HIGH = "high", "High"
+        MEDIUM = "medium", "Medium"
+        LOW = "low", "Low"
+        UNKNOWN = "unknown", "Unknown"
+
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="source_pages",
     )
-    url = models.URLField(max_length=1000)
+    project = models.ForeignKey(
+        Project, null=True, blank=True, on_delete=models.CASCADE, related_name="source_materials",
+    )
+    url = models.URLField(max_length=1000, blank=True, default="")
     canonical_url = models.URLField(max_length=1000, blank=True, default="")
     page_type = models.CharField(max_length=50, blank=True, default="")
+    source_type = models.CharField(
+        max_length=40, choices=SourceType.choices, default=SourceType.WEBSITE_PAGE,
+    )
     title = models.CharField(max_length=500, blank=True, default="")
     raw_text = models.TextField(blank=True, default="")
+    notes = models.TextField(blank=True, default="")
+    relevance = models.CharField(max_length=20, choices=Relevance.choices, default=Relevance.UNKNOWN)
+    review_status = models.CharField(
+        max_length=30, choices=ReviewStatus.choices, default=ReviewStatus.NEW,
+    )
     content_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
     fetch_status = models.CharField(
         max_length=20, choices=FetchStatus.choices, default=FetchStatus.PENDING,
     )
     fetched_at = models.DateTimeField(null=True, blank=True)
+    last_reviewed_at = models.DateTimeField(null=True, blank=True)
     error = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -29,12 +66,14 @@ class OrganizationSourcePage(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["organization", "url"], name="unique_organization_source_page",
+                fields=["organization", "url"],
+                condition=~Q(url=""),
+                name="unique_organization_source_page",
             ),
         ]
 
     def __str__(self):
-        return self.title or self.url
+        return self.title or self.url or self.get_source_type_display()
 
 
 class InterestSignup(models.Model):

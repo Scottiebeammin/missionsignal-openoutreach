@@ -156,10 +156,17 @@ class PilotFeedbackAdmin(admin.ModelAdmin):
 
 @admin.register(OrganizationSourcePage)
 class OrganizationSourcePageAdmin(admin.ModelAdmin):
-    list_display = ("organization", "title", "page_type", "fetch_status", "fetched_at")
-    list_filter = ("fetch_status", "page_type")
-    search_fields = ("title", "url", "raw_text")
-    raw_id_fields = ("organization",)
+    list_display = (
+        "organization", "project", "title", "source_type", "review_status", "relevance",
+        "fetch_status", "last_reviewed_at", "updated_at",
+    )
+    list_filter = ("source_type", "review_status", "relevance", "fetch_status", "page_type")
+    list_editable = ("review_status", "relevance")
+    search_fields = (
+        "organization__name", "project__name", "title", "url", "raw_text", "notes",
+    )
+    raw_id_fields = ("organization", "project")
+    date_hierarchy = "last_reviewed_at"
 
 
 @admin.register(OrganizationAnalysisRun)

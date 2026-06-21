@@ -140,6 +140,41 @@
       </details>
 
       <details style="margin-top: 14px;">
+        <summary>Source Summary</summary>
+        <div class="metric-grid" style="margin-top: 12px;">
+          <div class="metric-card"><strong>{{ snapshot.source_summary.sources_reviewed }}</strong><span>Sources reviewed</span></div>
+          <div class="metric-card"><strong>{{ snapshot.source_summary.source_types_used|length }}</strong><span>Source types used</span></div>
+          <div class="metric-card"><strong>{{ snapshot.source_summary.missing_source_types.0 }}</strong><span>Top missing source</span></div>
+        </div>
+        <div class="insight-grid" style="margin-top: 14px;">
+          <section>
+            <h3>Important Sources</h3>
+            <ul>
+              {% for source in snapshot.source_summary.important_sources %}
+                <li>{{ source }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Source Types Used</h3>
+            <ul>
+              {% for source_type in snapshot.source_summary.source_types_used %}
+                <li>{{ source_type }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Missing Source Guidance</h3>
+            <ul>
+              {% for guidance in snapshot.source_summary.guidance %}
+                <li>{{ guidance }}</li>
+              {% endfor %}
+            </ul>
+          </section>
+        </div>
+      </details>
+
+      <details style="margin-top: 14px;">
         <summary>Top Opportunities</summary>
       <div class="compact-grid">
         {% for item in snapshot.top_opportunity_insights %}

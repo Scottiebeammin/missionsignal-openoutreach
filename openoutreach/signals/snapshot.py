@@ -20,6 +20,15 @@ class SnapshotOpportunityInsight:
 
 
 @dataclass(frozen=True)
+class SnapshotSourceSummary:
+    sources_reviewed: int
+    source_types_used: list[str]
+    important_sources: list[str]
+    missing_source_types: list[str]
+    guidance: list[str]
+
+
+@dataclass(frozen=True)
 class OpportunityWebSnapshot:
     mission_overview: str
     readiness_score: int
@@ -36,6 +45,7 @@ class OpportunityWebSnapshot:
     relationship_target_insights: list[SnapshotInsight]
     top_opportunity_insights: list[SnapshotOpportunityInsight]
     recommended_action_insights: list[SnapshotInsight]
+    source_summary: SnapshotSourceSummary
 
 
 SECTOR_INTELLIGENCE = {
@@ -398,6 +408,111 @@ def _action_insights(
     return unique
 
 
+def _reviewed_source_pages(project):
+    from django.db.models import Q
+
+    from openoutreach.signals.models import OrganizationSourcePage
+
+    return list(
+        OrganizationSourcePage.objects.filter(organization=project.organization)
+        .filter(Q(project__isnull=True) | Q(project=project))
+        .order_by("-relevance", "-last_reviewed_at", "title")
+    )
+
+
+def _source_summary(project) -> SnapshotSourceSummary:
+    from openoutreach.funding.models import DocumentVaultItem, EvidenceLibraryItem
+    from openoutreach.signals.models import OrganizationSourcePage
+
+    source_pages = _reviewed_source_pages(project)
+    documents = list(project.document_vault_items.exclude(status=DocumentVaultItem.Status.ARCHIVED))
+    evidence_items = list(project.evidence_library_items.exclude(status=EvidenceLibraryItem.Status.ARCHIVED))
+    pilot = getattr(project, "pilot_profile", None)
+
+    source_types = []
+    important_sources = []
+    reviewed_count = 0
+
+    for source in source_pages:
+        if source.review_status != OrganizationSourcePage.ReviewStatus.ARCHIVED:
+            source_types.append(source.get_source_type_display())
+        if source.review_status in {
+            OrganizationSourcePage.ReviewStatus.REVIEWED,
+            OrganizationSourcePage.ReviewStatus.USED_IN_SNAPSHOT,
+        }:
+            reviewed_count += 1
+        if source.relevance in {
+            OrganizationSourcePage.Relevance.HIGH,
+            OrganizationSourcePage.Relevance.MEDIUM,
+        } and source.review_status != OrganizationSourcePage.ReviewStatus.ARCHIVED:
+            important_sources.append(source.title or source.url or source.get_source_type_display())
+
+    available_document_types = {
+        document.document_type
+        for document in documents
+        if document.status in {DocumentVaultItem.Status.AVAILABLE, DocumentVaultItem.Status.NEEDS_UPDATE}
+    }
+    for document in documents:
+        if document.status in {DocumentVaultItem.Status.AVAILABLE, DocumentVaultItem.Status.NEEDS_UPDATE}:
+            source_types.append(document.get_document_type_display())
+            reviewed_count += 1
+            important_sources.append(document.title)
+
+    available_evidence_types = {
+        evidence.evidence_type
+        for evidence in evidence_items
+        if evidence.status in {EvidenceLibraryItem.Status.AVAILABLE, EvidenceLibraryItem.Status.NEEDS_UPDATE}
+    }
+    for evidence in evidence_items:
+        if evidence.status in {EvidenceLibraryItem.Status.AVAILABLE, EvidenceLibraryItem.Status.NEEDS_UPDATE}:
+            source_types.append(evidence.get_evidence_type_display())
+            reviewed_count += 1
+            important_sources.append(evidence.title)
+
+    if pilot:
+        source_types.append("Discovery Questionnaire")
+        if pilot.lifecycle_status != pilot.LifecycleStatus.WAITLIST:
+            reviewed_count += 1
+        if pilot.mission or pilot.primary_programs or pilot.top_goals:
+            important_sources.append("Discovery questionnaire intake")
+
+    source_type_keys = {source.source_type for source in source_pages}
+    missing = []
+    guidance = []
+    if OrganizationSourcePage.SourceType.WEBSITE_PAGE not in source_type_keys and not project.organization.website:
+        missing.append("Website Page")
+        guidance.append("Add a website page or public profile to improve source transparency.")
+    if DocumentVaultItem.DocumentType.STRATEGIC_PLAN not in available_document_types:
+        missing.append("Strategic Plan")
+        guidance.append("Add a strategic plan to improve readiness recommendations.")
+    if OrganizationSourcePage.SourceType.PROGRAM_DESCRIPTION not in source_type_keys:
+        missing.append("Program Description")
+        guidance.append("Add program descriptions to improve opportunity matching.")
+    if DocumentVaultItem.DocumentType.ANNUAL_REPORT not in available_document_types:
+        missing.append("Annual Report")
+        guidance.append("Add an annual report to strengthen credibility and impact context.")
+    if OrganizationSourcePage.SourceType.GRANT_MATERIALS not in source_type_keys:
+        missing.append("Grant Materials")
+        guidance.append("Add recent grant materials to improve funding readiness.")
+    if OrganizationSourcePage.SourceType.PARTNER_RESEARCH not in source_type_keys and not project.organization.existing_partnerships:
+        missing.append("Partner Research")
+        guidance.append("Add partner list or partner research to improve relationship recommendations.")
+    if OrganizationSourcePage.SourceType.FUNDER_RESEARCH not in source_type_keys and not project.organization.current_funding_sources:
+        missing.append("Funder Research")
+        guidance.append("Add local funder research or funding history to sharpen pathway recommendations.")
+    if EvidenceLibraryItem.EvidenceType.OUTCOME_METRIC not in available_evidence_types:
+        missing.append("Outcome Evidence")
+        guidance.append("Add outcome evidence so Snapshot recommendations feel more provable.")
+
+    return SnapshotSourceSummary(
+        sources_reviewed=reviewed_count,
+        source_types_used=_dedupe(source_types, 8) or ["Organization Profile"],
+        important_sources=_dedupe(important_sources, 5) or ["Organization profile and project narrative"],
+        missing_source_types=_dedupe(missing, 6) or ["No major source gaps detected."],
+        guidance=_dedupe(guidance, 5) or ["Keep source material current as the Snapshot moves toward delivery."],
+    )
+
+
 def build_opportunity_web_snapshot(
     project,
     web,
@@ -448,6 +563,7 @@ def build_opportunity_web_snapshot(
         top_risks_gaps,
         actions,
     )
+    source_summary = _source_summary(project)
     return OpportunityWebSnapshot(
         mission_overview=mission_overview,
         readiness_score=readiness.overall_score,
@@ -471,4 +587,5 @@ def build_opportunity_web_snapshot(
         relationship_target_insights=relationship_target_insights,
         top_opportunity_insights=top_opportunity_insights,
         recommended_action_insights=recommended_action_insights,
+        source_summary=source_summary,
     )
