@@ -62,6 +62,10 @@ def _seed_opportunity_database():
     ]
     for funder in funders:
         name = funder.pop("name")
+        funder.setdefault("intelligence_status", Funder.IntelligenceStatus.ACTIVE)
+        funder.setdefault("source_references", [
+            {"title": f"{name} public funding profile", "source": "Demo research note"},
+        ])
         Funder.objects.update_or_create(name=name, defaults=funder)
 
     government_entities = [
@@ -170,6 +174,13 @@ def _seed_opportunity_database():
     ]
     for partner in partners:
         name = partner.pop("name")
+        partner.setdefault("intelligence_status", PartnerOrganization.IntelligenceStatus.ACTIVE)
+        partner.setdefault("mission_alignment_notes", f"{name} has direct mission alignment with BridgeForward's digital workforce model.")
+        partner.setdefault("opportunity_notes", "Useful for named partnership recommendations and future pathway development.")
+        partner.setdefault("relationship_notes", "Prioritize outreach when a pathway needs credible local partner evidence.")
+        partner.setdefault("source_references", [
+            {"title": f"{name} partner profile", "source": "Demo research note"},
+        ])
         PartnerOrganization.objects.update_or_create(name=name, defaults=partner)
 
     source_organizations = [
@@ -736,9 +747,21 @@ def _seed_opportunity_database():
         source_name = opportunity.get("source_name", "")
         opportunity["source_organization"] = sources.get(source_name)
         estimated_value, confidence, notes = forecast_values[name]
+        if opportunity["opportunity_type"] in {
+            Opportunity.OpportunityType.GRANT,
+            Opportunity.OpportunityType.CONTRACT,
+            Opportunity.OpportunityType.SPONSORSHIP,
+        }:
+            opportunity["funding_amount"] = estimated_value
         opportunity["estimated_value"] = estimated_value
         opportunity["value_confidence"] = confidence
         opportunity["forecast_notes"] = notes
+        opportunity["source_references"] = [
+            {
+                "title": f"{source_name or name} opportunity summary",
+                "source": "Demo opportunity inventory",
+            }
+        ]
         Opportunity.objects.update_or_create(name=name, defaults=opportunity)
 
 
@@ -1024,37 +1047,62 @@ def _seed_relationship_data(project):
         {
             "organization_name": "Neighborhood Digital Inclusion Coalition",
             "partner_type": RelationshipPartnerOrganization.PartnerType.COMMUNITY_PARTNER,
+            "geography": ["Cleveland", "Cuyahoga County"],
             "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.STRONG,
             "website": "https://neighborhood-digital-inclusion.example.org",
             "notes": "Community partner for outreach, referrals, shared workshops, and device distribution.",
+            "mission_alignment_notes": "Aligned with digital equity and neighborhood access goals.",
+            "opportunity_notes": "Can strengthen local digital equity grants, referral pathways, and community implementation plans.",
+            "relationship_notes": "Strong existing relationship that should anchor shared outreach and evidence collection.",
+            "source_references": [{"title": "Digital inclusion partner research", "source": "Demo research note"}],
         },
         {
             "organization_name": "City of Cleveland Youth and Workforce Office",
             "partner_type": RelationshipPartnerOrganization.PartnerType.GOVERNMENT_PARTNER,
+            "geography": ["Cleveland", "Ohio"],
             "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.ESTABLISHED,
             "website": "https://cleveland-youth-workforce.example.gov",
             "notes": "Public-sector partner for youth workforce, contracts, and city grants.",
+            "mission_alignment_notes": "Aligned with youth workforce, city grants, service contracts, and digital access programs.",
+            "opportunity_notes": "Can unlock local government grants, RFP visibility, and city-backed youth technology pathways.",
+            "relationship_notes": "Maintain as a high-leverage relationship for public-sector pathway development.",
+            "source_references": [{"title": "City workforce office relationship note", "source": "Demo research note"}],
         },
         {
             "organization_name": "Cleveland Community College Career Pathways",
             "partner_type": RelationshipPartnerOrganization.PartnerType.ACADEMIC_PARTNER,
+            "geography": ["Cleveland", "Ohio"],
             "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.ESTABLISHED,
             "website": "https://cleveland-community-college.example.edu",
             "notes": "Academic partner for credentials, career pathways, and shared training facilities.",
+            "mission_alignment_notes": "Aligned with credentials, career pathways, and training access.",
+            "opportunity_notes": "Can improve competitiveness for workforce grants that require education partners.",
+            "relationship_notes": "Use as a named proof point for credential and referral partnerships.",
+            "source_references": [{"title": "Community college pathway note", "source": "Demo research note"}],
         },
         {
             "organization_name": "Great Lakes Corporate Citizenship Council",
             "partner_type": RelationshipPartnerOrganization.PartnerType.CORPORATE_PARTNER,
+            "geography": ["Regional", "Ohio"],
             "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.DEVELOPING,
             "website": "https://great-lakes-citizenship.example.com",
             "notes": "Corporate partner for sponsorships, mentors, mock interviews, and employer introductions.",
+            "mission_alignment_notes": "Aligned with employer engagement, mentorship, and career exposure.",
+            "opportunity_notes": "Can unlock sponsorships, mentors, and employer-backed workforce pathways.",
+            "relationship_notes": "Develop into a stronger relationship before relying on employer placement claims.",
+            "source_references": [{"title": "Corporate citizenship relationship note", "source": "Demo research note"}],
         },
         {
             "organization_name": "Ohio Nonprofit Capacity Lab",
             "partner_type": RelationshipPartnerOrganization.PartnerType.SERVICE_PARTNER,
+            "geography": ["Ohio"],
             "relationship_strength": RelationshipPartnerOrganization.RelationshipStrength.DEVELOPING,
             "website": "https://ohio-capacity-lab.example.org",
             "notes": "Service partner for evaluation, capacity building, and fundraising readiness.",
+            "mission_alignment_notes": "Aligned with evaluation capacity and readiness improvement.",
+            "opportunity_notes": "Can improve document, evidence, and measurement readiness before pursuit.",
+            "relationship_notes": "Use this partner to close readiness gaps before major funder outreach.",
+            "source_references": [{"title": "Capacity partner readiness note", "source": "Demo research note"}],
         },
     ]
     for partner in partners:

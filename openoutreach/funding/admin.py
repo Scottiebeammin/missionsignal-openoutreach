@@ -29,8 +29,9 @@ class FundingCriteriaAdmin(admin.ModelAdmin):
 
 @admin.register(Funder)
 class FunderAdmin(admin.ModelAdmin):
-    list_display = ("name", "funder_type", "geography", "active", "website")
-    list_filter = ("funder_type", "active")
+    list_display = ("name", "funder_type", "intelligence_status", "geography", "active", "website")
+    list_filter = ("funder_type", "intelligence_status", "active")
+    list_editable = ("intelligence_status",)
     search_fields = ("name", "eligibility_notes", "notes", "website")
 
 
@@ -50,9 +51,13 @@ class ResourceProviderAdmin(admin.ModelAdmin):
 
 @admin.register(PartnerOrganization)
 class PartnerOrganizationAdmin(admin.ModelAdmin):
-    list_display = ("name", "partner_type", "geography", "active", "website")
-    list_filter = ("partner_type", "active")
-    search_fields = ("name", "notes", "website")
+    list_display = ("name", "partner_type", "intelligence_status", "geography", "active", "website")
+    list_filter = ("partner_type", "intelligence_status", "active")
+    list_editable = ("intelligence_status",)
+    search_fields = (
+        "name", "notes", "mission_alignment_notes", "opportunity_notes",
+        "relationship_notes", "website",
+    )
 
 
 @admin.register(SourceOrganization)
@@ -67,7 +72,7 @@ class OpportunityAdmin(admin.ModelAdmin):
     list_display = (
         "name", "opportunity_type", "source_organization", "source_type",
         "status", "lifecycle_status", "priority_level", "estimated_value",
-        "value_confidence", "assigned_owner", "deadline",
+        "funding_amount", "value_confidence", "assigned_owner", "deadline",
     )
     list_filter = (
         "opportunity_type", "source_type", "status", "lifecycle_status",

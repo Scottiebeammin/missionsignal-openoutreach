@@ -239,8 +239,13 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     assert "Preparation required" in content
     assert "Risk" in content
     assert "Funder Fit" in content
+    assert "Cuyahoga Community Foundation" in content
+    assert "Ohio Workforce Innovation Fund" in content
+    assert "Source reference:" in content
     assert "Strong Fit" in content
     assert "Ecosystem Gaps" in content
+    assert "Strengthen City of Cleveland Youth and Workforce Office" in content
+    assert "Cleveland Community College Career Pathways" in content
     assert "Readiness Context" in content
     assert "may reduce competitiveness for workforce development opportunities" in content
     assert "Source Summary" in content

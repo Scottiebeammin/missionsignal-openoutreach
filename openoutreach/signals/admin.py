@@ -76,9 +76,15 @@ class OrganizationContactAdmin(admin.ModelAdmin):
 
 @admin.register(PartnerOrganization)
 class RelationshipPartnerOrganizationAdmin(admin.ModelAdmin):
-    list_display = ("organization_name", "project", "partner_type", "relationship_strength", "status", "website")
+    list_display = (
+        "organization_name", "project", "partner_type", "relationship_strength",
+        "status", "geography", "website",
+    )
     list_filter = ("partner_type", "relationship_strength", "status")
-    search_fields = ("organization_name", "notes", "website", "project__name")
+    search_fields = (
+        "organization_name", "notes", "mission_alignment_notes", "opportunity_notes",
+        "relationship_notes", "website", "project__name",
+    )
     raw_id_fields = ("project",)
     date_hierarchy = "updated_at"
 

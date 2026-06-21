@@ -395,10 +395,15 @@ class PartnerOrganization(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="relationship_partners")
     organization_name = models.CharField(max_length=300)
     partner_type = models.CharField(max_length=40, choices=PartnerType.choices, default=PartnerType.OTHER)
+    geography = models.JSONField(default=list, blank=True)
     relationship_strength = models.CharField(
         max_length=30, choices=RelationshipStrength.choices, default=RelationshipStrength.UNKNOWN,
     )
     notes = models.TextField(blank=True, default="")
+    mission_alignment_notes = models.TextField(blank=True, default="")
+    opportunity_notes = models.TextField(blank=True, default="")
+    relationship_notes = models.TextField(blank=True, default="")
+    source_references = models.JSONField(default=list, blank=True)
     website = models.URLField(max_length=500, blank=True, default="")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)

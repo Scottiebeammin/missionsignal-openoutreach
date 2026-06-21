@@ -58,6 +58,12 @@ class Funder(models.Model):
         WORKFORCE_BOARD = "workforce_board", "Workforce Board"
         OTHER = "other", "Other"
 
+    class IntelligenceStatus(models.TextChoices):
+        ACTIVE = "active", "Active"
+        MONITORING = "monitoring", "Monitoring"
+        PROSPECT = "prospect", "Prospect"
+        ARCHIVED = "archived", "Archived"
+
     name = models.CharField(max_length=500)
     funder_type = models.CharField(max_length=40, choices=FunderType.choices, default=FunderType.OTHER)
     geography = models.JSONField(default=list, blank=True)
@@ -66,6 +72,10 @@ class Funder(models.Model):
     eligibility_notes = models.TextField(blank=True, default="")
     website = models.URLField(max_length=500, blank=True, default="")
     notes = models.TextField(blank=True, default="")
+    source_references = models.JSONField(default=list, blank=True)
+    intelligence_status = models.CharField(
+        max_length=20, choices=IntelligenceStatus.choices, default=IntelligenceStatus.ACTIVE,
+    )
     active = models.BooleanField(default=True)
     external_ids = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -156,6 +166,12 @@ class PartnerOrganization(models.Model):
         COMMUNITY_BASED_ORGANIZATION = "community_based_organization", "Community-Based Organization"
         OTHER = "other", "Other"
 
+    class IntelligenceStatus(models.TextChoices):
+        ACTIVE = "active", "Active"
+        MONITORING = "monitoring", "Monitoring"
+        PROSPECT = "prospect", "Prospect"
+        ARCHIVED = "archived", "Archived"
+
     name = models.CharField(max_length=500)
     partner_type = models.CharField(max_length=60, choices=PartnerType.choices, default=PartnerType.OTHER)
     geography = models.JSONField(default=list, blank=True)
@@ -164,6 +180,13 @@ class PartnerOrganization(models.Model):
     collaboration_opportunities = models.JSONField(default=list, blank=True)
     website = models.URLField(max_length=500, blank=True, default="")
     notes = models.TextField(blank=True, default="")
+    mission_alignment_notes = models.TextField(blank=True, default="")
+    opportunity_notes = models.TextField(blank=True, default="")
+    relationship_notes = models.TextField(blank=True, default="")
+    source_references = models.JSONField(default=list, blank=True)
+    intelligence_status = models.CharField(
+        max_length=20, choices=IntelligenceStatus.choices, default=IntelligenceStatus.ACTIVE,
+    )
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -257,6 +280,7 @@ class Opportunity(models.Model):
     focus_areas = models.JSONField(default=list, blank=True)
     beneficiaries = models.JSONField(default=list, blank=True)
     eligibility_notes = models.TextField(blank=True, default="")
+    funding_amount = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
     posted_date = models.DateField(null=True, blank=True)
     deadline = models.DateField(null=True, blank=True)
@@ -277,6 +301,7 @@ class Opportunity(models.Model):
     lifecycle_notes = models.TextField(blank=True, default="")
     lifecycle_status_history = models.JSONField(default=list, blank=True)
     notes = models.TextField(blank=True, default="")
+    source_references = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

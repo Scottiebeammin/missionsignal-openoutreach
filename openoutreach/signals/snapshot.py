@@ -299,7 +299,134 @@ def _pathway_insights(pathways: list[str], sector: dict, context: dict, limit: i
     ]
 
 
-def _relationship_target_insights(sector: dict, context: dict) -> list[SnapshotInsight]:
+def _overlap_count(left: list[str], right: list[str]) -> int:
+    left_text = " ".join(str(value or "") for value in left).casefold()
+    return sum(1 for value in right if str(value or "").casefold() in left_text)
+
+
+def _record_source_label(source_references: list) -> str:
+    labels = []
+    for source in source_references or []:
+        if isinstance(source, dict):
+            labels.append(source.get("title") or source.get("url") or source.get("source"))
+        else:
+            labels.append(str(source))
+    labels = _dedupe(labels, 2)
+    if not labels:
+        return ""
+    return " Source reference: " + "; ".join(labels) + "."
+
+
+def _named_funder_fit_insights(sector: dict, context: dict) -> list[SnapshotFunderFit]:
+    from openoutreach.funding.models import Funder
+
+    sector_terms = sector.get("terms", []) + context["focus"] + context["beneficiaries"]
+    candidates = []
+    for funder in Funder.objects.filter(active=True).exclude(
+        intelligence_status=Funder.IntelligenceStatus.ARCHIVED,
+    ):
+        score = 70
+        score += min(_overlap_count(funder.focus_areas, sector_terms) * 6, 18)
+        score += min(_overlap_count(funder.beneficiaries, context["beneficiaries"] + sector_terms) * 5, 12)
+        score += min(_overlap_count(funder.geography, context["geography"]) * 5, 10)
+        if funder.funder_type in {
+            Funder.FunderType.COMMUNITY_FOUNDATION,
+            Funder.FunderType.WORKFORCE_BOARD,
+            Funder.FunderType.LOCAL_GOVERNMENT,
+            Funder.FunderType.STATE_GOVERNMENT,
+        }:
+            score += 4
+        candidates.append((min(score, 98), funder.name.casefold(), funder))
+    candidates.sort(key=lambda item: (-item[0], item[1]))
+
+    insights = []
+    for score, _sort_name, funder in candidates[:5]:
+        preparation = []
+        if not context["outcomes_defined"]:
+            preparation.append("Add outcome evidence tied to the target program.")
+        if not context["budget_defined"]:
+            preparation.append("Prepare a clear request budget and funding use.")
+        if not context["funding_defined"]:
+            preparation.append("Document current and recent funding sources.")
+        preparation.append(f"Prepare outreach for {funder.get_funder_type_display()} review.")
+        rationale = (
+            f"{funder.name} is a named {funder.get_funder_type_display().lower()} with alignment around "
+            f"{', '.join(_dedupe(funder.focus_areas, 2)) or sector['label'].lower()}."
+        )
+        if context["geography"] and funder.geography:
+            rationale += f" Geography overlaps with {context['geography'][0]}."
+        rationale += _record_source_label(funder.source_references)
+        insights.append(
+            SnapshotFunderFit(
+                archetype=funder.name,
+                alignment_level=_alignment_level(score),
+                rationale=rationale,
+                preparation_steps=_dedupe(preparation, 3),
+            )
+        )
+    return insights
+
+
+def _named_relationship_insights(project, sector: dict, context: dict) -> list[SnapshotInsight]:
+    from openoutreach.funding.models import PartnerOrganization as EcosystemPartner
+    from openoutreach.signals.models import PartnerOrganization as RelationshipPartner
+
+    sector_terms = sector.get("terms", []) + context["focus"] + context["beneficiaries"]
+    candidates = []
+    for partner in RelationshipPartner.objects.filter(
+        project=project,
+        status=RelationshipPartner.Status.ACTIVE,
+    ):
+        score = 75
+        score += min(_overlap_count(partner.geography, context["geography"]) * 5, 10)
+        text = " ".join([
+            partner.partner_type,
+            partner.notes,
+            partner.mission_alignment_notes,
+            partner.opportunity_notes,
+            partner.relationship_notes,
+        ]).casefold()
+        score += min(sum(1 for term in sector_terms if str(term).casefold() in text) * 5, 15)
+        candidates.append((min(score, 98), partner.organization_name.casefold(), partner, "relationship"))
+    for partner in EcosystemPartner.objects.filter(active=True).exclude(
+        intelligence_status=EcosystemPartner.IntelligenceStatus.ARCHIVED,
+    ):
+        score = 70
+        score += min(_overlap_count(partner.focus_areas, sector_terms) * 5, 15)
+        score += min(_overlap_count(partner.geography, context["geography"]) * 5, 10)
+        candidates.append((min(score, 95), partner.name.casefold(), partner, "ecosystem"))
+    candidates.sort(key=lambda item: (-item[0], item[1]))
+
+    insights = []
+    for _score, _sort_name, partner, source in candidates[:2]:
+        factors = ["Relationship Alignment", "Mission Alignment"]
+        if context["geography"]:
+            factors.append("Geographic Alignment")
+        if source == "relationship":
+            label = f"Strengthen {partner.organization_name}"
+            rationale = (
+                partner.relationship_notes
+                or partner.opportunity_notes
+                or partner.mission_alignment_notes
+                or partner.notes
+                or f"This named partner can help turn {sector['label'].lower()} strategy into concrete outreach."
+            )
+            rationale += _record_source_label(partner.source_references)
+        else:
+            label = f"Pursue {partner.name}"
+            rationale = (
+                partner.relationship_notes
+                or partner.opportunity_notes
+                or partner.mission_alignment_notes
+                or partner.notes
+                or f"This ecosystem organization is aligned with {sector['label'].lower()} pathways."
+            )
+            rationale += _record_source_label(partner.source_references)
+        insights.append(SnapshotInsight(label, rationale, factors[:4]))
+    return insights
+
+
+def _archetype_relationship_target_insights(sector: dict, context: dict) -> list[SnapshotInsight]:
     insights = []
     geography = context["geography"][0] if context["geography"] else "the service area"
     for target in sector["relationship_targets"][:4]:
@@ -323,6 +450,21 @@ def _relationship_target_insights(sector: dict, context: dict) -> list[SnapshotI
         )
         insights.append(SnapshotInsight(f"Pursue {target}", rationale, factors))
     return insights
+
+
+def _relationship_target_insights(project, sector: dict, context: dict) -> list[SnapshotInsight]:
+    insights = _named_relationship_insights(project, sector, context)
+    insights.extend(_archetype_relationship_target_insights(sector, context))
+    unique = []
+    seen = set()
+    for insight in insights:
+        key = insight.label.casefold()
+        if key not in seen:
+            seen.add(key)
+            unique.append(insight)
+        if len(unique) >= 4:
+            break
+    return unique
 
 
 def _factor_summary(factors: list[str], fallback: list[str]) -> list[str]:
@@ -415,8 +557,11 @@ def _funder_fit_insights(
     if not context["funding_defined"]:
         prep.append("List current and recent funding sources.")
     prep.append(f"Create a one-page {sector['label']} funding brief.")
-    insights = []
+    insights = _named_funder_fit_insights(sector, context)
+    seen = {item.archetype.casefold() for item in insights}
     for index, pathway in enumerate(funder_pathways[:5]):
+        if pathway.label.casefold() in seen:
+            continue
         score = 92 - (index * 4)
         if "Community Foundations" in pathway.label:
             score = max(score, 88)
@@ -436,6 +581,9 @@ def _funder_fit_insights(
                 preparation_steps=_dedupe(prep, 3),
             )
         )
+        seen.add(pathway.label.casefold())
+        if len(insights) >= 5:
+            break
     return insights
 
 
@@ -726,7 +874,7 @@ def build_opportunity_web_snapshot(
         sector,
         context,
     )
-    relationship_target_insights = _relationship_target_insights(sector, context)
+    relationship_target_insights = _relationship_target_insights(project, sector, context)
     top_opportunity_insights = _opportunity_insights(discovery, context)
     funder_fit_insights = _funder_fit_insights(funder_pathway_insights, sector, context)
     ecosystem_gap_insights = _ecosystem_gap_insights(relationship_target_insights, sector)

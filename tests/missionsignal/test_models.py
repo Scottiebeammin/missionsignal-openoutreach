@@ -193,6 +193,11 @@ def test_relationship_partner_model_defaults_and_string(project):
     assert str(partner) == "Example Partner"
     assert partner.status == RelationshipPartnerOrganization.Status.ACTIVE
     assert partner.relationship_strength == RelationshipPartnerOrganization.RelationshipStrength.UNKNOWN
+    assert partner.geography == []
+    assert partner.mission_alignment_notes == ""
+    assert partner.opportunity_notes == ""
+    assert partner.relationship_notes == ""
+    assert partner.source_references == []
     assert partner.website == ""
 
 
@@ -243,6 +248,8 @@ def test_funder_model():
     )
     assert str(funder) == "Community Foundation"
     assert funder.active is True
+    assert funder.intelligence_status == Funder.IntelligenceStatus.ACTIVE
+    assert funder.source_references == []
     assert funder.geography == []
     assert funder.focus_areas == ["workforce development"]
     assert funder.beneficiaries == ["youth"]
@@ -282,6 +289,11 @@ def test_partner_organization_model_defaults_and_string():
     )
     assert str(partner) == "Community College Partner"
     assert partner.active is True
+    assert partner.intelligence_status == PartnerOrganization.IntelligenceStatus.ACTIVE
+    assert partner.mission_alignment_notes == ""
+    assert partner.opportunity_notes == ""
+    assert partner.relationship_notes == ""
+    assert partner.source_references == []
     assert partner.geography == []
     assert partner.focus_areas == []
     assert partner.collaboration_opportunities == ["credential pathways", "referrals"]
@@ -299,8 +311,10 @@ def test_opportunity_model_defaults_and_string():
     assert opportunity.status == Opportunity.Status.ACTIVE
     assert opportunity.priority_level == Opportunity.PriorityLevel.MEDIUM
     assert opportunity.estimated_value is None
+    assert opportunity.funding_amount is None
     assert opportunity.value_confidence == Opportunity.ValueConfidence.MEDIUM
     assert opportunity.forecast_notes == ""
+    assert opportunity.source_references == []
     assert opportunity.lifecycle_status == Opportunity.LifecycleStatus.DISCOVERED
     assert opportunity.assigned_owner is None
     assert opportunity.lifecycle_notes == ""

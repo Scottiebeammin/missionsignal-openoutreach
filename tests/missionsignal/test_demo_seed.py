@@ -46,6 +46,7 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "North Coast Corporate Giving Fund",
         "Ohio Workforce Innovation Fund",
     ]).count() == 3
+    assert Funder.objects.filter(source_references__0__title__icontains="public funding profile").exists()
     assert GovernmentEntity.objects.filter(name__in=[
         "City of Cleveland Youth and Workforce Office",
         "Cuyahoga County Workforce Partnership",
@@ -61,6 +62,7 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "Lakefront Employers Tech Council",
         "Neighborhood Digital Inclusion Coalition",
     ]).count() == 3
+    assert PartnerOrganization.objects.filter(mission_alignment_notes__icontains="BridgeForward").exists()
     assert SourceOrganization.objects.count() >= 10
     assert Opportunity.objects.count() >= 20
     assert Opportunity.objects.filter(name__in=[
@@ -73,10 +75,16 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "Youth Career Exploration Sponsorship",
     ]).count() == 7
     assert Opportunity.objects.filter(estimated_value__isnull=False).count() >= 20
+    assert Opportunity.objects.filter(funding_amount__isnull=False).count() >= 10
+    assert Opportunity.objects.filter(source_references__0__source="Demo opportunity inventory").exists()
     assert Opportunity.objects.filter(value_confidence=Opportunity.ValueConfidence.HIGH).exists()
     assert Opportunity.objects.filter(value_confidence=Opportunity.ValueConfidence.LOW).exists()
     assert OrganizationContact.objects.filter(project=first_project).count() >= 6
     assert RelationshipPartnerOrganization.objects.filter(project=first_project).count() >= 5
+    assert RelationshipPartnerOrganization.objects.filter(
+        project=first_project,
+        opportunity_notes__icontains="unlock",
+    ).exists()
     assert OrganizationContact.objects.filter(
         project=first_project,
         relationship_strength=OrganizationContact.RelationshipStrength.STRONG,
