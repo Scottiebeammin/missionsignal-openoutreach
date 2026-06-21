@@ -186,6 +186,9 @@
             <p class="muted"><strong>Why now:</strong> {{ item.why_now }}</p>
             <p class="muted"><strong>Preparation required:</strong> {{ item.preparation_required }}</p>
             <p class="muted"><strong>Risk:</strong> {{ item.risks }}</p>
+            {% if item.source_indicators %}
+              <p class="muted"><strong>Signals:</strong> {{ item.source_indicators|join:", " }}</p>
+            {% endif %}
             <p class="muted">{{ item.factors|join:", " }}</p>
           </article>
         {% empty %}
@@ -205,6 +208,7 @@
               <li>
                 <strong>{{ funder.archetype }}</strong><br>
                 <span class="muted">{{ funder.alignment_level }} · {{ funder.rationale }}</span><br>
+                <span class="muted">Signals: {{ funder.source_indicators|join:", " }}</span><br>
                 <span class="muted">Prepare: {{ funder.preparation_steps|join:", " }}</span>
               </li>
             {% endfor %}

@@ -20,6 +20,7 @@ class SnapshotOpportunityInsight:
     preparation_required: str
     risks: str
     factors: list[str]
+    source_indicators: list[str]
 
 
 @dataclass(frozen=True)
@@ -28,6 +29,7 @@ class SnapshotFunderFit:
     alignment_level: str
     rationale: str
     preparation_steps: list[str]
+    source_indicators: list[str]
 
 
 @dataclass(frozen=True)
@@ -317,6 +319,39 @@ def _record_source_label(source_references: list) -> str:
     return " Source reference: " + "; ".join(labels) + "."
 
 
+def _geography_overlap(record_geography: list[str], context: dict) -> bool:
+    return _overlap_count(record_geography, context["geography"]) > 0
+
+
+def _opportunity_source_indicators(item, context: dict) -> list[str]:
+    opportunity = item.opportunity
+    indicators = []
+    if opportunity.source_references:
+        indicators.append("Verified Opportunity")
+    if _geography_overlap(opportunity.geography, context):
+        indicators.append("Strong Geographic Fit")
+    if item.match.score >= 85:
+        indicators.append("High Alignment")
+    if opportunity.source_organization:
+        indicators.append("Named Source")
+    if opportunity.funding_amount:
+        indicators.append("Funding Amount Available")
+    return _dedupe(indicators, 4)
+
+
+def _funder_source_indicators(funder, score: int, context: dict) -> list[str]:
+    indicators = ["Named Funder"]
+    if funder.source_references:
+        indicators.append("Source-backed Funder")
+    if _geography_overlap(funder.geography, context):
+        indicators.append("Strong Geographic Fit")
+    if score >= 85:
+        indicators.append("High Alignment")
+    if funder.intelligence_status == funder.IntelligenceStatus.ACTIVE:
+        indicators.append("Active Intelligence")
+    return _dedupe(indicators, 4)
+
+
 def _named_funder_fit_insights(sector: dict, context: dict) -> list[SnapshotFunderFit]:
     from openoutreach.funding.models import Funder
 
@@ -362,6 +397,7 @@ def _named_funder_fit_insights(sector: dict, context: dict) -> list[SnapshotFund
                 alignment_level=_alignment_level(score),
                 rationale=rationale,
                 preparation_steps=_dedupe(preparation, 3),
+                source_indicators=_funder_source_indicators(funder, score, context),
             )
         )
     return insights
@@ -495,6 +531,22 @@ def _opportunity_preparation(match, context: dict) -> str:
     return "Confirm requirements, decision-maker, and submission materials before moving into pursuit."
 
 
+def _named_opportunity_rationale(item, context: dict) -> str:
+    opportunity = item.opportunity
+    reasons = _dedupe(item.match.reasons, 3)
+    if reasons:
+        rationale = f"{opportunity.name} is prioritized because of " + ", ".join(reasons).rstrip(".") + "."
+    else:
+        rationale = f"{opportunity.name} is prioritized because it is a named opportunity in the current inventory."
+    if _geography_overlap(opportunity.geography, context):
+        rationale += " Geography matches the service area."
+    if item.match.score >= 75:
+        rationale += " Current readiness and match signals support near-term review."
+    if opportunity.source_references:
+        rationale += _record_source_label(opportunity.source_references)
+    return rationale
+
+
 def _opportunity_risk(match, context: dict) -> str:
     if match.missing_factors:
         return match.missing_factors[0] + " may reduce competitiveness."
@@ -510,11 +562,7 @@ def _opportunity_insights(discovery, context: dict) -> list[SnapshotOpportunityI
     for item in discovery.top_opportunities[:5]:
         match = item.match
         factors = _factor_summary(match.match_factors, ["Mission Alignment"])
-        reasons = _dedupe(match.reasons, 3)
-        if reasons:
-            rationale = "Matches because of " + ", ".join(reasons).rstrip(".") + "."
-        else:
-            rationale = "Matches the mission profile and current opportunity inventory."
+        rationale = _named_opportunity_rationale(item, context)
         insights.append(
             SnapshotOpportunityInsight(
                 name=item.opportunity.name,
@@ -527,6 +575,7 @@ def _opportunity_insights(discovery, context: dict) -> list[SnapshotOpportunityI
                 preparation_required=_opportunity_preparation(match, context),
                 risks=_opportunity_risk(match, context),
                 factors=factors,
+                source_indicators=_opportunity_source_indicators(item, context),
             )
         )
     return insights
@@ -579,6 +628,7 @@ def _funder_fit_insights(
                 alignment_level=_alignment_level(score),
                 rationale=rationale,
                 preparation_steps=_dedupe(prep, 3),
+                source_indicators=[_alignment_level(score), "Archetype Fallback"],
             )
         )
         seen.add(pathway.label.casefold())
@@ -655,6 +705,7 @@ def _action_insights(
     sector: dict,
     context: dict,
     top_opportunity_insights: list[SnapshotOpportunityInsight],
+    funder_fit_insights: list[SnapshotFunderFit],
     relationship_targets: list[SnapshotInsight],
     top_resource_gaps: list[str],
     top_risks_gaps: list[str],
@@ -665,16 +716,31 @@ def _action_insights(
         opportunity = top_opportunity_insights[0]
         actions.append(
             SnapshotInsight(
-                f"Validate fit for {opportunity.name}.",
-                f"Highest-ranked pathway with {opportunity.level.lower()} and visible alignment signals.",
-                _factor_summary(opportunity.factors, ["Opportunity Alignment"]),
+                f"Review pursuit fit for {opportunity.name}.",
+                f"Highest-ranked named opportunity with {opportunity.level.lower()}; start with {opportunity.preparation_required.rstrip('.')}.",
+                _factor_summary(opportunity.source_indicators + opportunity.factors, ["Opportunity Alignment"]),
+            )
+        )
+    if funder_fit_insights:
+        funder = funder_fit_insights[0]
+        actions.append(
+            SnapshotInsight(
+                f"Prepare materials for {funder.archetype}.",
+                f"{funder.alignment_level}; next step is {funder.preparation_steps[0].rstrip('.')}.",
+                _factor_summary(funder.source_indicators, ["Funder Alignment"]),
             )
         )
     if relationship_targets:
         target = relationship_targets[0]
+        if target.label.startswith("Strengthen "):
+            relationship_action = target.label.replace("Strengthen ", "Initiate conversation with ", 1)
+        elif target.label.startswith("Pursue "):
+            relationship_action = target.label.replace("Pursue ", "Initiate conversation with ", 1)
+        else:
+            relationship_action = target.label
         actions.append(
             SnapshotInsight(
-                target.label + ".",
+                relationship_action + ".",
                 target.rationale,
                 target.factors,
             )
@@ -883,6 +949,7 @@ def build_opportunity_web_snapshot(
         sector,
         context,
         top_opportunity_insights,
+        funder_fit_insights,
         relationship_target_insights,
         top_resource_gaps,
         top_risks_gaps,
