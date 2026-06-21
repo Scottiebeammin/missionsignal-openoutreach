@@ -279,11 +279,11 @@
             {% endfor %}
           </ul>
         </section>
-        <section>
-          <h3>Named Relationship Targets</h3>
-          <ul>
-            {% for target in snapshot.relationship_target_insights %}
-              <li><strong>{{ target.label }}</strong><br><span class="muted">{{ target.rationale }}</span><br><span class="muted">{{ target.factors|join:", " }}</span></li>
+          <section>
+            <h3>Named Relationship Targets</h3>
+            <ul>
+              {% for target in snapshot.relationship_target_insights %}
+                <li><strong>{{ target.label }}</strong><br><span class="muted">{{ target.rationale }}</span><br><span class="muted">{{ target.factors|join:", " }}</span></li>
             {% endfor %}
           </ul>
         </section>
@@ -294,8 +294,46 @@
               <li><strong>{{ gap.label }}</strong><br><span class="muted">{{ gap.rationale }}</span></li>
             {% endfor %}
           </ul>
-        </section>
-      </div>
+          </section>
+        </div>
+      </details>
+
+      <details style="margin-top: 14px;">
+        <summary>Relationship Intelligence</summary>
+        <div class="insight-grid">
+          <section>
+            <h3>Top Relationships To Build</h3>
+            <ul>
+              {% for impact in snapshot.relationship_impact_insights|slice:":4" %}
+                <li>
+                  <strong>{{ impact.name }}</strong><br>
+                  <span class="muted">{{ impact.impact_level }} · {{ impact.rationale }}</span><br>
+                  <span class="muted">Unlocks: {{ impact.opportunities_unlocked|join:", " }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Opportunity Pathways</h3>
+            <ul>
+              {% for pathway in snapshot.relationship_pathway_insights|slice:":4" %}
+                <li>
+                  <strong>{{ pathway.relationship_name }}</strong><br>
+                  <span class="muted">{{ pathway.pathway|join:" → " }}</span><br>
+                  <span class="muted">{{ pathway.expected_partnership_outcomes|join:", " }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+          <section>
+            <h3>Network Health</h3>
+            <ul>
+              {% for indicator in snapshot.network_health_insights %}
+                <li><strong>{{ indicator.label }}</strong><br><span class="muted">{{ indicator.status }} · {{ indicator.rationale }}</span></li>
+              {% endfor %}
+            </ul>
+          </section>
+        </div>
       </details>
 
       <details style="margin-top: 14px;">

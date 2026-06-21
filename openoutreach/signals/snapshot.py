@@ -78,6 +78,9 @@ class OpportunityWebSnapshot:
     ecosystem_gap_insights: list[SnapshotInsight]
     readiness_context_insights: list[SnapshotInsight]
     organization_intelligence: OrganizationIntelligence
+    relationship_pathway_insights: list[object]
+    relationship_impact_insights: list[object]
+    network_health_insights: list[object]
 
 
 SECTOR_INTELLIGENCE = {
@@ -1165,10 +1168,13 @@ def build_opportunity_web_snapshot(
     document_evidence_health,
     match_overview,
 ) -> OpportunityWebSnapshot:
+    from openoutreach.signals.relationships import build_relationship_overview
+
     organization = project.organization
     sector = _sector_profile(project)
     context = _organization_context(project)
     organization_intelligence = _organization_intelligence(project, sector)
+    relationship_overview = build_relationship_overview(project)
     mission_overview = organization.organization_summary or organization.mission
     top_resource_gaps = _dedupe(
         document_evidence_health.document_summary.missing_critical_documents
@@ -1239,4 +1245,7 @@ def build_opportunity_web_snapshot(
         ecosystem_gap_insights=ecosystem_gap_insights,
         readiness_context_insights=readiness_context_insights,
         organization_intelligence=organization_intelligence,
+        relationship_pathway_insights=relationship_overview.opportunity_pathways,
+        relationship_impact_insights=relationship_overview.relationship_impacts,
+        network_health_insights=relationship_overview.network_health,
     )

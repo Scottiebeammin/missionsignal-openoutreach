@@ -234,6 +234,12 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     assert "Geographic Alignment" in content
     assert "Great Lakes Corporate Giving Program" in content
     assert "Named Relationship Targets" in content
+    assert "Relationship Intelligence" in content
+    assert "Top Relationships To Build" in content
+    assert "Opportunity Pathways" in content
+    assert "Network Health" in content
+    assert "High Impact" in content
+    assert "Unlocks:" in content
     assert "Pursue County Workforce Board" in content
     assert "Why now" in content
     assert "Preparation required" in content

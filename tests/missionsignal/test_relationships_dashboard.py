@@ -59,6 +59,14 @@ def test_relationship_health_scoring_and_demo_records(relationship_project):
     assert overview.key_partners
     assert overview.recommended_actions
     assert overview.health.highest_leverage_action
+    assert overview.opportunity_pathways
+    assert overview.relationship_impacts
+    assert overview.missing_relationships
+    assert overview.network_health
+    assert overview.relationship_impacts[0].impact_level in {"High Impact", "Medium Impact", "Low Impact"}
+    assert any("workforce" in ", ".join(item.opportunities_unlocked).casefold() for item in overview.missing_relationships)
+    assert any(indicator.label == "Government Relationships" for indicator in overview.network_health)
+    assert any("Opportunity pursuit" in pathway.pathway for pathway in overview.opportunity_pathways)
 
 
 def test_project_member_can_view_relationship_dashboard(client, relationship_project):
@@ -83,6 +91,12 @@ def test_project_member_can_view_relationship_dashboard(client, relationship_pro
     assert "Key Partners" in content
     assert "Relationship Gaps" in content
     assert "Recommended Relationship Actions" in content
+    assert "Relationship Intelligence" in content
+    assert "Opportunity Pathways" in content
+    assert "Missing Relationship Intelligence" in content
+    assert "Network Health" in content
+    assert "High Impact" in content
+    assert "Potential outcomes" in content
     assert "Maya Thompson" in content
     assert "Neighborhood Digital Inclusion Coalition" in content
 

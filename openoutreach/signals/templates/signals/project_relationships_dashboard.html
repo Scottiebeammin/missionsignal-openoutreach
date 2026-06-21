@@ -73,6 +73,19 @@
       </div>
     </section>
 
+    <section class="panel">
+      <h2>Relationship Intelligence</h2>
+      <div class="insight-grid">
+        {% for impact in relationships.relationship_impacts|slice:":2" %}
+          <article class="relationship-card">
+            <h3>{{ impact.name }}</h3>
+            <p><span class="pill">{{ impact.impact_level }}</span> <span class="pill">Score {{ impact.score }}</span></p>
+            <p class="muted">{{ impact.rationale }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
     <details class="panel">
       <summary>Supporting Relationship Detail</summary>
       <h2>Relationship Snapshot</h2>
@@ -92,6 +105,51 @@
           <li>{{ action }}<span class="impact-label">Impact: Strengthens introductions, credibility, and opportunity pursuit.</span></li>
         {% endfor %}
       </ol>
+      </details>
+
+      <details style="margin-top: 14px;">
+        <summary>Opportunity Pathways</summary>
+        <div class="relationship-grid">
+          {% for pathway in relationships.opportunity_pathways %}
+            <article class="relationship-card">
+              <h3>{{ pathway.relationship_name }}</h3>
+              <p class="muted">{{ pathway.pathway|join:" → " }}</p>
+              <p class="muted">{{ pathway.rationale }}</p>
+              <p><span class="pill">{{ pathway.expected_opportunity_categories|join:", " }}</span></p>
+            </article>
+          {% empty %}
+            <div class="empty-state"><strong>No relationship pathways yet</strong>Add partners to connect relationships to opportunity categories.</div>
+          {% endfor %}
+        </div>
+      </details>
+
+      <details style="margin-top: 14px;">
+        <summary>Missing Relationship Intelligence</summary>
+        <div class="relationship-grid">
+          {% for missing in relationships.missing_relationships %}
+            <article class="relationship-card">
+              <h3>{{ missing.name }}</h3>
+              <p><span class="pill">{{ missing.impact_level }}</span></p>
+              <p class="muted">{{ missing.rationale }}</p>
+              <p class="muted">Potential outcomes: {{ missing.opportunities_unlocked|join:", " }}</p>
+            </article>
+          {% empty %}
+            <div class="empty-state"><strong>No critical missing relationships detected</strong>Keep reviewing relationships as new pathways emerge.</div>
+          {% endfor %}
+        </div>
+      </details>
+
+      <details style="margin-top: 14px;">
+        <summary>Network Health</summary>
+        <div class="relationship-grid">
+          {% for indicator in relationships.network_health %}
+            <article class="relationship-card">
+              <h3>{{ indicator.label }}</h3>
+              <p><span class="pill">{{ indicator.status }}</span></p>
+              <p class="muted">{{ indicator.rationale }}</p>
+            </article>
+          {% endfor %}
+        </div>
       </details>
 
       <details style="margin-top: 14px;">

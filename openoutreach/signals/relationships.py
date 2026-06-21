@@ -32,6 +32,31 @@ class RelationshipContext:
 
 
 @dataclass(frozen=True)
+class RelationshipPathway:
+    relationship_name: str
+    pathway: list[str]
+    rationale: str
+    expected_opportunity_categories: list[str]
+    expected_partnership_outcomes: list[str]
+
+
+@dataclass(frozen=True)
+class RelationshipImpact:
+    name: str
+    impact_level: str
+    score: int
+    rationale: str
+    opportunities_unlocked: list[str]
+
+
+@dataclass(frozen=True)
+class RelationshipNetworkIndicator:
+    label: str
+    status: str
+    rationale: str
+
+
+@dataclass(frozen=True)
 class RelationshipOverview:
     total_contacts: int
     total_partners: int
@@ -43,6 +68,95 @@ class RelationshipOverview:
     relationship_gaps: list[str]
     recommended_actions: list[str]
     health: RelationshipHealth
+    opportunity_pathways: list[RelationshipPathway]
+    relationship_impacts: list[RelationshipImpact]
+    missing_relationships: list[RelationshipImpact]
+    opportunity_mappings: list[RelationshipPathway]
+    network_health: list[RelationshipNetworkIndicator]
+
+
+SECTOR_RELATIONSHIPS = {
+    "youth": {
+        "terms": ["youth", "student", "students", "school", "afterschool", "teen", "young adult"],
+        "missing": [
+            ("School District Partner", ["student referrals", "youth services funding", "school partnership evidence"]),
+            ("Youth Coalition", ["coalition grants", "program referrals", "community credibility"]),
+            ("Community Foundation Youth Program Officer", ["youth development grants", "warm funder introductions"]),
+        ],
+    },
+    "workforce": {
+        "terms": [
+            "workforce", "job", "jobs", "career", "employment", "training", "credential",
+            "skills", "employer", "placement",
+        ],
+        "missing": [
+            ("Regional Workforce Board", ["workforce funding programs", "employer coalitions", "training grants"]),
+            ("Chamber of Commerce", ["employer introductions", "sponsorships", "workforce convenings"]),
+            ("Employer Coalition", ["placement pathways", "mentors", "job-readiness credibility"]),
+        ],
+    },
+    "health": {
+        "terms": ["health", "healthcare", "clinic", "hospital", "wellness", "mental health", "public health"],
+        "missing": [
+            ("Public Health Department", ["public health grants", "referral pathways", "community health initiatives"]),
+            ("Hospital System", ["community benefit funding", "clinical referrals", "health equity partnerships"]),
+            ("Health Foundation", ["health grants", "evaluation support", "population health credibility"]),
+        ],
+    },
+    "food": {
+        "terms": ["food", "hunger", "pantry", "meal", "meals", "nutrition", "agriculture", "grocery"],
+        "missing": [
+            ("Regional Food Bank", ["collaborative grants", "food access initiatives", "distribution partnerships"]),
+            ("Agricultural Network", ["fresh food partnerships", "nutrition programs", "local sourcing"]),
+            ("Hunger Coalition", ["coalition funding", "policy visibility", "community referrals"]),
+        ],
+    },
+    "environment": {
+        "terms": [
+            "environment", "environmental", "climate", "river", "watershed",
+            "conservation", "sustainability", "green", "stewardship",
+        ],
+        "missing": [
+            ("Watershed Organization", ["conservation grants", "stewardship projects", "place-based evidence"]),
+            ("Conservation Network", ["environmental funders", "volunteer stewardship", "technical partners"]),
+            ("Environmental Funder", ["environmental justice grants", "climate resilience funding"]),
+        ],
+    },
+}
+
+
+TYPE_PATHWAYS = {
+    PartnerOrganization.PartnerType.GOVERNMENT_PARTNER: {
+        "bridge": "Public Agency",
+        "opportunities": ["city grants", "service contracts", "RFP visibility"],
+        "outcomes": ["public-sector credibility", "local agency alignment", "contract readiness"],
+    },
+    PartnerOrganization.PartnerType.FUNDING_PARTNER: {
+        "bridge": "Program Officer",
+        "opportunities": ["foundation grants", "warm introductions", "restricted program funding"],
+        "outcomes": ["funder trust", "proposal feedback", "stronger funding fit"],
+    },
+    PartnerOrganization.PartnerType.ACADEMIC_PARTNER: {
+        "bridge": "Education Partner",
+        "opportunities": ["credential pathways", "training grants", "student referral partnerships"],
+        "outcomes": ["program credibility", "shared facilities", "participant pathways"],
+    },
+    PartnerOrganization.PartnerType.CORPORATE_PARTNER: {
+        "bridge": "Employer Coalition",
+        "opportunities": ["sponsorships", "mentors", "workforce funding programs"],
+        "outcomes": ["career exposure", "placement credibility", "employer validation"],
+    },
+    PartnerOrganization.PartnerType.COMMUNITY_PARTNER: {
+        "bridge": "Community Coalition",
+        "opportunities": ["collaborative grants", "referral pathways", "neighborhood implementation"],
+        "outcomes": ["community trust", "resident reach", "shared service delivery"],
+    },
+    PartnerOrganization.PartnerType.SERVICE_PARTNER: {
+        "bridge": "Capacity Partner",
+        "opportunities": ["technical assistance", "capacity-building programs", "readiness support"],
+        "outcomes": ["stronger evidence", "better operations", "grant readiness"],
+    },
+}
 
 
 def _level(score: int) -> str:
@@ -126,6 +240,248 @@ def _strength_rank(value: str) -> int:
     return STRENGTH_POINTS.get(value, 0)
 
 
+def _dedupe(values: list[str], limit: int = 5) -> list[str]:
+    seen = set()
+    unique = []
+    for value in values:
+        clean = str(value or "").strip()
+        key = clean.casefold()
+        if clean and key not in seen:
+            seen.add(key)
+            unique.append(clean)
+        if len(unique) >= limit:
+            break
+    return unique
+
+
+def _project_text(project) -> str:
+    organization = project.organization
+    values = [
+        organization.name,
+        organization.mission,
+        organization.organization_summary,
+        project.programs,
+        organization.organization_type,
+        organization.city,
+        organization.county,
+        organization.state,
+        *organization.focus_areas,
+        *organization.beneficiaries,
+        *organization.service_geographies,
+        *organization.outcomes_and_impact,
+        *organization.existing_partnerships,
+    ]
+    return "\n".join(str(value or "") for value in values).casefold()
+
+
+def _sector_missing_relationships(project) -> list[tuple[str, list[str]]]:
+    text = _project_text(project)
+    scored = []
+    for key, profile in SECTOR_RELATIONSHIPS.items():
+        score = sum(1 for term in profile["terms"] if term in text)
+        scored.append((score, key, profile["missing"]))
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    if scored and scored[0][0] > 0:
+        return scored[0][2]
+    return [
+        ("Community Foundation Program Officer", ["local grants", "funder introductions", "proposal feedback"]),
+        ("Local Government Agency", ["public-sector funding", "service contracts", "RFP visibility"]),
+        ("Anchor Institution Partner", ["credibility", "referrals", "collaborative opportunities"]),
+    ]
+
+
+def _impact_level(score: int) -> str:
+    if score >= 85:
+        return "High Impact"
+    if score >= 65:
+        return "Medium Impact"
+    return "Low Impact"
+
+
+def _relationship_terms(item) -> str:
+    return " ".join([
+        getattr(item, "organization_name", ""),
+        getattr(item, "organization", ""),
+        getattr(item, "partner_type", ""),
+        getattr(item, "contact_type", ""),
+        getattr(item, "notes", ""),
+        getattr(item, "mission_alignment_notes", ""),
+        getattr(item, "opportunity_notes", ""),
+        getattr(item, "relationship_notes", ""),
+    ]).casefold()
+
+
+def _opportunities_for_terms(project, terms: str) -> list[str]:
+    opportunities = []
+    for opportunity in Opportunity.objects.exclude(status=Opportunity.Status.ARCHIVED):
+        haystack = " ".join([
+            opportunity.name,
+            opportunity.source_name,
+            opportunity.notes,
+            opportunity.eligibility_notes,
+            *opportunity.focus_areas,
+            *opportunity.beneficiaries,
+            *opportunity.geography,
+        ]).casefold()
+        if any(token and token in haystack for token in terms.split()):
+            opportunities.append(opportunity.name)
+        if len(opportunities) >= 3:
+            break
+    return opportunities or ["collaborative grants", "referral partnerships", "future opportunity introductions"]
+
+
+def _relationship_impact_score(project, item) -> tuple[int, list[str]]:
+    organization = project.organization
+    text = _relationship_terms(item)
+    score = 35
+    factors = []
+    if any(str(value).casefold() in text for value in organization.focus_areas or []):
+        score += 18
+        factors.append("mission alignment")
+    if any(str(value).casefold() in text for value in organization.beneficiaries or []):
+        score += 12
+        factors.append("beneficiary alignment")
+    geography = [organization.city, organization.county, organization.state, *organization.service_geographies]
+    if any(str(value).casefold() in text for value in geography if value):
+        score += 12
+        factors.append("geographic alignment")
+    strength = _strength_rank(item.relationship_strength)
+    score += strength * 6
+    if strength >= 3:
+        factors.append("existing relationship strength")
+    if isinstance(item, PartnerOrganization) and item.partner_type in TYPE_PATHWAYS:
+        score += 8
+        factors.append("partnership leverage")
+    if isinstance(item, OrganizationContact) and item.contact_type in {
+        OrganizationContact.ContactType.FUNDER,
+        OrganizationContact.ContactType.PROGRAM_OFFICER,
+        OrganizationContact.ContactType.GOVERNMENT_CONTACT,
+        OrganizationContact.ContactType.CORPORATE_CONTACT,
+    }:
+        score += 8
+        factors.append("ecosystem influence")
+    return min(score, 98), _dedupe(factors, 4)
+
+
+def _relationship_name(item) -> str:
+    if isinstance(item, PartnerOrganization):
+        return item.organization_name
+    if item.organization:
+        return f"{item.name} at {item.organization}"
+    return item.name
+
+
+def _relationship_pathways(project, partners: list[PartnerOrganization]) -> list[RelationshipPathway]:
+    pathways = []
+    for partner in partners:
+        profile = TYPE_PATHWAYS.get(partner.partner_type, {
+            "bridge": "Strategic Partner",
+            "opportunities": ["collaborative grants", "referral partnerships", "shared program opportunities"],
+            "outcomes": ["community trust", "mission reach", "implementation capacity"],
+        })
+        opportunity_categories = _dedupe(
+            list(profile["opportunities"]) + [value for value in partner.opportunity_notes.replace(",", " ").split() if "grant" in value],
+            4,
+        )
+        pathway = [
+            partner.organization_name,
+            profile["bridge"],
+            opportunity_categories[0],
+            "Opportunity pursuit",
+        ]
+        rationale = (
+            partner.relationship_notes
+            or partner.opportunity_notes
+            or f"{partner.organization_name} can connect the mission to {', '.join(opportunity_categories[:2])}."
+        )
+        pathways.append(
+            RelationshipPathway(
+                relationship_name=partner.organization_name,
+                pathway=pathway,
+                rationale=rationale,
+                expected_opportunity_categories=opportunity_categories,
+                expected_partnership_outcomes=_dedupe(list(profile["outcomes"]), 4),
+            )
+        )
+    return pathways[:5]
+
+
+def _relationship_impacts(project, contacts: list[OrganizationContact], partners: list[PartnerOrganization]) -> list[RelationshipImpact]:
+    candidates = []
+    for item in [*partners, *contacts]:
+        score, factors = _relationship_impact_score(project, item)
+        opportunities = _opportunities_for_terms(project, _relationship_terms(item))
+        rationale = f"Prioritized because of {', '.join(factors) or 'documented relationship context'}."
+        candidates.append((
+            -score,
+            _relationship_name(item).casefold(),
+            RelationshipImpact(
+                name=_relationship_name(item),
+                impact_level=_impact_level(score),
+                score=score,
+                rationale=rationale,
+                opportunities_unlocked=_dedupe(opportunities, 3),
+            ),
+        ))
+    candidates.sort(key=lambda row: (row[0], row[1]))
+    return [item for _score, _name, item in candidates[:6]]
+
+
+def _missing_relationship_impacts(project, active_contacts, active_partners) -> list[RelationshipImpact]:
+    known_text = " ".join(
+        [_relationship_terms(item) for item in [*active_contacts, *active_partners]]
+    ).casefold()
+    missing = []
+    for name, unlocks in _sector_missing_relationships(project):
+        if name.casefold() in known_text:
+            continue
+        score = 82 if any(term in name.casefold() for term in ["workforce", "school", "health", "food", "watershed"]) else 74
+        missing.append(
+            RelationshipImpact(
+                name=name,
+                impact_level=_impact_level(score),
+                score=score,
+                rationale=f"Missing relationship that could unlock {', '.join(unlocks[:2])}.",
+                opportunities_unlocked=unlocks,
+            )
+        )
+    return missing[:4]
+
+
+def _network_health(active_contacts, active_partners) -> list[RelationshipNetworkIndicator]:
+    contact_types = {contact.contact_type for contact in active_contacts}
+    partner_types = {partner.partner_type for partner in active_partners}
+    strong_items = [
+        item for item in [*active_contacts, *active_partners]
+        if item.relationship_strength == OrganizationContact.RelationshipStrength.STRONG
+    ]
+    indicators = [
+        RelationshipNetworkIndicator(
+            "Community Partnerships",
+            "Strong" if PartnerOrganization.PartnerType.COMMUNITY_PARTNER in partner_types else "Developing",
+            "Community partners strengthen trust, referrals, and implementation reach.",
+        ),
+        RelationshipNetworkIndicator(
+            "Government Relationships",
+            "Strong" if OrganizationContact.ContactType.GOVERNMENT_CONTACT in contact_types
+            or PartnerOrganization.PartnerType.GOVERNMENT_PARTNER in partner_types else "Weak",
+            "Government relationships can unlock grants, service contracts, and RFP visibility.",
+        ),
+        RelationshipNetworkIndicator(
+            "Funding Relationships",
+            "Strong" if OrganizationContact.ContactType.PROGRAM_OFFICER in contact_types
+            or PartnerOrganization.PartnerType.FUNDING_PARTNER in partner_types else "Missing",
+            "Funding relationships support warm introductions, fit feedback, and proposal credibility.",
+        ),
+        RelationshipNetworkIndicator(
+            "Regional Coalitions",
+            "Strong" if len(partner_types) >= 4 and strong_items else "Developing",
+            "Coalitions expand reach and make collaborative opportunities more credible.",
+        ),
+    ]
+    return indicators
+
+
 def build_relationship_overview(project) -> RelationshipOverview:
     contacts = list(project.organization_contacts.all())
     partners = list(project.relationship_partners.all())
@@ -156,6 +512,9 @@ def build_relationship_overview(project) -> RelationshipOverview:
     if active_partners:
         actions.append("Use active partners for referrals, letters, and delivery credibility.")
     actions.append("Review relationship gaps before pursuing large grants, contracts, or partnerships.")
+    opportunity_pathways = _relationship_pathways(project, key_partners)
+    relationship_impacts = _relationship_impacts(project, key_contacts, key_partners)
+    missing_relationships = _missing_relationship_impacts(project, active_contacts, active_partners)
     return RelationshipOverview(
         total_contacts=len(contacts),
         total_partners=len(partners),
@@ -167,6 +526,11 @@ def build_relationship_overview(project) -> RelationshipOverview:
         relationship_gaps=health.gaps,
         recommended_actions=actions[:5],
         health=health,
+        opportunity_pathways=opportunity_pathways,
+        relationship_impacts=relationship_impacts,
+        missing_relationships=missing_relationships,
+        opportunity_mappings=opportunity_pathways,
+        network_health=_network_health(active_contacts, active_partners),
     )
 
 
