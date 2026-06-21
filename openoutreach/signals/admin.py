@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Q
 
 from openoutreach.signals.models import (
     Celebration,
@@ -10,6 +11,49 @@ from openoutreach.signals.models import (
     PilotFeedback,
     PilotProfile,
 )
+
+
+class PilotOperationalFilter(admin.SimpleListFilter):
+    title = "Pilot command center"
+    parameter_name = "pilot_command"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("active", "Active Pilots"),
+            ("snapshot_needed", "Snapshot Needed"),
+            ("walkthrough_needed", "Walkthrough Needed"),
+            ("feedback_missing", "Feedback Missing"),
+            ("completed", "Completed"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "active":
+            return queryset.exclude(
+                lifecycle_status__in=[
+                    PilotProfile.LifecycleStatus.WAITLIST,
+                    PilotProfile.LifecycleStatus.PILOT_COMPLETE,
+                ]
+            )
+        if self.value() == "snapshot_needed":
+            return queryset.exclude(snapshot_status=PilotProfile.SnapshotStatus.DELIVERED)
+        if self.value() == "walkthrough_needed":
+            return queryset.filter(
+                lifecycle_status__in=[
+                    PilotProfile.LifecycleStatus.SNAPSHOT_DELIVERED,
+                    PilotProfile.LifecycleStatus.WALKTHROUGH_SCHEDULED,
+                    PilotProfile.LifecycleStatus.ACTIVE_PILOT,
+                ],
+            ).exclude(walkthrough_status=PilotProfile.WalkthroughStatus.COMPLETED)
+        if self.value() == "feedback_missing":
+            return queryset.filter(
+                Q(lifecycle_status=PilotProfile.LifecycleStatus.ACTIVE_PILOT)
+                | Q(lifecycle_status=PilotProfile.LifecycleStatus.SNAPSHOT_DELIVERED)
+                | Q(walkthrough_status=PilotProfile.WalkthroughStatus.COMPLETED),
+                feedback__isnull=True,
+            )
+        if self.value() == "completed":
+            return queryset.filter(lifecycle_status=PilotProfile.LifecycleStatus.PILOT_COMPLETE)
+        return queryset
 
 
 @admin.register(Celebration)
@@ -55,11 +99,20 @@ class PilotProfileAdmin(admin.ModelAdmin):
         "email",
         "lifecycle_status",
         "snapshot_status",
+        "snapshot_link",
         "walkthrough_status",
         "assigned_reviewer",
         "updated_at",
     )
-    list_filter = ("lifecycle_status", "snapshot_status", "walkthrough_status", "created_at", "updated_at")
+    list_editable = ("lifecycle_status",)
+    list_filter = (
+        PilotOperationalFilter,
+        "lifecycle_status",
+        "snapshot_status",
+        "walkthrough_status",
+        "created_at",
+        "updated_at",
+    )
     search_fields = (
         "organization_name",
         "contact_name",
@@ -67,6 +120,7 @@ class PilotProfileAdmin(admin.ModelAdmin):
         "website",
         "mission",
         "assigned_reviewer",
+        "snapshot_link",
         "snapshot_notes",
         "internal_comments",
     )
@@ -80,7 +134,7 @@ class PilotProfileAdmin(admin.ModelAdmin):
         ("Partnerships", {"fields": ("key_partners", "community_relationships", "strategic_relationships", "government_relationships", "corporate_relationships")}),
         ("Growth Goals", {"fields": ("top_goals", "biggest_challenges", "desired_outcomes", "success_definition")}),
         ("Documents", {"fields": ("strategic_plan", "annual_report", "grant_materials", "program_information", "other_documents", "document_notes")}),
-        ("Snapshot Workflow", {"fields": ("snapshot_status", "assigned_reviewer", "snapshot_notes", "snapshot_delivery_date", "internal_comments")}),
+        ("Snapshot Workflow", {"fields": ("snapshot_status", "assigned_reviewer", "snapshot_notes", "snapshot_link", "snapshot_delivery_date", "internal_comments")}),
         ("Founder Walkthrough", {"fields": ("walkthrough_status", "meeting_date", "meeting_notes", "follow_up_actions", "recommended_next_steps", "action_plan_started")}),
     )
 

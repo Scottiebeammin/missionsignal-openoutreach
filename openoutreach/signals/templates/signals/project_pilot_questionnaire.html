@@ -50,7 +50,7 @@
         <h2>Organization</h2>
         <div class="form-grid">
           {% for field in form %}
-            {% if field.name in "organization_name website mission location year_founded annual_budget_range team_size" %}
+            {% if field.name in "organization_name website mission location" %}
               <div class="field {% if field.name == 'mission' %}wide{% endif %}">
                 {{ field.errors }}{{ field.label_tag }}{{ field }}
               </div>
@@ -63,7 +63,7 @@
         <h2>Programs</h2>
         <div class="form-grid">
           {% for field in form %}
-            {% if field.name in "primary_programs communities_served current_initiatives geographic_reach" %}
+            {% if field.name in "primary_programs communities_served current_initiatives" %}
               <div class="field wide">{{ field.errors }}{{ field.label_tag }}{{ field }}</div>
             {% endif %}
           {% endfor %}
@@ -74,7 +74,7 @@
         <h2>Funding</h2>
         <div class="form-grid">
           {% for field in form %}
-            {% if field.name in "current_revenue_sources grant_experience major_funders fundraising_activities funding_challenges" %}
+            {% if field.name in "current_revenue_sources grant_experience major_funders" %}
               <div class="field wide">{{ field.errors }}{{ field.label_tag }}{{ field }}</div>
             {% endif %}
           {% endfor %}
@@ -85,7 +85,7 @@
         <h2>Partnerships</h2>
         <div class="form-grid">
           {% for field in form %}
-            {% if field.name in "key_partners community_relationships strategic_relationships government_relationships corporate_relationships" %}
+            {% if field.name in "key_partners strategic_relationships" %}
               <div class="field wide">{{ field.errors }}{{ field.label_tag }}{{ field }}</div>
             {% endif %}
           {% endfor %}
@@ -96,7 +96,7 @@
         <h2>Growth Goals</h2>
         <div class="form-grid">
           {% for field in form %}
-            {% if field.name in "top_goals biggest_challenges desired_outcomes success_definition" %}
+            {% if field.name in "top_goals biggest_challenges desired_outcomes" %}
               <div class="field wide">{{ field.errors }}{{ field.label_tag }}{{ field }}</div>
             {% endif %}
           {% endfor %}

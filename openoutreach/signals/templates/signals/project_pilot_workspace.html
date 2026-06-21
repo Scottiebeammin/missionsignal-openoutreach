@@ -102,7 +102,11 @@
           {% endif %}
         </div>
         <div class="actions">
-          <a class="pill" href="{% url 'project-snapshot' project.pk %}">View Snapshot</a>
+          {% if pilot.profile.snapshot_link %}
+            <a class="pill" href="{{ pilot.profile.snapshot_link }}">View Delivered Snapshot</a>
+          {% else %}
+            <a class="pill" href="{% url 'project-snapshot' project.pk %}">View Snapshot</a>
+          {% endif %}
           <a class="pill" href="{% url 'project-pilot-workspace' project.pk %}">Schedule Walkthrough</a>
           <a class="pill" href="{% url 'project-pipeline' project.pk %}">Start 30-Day Action Plan</a>
         </div>

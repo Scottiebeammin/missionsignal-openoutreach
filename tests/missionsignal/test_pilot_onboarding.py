@@ -1,9 +1,12 @@
 import pytest
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.test import RequestFactory
 from django.urls import reverse
 
+from openoutreach.signals.admin import PilotOperationalFilter
 from openoutreach.signals.demo import seed_missionsignal_demo
+from openoutreach.signals.forms import PilotDiscoveryQuestionnaireForm
 from openoutreach.signals.models import PilotFeedback, PilotProfile
 from openoutreach.signals.pilot import build_pilot_context
 
@@ -28,10 +31,63 @@ def test_pilot_models_have_expected_defaults_and_admin_registration(pilot_projec
 
     assert str(profile) == "BridgeForward Digital Futures pilot"
     assert profile.lifecycle_status == PilotProfile.LifecycleStatus.WAITLIST
+    assert profile.get_lifecycle_status_display() == "Waitlist"
     assert profile.snapshot_status == PilotProfile.SnapshotStatus.REVIEWING_ORGANIZATION
+    assert profile.snapshot_link == ""
     assert profile.walkthrough_status == PilotProfile.WalkthroughStatus.NOT_SCHEDULED
     assert PilotProfile in admin.site._registry
     assert PilotFeedback in admin.site._registry
+    pilot_admin = admin.site._registry[PilotProfile]
+    assert "lifecycle_status" in pilot_admin.list_filter
+    assert PilotOperationalFilter in pilot_admin.list_filter
+    assert pilot_admin.list_editable == ("lifecycle_status",)
+
+
+def test_pilot_admin_command_center_filters_bucket_operational_work(pilot_project):
+    project, _user = pilot_project
+    active = PilotProfile.objects.create(
+        project=project,
+        organization_name="Active Pilot",
+        lifecycle_status=PilotProfile.LifecycleStatus.ACTIVE_PILOT,
+        snapshot_status=PilotProfile.SnapshotStatus.DELIVERED,
+        walkthrough_status=PilotProfile.WalkthroughStatus.COMPLETED,
+    )
+    complete = PilotProfile.objects.create(
+        organization_name="Complete Pilot",
+        lifecycle_status=PilotProfile.LifecycleStatus.PILOT_COMPLETE,
+        snapshot_status=PilotProfile.SnapshotStatus.DELIVERED,
+    )
+    snapshot_needed = PilotProfile.objects.create(
+        organization_name="Snapshot Needed",
+        lifecycle_status=PilotProfile.LifecycleStatus.QUESTIONNAIRE_COMPLETED,
+        snapshot_status=PilotProfile.SnapshotStatus.REVIEWING_ORGANIZATION,
+    )
+    walkthrough_needed = PilotProfile.objects.create(
+        organization_name="Walkthrough Needed",
+        lifecycle_status=PilotProfile.LifecycleStatus.SNAPSHOT_DELIVERED,
+        snapshot_status=PilotProfile.SnapshotStatus.DELIVERED,
+        walkthrough_status=PilotProfile.WalkthroughStatus.NOT_SCHEDULED,
+    )
+    PilotFeedback.objects.create(pilot=active, most_valuable="The Snapshot.")
+    request = RequestFactory().get("/admin/signals/pilotprofile/")
+    model_admin = admin.site._registry[PilotProfile]
+
+    def filtered(value):
+        filter_instance = PilotOperationalFilter(
+            request,
+            {"pilot_command": [value]},
+            PilotProfile,
+            model_admin,
+        )
+        return set(filter_instance.queryset(request, PilotProfile.objects.all()))
+
+    assert active in filtered("active")
+    assert complete not in filtered("active")
+    assert snapshot_needed in filtered("snapshot_needed")
+    assert walkthrough_needed in filtered("walkthrough_needed")
+    assert walkthrough_needed in filtered("feedback_missing")
+    assert active not in filtered("feedback_missing")
+    assert complete in filtered("completed")
 
 
 def test_pilot_context_renders_checklist_progress_and_snapshot_state(pilot_project):
@@ -72,6 +128,24 @@ def test_project_member_can_view_pilot_workspace(client, pilot_project):
     assert "View Snapshot" in content
     assert "Schedule Walkthrough" in content
     assert "Start 30-Day Action Plan" in content
+
+
+def test_pilot_workspace_displays_delivered_snapshot_link(client, pilot_project):
+    project, user = pilot_project
+    PilotProfile.objects.create(
+        project=project,
+        organization_name="BridgeForward Digital Futures",
+        snapshot_status=PilotProfile.SnapshotStatus.DELIVERED,
+        snapshot_link="https://example.org/bridgeforward-snapshot",
+    )
+    client.force_login(user)
+
+    response = client.get(reverse("project-pilot-workspace", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "View Delivered Snapshot" in content
+    assert "https://example.org/bridgeforward-snapshot" in content
 
 
 def test_non_member_cannot_view_pilot_workspace(client, pilot_project):
@@ -129,6 +203,36 @@ def test_project_member_can_submit_discovery_questionnaire(client, pilot_project
     assert profile.top_goals == "Grow digital equity programs"
 
 
+def test_discovery_questionnaire_form_is_mvp_sized():
+    form = PilotDiscoveryQuestionnaireForm()
+
+    assert list(form.fields) == [
+        "organization_name",
+        "website",
+        "mission",
+        "location",
+        "primary_programs",
+        "communities_served",
+        "current_initiatives",
+        "current_revenue_sources",
+        "grant_experience",
+        "major_funders",
+        "key_partners",
+        "strategic_relationships",
+        "top_goals",
+        "biggest_challenges",
+        "desired_outcomes",
+        "strategic_plan",
+        "annual_report",
+        "grant_materials",
+        "program_information",
+        "other_documents",
+        "document_notes",
+    ]
+    assert form.fields["location"].label == "Geography"
+    assert form.fields["top_goals"].label == "Top 3 Goals"
+
+
 def test_project_member_can_submit_pilot_feedback(client, pilot_project):
     project, user = pilot_project
     profile = PilotProfile.objects.create(project=project, organization_name="BridgeForward Digital Futures")
@@ -151,6 +255,22 @@ def test_project_member_can_submit_pilot_feedback(client, pilot_project):
     assert response.url == reverse("project-pilot-workspace", kwargs={"pk": project.pk})
     assert feedback.most_valuable == "The Opportunity Web made the growth path clearer."
     assert profile.lifecycle_status == PilotProfile.LifecycleStatus.PILOT_COMPLETE
+
+
+def test_pilot_feedback_form_uses_mvp_question_labels(client, pilot_project):
+    project, user = pilot_project
+    PilotProfile.objects.create(project=project, organization_name="BridgeForward Digital Futures")
+    client.force_login(user)
+
+    response = client.get(reverse("project-pilot-feedback", kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "What was most valuable?" in content
+    assert "What was confusing?" in content
+    assert "What would make Anansi Atlas indispensable?" in content
+    assert "Would you recommend Anansi Atlas?" in content
+    assert "Additional comments" in content
 
 
 def test_dashboard_shows_pilot_banner_for_pilot_project(client, pilot_project):

@@ -77,8 +77,8 @@ class PilotProfile(models.Model):
         WAITLIST = "waitlist", "Waitlist"
         QUALIFIED = "qualified", "Qualified"
         INVITED = "invited", "Invited"
-        QUESTIONNAIRE_SENT = "questionnaire_sent", "Discovery Questionnaire Sent"
-        QUESTIONNAIRE_COMPLETED = "questionnaire_completed", "Discovery Questionnaire Completed"
+        QUESTIONNAIRE_SENT = "questionnaire_sent", "Discovery Sent"
+        QUESTIONNAIRE_COMPLETED = "questionnaire_completed", "Discovery Completed"
         SNAPSHOT_IN_PROGRESS = "snapshot_in_progress", "Snapshot In Progress"
         SNAPSHOT_DELIVERED = "snapshot_delivered", "Snapshot Delivered"
         WALKTHROUGH_SCHEDULED = "walkthrough_scheduled", "Walkthrough Scheduled"
@@ -168,6 +168,7 @@ class PilotProfile(models.Model):
     )
     assigned_reviewer = models.CharField(max_length=300, blank=True, default="")
     snapshot_notes = models.TextField(blank=True, default="")
+    snapshot_link = models.URLField(max_length=500, blank=True, default="")
     snapshot_delivery_date = models.DateField(null=True, blank=True)
     internal_comments = models.TextField(blank=True, default="")
 

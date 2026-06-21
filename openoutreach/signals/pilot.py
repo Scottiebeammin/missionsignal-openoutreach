@@ -36,8 +36,8 @@ LIFECYCLE_PROGRESS = {
 NEXT_STEPS = {
     PilotProfile.LifecycleStatus.WAITLIST: "Review the signup and qualify fit for the pilot.",
     PilotProfile.LifecycleStatus.QUALIFIED: "Send the Founding Atlas Partner invitation.",
-    PilotProfile.LifecycleStatus.INVITED: "Send the discovery questionnaire.",
-    PilotProfile.LifecycleStatus.QUESTIONNAIRE_SENT: "Complete the discovery questionnaire.",
+    PilotProfile.LifecycleStatus.INVITED: "Send discovery intake.",
+    PilotProfile.LifecycleStatus.QUESTIONNAIRE_SENT: "Complete discovery intake.",
     PilotProfile.LifecycleStatus.QUESTIONNAIRE_COMPLETED: "Review intake and begin the Opportunity Web Snapshot.",
     PilotProfile.LifecycleStatus.SNAPSHOT_IN_PROGRESS: "Schedule the founder walkthrough.",
     PilotProfile.LifecycleStatus.SNAPSHOT_DELIVERED: "Review the Snapshot and schedule the walkthrough.",

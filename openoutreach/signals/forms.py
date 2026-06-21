@@ -99,27 +99,17 @@ class PilotDiscoveryQuestionnaireForm(forms.ModelForm):
             "website",
             "mission",
             "location",
-            "year_founded",
-            "annual_budget_range",
-            "team_size",
             "primary_programs",
             "communities_served",
             "current_initiatives",
-            "geographic_reach",
             "current_revenue_sources",
             "grant_experience",
             "major_funders",
-            "fundraising_activities",
-            "funding_challenges",
             "key_partners",
-            "community_relationships",
             "strategic_relationships",
-            "government_relationships",
-            "corporate_relationships",
             "top_goals",
             "biggest_challenges",
             "desired_outcomes",
-            "success_definition",
             "strategic_plan",
             "annual_report",
             "grant_materials",
@@ -127,31 +117,62 @@ class PilotDiscoveryQuestionnaireForm(forms.ModelForm):
             "other_documents",
             "document_notes",
         ]
+        labels = {
+            "location": "Geography",
+            "primary_programs": "Programs",
+            "communities_served": "Communities Served",
+            "current_initiatives": "Current Priorities",
+            "current_revenue_sources": "Funding Sources",
+            "grant_experience": "Grant Experience",
+            "major_funders": "Major Funders",
+            "key_partners": "Key Partners",
+            "strategic_relationships": "Strategic Relationships",
+            "top_goals": "Top 3 Goals",
+            "biggest_challenges": "Biggest Challenges",
+            "desired_outcomes": "Desired Outcomes",
+        }
         widgets = {
             "mission": forms.Textarea(attrs={"rows": 4}),
             "primary_programs": forms.Textarea(attrs={"rows": 4}),
             "communities_served": forms.Textarea(attrs={"rows": 3}),
             "current_initiatives": forms.Textarea(attrs={"rows": 3}),
-            "geographic_reach": forms.Textarea(attrs={"rows": 3}),
             "current_revenue_sources": forms.Textarea(attrs={"rows": 3}),
             "grant_experience": forms.Textarea(attrs={"rows": 3}),
             "major_funders": forms.Textarea(attrs={"rows": 3}),
-            "fundraising_activities": forms.Textarea(attrs={"rows": 3}),
-            "funding_challenges": forms.Textarea(attrs={"rows": 3}),
             "key_partners": forms.Textarea(attrs={"rows": 3}),
-            "community_relationships": forms.Textarea(attrs={"rows": 3}),
             "strategic_relationships": forms.Textarea(attrs={"rows": 3}),
-            "government_relationships": forms.Textarea(attrs={"rows": 3}),
-            "corporate_relationships": forms.Textarea(attrs={"rows": 3}),
             "top_goals": forms.Textarea(attrs={"rows": 3}),
             "biggest_challenges": forms.Textarea(attrs={"rows": 3}),
             "desired_outcomes": forms.Textarea(attrs={"rows": 3}),
-            "success_definition": forms.Textarea(attrs={"rows": 3}),
             "document_notes": forms.Textarea(attrs={"rows": 3}),
         }
 
 
 class PilotFeedbackForm(forms.ModelForm):
+    most_valuable = forms.CharField(
+        label="What was most valuable?",
+        widget=forms.Textarea(attrs={"rows": 4}),
+    )
+    confusing = forms.CharField(
+        label="What was confusing?",
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 4}),
+    )
+    indispensable = forms.CharField(
+        label="What would make Anansi Atlas indispensable?",
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 4}),
+    )
+    would_recommend = forms.ChoiceField(
+        label="Would you recommend Anansi Atlas?",
+        choices=PilotFeedback.Recommendation.choices,
+    )
+    additional_feedback = forms.CharField(
+        label="Additional comments",
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 4}),
+    )
+
     class Meta:
         model = PilotFeedback
         fields = [
@@ -161,9 +182,3 @@ class PilotFeedbackForm(forms.ModelForm):
             "would_recommend",
             "additional_feedback",
         ]
-        widgets = {
-            "most_valuable": forms.Textarea(attrs={"rows": 4}),
-            "confusing": forms.Textarea(attrs={"rows": 4}),
-            "indispensable": forms.Textarea(attrs={"rows": 4}),
-            "additional_feedback": forms.Textarea(attrs={"rows": 4}),
-        }
