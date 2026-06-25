@@ -21,7 +21,8 @@
       --gold-soft: #fff7df;
       --rose: #C46A3D;
       --rose-soft: #fff0f3;
-      --shadow: 0 1px 2px rgba(16, 30, 44, .04), 0 14px 32px rgba(16, 30, 44, .05);
+      --green: #2e9e6b;
+      --shadow: 0 1px 2px rgba(16,30,44,.04), 0 14px 32px rgba(16,30,44,.05);
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.42 system-ui, sans-serif; }
@@ -30,70 +31,76 @@
     h1 { margin-bottom: 6px; font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1; }
     h2 { margin-bottom: 12px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
     h3 { margin-bottom: 6px; font-size: .98rem; }
+
+    /* ── Layout ── */
     .shell { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 100vh; }
-    .sidebar { position: sticky; top: 0; height: 100vh; padding: 18px; background: #0D1B3D; color: white; }
+    .sidebar { position: sticky; top: 0; height: 100vh; padding: 18px; background: #0D1B3D; color: white; overflow-y: auto; }
+    main { padding: 22px; }
+
+    /* ── Sidebar ── */
     .brand { margin-bottom: 22px; }
     .brand strong { display: block; font-size: 1.05rem; }
     .brand span { color: #D4A017; font-size: .85rem; font-weight: 800; }
     .nav { display: grid; gap: 16px; padding-bottom: 18px; }
     .nav-section { display: grid; gap: 5px; }
-    .nav-label { margin: 2px 0 3px; padding: 0 12px; color: rgba(244, 213, 141, .78); font-size: .66rem; font-weight: 950; letter-spacing: .16em; text-transform: uppercase; }
+    .nav-label { margin: 2px 0 3px; padding: 0 12px; color: rgba(244,213,141,.78); font-size: .66rem; font-weight: 950; letter-spacing: .16em; text-transform: uppercase; }
     .nav a { display: flex; justify-content: space-between; gap: 10px; min-height: 38px; align-items: center; padding: 9px 12px; border-radius: 10px; color: #dce7ef; font-weight: 820; text-decoration: none; }
-    .nav a span { color: rgba(220, 231, 239, .72); font-size: .72rem; font-weight: 850; }
+    .nav a span { color: rgba(220,231,239,.72); font-size: .72rem; font-weight: 850; }
     .nav a.active, .nav a:hover { background: rgba(255,255,255,.12); color: white; }
     .nav a.active { box-shadow: inset 3px 0 0 #D4A017; }
     .nav a.active span, .nav a:hover span { color: #f4d58d; }
     .nav-sublinks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0 0 2px 10px; padding-left: 10px; border-left: 1px solid rgba(255,255,255,.14); }
-    .nav-sublinks a { min-height: 30px; padding: 7px 9px; border-radius: 10px; background: rgba(255,255,255,.045); color: rgba(220, 231, 239, .78); font-size: .78rem; font-weight: 850; }
+    .nav-sublinks a { min-height: 30px; padding: 7px 9px; border-radius: 10px; background: rgba(255,255,255,.045); color: rgba(220,231,239,.78); font-size: .78rem; font-weight: 850; }
     .nav-sublinks a.active, .nav-sublinks a:hover { background: rgba(212,160,23,.18); color: #fff; box-shadow: none; }
-    main { padding: 22px; }
-    .hero, .panel, .metric-card, .kpi-card, .pipeline-card, .chart-card, .advisor-panel, .command-card { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: var(--shadow); }
-    .hero { margin-bottom: 14px; padding: 8px 4px 2px; border: 0; background: transparent; box-shadow: none; }
-    .hero-top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-end; }
-    .hero-top p { max-width: 680px; margin-bottom: 0; }
-    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-    .muted { color: var(--muted); }
-    .header-metrics, .metric-grid, .kpi-grid, .health-grid, .chart-grid { display: grid; gap: 10px; }
-    .header-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 14px; }
-    .metric-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .health-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .metric-card, .kpi-card, .chart-card { padding: 15px; }
+
+    /* ── Shared card styles ── */
+    .panel, .metric-card, .kpi-card, .command-card, .advisor-panel {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .panel { margin-bottom: 16px; padding: 18px; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .metric-card, .kpi-card { padding: 15px; }
     .metric-card strong, .kpi-card strong { display: block; color: var(--accent); font-size: 1.75rem; line-height: 1; }
-    .metric-card.compact { min-height: 104px; border-color: rgba(13, 27, 61, .08); box-shadow: none; }
+    .metric-card.compact { min-height: 104px; border-color: rgba(13,27,61,.08); box-shadow: none; }
     .metric-card.compact strong { font-size: clamp(1.45rem, 2.5vw, 2rem); }
     .metric-card span, .kpi-card span { display: block; margin-top: 5px; color: var(--muted); font-weight: 700; }
     .kpi-card { text-decoration: none; }
     .kpi-card p { margin: 10px 0 0; color: var(--muted); }
-    .panel { margin-bottom: 16px; padding: 18px; }
-    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-    .switcher { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); }
-    .switcher button { min-height: 32px; border: 0; border-radius: 6px; padding: 6px 10px; background: transparent; color: var(--muted); font-weight: 800; }
-    .switcher button.active { background: white; color: var(--accent); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
-    .pipeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
-    .pipeline-card { min-height: 160px; padding: 12px; background: var(--soft); box-shadow: none; }
-    .pipeline-card header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-weight: 900; }
-    .mini-opportunity { margin-top: 8px; padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: white; }
-    .mini-opportunity strong { display: block; font-size: .88rem; }
-    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; }
-    .advisor-panel { margin-bottom: 16px; padding: 18px; border-left: 5px solid var(--accent); background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%); }
+
+    /* ── Grids ── */
+    .header-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .metric-grid    { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .intel-grid     { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .intel-card     { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); box-shadow: var(--shadow); padding: 18px; }
+    .intel-card h2  { margin-bottom: 14px; }
+    .intel-row      { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+    .intel-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .intel-row strong { color: var(--ink); font-weight: 800; }
+    .intel-row span   { color: var(--muted); font-size: .82rem; }
+
+    /* ── Command section ── */
     .minimal-command { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(300px, .7fr); gap: 16px; margin-bottom: 14px; }
-    .command-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 14px; margin-bottom: 18px; }
-    .command-card { padding: 18px; min-height: 168px; border-color: rgba(13, 27, 61, .08); box-shadow: 0 1px 2px rgba(16, 30, 44, .035), 0 10px 24px rgba(16, 30, 44, .04); }
+    .command-grid    { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 14px; margin-bottom: 16px; }
+    .command-card    { padding: 18px; min-height: 168px; border-color: rgba(13,27,61,.08); box-shadow: 0 1px 2px rgba(16,30,44,.035), 0 10px 24px rgba(16,30,44,.04); }
     .command-card.primary-action {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       background: linear-gradient(145deg, #0D1B3D 0%, #17284D 100%);
       color: white;
-      border-color: rgba(212, 160, 23, .34);
+      border-color: rgba(212,160,23,.34);
     }
     .command-card.primary-action h2,
     .command-card.primary-action h3 { color: white; }
     .command-card.primary-action .muted { color: #c8d3df; }
     .command-card.primary-action .button { background: var(--gold); color: #171007; }
     .command-card h2 { margin-bottom: 10px; }
+    .next-action-text { margin: 18px 0 26px; max-width: 900px; font-size: clamp(1.75rem, 4.2vw, 3.4rem); line-height: .98; letter-spacing: -.055em; font-weight: 950; }
+
+    /* ── Strategic list ── */
     .strategic-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; counter-reset: moves; }
     .strategic-list li { position: relative; min-height: 42px; padding: 10px 10px 10px 42px; border: 1px solid rgba(13,27,61,.08); border-radius: 10px; background: #fff; font-weight: 850; }
     .strategic-list li::before {
@@ -111,57 +118,82 @@
       color: white;
       font-weight: 950;
     }
-    .next-action-text { margin: 18px 0 26px; max-width: 900px; font-size: clamp(1.75rem, 4.2vw, 3.4rem); line-height: .98; letter-spacing: -.055em; font-weight: 950; }
+
+    /* ── Deadlines ── */
     .deadline-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
     .deadline-list li { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .deadline-list li:last-child { border-bottom: 0; }
     .deadline-list strong { display: block; font-size: .9rem; }
     .deadline-date { white-space: nowrap; color: var(--rose); font-weight: 900; }
-    details.panel > summary,
-    details.advisor-panel > summary { cursor: pointer; color: var(--ink); font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
-    details.panel > summary::marker,
-    details.advisor-panel > summary::marker { color: var(--accent); }
+
+    /* ── Pilot panel ── */
+    .advisor-panel { margin-bottom: 16px; padding: 18px; border-left: 5px solid var(--accent); background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%); }
+
+    /* ── Pipeline strip ── */
+    .pipeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .pipeline-card { min-height: 140px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); box-shadow: none; }
+    .pipeline-card header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-weight: 900; font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .pipeline-card header strong { color: var(--ink); font-size: 1.2rem; font-weight: 950; letter-spacing: 0; text-transform: none; }
+    .mini-opportunity { margin-top: 6px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: white; font-size: .84rem; font-weight: 800; }
+
+    /* ── Wins ── */
+    .celebration-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .celebration-card { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(180deg, #ffffff 0%, #fffaf0 160%); }
+
+    /* ── Start Here ── */
     .demo-flow-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
-    .demo-step { display: grid; gap: 8px; min-height: 132px; padding: 14px; border: 1px solid rgba(13, 27, 61, .1); border-radius: 12px; background: linear-gradient(180deg, #ffffff 0%, #fffaf0 155%); text-decoration: none; }
-    .demo-step:hover { border-color: rgba(212, 160, 23, .55); transform: translateY(-1px); transition: border-color .16s ease, transform .16s ease; }
-    .demo-step .step-number { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 999px; background: var(--ink); color: white; font-weight: 950; }
-    .demo-step strong { font-size: .94rem; line-height: 1.15; }
-    .demo-step span:last-child { color: var(--muted); font-size: .82rem; }
+    .demo-step { display: grid; gap: 8px; min-height: 120px; padding: 14px; border: 1px solid rgba(13,27,61,.1); border-radius: 12px; background: linear-gradient(180deg, #ffffff 0%, #fffaf0 155%); text-decoration: none; transition: border-color .16s ease, transform .16s ease; }
+    .demo-step:hover { border-color: rgba(212,160,23,.55); transform: translateY(-1px); }
+    .demo-step .step-number { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; background: var(--ink); color: white; font-weight: 950; font-size: .82rem; }
+    .demo-step strong { font-size: .9rem; line-height: 1.15; color: var(--ink); }
+    .demo-step span:last-child { color: var(--muted); font-size: .78rem; }
+
+    /* ── Workspace nav ── */
+    .workspace-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .workspace-nav a { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); text-decoration: none; font-weight: 800; font-size: .88rem; transition: border-color .14s; }
+    .workspace-nav a:hover { border-color: var(--accent); }
+    .workspace-nav a span { color: var(--muted); font-size: .78rem; font-weight: 500; }
+
+    /* ── Bar charts ── */
+    .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .chart-card { padding: 15px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
     .bar-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 42px; gap: 8px; align-items: center; margin-top: 9px; }
     .bar-track { height: 10px; border-radius: 999px; background: var(--soft); overflow: hidden; }
     .bar-fill { height: 100%; min-width: 3px; border-radius: inherit; background: var(--accent); }
     .bar-fill.blue { background: var(--blue); }
     .bar-fill.gold { background: #D4A017; }
     .bar-fill.rose { background: var(--rose); }
-    .celebration-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-    .celebration-card { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(180deg, #ffffff 0%, #fffaf0 160%); }
-    .button { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 12px; border-radius: 999px; background: var(--ink); color: white; font-weight: 900; text-decoration: none; }
-    .app-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 28px 0 4px; padding: 16px 4px 0; border-top: 1px solid rgba(13, 27, 61, .12); color: var(--muted); font-size: .82rem; }
+
+    /* ── Misc ── */
+    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-weight: 800; font-size: .82rem; }
+    .button { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 12px; border-radius: 999px; background: var(--ink); color: white; font-weight: 900; text-decoration: none; font-size: .88rem; }
+    .muted { color: var(--muted); }
+    .eyebrow { margin-bottom: 8px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .section-gap { margin-bottom: 16px; }
+    .hero { margin-bottom: 14px; padding: 8px 4px 2px; border: 0; background: transparent; box-shadow: none; }
+    .hero-top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-end; }
+    .hero-top p { max-width: 680px; margin-bottom: 0; }
+    .app-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 28px 0 4px; padding: 16px 4px 0; border-top: 1px solid rgba(13,27,61,.12); color: var(--muted); font-size: .82rem; }
     .app-footer strong { display: block; color: var(--ink); font-size: .9rem; }
-    .app-footer span { display: block; }
-    .footer-mark { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(212, 160, 23, .42); border-radius: 999px; background: linear-gradient(135deg, rgba(212, 160, 23, .14), rgba(196, 106, 61, .08)); color: var(--ink); font-weight: 950; }
+    .footer-mark { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(212,160,23,.42); border-radius: 999px; background: linear-gradient(135deg, rgba(212,160,23,.14), rgba(196,106,61,.08)); color: var(--ink); font-weight: 950; }
     .footer-meta { margin-left: auto; text-align: right; }
-    .table { width: 100%; border-collapse: collapse; }
-    .table th, .table td { padding: 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
-    .actions-list { margin: 0; padding-left: 20px; columns: 2; }
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-    li + li { margin-top: 6px; }
+
+    /* ── Responsive ── */
     @media (max-width: 1180px) {
       .shell { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; }
       .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
       .hero-top { display: block; }
-      .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .celebration-grid, .header-metrics, .demo-flow-grid, .command-grid, .minimal-command { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .command-grid, .minimal-command { display: grid; }
+      .minimal-command, .command-grid, .header-metrics, .intel-grid, .pipeline, .chart-grid, .celebration-grid, .demo-flow-grid, .workspace-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .command-card:first-child { grid-column: 1 / -1; }
     }
     @media (max-width: 720px) {
       main { padding: 14px; }
-      .nav, .hero, .pipeline, .kpi-grid, .metric-grid, .health-grid, .chart-grid, .header-metrics, .celebration-grid, .demo-flow-grid, .command-grid, .minimal-command { grid-template-columns: 1fr; }
+      .minimal-command, .command-grid, .header-metrics, .intel-grid, .pipeline, .chart-grid, .celebration-grid, .demo-flow-grid, .workspace-nav { grid-template-columns: 1fr; }
+      .nav { grid-template-columns: 1fr; }
       .nav-sublinks { grid-template-columns: 1fr 1fr; }
-      .hero { padding: 4px 0; }
       .command-card:first-child { grid-column: auto; }
-      .actions-list { columns: 1; }
     }
   </style>
 </head>
@@ -170,17 +202,20 @@
     {% include "signals/_app_shell_sidebar.html" with active_page="dashboard" %}
 
     <main>
+
+      <!-- ═══ HERO ══════════════════════════════════════════════════════════ -->
       <header class="hero">
         <section class="hero-top">
           <div>
-          <p class="eyebrow">Anansi Atlas Executive Dashboard · Executive Command Center</p>
-          <h1>{{ dashboard.organization_name }}</h1>
-          <p class="muted">A calm executive scan: decide the next move, check health, notice urgency, then expand only what needs attention.</p>
+            <p class="eyebrow">Executive Command Center</p>
+            <h1>{{ dashboard.organization_name }}</h1>
+            <p class="muted">A calm executive scan: decide the next move, check health, notice urgency.</p>
           </div>
         </section>
       </header>
 
-      <section id="overview" class="minimal-command" aria-label="Minimal executive command center">
+      <!-- ═══ COMMAND ROW ════════════════════════════════════════════════════ -->
+      <section class="minimal-command section-gap" aria-label="Next action and upcoming deadlines">
         <article class="command-card primary-action">
           <div>
             <h2>What To Do Next</h2>
@@ -189,11 +224,11 @@
           </div>
           <a class="button" href="{% url 'project-readiness' project.pk %}">Open Readiness</a>
         </article>
-        <article id="deadlines" class="command-card">
+        <article class="command-card" id="deadlines">
           <h2>Upcoming Deadlines</h2>
           {% if dashboard.discovery_health.upcoming_deadlines %}
             <ul class="deadline-list">
-              {% for opportunity in dashboard.discovery_health.upcoming_deadlines|slice:":3" %}
+              {% for opportunity in dashboard.discovery_health.upcoming_deadlines|slice:":4" %}
                 <li>
                   <strong>{{ opportunity.name }}</strong>
                   <span class="deadline-date">{{ opportunity.deadline|date:"M j" }}</span>
@@ -203,22 +238,36 @@
           {% else %}
             <p class="muted">No upcoming deadlines are currently attached to opportunity records.</p>
           {% endif %}
-          <details>
-            <summary>View all deadline details</summary>
-            <p class="muted">Next critical deadline: {{ dashboard.work_summary.next_critical_deadline.deadline.deadline_date|date:"M j, Y"|default:"No deadline set" }}</p>
-          </details>
         </article>
       </section>
 
-      <section class="header-metrics" aria-label="Organization Health Row">
-        <div class="metric-card compact"><span class="score-card-title">Readiness</span><strong>{{ dashboard.readiness.overall_score }}</strong><p class="muted">{{ dashboard.readiness.level }}</p></div>
-        <div class="metric-card compact"><span class="score-card-title">Relationship Health</span><strong>{{ dashboard.relationships.health.score }}</strong><p class="muted">{{ dashboard.relationships.health.level }}</p></div>
-        <div class="metric-card compact"><span class="score-card-title">Pathway Health</span><strong>{{ dashboard.lifecycle_summary.health.score }}</strong><p class="muted">{{ dashboard.lifecycle_summary.health.level }}</p></div>
-        <div class="metric-card compact"><span class="score-card-title">Forecast Value</span><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
+      <!-- ═══ KPI BAR ═══════════════════════════════════════════════════════ -->
+      <section class="header-metrics section-gap" aria-label="Organization health summary">
+        <div class="metric-card compact">
+          <span>Readiness</span>
+          <strong>{{ dashboard.readiness.overall_score }}</strong>
+          <p class="muted">{{ dashboard.readiness.level }}</p>
+        </div>
+        <div class="metric-card compact">
+          <span>Relationship Health</span>
+          <strong>{{ dashboard.relationships.health.score }}</strong>
+          <p class="muted">{{ dashboard.relationships.health.level }}</p>
+        </div>
+        <div class="metric-card compact">
+          <span>Pathway Health</span>
+          <strong>{{ dashboard.lifecycle_summary.health.score }}</strong>
+          <p class="muted">{{ dashboard.lifecycle_summary.health.level }}</p>
+        </div>
+        <div class="metric-card compact">
+          <span>Forecast Value</span>
+          <strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong>
+          <p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p>
+        </div>
       </section>
 
+      <!-- ═══ PILOT PANEL (conditional) ════════════════════════════════════ -->
       {% if pilot %}
-        <section class="advisor-panel" aria-label="Founding Atlas Partner status">
+        <section class="advisor-panel section-gap" aria-label="Founding Atlas Partner status">
           <div class="panel-header">
             <div>
               <h2>Founding Atlas Partner</h2>
@@ -236,7 +285,8 @@
         </section>
       {% endif %}
 
-      <section id="priorities" class="command-grid" aria-label="Strategic moves and opportunity focus">
+      <!-- ═══ STRATEGIC MOVES + OPPORTUNITY TO WATCH ════════════════════════ -->
+      <section class="command-grid section-gap" aria-label="Strategic moves and top opportunity">
         <article class="command-card">
           <h2>Top 3 Strategic Moves</h2>
           <ol class="strategic-list">
@@ -249,206 +299,125 @@
         </article>
         <article class="command-card">
           <h2>Opportunity To Watch</h2>
-          <h3>{{ dashboard.lifecycle_summary.highest_priority_active_opportunity.name|default:dashboard.forecast.highest_value_opportunity.name|default:"No active opportunity selected" }}</h3>
+          <h3>
+            {% if dashboard.lifecycle_summary.highest_priority_active_opportunity %}
+              {{ dashboard.lifecycle_summary.highest_priority_active_opportunity.name }}
+            {% elif dashboard.forecast.highest_value_opportunity %}
+              {{ dashboard.forecast.highest_value_opportunity.name }}
+            {% else %}
+              No active opportunity selected
+            {% endif %}
+          </h3>
           <p class="muted">The pathway most worth executive attention before opening the deeper workspace.</p>
           <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
         </article>
       </section>
 
-      <details class="panel">
-        <summary>Supporting Signals</summary>
-        <details style="margin-top: 14px;">
-          <summary>Workflow Progress · Start Here</summary>
-          {% include "signals/_workflow_guidance.html" %}
+      <!-- ═══ INTELLIGENCE GRID ═════════════════════════════════════════════ -->
+      <section class="intel-grid section-gap" aria-label="Readiness, forecast, and relationship intelligence">
+
+        <div class="intel-card">
           <div class="panel-header">
-            <div>
-              <h2>Start Here</h2>
-              <p class="muted">A clean recording path through the Web of Opportunity, from executive scan to next action.</p>
-            </div>
-            <a class="pill" href="{% url 'project-snapshot' project.pk %}">Open Snapshot</a>
+            <h2>Readiness</h2>
+            <a class="pill" href="{% url 'project-readiness' project.pk %}">Open →</a>
           </div>
-          <div class="demo-flow-grid">
-            <a class="demo-step" href="{% url 'project-opportunity-web' project.pk %}">
-              <span class="step-number">1</span>
-              <strong>Review your Opportunity Web</strong>
-              <span>Show how mission, relationships, resources, opportunities, and outcomes connect.</span>
-            </a>
-            <a class="demo-step" href="{% url 'project-snapshot' project.pk %}">
-              <span class="step-number">2</span>
-              <strong>Open the Snapshot</strong>
-              <span>Use the consulting-style summary as the premium takeaway screen.</span>
-            </a>
-            <a class="demo-step" href="{% url 'project-opportunities' project.pk %}">
-              <span class="step-number">3</span>
-              <strong>Review top Pathways</strong>
-              <span>Move from opportunity intelligence into active pursuit decisions.</span>
-            </a>
-            <a class="demo-step" href="{% url 'project-readiness' project.pk %}">
-              <span class="step-number">4</span>
-              <strong>Check readiness gaps</strong>
-              <span>Explain what would make the organization more fundable and pursuit-ready.</span>
-            </a>
-            <a class="demo-step" href="{% url 'project-relationships' project.pk %}">
-              <span class="step-number">5</span>
-              <strong>Review relationship gaps</strong>
-              <span>Connect partners, funders, and contacts to the opportunity strategy.</span>
-            </a>
-            <a class="demo-step" href="{% url 'project-pipeline' project.pk %}">
-              <span class="step-number">6</span>
-              <strong>Decide the next action</strong>
-              <span>End on ownership, deadlines, and pathway movement.</span>
-            </a>
+          <div class="intel-row">
+            <span>Overall score</span>
+            <strong>{{ dashboard.readiness.overall_score }} — {{ dashboard.readiness.level }}</strong>
           </div>
-        </details>
+          <div class="intel-row">
+            <span>Org completeness</span>
+            <strong>{{ dashboard.readiness.organization_completeness.score }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Top readiness gap</span>
+            <strong>{{ dashboard.readiness.gaps.0|default:"None identified" }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Opportunity readiness avg</span>
+            <strong>{{ dashboard.pursuit_summary.average_score }}</strong>
+          </div>
+        </div>
 
+        <div class="intel-card">
+          <div class="panel-header">
+            <h2>Forecast</h2>
+            <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open →</a>
+          </div>
+          <div class="intel-row">
+            <span>Weighted forecast</span>
+            <strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Total pipeline</span>
+            <strong>${{ dashboard.forecast.total_pipeline_value|floatformat:0 }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Submitted value</span>
+            <strong>${{ dashboard.forecast.submitted_value|floatformat:0 }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Awarded value</span>
+            <strong>${{ dashboard.forecast.awarded_value|floatformat:0 }}</strong>
+          </div>
+        </div>
+
+        <div class="intel-card">
+          <div class="panel-header">
+            <h2>Relationships</h2>
+            <a class="pill" href="{% url 'project-relationships' project.pk %}">Open →</a>
+          </div>
+          <div class="intel-row">
+            <span>Health score</span>
+            <strong>{{ dashboard.relationships.health.score }} — {{ dashboard.relationships.health.level }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Strong relationships</span>
+            <strong>{{ dashboard.relationships.strong_relationships }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Key gap</span>
+            <strong>{{ dashboard.relationships.relationship_gaps.0|default:"No gap identified" }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Next action</span>
+            <strong>{{ dashboard.relationships.health.highest_leverage_action|default:"Review relationship map" }}</strong>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ═══ ACTIVE PIPELINE ══════════════════════════════════════════════ -->
+      <section class="panel section-gap" aria-label="Active pipeline overview">
         <div class="panel-header">
-          <h2>Executive Snapshot</h2>
-          <a class="pill" href="{% url 'project-opportunities' project.pk %}">Open Strategic Pathways</a>
+          <h2>Active Pipeline</h2>
+          <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline →</a>
         </div>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>{{ dashboard.readiness.overall_score }}</strong><span>Readiness</span><p class="muted">{{ dashboard.readiness.level }}</p></div>
-          <div class="metric-card"><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><span>Forecast Value</span><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
-          <div class="metric-card"><strong>{{ dashboard.active_opportunities }}</strong><span>Active Opportunities</span></div>
-          <div class="metric-card"><strong>{{ dashboard.discovery_health.upcoming_deadlines|length }}</strong><span>Upcoming Deadlines</span></div>
-          <div class="metric-card"><strong>{{ dashboard.celebration_overview.metrics.celebrations_shared }}</strong><span>Wins Across the Web</span></div>
-          <div class="metric-card"><strong>{{ dashboard.relationships.health.score }}</strong><span>Relationship Health</span><p class="muted">{{ dashboard.relationships.health.level }}</p></div>
-          <div class="metric-card"><strong>{{ dashboard.ecosystem_score }}</strong><span>Ecosystem Score</span><p class="muted">{{ dashboard.ecosystem_level }}</p></div>
-          <div class="metric-card"><strong>{{ dashboard.overall_match_score }}</strong><span>Overall Match Score</span><p class="muted">Weighted local matching</p></div>
-          <div class="metric-card"><strong>{{ dashboard.last_analysis_date|date:"M j, Y"|default:"Not run" }}</strong><span>Last Analysis Date</span></div>
-        </div>
-
-        <details style="margin-top: 14px;">
-          <summary>Score Transparency</summary>
-          <div class="insight-grid" style="margin-top: 12px;">
-            {% include "signals/_score_explanation.html" with explanation=score_transparency.readiness %}
-            {% include "signals/_score_explanation.html" with explanation=score_transparency.completeness %}
-            {% include "signals/_score_explanation.html" with explanation=score_transparency.match %}
-            {% include "signals/_score_explanation.html" with explanation=score_transparency.forecast %}
-            {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
-          </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Executive KPI Cards</summary>
-          <span class="visually-hidden">Dashboard View Table View Chart View</span>
-          <div class="kpi-grid" style="margin-top: 12px;">
-            {% for kpi in dashboard.kpis %}
-              <a class="kpi-card" href="{% url kpi.href_name project.pk %}">
-                <span class="score-card-title">{{ kpi.label }}</span>
-                <strong class="score-value">{{ kpi.score }}</strong>
-                <span class="pill {{ kpi.level|slugify }}">{{ kpi.level }}</span>
-                <p>{{ kpi.insight }}</p>
-              </a>
-            {% endfor %}
-          </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Readiness Health</summary>
-        <div class="panel-header">
-          <h2>Readiness Health</h2>
-          <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness</a>
-        </div>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>{{ dashboard.readiness.organization_completeness.score }}</strong><span>Organization Completeness</span><p class="muted">{{ dashboard.readiness.organization_completeness.level }}</p></div>
-          <div class="metric-card"><strong>{{ dashboard.readiness.overall_score }}</strong><span>Readiness Score</span><p class="muted">{{ dashboard.readiness.level }}</p></div>
-          <div class="metric-card"><strong>{{ dashboard.readiness.gaps.0|default:"No readiness gap" }}</strong><span>Top Readiness Gap</span></div>
-          <div class="metric-card"><strong>{{ dashboard.readiness.recommended_actions.0|default:"Maintain readiness" }}</strong><span>Top Readiness Action</span></div>
-          <div class="metric-card"><strong>{{ dashboard.pursuit_summary.average_score }}</strong><span>Opportunity Readiness Average</span></div>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Forecast Summary</summary>
-        <div class="panel-header">
-          <h2>Forecast Summary</h2>
-          <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline Forecast</a>
-        </div>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>${{ dashboard.forecast.total_pipeline_value|floatformat:0 }}</strong><span>Total Pipeline Value</span></div>
-          <div class="metric-card"><strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong><span>Weighted Forecast Value</span><p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p></div>
-          <div class="metric-card"><strong>${{ dashboard.forecast.submitted_value|floatformat:0 }}</strong><span>Submitted Value</span></div>
-          <div class="metric-card"><strong>${{ dashboard.forecast.awarded_value|floatformat:0 }}</strong><span>Awarded Value</span></div>
-          <div class="metric-card"><strong>{{ dashboard.forecast.highest_value_opportunity.name|default:"None" }}</strong><span>Highest Value Opportunity</span></div>
-          <div class="metric-card"><strong>{{ dashboard.forecast.highest_confidence_opportunity.name|default:"None" }}</strong><span>Highest Confidence Opportunity</span></div>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Document / Evidence Summary</summary>
-        <div class="panel-header">
-          <h2>Readiness Inputs</h2>
-          <div class="actions">
-            <a class="pill" href="{% url 'project-documents' project.pk %}">Open Document Vault</a>
-            <a class="pill" href="{% url 'project-evidence' project.pk %}">Open Evidence Library</a>
-          </div>
-        </div>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.document_summary.readiness_score }}</strong><span>Document readiness score</span></div>
-          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.evidence_summary.readiness_score }}</strong><span>Evidence readiness score</span></div>
-          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.document_summary.missing_critical_documents|length }}</strong><span>Missing critical documents</span></div>
-          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.evidence_summary.missing_items }}</strong><span>Missing evidence items</span></div>
-          <div class="metric-card"><strong>{{ dashboard.document_evidence_health.opportunities_blocked_by_missing_documents }}</strong><span>Opportunities blocked by missing documents</span></div>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>More Recommended Actions</summary>
-        <h2>What To Do Next</h2>
-        <ol class="advisor-list">
-          {% for action in dashboard.executive_actions|slice:"3:8" %}
-            <li>
-              {{ action }}
-              <span class="impact-label">Impact: Improves readiness across funding, government, partnerships, or opportunity matching.</span>
-            </li>
-          {% empty %}
-            <li>
-              The highest-priority actions are already shown at the top of the dashboard.
-              <span class="impact-label">Impact: Keeps leadership focused on the first three moves.</span>
-            </li>
+        <div class="pipeline">
+          {% for column in dashboard.pipeline_columns %}
+            <section class="pipeline-card">
+              <header>
+                <span>{{ column.label }}</span>
+                <strong>{{ column.count }}</strong>
+              </header>
+              {% for opportunity in column.opportunities|slice:":2" %}
+                <div class="mini-opportunity">{{ opportunity.name }}</div>
+              {% empty %}
+                <p class="muted" style="font-size:.82rem;margin-top:6px;">No items</p>
+              {% endfor %}
+            </section>
           {% endfor %}
-        </ol>
-        </details>
+        </div>
+      </section>
 
-        <details style="margin-top: 14px;">
-          <summary>Relationship Snapshot</summary>
-        <div class="panel-header">
-          <h2>Relationship Snapshot</h2>
-          <a class="pill" href="{% url 'project-relationships' project.pk %}">Open Relationships</a>
-        </div>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>{{ dashboard.relationships.health.score }}</strong><span>Relationship Health</span><p class="muted">{{ dashboard.relationships.health.level }}</p></div>
-          <div class="metric-card"><strong>{{ dashboard.relationships.strong_relationships }}</strong><span>Strong Relationships</span></div>
-          <div class="metric-card"><strong>{{ dashboard.relationships.relationship_gaps.0|default:"No relationship gap" }}</strong><span>Key Gaps</span></div>
-          <div class="metric-card"><strong>{{ dashboard.relationships.health.highest_leverage_action }}</strong><span>Recommended Next Action</span></div>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Opportunity Web Summary</summary>
-        <div class="panel-header">
-          <h2>Opportunity Web Summary</h2>
-          <div class="actions">
-            <a class="pill" href="{% url 'project-opportunity-web' project.pk %}">View Opportunity Web</a>
-            <a class="pill" href="{% url 'project-snapshot' project.pk %}">View Opportunity Web Snapshot</a>
-          </div>
-        </div>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>{{ opportunity_web.relationship_health_score }}</strong><span>Relationship Health</span></div>
-          <div class="metric-card"><strong>{{ opportunity_web.active_opportunities }}</strong><span>Active Opportunities</span></div>
-          <div class="metric-card"><strong>${{ opportunity_web.forecast_value|floatformat:0 }}</strong><span>Weighted Forecast</span></div>
-          <div class="metric-card"><strong>{{ opportunity_web.opportunity_gaps.0|default:"No web gap" }}</strong><span>Top Opportunity Gap</span></div>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;" aria-label="Wins Across the Web">
-          <summary>More Wins Across the Web</summary>
+      <!-- ═══ RECENT WINS ═══════════════════════════════════════════════════ -->
+      <section class="panel section-gap" aria-label="Recent wins across the web">
         <div class="panel-header">
           <div>
             <h2>Wins Across the Web</h2>
             <p class="muted">Latest celebrations and stories of mission progress.</p>
           </div>
-          <a class="button" href="{% url 'project-celebrations' project.pk %}">View All Celebrations</a>
+          <a class="button" href="{% url 'project-celebrations' project.pk %}">View All</a>
         </div>
         <div class="celebration-grid">
           {% for celebration in dashboard.celebration_overview.recent_celebrations|slice:":3" %}
@@ -459,229 +428,113 @@
               <p class="muted">{{ celebration.impact }}</p>
             </article>
           {% empty %}
-            <article class="celebration-card">
+            <article class="celebration-card" style="grid-column: 1 / -1;">
               <h3>Progress across your opportunity web</h3>
               <p class="muted">Celebrations will appear here as awards, submissions, partnerships, and impact milestones are recorded.</p>
             </article>
           {% endfor %}
         </div>
-        </details>
+      </section>
 
-        <details style="margin-top: 14px;">
-          <summary>Workspace Flow</summary>
-        <h2>Workspace Flow</h2>
-        <div class="kpi-grid">
-          <a class="kpi-card" href="{% url 'project-organization' project.pk %}"><strong>1</strong><span>Organization</span><p>Manage mission, programs, outcomes, and readiness data. Open the <u>Mission Brief</u> when you need the full profile.</p></a>
-          <a class="kpi-card" href="{% url 'project-ecosystem' project.pk %}"><strong>2</strong><span>Ecosystem</span><p>Review funding, government, resources, and partnerships together.</p></a>
-          <a class="kpi-card" href="{% url 'project-opportunities' project.pk %}"><strong>3</strong><span>Strategic Pathways</span><p>Choose what is worth pursuing, then move the right pathways into the pipeline.</p></a>
-          <a class="kpi-card" href="{% url 'project-analysis-detail' project.pk %}"><strong>4</strong><span>Workspace Settings</span><p>Refresh analysis and review inferred profile data.</p></a>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Detailed Views</summary>
-        <div class="workspace-tabs" aria-label="Detailed module shortcuts">
-          <a href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
-          <a href="{% url 'project-discovery' project.pk %}">Discovery</a>
-          <a href="{% url 'project-matches' project.pk %}">Matching</a>
-          <a href="{% url 'project-pipeline' project.pk %}">Pipeline</a>
-          <a href="{% url 'project-funding' project.pk %}">Funding</a>
-          <a href="{% url 'project-government' project.pk %}">Government</a>
-          <a href="{% url 'project-resources' project.pk %}">Resources</a>
-          <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>The Web of Opportunity</summary>
-        <h2>The Web of Opportunity</h2>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>{{ dashboard.total_opportunities }}</strong><span>Total Opportunities</span></div>
-          <div class="metric-card"><strong>{{ dashboard.active_opportunities }}</strong><span>Active Opportunities</span></div>
-          <div class="metric-card"><strong>{{ dashboard.high_priority_opportunities }}</strong><span>High Priority Opportunities</span></div>
-          <div class="metric-card"><strong>{{ dashboard.applied_opportunities }}</strong><span>Applied Opportunities</span></div>
-          <div class="metric-card"><strong>{{ dashboard.won_opportunities }}</strong><span>Won Opportunities</span></div>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Opportunity Pipeline Summary</summary>
+      <!-- ═══ START HERE ════════════════════════════════════════════════════ -->
+      <section class="panel section-gap" aria-label="Guided path through the platform">
         <div class="panel-header">
-          <h2>Opportunity Pipeline Summary</h2>
-          <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
-        </div>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.health.score }}</strong><span>Pipeline Health Score</span><p class="muted">{{ dashboard.lifecycle_summary.health.level }}</p></div>
-          <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.active_opportunities }}</strong><span>Active Lifecycle Opportunities</span></div>
-          <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.submitted_opportunities }}</strong><span>Submitted</span></div>
-          <div class="metric-card"><strong>{{ dashboard.lifecycle_summary.awarded_opportunities }}</strong><span>Awarded</span></div>
-          <div class="metric-card"><strong>{{ dashboard.discovery_health.upcoming_deadlines|length }}</strong><span>Upcoming Deadlines</span></div>
-          <div class="metric-card">
-            <strong>{{ dashboard.lifecycle_summary.highest_priority_active_opportunity.name|default:"None" }}</strong>
-            <span>Highest Priority Active Opportunity</span>
+          <div>
+            <h2>Start Here</h2>
+            <p class="muted">A guided path from executive scan to next action.</p>
           </div>
+          <a class="pill" href="{% url 'project-snapshot' project.pk %}">Open Snapshot</a>
         </div>
-        <details style="margin-top: 12px;">
-          <summary>Lifecycle stage counts</summary>
-          <div class="metric-grid" style="margin-top: 10px;">
-            {% for stage in dashboard.lifecycle_summary.summary_stages %}
-              <div class="metric-card"><strong>{{ stage.count }}</strong><span>{{ stage.label }}</span></div>
-            {% endfor %}
-          </div>
-        </details>
-        </details>
+        {% include "signals/_workflow_guidance.html" %}
+        <div class="demo-flow-grid" style="margin-top:14px;">
+          <a class="demo-step" href="{% url 'project-opportunity-web' project.pk %}">
+            <span class="step-number">1</span>
+            <strong>Opportunity Web</strong>
+            <span>See how mission, funders, partners, resources, and outcomes connect.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-snapshot' project.pk %}">
+            <span class="step-number">2</span>
+            <strong>Snapshot</strong>
+            <span>The premium consulting-grade executive summary of your opportunity position.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-opportunities' project.pk %}">
+            <span class="step-number">3</span>
+            <strong>Pathways</strong>
+            <span>Decide what is worth pursuing and move the right opportunities into the pipeline.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-readiness' project.pk %}">
+            <span class="step-number">4</span>
+            <strong>Readiness</strong>
+            <span>Understand what would make the organization more fundable and pursuit-ready.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-relationships' project.pk %}">
+            <span class="step-number">5</span>
+            <strong>Relationships</strong>
+            <span>Connect funders, partners, and contacts to the opportunity strategy.</span>
+          </a>
+          <a class="demo-step" href="{% url 'project-pipeline' project.pk %}">
+            <span class="step-number">6</span>
+            <strong>Pipeline</strong>
+            <span>Manage ownership, deadlines, and pathway movement.</span>
+          </a>
+        </div>
+      </section>
 
-        <details style="margin-top: 14px;">
-          <summary>Opportunity Work Summary</summary>
-        <div class="panel-header">
-          <h2>Opportunity Work Summary</h2>
-          <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Workspaces</a>
+      <!-- ═══ WORKSPACE NAVIGATION ══════════════════════════════════════════ -->
+      <section class="panel section-gap" aria-label="Workspace navigation">
+        <h2>All Workspaces</h2>
+        <div class="workspace-nav">
+          <a href="{% url 'project-opportunity-web' project.pk %}">
+            Opportunity Web
+            <span>Full ecosystem map</span>
+          </a>
+          <a href="{% url 'project-snapshot' project.pk %}">
+            Snapshot
+            <span>Executive deliverable</span>
+          </a>
+          <a href="{% url 'project-opportunities' project.pk %}">
+            Pathways
+            <span>Pursue and prioritize</span>
+          </a>
+          <a href="{% url 'project-pipeline' project.pk %}">
+            Pipeline
+            <span>Lifecycle and deadlines</span>
+          </a>
+          <a href="{% url 'project-readiness' project.pk %}">
+            Readiness
+            <span>Gaps and actions</span>
+          </a>
+          <a href="{% url 'project-relationships' project.pk %}">
+            Relationships
+            <span>Funders, partners, contacts</span>
+          </a>
+          <a href="{% url 'project-funding' project.pk %}">
+            Funding
+            <span>Funder intelligence</span>
+          </a>
+          <a href="{% url 'project-government' project.pk %}">
+            Government
+            <span>Public sector pathways</span>
+          </a>
+          <a href="{% url 'project-ecosystem' project.pk %}">
+            Ecosystem
+            <span>Resources and partnerships</span>
+          </a>
+          <a href="{% url 'project-discovery' project.pk %}">
+            Discovery
+            <span>Source intelligence</span>
+          </a>
+          <a href="{% url 'project-organization' project.pk %}">
+            Organization
+            <span>Mission and profile</span>
+          </a>
+          <a href="{% url 'project-mission-brief' project.pk %}">
+            Mission Brief
+            <span>Full profile view</span>
+          </a>
         </div>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>{{ dashboard.work_summary.open_tasks }}</strong><span>Open Tasks</span></div>
-          <div class="metric-card"><strong>{{ dashboard.work_summary.overdue_tasks }}</strong><span>Overdue Tasks</span></div>
-          <div class="metric-card"><strong>{{ dashboard.work_summary.upcoming_deadlines }}</strong><span>Upcoming Deadlines</span></div>
-          <div class="metric-card"><strong>{{ dashboard.work_summary.overdue_deadlines }}</strong><span>Overdue Deadlines</span></div>
-          <div class="metric-card"><strong>{{ dashboard.work_summary.next_critical_deadline.deadline.title|default:"None" }}</strong><span>Next Critical Deadline</span><p class="muted">{{ dashboard.work_summary.next_critical_deadline.deadline.deadline_date|date:"M j, Y"|default:"No deadline set" }}</p></div>
-          <div class="metric-card"><strong>{{ dashboard.work_summary.drafting_opportunities }}</strong><span>Opportunities in Drafting</span></div>
-          <div class="metric-card"><strong>{{ dashboard.work_summary.submitted_opportunities }}</strong><span>Submitted Opportunities</span></div>
-        </div>
-        </details>
+      </section>
 
-        <details style="margin-top: 14px;">
-          <summary>Top Opportunities</summary>
-        <div class="panel-header">
-          <h2>Top Opportunities</h2>
-          <a class="pill" href="{% url 'project-discovery' project.pk %}">Open Discovery</a>
-        </div>
-        <div class="premium-table-wrap">
-          <table class="premium-table">
-            <thead>
-              <tr><th>Opportunity</th><th>Status</th><th>Priority</th><th>Deadline</th></tr>
-            </thead>
-            <tbody>
-              {% for column in dashboard.pipeline_columns %}
-                {% for opportunity in column.opportunities|slice:":2" %}
-                  <tr>
-                    <td><strong>{{ opportunity.name }}</strong></td>
-                    <td><span class="pill status-{{ opportunity.status }}">{{ opportunity.get_status_display }}</span></td>
-                    <td><span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }}</span></td>
-                    <td>{{ opportunity.deadline|date:"M j, Y"|default:"Not set" }}</td>
-                  </tr>
-                {% endfor %}
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        {% if dashboard.total_opportunities == 0 %}
-          <div class="empty-state" style="margin-top: 12px;">
-            <strong>No opportunities yet</strong>
-            Add or seed opportunity inventory records to populate the command center, deadlines, and matching views.
-          </div>
-        {% endif %}
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Opportunity Pipeline Snapshot</summary>
-        <div class="pipeline">
-          {% for column in dashboard.pipeline_columns %}
-            <section class="pipeline-card">
-              <header><span>{{ column.label }}</span><span class="pill">{{ column.count }}</span></header>
-              {% for opportunity in column.opportunities %}
-                <div class="mini-opportunity">
-                  <strong>{{ opportunity.name }}</strong>
-                  <span class="pill priority-{{ opportunity.priority_level }}">{{ opportunity.get_priority_level_display }} priority</span>
-                </div>
-              {% empty %}
-                <div class="empty-state"><strong>No items</strong>Add opportunities to move work into this lane.</div>
-              {% endfor %}
-            </section>
-          {% endfor %}
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Opportunity Match Health</summary>
-        <div class="metric-grid">
-          <div class="metric-card"><strong>{{ dashboard.match_health.total_matches }}</strong><span>Total Matches</span></div>
-          <div class="metric-card"><strong>{{ dashboard.match_health.excellent_matches }}</strong><span>Excellent Matches</span></div>
-          <div class="metric-card"><strong>{{ dashboard.match_health.strong_matches }}</strong><span>Strong Matches</span></div>
-          <div class="metric-card"><strong>{{ dashboard.match_health.moderate_matches }}</strong><span>Moderate Matches</span></div>
-          <div class="metric-card"><strong>{{ dashboard.match_health.weak_matches }}</strong><span>Weak Matches</span></div>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Discovery Health</summary>
-        <div class="health-grid">
-          <div class="metric-card"><strong>{{ dashboard.discovery_health.total_source_organizations }}</strong><span>Total Source Organizations</span></div>
-          <div class="metric-card"><strong>{{ dashboard.discovery_health.opportunity_categories }}</strong><span>Opportunity Categories</span></div>
-          <div class="metric-card"><strong>{{ dashboard.discovery_health.active_opportunities }}</strong><span>Active Opportunities</span></div>
-          <div class="metric-card"><strong>{{ dashboard.discovery_health.upcoming_deadlines|length }}</strong><span>Upcoming Deadlines</span></div>
-        </div>
-        <div style="margin-top: 12px;">
-          <h3>Upcoming Deadlines</h3>
-          {% if dashboard.discovery_health.upcoming_deadlines %}
-            <div class="premium-table-wrap">
-              <table class="premium-table">
-                <thead><tr><th>Opportunity</th><th>Deadline</th></tr></thead>
-                <tbody>
-                  {% for opportunity in dashboard.discovery_health.upcoming_deadlines|slice:":5" %}
-                    <tr><td><strong>{{ opportunity.name }}</strong></td><td>{{ opportunity.deadline|date:"M j, Y" }}</td></tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          {% else %}
-            <div class="empty-state"><strong>No upcoming deadlines</strong>Add deadlines to opportunity records so leadership can see time-sensitive work.</div>
-          {% endif %}
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Visualization Layer</summary>
-        <div class="chart-grid">
-          <article class="chart-card">
-            <h3>Funding vs Government vs Resource vs Partnership Scores</h3>
-            {% for item in dashboard.score_chart %}
-              <div class="bar-row"><span>{{ item.label }}</span><div class="bar-track"><div class="bar-fill" style="width: {{ item.value }}%;"></div></div><strong>{{ item.value }}</strong></div>
-            {% endfor %}
-          </article>
-          <article class="chart-card">
-            <h3>Opportunity Category Distribution</h3>
-            {% for item in dashboard.category_distribution %}
-              <div class="bar-row"><span>{{ item.label }}</span><div class="bar-track"><div class="bar-fill blue" style="width: {% widthratio item.value dashboard.total_opportunities 100 %}%;"></div></div><strong>{{ item.value }}</strong></div>
-            {% endfor %}
-          </article>
-          <article class="chart-card">
-            <h3>Opportunity Status Distribution</h3>
-            {% for item in dashboard.status_distribution %}
-              <div class="bar-row"><span>{{ item.label }}</span><div class="bar-track"><div class="bar-fill gold" style="width: {% widthratio item.value dashboard.total_opportunities 100 %}%;"></div></div><strong>{{ item.value }}</strong></div>
-            {% endfor %}
-          </article>
-          <article class="chart-card">
-            <h3>Priority Distribution</h3>
-            {% for item in dashboard.priority_distribution %}
-              <div class="bar-row"><span>{{ item.label }}</span><div class="bar-track"><div class="bar-fill rose" style="width: {% widthratio item.value dashboard.total_opportunities 100 %}%;"></div></div><strong>{{ item.value }}</strong></div>
-            {% endfor %}
-          </article>
-        </div>
-        </details>
-
-        <details style="margin-top: 14px;">
-          <summary>Table View</summary>
-        <table class="table">
-          <thead>
-            <tr><th>Area</th><th>Score</th><th>Level</th><th>Top Insight</th></tr>
-          </thead>
-          <tbody>
-            {% for kpi in dashboard.kpis %}
-              <tr><td>{{ kpi.label }}</td><td>{{ kpi.score }}</td><td>{{ kpi.level }}</td><td>{{ kpi.insight }}</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </details>
-      </details>
       {% include "signals/_app_shell_footer.html" %}
     </main>
   </div>
