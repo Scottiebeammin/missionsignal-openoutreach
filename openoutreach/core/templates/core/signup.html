@@ -1,0 +1,29 @@
+{% extends "core/_auth_base.html" %}
+{% block title %}Create Account — Anansi Atlas{% endblock %}
+{% block content %}
+  <h1>Create your account</h1>
+  <p class="subtitle">Your workspace will be connected once your pilot is confirmed.</p>
+
+  {% if form.non_field_errors %}
+    <div class="error-list">
+      <ul>{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+      {% if field.errors %}
+        <div class="error-list"><ul>{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+      {% endif %}
+    {% endfor %}
+    <button class="btn-primary" type="submit">Create account →</button>
+  </form>
+
+  <div class="auth-footer">
+    Already have an account? <a href="{% url 'login' %}">Sign in</a>
+  </div>
+{% endblock %}

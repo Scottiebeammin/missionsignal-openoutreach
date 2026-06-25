@@ -40,7 +40,7 @@ def test_intake_form_keeps_four_required_fields_and_optional_profile_fields():
 def test_anonymous_intake_redirects_to_login(client):
     response = client.get(reverse("project-intake"))
     assert response.status_code == 302
-    assert response.url.startswith("/admin/login/")
+    assert response.url.startswith("/accounts/login/")
 
 
 def test_anonymous_intake_post_does_not_create_records(client):

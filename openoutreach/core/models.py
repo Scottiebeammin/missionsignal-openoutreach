@@ -137,6 +137,37 @@ class Project(models.Model):
         return f"{self.organization} — {self.name}"
 
 
+class OrganizationMember(models.Model):
+    """Binds a user to a Project with an explicit role."""
+
+    class Role(models.TextChoices):
+        OWNER = "owner", "Owner"
+        EXECUTIVE_DIRECTOR = "executive_director", "Executive Director"
+        DEVELOPMENT_LEAD = "development_lead", "Development Lead"
+        STAFF = "staff", "Staff"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="organization_memberships",
+    )
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="members",
+    )
+    role = models.CharField(max_length=30, choices=Role.choices, default=Role.STAFF)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("user", "project"), name="unique_user_project_member"),
+        ]
+
+    def __str__(self):
+        return f"{self.user} — {self.project} ({self.role})"
+
+
 class TaskQuerySet(models.QuerySet):
     def pending(self):
         return self.filter(status=Task.Status.PENDING).order_by("scheduled_at")

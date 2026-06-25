@@ -1,0 +1,35 @@
+{% extends "core/_auth_base.html" %}
+{% block title %}Sign In — Anansi Atlas{% endblock %}
+{% block content %}
+  <h1>Welcome back</h1>
+  <p class="subtitle">Sign in to your Anansi Atlas workspace.</p>
+
+  {% if form.non_field_errors %}
+    <div class="error-list">
+      <ul>{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <label for="{{ form.username.id_for_label }}">Username or email</label>
+    {{ form.username }}
+    {% if form.username.errors %}
+      <div class="error-list"><ul>{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+    {% endif %}
+
+    <label for="{{ form.password.id_for_label }}">Password</label>
+    {{ form.password }}
+    {% if form.password.errors %}
+      <div class="error-list"><ul>{% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+    {% endif %}
+
+    <button class="btn-primary" type="submit">Sign in →</button>
+  </form>
+
+  <div class="auth-footer">
+    <a href="{% url 'password_reset' %}">Forgot your password?</a>
+    &nbsp;·&nbsp;
+    <a href="{% url 'anansi-atlas-landing' %}">Back to site</a>
+  </div>
+{% endblock %}

@@ -44,11 +44,19 @@ def _database_from_url(url: str) -> dict:
     return config
 
 
-SECRET_KEY = os.getenv("SECRET_KEY", "openoutreach-local-dev-key-change-in-production")
+_DEFAULT_SECRET = "openoutreach-local-dev-key-change-in-production"  # noqa: S105
+SECRET_KEY = os.getenv("SECRET_KEY", _DEFAULT_SECRET)
 
-DEBUG = _env_bool("DEBUG", True)
+DEBUG = _env_bool("DEBUG", False)
 
-ALLOWED_HOSTS = _env_list("ALLOWED_HOSTS", ["*"])
+ALLOWED_HOSTS = _env_list("ALLOWED_HOSTS", ["localhost", "127.0.0.1"] if DEBUG else [])
+
+# Guard: crash loudly if the default secret key reaches a non-debug environment.
+if not DEBUG and SECRET_KEY == _DEFAULT_SECRET:
+    raise RuntimeError(
+        "SECRET_KEY is set to the default development value and DEBUG is False. "
+        "Set the SECRET_KEY environment variable before running in production."
+    )
 CSRF_TRUSTED_ORIGINS = _env_list("CSRF_TRUSTED_ORIGINS", [])
 
 INSTALLED_APPS = [
@@ -119,7 +127,9 @@ STATIC_ROOT = ROOT_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = ROOT_DIR / "media"
 
-LOGIN_URL = "/admin/login/"
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/portal/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "25"))

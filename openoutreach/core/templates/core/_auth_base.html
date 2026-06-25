@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Anansi Atlas{% endblock %}</title>
+  <style>
+    :root {
+      --ink:     #0D1B3D;
+      --accent:  #D4A017;
+      --page:    #F7F3EB;
+      --rose:    #C46A3D;
+      --night:   #07101d;
+      --muted:   #5e6d85;
+      --line:    rgba(13,27,61,0.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--page);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 40px 36px;
+      box-shadow: 0 20px 60px rgba(13,27,61,0.08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      text-decoration: none;
+    }
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #D4A017, #C46A3D);
+      flex-shrink: 0;
+    }
+    .brand-name { font-size: 1rem; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+    .brand-tag  { font-size: 0.78rem; color: var(--muted); display: block; }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 0.93rem;
+      background: #fafaf8;
+      color: var(--ink);
+      margin-bottom: 14px;
+      transition: border-color 120ms;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(212,160,23,0.12);
+      background: #fff;
+    }
+
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      border: none;
+      border-radius: 999px;
+      color: #18100a;
+      font: inherit;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: box-shadow 120ms;
+    }
+    .btn-primary:hover { box-shadow: 0 8px 24px rgba(212,160,23,0.28); }
+
+    .error-list {
+      background: #fff2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      font-size: 0.86rem;
+      color: #b91c1c;
+    }
+    .error-list ul { list-style: none; }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .help-text {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: -10px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <a class="brand" href="{% url 'anansi-atlas-landing' %}">
+      <span class="brand-mark"></span>
+      <span>
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </span>
+    </a>
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
