@@ -12,12 +12,14 @@ databases:
   - name: anansi-atlas-db
     databaseName: anansi
     user: anansi
+    region: virginia         # US East — closest to the Central Florida / US audience
     plan: basic-256mb        # free tier expires after 90 days — use a paid tier for a real launch
 
 services:
   - type: web
     name: anansi-atlas
     runtime: python
+    region: virginia         # MUST match the database region (they talk constantly)
     plan: starter            # avoids the free tier's cold-start sleep; bump to standard if needed
     branch: main
     buildCommand: "pip install -r requirements/production.txt && python manage.py collectstatic --noinput"
