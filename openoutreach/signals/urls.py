@@ -3,10 +3,13 @@ from django.urls import path
 from openoutreach.signals import views
 
 urlpatterns = [
+    # Public homepage = the landing page (so the bare domain shows it, not a login wall).
+    path("", views.public_landing_page, name="home"),
     path("anansi-atlas/", views.public_landing_page, name="anansi-atlas-landing"),
     path("anansi-atlas/thanks/", views.public_landing_thanks, name="anansi-atlas-thanks"),
     path("pilot/", views.pilot_onboarding, name="pilot-onboarding"),
-    path("", views.project_intake, name="project-intake"),
+    # Login-gated org intake — reached after sign-in via the portal redirect (by name).
+    path("intake/", views.project_intake, name="project-intake"),
     path("projects/<int:pk>/created/", views.project_intake_success, name="project-intake-success"),
     path("projects/<int:pk>/analysis/", views.project_analysis_detail, name="project-analysis-detail"),
     path("projects/<int:pk>/analysis/run/", views.run_project_analysis, name="run-project-analysis"),
