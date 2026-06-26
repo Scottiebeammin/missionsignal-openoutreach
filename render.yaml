@@ -37,10 +37,12 @@ services:
         fromDatabase:
           name: anansi-atlas-db
           property: connectionString
+      # Wildcard ".onrender.com" matches whatever subdomain Render assigns (e.g. the -t3e2
+      # suffix) so the health check always passes. Add/confirm the real custom domain here.
       - key: ALLOWED_HOSTS
-        sync: false           # set in dashboard to your domain(s)
+        value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"
       - key: CSRF_TRUSTED_ORIGINS
-        sync: false           # set in dashboard, https:// included
+        value: "https://*.onrender.com,https://anansiatlas.com,https://www.anansiatlas.com"
       # ── Email (optional now; waitlist still saves if unset). Fill once an ESP is chosen. ──
       - key: EMAIL_HOST
         sync: false
