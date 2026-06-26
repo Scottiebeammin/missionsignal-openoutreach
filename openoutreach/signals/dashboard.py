@@ -111,20 +111,41 @@ def _match_health(match_overview) -> MatchHealth:
     )
 
 
-def _pipeline_columns() -> list[PipelineColumn]:
-    monitoring_queryset = Opportunity.objects.filter(status=Opportunity.Status.MONITORING).order_by("deadline", "name")
-    interested_queryset = Opportunity.objects.filter(
-        status__in=[Opportunity.Status.ACTIVE, Opportunity.Status.UPCOMING],
+def _pipeline_columns(project) -> list[PipelineColumn]:
+    base = Opportunity.objects.filter(project=project)
+    discovered_reviewing = base.filter(
+        lifecycle_status__in=[
+            Opportunity.LifecycleStatus.DISCOVERED,
+            Opportunity.LifecycleStatus.REVIEWING,
+        ],
     ).order_by("deadline", "name")
-    applied_queryset = Opportunity.objects.filter(status=Opportunity.Status.APPLIED).order_by("deadline", "name")
-    won_queryset = Opportunity.objects.filter(status=Opportunity.Status.WON).order_by("deadline", "name")
-    archived_queryset = Opportunity.objects.filter(status=Opportunity.Status.ARCHIVED).order_by("deadline", "name")
+    pursuing_qs = base.filter(
+        lifecycle_status__in=[
+            Opportunity.LifecycleStatus.QUALIFIED,
+            Opportunity.LifecycleStatus.PURSUING,
+        ],
+    ).order_by("deadline", "name")
+    drafting_submitted = base.filter(
+        lifecycle_status__in=[
+            Opportunity.LifecycleStatus.APPLICATION_DRAFTING,
+            Opportunity.LifecycleStatus.SUBMITTED,
+        ],
+    ).order_by("deadline", "name")
+    awarded_qs = base.filter(
+        lifecycle_status=Opportunity.LifecycleStatus.AWARDED,
+    ).order_by("deadline", "name")
+    closed_qs = base.filter(
+        lifecycle_status__in=[
+            Opportunity.LifecycleStatus.DECLINED,
+            Opportunity.LifecycleStatus.CLOSED,
+        ],
+    ).order_by("deadline", "name")
     return [
-        PipelineColumn("Monitoring", monitoring_queryset.count(), list(monitoring_queryset[:6])),
-        PipelineColumn("Interested", interested_queryset.count(), list(interested_queryset[:6])),
-        PipelineColumn("Applied", applied_queryset.count(), list(applied_queryset[:6])),
-        PipelineColumn("Won", won_queryset.count(), list(won_queryset[:6])),
-        PipelineColumn("Archived", archived_queryset.count(), list(archived_queryset[:6])),
+        PipelineColumn("Exploring", discovered_reviewing.count(), list(discovered_reviewing[:6])),
+        PipelineColumn("Pursuing", pursuing_qs.count(), list(pursuing_qs[:6])),
+        PipelineColumn("In Progress", drafting_submitted.count(), list(drafting_submitted[:6])),
+        PipelineColumn("Awarded", awarded_qs.count(), list(awarded_qs[:6])),
+        PipelineColumn("Closed", closed_qs.count(), list(closed_qs[:6])),
     ]
 
 
@@ -157,7 +178,7 @@ def build_executive_dashboard(
     match_overview,
     discovery_overview,
 ) -> ExecutiveDashboard:
-    opportunities = list(Opportunity.objects.all())
+    opportunities = list(Opportunity.objects.filter(project=project))
     actions = list(match_overview.highest_leverage_actions)
     for action in ecosystem.recommended_actions:
         if action not in actions:
@@ -210,14 +231,16 @@ def build_executive_dashboard(
         high_priority_opportunities=discovery_overview.high_priority_opportunities,
         applied_opportunities=discovery_overview.applied_opportunities,
         won_opportunities=discovery_overview.won_opportunities,
-        pipeline_columns=_pipeline_columns(),
+        pipeline_columns=_pipeline_columns(project),
         match_health=_match_health(match_overview),
         discovery_health=DiscoveryHealth(
             total_source_organizations=SourceOrganization.objects.filter(active=True).count(),
             opportunity_categories=len(discovery_overview.opportunity_types),
             active_opportunities=discovery_overview.active_opportunities,
             upcoming_deadlines=list(
-                Opportunity.objects.exclude(deadline__isnull=True).order_by("deadline", "name")[:5]
+                Opportunity.objects.filter(project=project)
+                .exclude(deadline__isnull=True)
+                .order_by("deadline", "name")[:5]
             ),
         ),
         executive_actions=actions[:5],
@@ -231,17 +254,17 @@ def build_executive_dashboard(
             ChartBar(group.label, group.count)
             for group in discovery_overview.groups
         ],
-        status_distribution=_distribution([opportunity.status for opportunity in opportunities], Opportunity.Status.choices),
+        status_distribution=_distribution([opportunity.lifecycle_status for opportunity in opportunities], Opportunity.LifecycleStatus.choices),
         priority_distribution=_distribution(
             [opportunity.priority_level for opportunity in opportunities],
             Opportunity.PriorityLevel.choices,
         ),
         lifecycle_summary=discovery_overview.lifecycle_summary,
-        work_summary=build_work_summary(),
+        work_summary=build_work_summary(project),
         readiness=readiness,
         pursuit_summary=pursuit_summary,
         document_evidence_health=document_evidence_health,
         celebration_overview=build_celebration_overview(project),
-        forecast=build_pipeline_forecast(),
+        forecast=build_pipeline_forecast(project),
         relationships=build_relationship_overview(project),
     )

@@ -11,7 +11,13 @@
     --deep: #0d1b3d;
     --deep-2: #14284f;
     --rose: #c46a3d;
+    --rose-soft: #fdf0e8;
     --green: #0f766e;
+    /* brand-aligned replacements for teal "blue" used in individual templates */
+    --blue: #1a3460;
+    --blue-soft: #eaeef7;
+    --gold: #8a5b00;
+    --gold-soft: #fff7df;
     --radius: 16px;
     --radius-lg: 22px;
     --shadow: 0 1px 2px rgba(16, 30, 44, .05), 0 16px 40px rgba(16, 30, 44, .06);
@@ -591,6 +597,152 @@
     font-size: .75rem;
     font-weight: 950;
   }
+  /* ── Onboarding checklist (sidebar) ── */
+  .onboarding-checklist {
+    margin: 16px 0 0;
+    padding: 14px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 14px;
+    background: rgba(255,255,255,.04);
+  }
+  .ocl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .ocl-title {
+    font-size: .72rem;
+    font-weight: 950;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(244,213,141,.78);
+  }
+  .ocl-count {
+    font-size: .68rem;
+    color: rgba(220,231,239,.45);
+  }
+  .ocl-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .ocl-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .78rem;
+    font-weight: 800;
+    color: rgba(220,231,239,.72);
+  }
+  .ocl-item a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .ocl-item a:hover { color: #fff; }
+  .ocl-done { color: rgba(220,231,239,.38) !important; text-decoration: line-through; }
+  .ocl-check {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: .68rem;
+    font-weight: 900;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+  }
+  .ocl-done .ocl-check {
+    background: rgba(212,160,23,.22);
+    border-color: rgba(212,160,23,.40);
+    color: #d4a017;
+  }
+
+  /* ── Tour overlay ── */
+  .tour-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .tour-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(7,16,29,.55);
+    pointer-events: all;
+  }
+  .tour-card {
+    position: absolute;
+    width: 300px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    background: linear-gradient(148deg, #0d1930, #15233c);
+    box-shadow: 0 24px 60px rgba(0,0,0,.45);
+    color: #fff;
+    pointer-events: all;
+    z-index: 1001;
+  }
+  .tour-step-label {
+    font-size: .68rem;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(244,213,141,.70);
+    margin-bottom: 6px;
+  }
+  .tour-title {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 8px;
+    letter-spacing: -.01em;
+  }
+  .tour-body {
+    font-size: .84rem;
+    color: rgba(197,209,232,.85);
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  .tour-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .tour-skip {
+    background: none;
+    border: none;
+    color: rgba(197,209,232,.50);
+    font-size: .80rem;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0;
+  }
+  .tour-skip:hover { color: rgba(197,209,232,.80); }
+  .btn-gold-tour {
+    min-height: 36px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: none;
+    background: #d4a017;
+    color: #0d1b3d;
+    font-size: .86rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform .14s ease, box-shadow .14s ease;
+  }
+  .btn-gold-tour:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(212,160,23,.30); }
+  .tour-highlight {
+    outline: 2px solid #d4a017 !important;
+    outline-offset: 3px !important;
+    border-radius: 12px !important;
+    background: rgba(212,160,23,.12) !important;
+  }
+
   @media (max-width: 1180px) {
     body { padding-left: 0; }
     body > main { padding: 14px !important; }

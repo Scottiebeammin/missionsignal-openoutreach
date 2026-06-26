@@ -197,7 +197,7 @@ def _lifecycle_stages(items: list[DiscoveryOpportunity]) -> list[DiscoveryLifecy
 
 
 def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOverview:
-    queryset = Opportunity.objects.select_related("source_organization").order_by("name")
+    queryset = Opportunity.objects.filter(project=project).select_related("source_organization").order_by("name")
     opportunities = list(queryset)
     items = [
         DiscoveryOpportunity(
@@ -263,18 +263,19 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
         ],
         12,
     )
+    project_opps = Opportunity.objects.filter(project=project)
     top_source_organizations = [
         DiscoveryBreakdown(
             label=row["source_organization__name"] or row["source_name"] or "Manual",
             count=row["count"],
         )
-        for row in Opportunity.objects.values("source_organization__name", "source_name")
+        for row in project_opps.values("source_organization__name", "source_name")
         .annotate(count=Count("id"))
         .order_by("-count", "source_organization__name", "source_name")[:5]
     ]
     status_counts = {
         row["status"]: row["count"]
-        for row in Opportunity.objects.values("status").annotate(count=Count("id"))
+        for row in project_opps.values("status").annotate(count=Count("id"))
     }
     status_breakdown = [
         DiscoveryBreakdown(label=label, count=status_counts.get(value, 0))
@@ -305,6 +306,6 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
         status_breakdown=status_breakdown,
         focus_categories=_focus_category_breakdown(opportunities),
         top_opportunities=items[:5],
-        lifecycle_summary=build_lifecycle_summary(limit_per_stage=6),
+        lifecycle_summary=build_lifecycle_summary(project=project, limit_per_stage=6),
         lifecycle_stages=_lifecycle_stages(items),
     )

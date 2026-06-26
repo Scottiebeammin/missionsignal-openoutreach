@@ -310,6 +310,9 @@ class Opportunity(models.Model):
         VERIFIED = "verified", "Verified"
 
     name = models.CharField(max_length=500)
+    project = models.ForeignKey(
+        Project, null=True, blank=True, on_delete=models.CASCADE, related_name="opportunities",
+    )
     opportunity_type = models.CharField(
         max_length=40, choices=OpportunityType.choices, default=OpportunityType.GRANT,
     )

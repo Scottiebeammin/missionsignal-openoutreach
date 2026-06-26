@@ -124,47 +124,34 @@
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Resource Ecosystem Snapshot</summary>
+    <section class="panel">
+      <h2>Resource Ecosystem Snapshot</h2>
       <p>Resources extend beyond funding and include training, technical assistance, volunteers, technology, facilities, equipment, capacity-building programs, and shared services.</p>
       <div class="ecosystem-grid">
         {% for item in readiness.ecosystem_items %}
           <div class="ecosystem-card"><strong>{{ item }}</strong></div>
         {% endfor %}
       </div>
-    </details>
+    </section>
 
     <div class="dashboard">
       <div class="stack">
-        <details class="panel" open>
-          <summary>Resource Opportunity Categories</summary>
+        <section class="panel">
+          <h2>Resource Opportunity Categories</h2>
           <div class="category-grid">
-            {% for category in readiness.categories|slice:":5" %}
+            {% for category in readiness.categories %}
               <article class="category-card">
                 <h3>{{ category.name }}</h3>
                 <p class="muted">{{ category.explanation }}</p>
               </article>
             {% endfor %}
           </div>
-          <details style="margin-top: 12px;">
-            <summary>Show More</summary>
-            <div class="category-grid" style="margin-top: 10px;">
-              {% for category in readiness.categories|slice:"5:" %}
-                <article class="category-card">
-                  <h3>{{ category.name }}</h3>
-                  <p class="muted">{{ category.explanation }}</p>
-                </article>
-              {% empty %}
-                <p class="muted">No additional resource categories.</p>
-              {% endfor %}
-            </div>
-          </details>
-        </details>
+        </section>
 
-        <details class="panel" open>
-          <summary>Recommended Resource Types</summary>
+        <section class="panel">
+          <h2>Recommended Resource Types</h2>
           <div class="resource-grid">
-            {% for resource in readiness.recommendations|slice:":5" %}
+            {% for resource in readiness.recommendations %}
               <article class="resource-card">
                 <header>
                   <h3>{{ resource.name }}</h3>
@@ -174,28 +161,12 @@
               </article>
             {% endfor %}
           </div>
-          <details style="margin-top: 12px;">
-            <summary>Show More</summary>
-            <div class="resource-grid" style="margin-top: 10px;">
-              {% for resource in readiness.recommendations|slice:"5:" %}
-                <article class="resource-card">
-                  <header>
-                    <h3>{{ resource.name }}</h3>
-                    <span class="score-badge">{{ resource.score }}</span>
-                  </header>
-                  <p>{{ resource.explanation }}</p>
-                </article>
-              {% empty %}
-                <p class="muted">No additional resource types.</p>
-              {% endfor %}
-            </div>
-          </details>
-        </details>
+        </section>
       </div>
 
       <aside class="stack">
-        <details class="panel">
-          <summary>Strengths and Resource Gaps</summary>
+        <section class="panel">
+          <h2>Strengths and Resource Gaps</h2>
           <div class="summary-grid">
             <section>
               <h2>Strengths</h2>
@@ -212,10 +183,10 @@
               {% endfor %}
             </section>
           </div>
-        </details>
+        </section>
 
-        <details class="panel">
-          <summary>Resource Readiness Checklist</summary>
+        <section class="panel">
+          <h2>Resource Readiness Checklist</h2>
           {% for item in readiness.checklist %}
             <div class="check-row">
               <span class="status {{ item.status_class }}">{{ item.status }}</span>
@@ -223,16 +194,16 @@
               <p class="muted">{{ item.detail }}</p>
             </div>
           {% endfor %}
-        </details>
+        </section>
 
-        <details class="panel">
-          <summary>Recommended Resource Actions</summary>
+        <section class="panel">
+          <h2>Recommended Resource Actions</h2>
           <ol class="advisor-list">
             {% for action in readiness.actions|slice:":5" %}
               <li>{{ action }}<span class="impact-label">Impact: Improves resource readiness and operating capacity.</span></li>
             {% endfor %}
           </ol>
-        </details>
+        </section>
       </aside>
     </div>
     {% include "signals/_app_shell_footer.html" %}

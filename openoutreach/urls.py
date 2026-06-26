@@ -30,6 +30,9 @@ urlpatterns = [
     ), name="password_reset_complete"),
     # Client portal
     path("portal/", core_views.portal, name="portal"),
+    # Onboarding
+    path("onboarding/toured/", core_views.onboarding_mark_toured, name="onboarding-toured"),
+    path("onboarding/page/", core_views.onboarding_mark_page, name="onboarding-page"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

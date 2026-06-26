@@ -22,7 +22,10 @@ from openoutreach.signals.forms import (
     PilotDiscoveryQuestionnaireForm,
     PilotFeedbackForm,
 )
-from openoutreach.signals.notifications import notify_interest_signup
+from openoutreach.signals.notifications import (
+    notify_interest_signup,
+    send_interest_signup_confirmation,
+)
 from openoutreach.signals.forecasting import build_pipeline_forecast
 from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_opportunity_lifecycle
@@ -76,17 +79,38 @@ def _workflow_context(project, stage, primary_actions=()):
     return {"workflow": build_workflow_guidance(project, stage, primary_actions)}
 
 
+WAITLIST_ROLES = (
+    "Executive Director",
+    "Development Director",
+    "Program Director",
+    "Founder",
+    "Board Member",
+    "Other",
+)
+
+
 def public_landing_page(request):
+    signup_failed = False
     if request.method == "POST":
         form = InterestSignupForm(request.POST)
         if form.is_valid():
             signup = form.save()
             create_pilot_profile_from_signup(signup)
             notify_interest_signup(signup)
+            send_interest_signup_confirmation(signup)
             return redirect("anansi-atlas-thanks")
+        signup_failed = True
     else:
         form = InterestSignupForm()
-    return render(request, "signals/public_landing.html", {"form": form})
+    return render(
+        request,
+        "signals/public_landing.html",
+        {
+            "form": form,
+            "signup_failed": signup_failed,
+            "waitlist_roles": WAITLIST_ROLES,
+        },
+    )
 
 
 def public_landing_thanks(request):
@@ -100,10 +124,22 @@ def pilot_onboarding(request):
 
 @login_required
 def project_intake(request):
+    # Admins don't need to fill out intake
+    if request.user.is_staff:
+        return redirect("/admin/")
+    # Already has a project — go to portal
+    if Project.objects.filter(users=request.user).exists():
+        return redirect("portal")
     if request.method == "POST":
         form = OrganizationIntakeForm(request.POST)
         if form.is_valid():
             project = create_organization_intake(user=request.user, **form.cleaned_data)
+            # Run analysis immediately so focus_areas/beneficiaries/FundingCriteria
+            # are populated before the user ever reaches the Snapshot page.
+            try:
+                analyze_project(project, mode="deterministic")
+            except Exception:
+                pass  # analysis failure must never block onboarding
             return redirect("project-intake-success", pk=project.pk)
     else:
         form = OrganizationIntakeForm()
@@ -524,7 +560,7 @@ def project_ecosystem_dashboard(request, pk):
         project, funding_readiness, government_readiness, resource_readiness, partnership_readiness,
     )
     pursuit_summary = build_opportunity_pursuit_summary(project)
-    forecast = build_pipeline_forecast()
+    forecast = build_pipeline_forecast(project)
     relationships = build_relationship_overview(project)
     return render(
         request,
@@ -638,7 +674,7 @@ def project_pipeline_workspace(request, pk):
     )
     funding_criteria = getattr(project, "funding_criteria", None)
     discovery = build_discovery_overview(project, funding_criteria)
-    forecast = build_pipeline_forecast()
+    forecast = build_pipeline_forecast(project)
     return render(
         request,
         "signals/project_pipeline_workspace.html",
@@ -671,6 +707,7 @@ def project_opportunity_workspace(request, pk, opportunity_id):
     opportunity = get_object_or_404(
         Opportunity.objects.select_related("source_organization", "assigned_owner"),
         pk=opportunity_id,
+        project=project,
     )
     funding_criteria = getattr(project, "funding_criteria", None)
     workspace = build_opportunity_workspace(project, opportunity, funding_criteria)

@@ -86,8 +86,7 @@
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Supporting Relationship Detail</summary>
+    <section class="panel">
       <h2>Relationship Snapshot</h2>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ relationships.health.score }}</strong><span>Relationship Health</span><p><span class="pill">{{ relationships.health.level }}</span></p></div>
@@ -97,73 +96,63 @@
         <div class="metric-card"><strong>{{ relationships.developing_relationships }}</strong><span>Developing Relationships</span></div>
         <div class="metric-card"><strong>{{ relationships.active_partner_count }}</strong><span>Active Partners</span></div>
       </div>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Recommended Relationship Actions</summary>
+    <section class="panel">
+      <h2>Recommended Relationship Actions</h2>
       <ol class="advisor-list">
         {% for action in relationships.recommended_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Strengthens introductions, credibility, and opportunity pursuit.</span></li>
         {% endfor %}
       </ol>
-      </details>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Opportunity Pathways</summary>
-        <div class="relationship-grid">
-          {% for pathway in relationships.opportunity_pathways %}
-            <article class="relationship-card">
-              <h3>{{ pathway.relationship_name }}</h3>
-              <p class="muted">{{ pathway.pathway|join:" → " }}</p>
-              <p class="muted">{{ pathway.rationale }}</p>
-              <p><span class="pill">{{ pathway.expected_opportunity_categories|join:", " }}</span></p>
-            </article>
-          {% empty %}
-            <div class="empty-state"><strong>No relationship pathways yet</strong>Add partners to connect relationships to opportunity categories.</div>
-          {% endfor %}
-        </div>
-      </details>
+    <section class="panel">
+      <h2>Opportunity Pathways</h2>
+      <div class="relationship-grid">
+        {% for pathway in relationships.opportunity_pathways %}
+          <article class="relationship-card">
+            <h3>{{ pathway.relationship_name }}</h3>
+            <p class="muted">{{ pathway.pathway|join:" → " }}</p>
+            <p class="muted">{{ pathway.rationale }}</p>
+            <p><span class="pill">{{ pathway.expected_opportunity_categories|join:", " }}</span></p>
+          </article>
+        {% empty %}
+          <div class="empty-state"><strong>No relationship pathways yet</strong>Add partners to connect relationships to opportunity categories.</div>
+        {% endfor %}
+      </div>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Missing Relationship Intelligence</summary>
-        <div class="relationship-grid">
-          {% for missing in relationships.missing_relationships %}
-            <article class="relationship-card">
-              <h3>{{ missing.name }}</h3>
-              <p><span class="pill">{{ missing.impact_level }}</span></p>
-              <p class="muted">{{ missing.rationale }}</p>
-              <p class="muted">Potential outcomes: {{ missing.opportunities_unlocked|join:", " }}</p>
-            </article>
-          {% empty %}
-            <div class="empty-state"><strong>No critical missing relationships detected</strong>Keep reviewing relationships as new pathways emerge.</div>
-          {% endfor %}
-        </div>
-      </details>
+    <section class="panel">
+      <h2>Missing Relationship Intelligence</h2>
+      <div class="relationship-grid">
+        {% for missing in relationships.missing_relationships %}
+          <article class="relationship-card">
+            <h3>{{ missing.name }}</h3>
+            <p><span class="pill">{{ missing.impact_level }}</span></p>
+            <p class="muted">{{ missing.rationale }}</p>
+            <p class="muted">Potential outcomes: {{ missing.opportunities_unlocked|join:", " }}</p>
+          </article>
+        {% empty %}
+          <div class="empty-state"><strong>No critical missing relationships detected</strong>Keep reviewing relationships as new pathways emerge.</div>
+        {% endfor %}
+      </div>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Network Health</summary>
-        <div class="relationship-grid">
-          {% for indicator in relationships.network_health %}
-            <article class="relationship-card">
-              <h3>{{ indicator.label }}</h3>
-              <p><span class="pill">{{ indicator.status }}</span></p>
-              <p class="muted">{{ indicator.rationale }}</p>
-            </article>
-          {% endfor %}
-        </div>
-      </details>
+    <section class="panel">
+      <h2>Network Health</h2>
+      <div class="relationship-grid">
+        {% for indicator in relationships.network_health %}
+          <article class="relationship-card">
+            <h3>{{ indicator.label }}</h3>
+            <p><span class="pill">{{ indicator.status }}</span></p>
+            <p class="muted">{{ indicator.rationale }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Workflow Context</summary>
-        {% include "signals/_workflow_guidance.html" %}
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Relationship Health Transparency</summary>
-        {% include "signals/_score_explanation.html" with explanation=score_transparency.relationship %}
-      </details>
-
-      <details id="partners" style="margin-top: 14px;">
-        <summary>Key Partners</summary>
+    <section id="partners" class="panel">
       <h2>Key Partners</h2>
       <div class="relationship-grid">
         {% for partner in relationships.key_partners %}
@@ -176,10 +165,9 @@
           <div class="empty-state"><strong>No key partners yet</strong>Add community, government, academic, corporate, and service partners.</div>
         {% endfor %}
       </div>
-      </details>
+    </section>
 
-      <details id="contacts" style="margin-top: 14px;">
-        <summary>Key Contacts</summary>
+    <section id="contacts" class="panel">
       <h2>Key Contacts</h2>
       <div class="relationship-grid">
         {% for contact in relationships.key_contacts %}
@@ -192,10 +180,10 @@
           <div class="empty-state"><strong>No key contacts yet</strong>Add program officers, government contacts, community leaders, and partner contacts.</div>
         {% endfor %}
       </div>
-      </details>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Relationship Strengths and Gaps</summary>
+    <section class="panel">
+      <h2>Relationship Strengths and Gaps</h2>
       <div class="insight-grid" style="margin-top: 12px;">
         <section>
           <h3>Strengths</h3>
@@ -218,8 +206,7 @@
           </ul>
         </section>
       </div>
-      </details>
-    </details>
+    </section>
     {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>

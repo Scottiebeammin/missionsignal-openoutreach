@@ -72,18 +72,15 @@
         <div class="metric"><span class="muted">Awarded</span><strong>{{ lifecycle.health.awarded_opportunities }}</strong></div>
         <div class="metric"><span class="muted">Upcoming Deadlines</span><strong>{{ lifecycle.health.upcoming_deadlines }}</strong></div>
       </div>
-      <details style="margin-top: 12px;">
-        <summary>Stage counts</summary>
-        <div class="metrics" style="margin-top: 10px;">
-          {% for stage in lifecycle.summary_stages %}
-            <div class="metric"><span class="muted">{{ stage.label }}</span><strong>{{ stage.count }}</strong></div>
-          {% endfor %}
-        </div>
-      </details>
+      <div class="metrics" style="margin-top: 12px;">
+        {% for stage in lifecycle.summary_stages %}
+          <div class="metric"><span class="muted">{{ stage.label }}</span><strong>{{ stage.count }}</strong></div>
+        {% endfor %}
+      </div>
     </section>
 
-    <details id="forecast" class="panel">
-      <summary>Pipeline Forecast</summary>
+    <section id="forecast" class="panel">
+      <h2>Pipeline Forecast</h2>
       <div class="metrics">
         <div class="metric"><span class="muted">Total Value</span><strong>${{ forecast.total_pipeline_value|floatformat:0 }}</strong></div>
         <div class="metric"><span class="muted">Weighted Value</span><strong>${{ forecast.weighted_forecast_value|floatformat:0 }}</strong><span class="pill">{{ forecast.forecast_confidence }} confidence</span></div>
@@ -91,13 +88,7 @@
         <div class="metric"><span class="muted">Awarded Value</span><strong>${{ forecast.awarded_value|floatformat:0 }}</strong></div>
         <div class="metric"><span class="muted">Upcoming Deadline Value</span><strong>${{ forecast.upcoming_deadline_value|floatformat:0 }}</strong></div>
       </div>
-      <details style="margin-top: 12px;">
-        <summary>Forecast Score Transparency</summary>
-        <div style="margin-top: 10px;">
-          {% include "signals/_score_explanation.html" with explanation=score_transparency.forecast %}
-        </div>
-      </details>
-    </details>
+    </section>
 
     <section id="board" class="panel">
       <h2>Lifecycle Board</h2>
@@ -106,14 +97,11 @@
           <article class="stage-column">
             <header><span>{{ stage.label }}</span><span class="pill">{{ stage.count }}</span></header>
             <p class="muted stage-description">{{ stage.description }}</p>
-            <details>
-              <summary>Stage prompts</summary>
-              <ul class="stage-actions">
-                {% for action in stage.recommended_actions %}
-                  <li>{{ action }}</li>
-                {% endfor %}
-              </ul>
-            </details>
+            <ul class="stage-actions">
+              {% for action in stage.recommended_actions %}
+                <li>{{ action }}</li>
+              {% endfor %}
+            </ul>
             {% for item in stage.opportunities|slice:":3" %}
               <section class="opportunity-card">
                 <h3>{{ item.opportunity.name }}</h3>
@@ -153,113 +141,29 @@
                     </form>
                   {% endif %}
                 </div>
-                <details>
-                  <summary>View Details</summary>
-                  <div class="card-meta">
-                    <span class="pill">{{ item.opportunity.get_opportunity_type_display }}</span>
-                    <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
-                    <span class="pill">{{ item.match.level }}</span>
-                    <span class="pill">Value ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</span>
-                  </div>
-                  <p class="muted">Open tasks: {{ item.task_summary.open_tasks }} · Overdue tasks: {{ item.task_summary.overdue_tasks }}</p>
-                  <p class="muted">Next deadline: {{ item.deadline_summary.next_deadline.deadline.deadline_date|date:"M j, Y"|default:"Not set" }}</p>
-                  <p><strong>Next:</strong> {{ stage.recommended_next_step }}</p>
-                  <div class="detail-grid">
-                    <section class="detail-block">
-                      <strong>Lifecycle Notes</strong>
-                      <p class="muted">{{ item.opportunity.lifecycle_notes|default:"No lifecycle notes yet." }}</p>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Submission Context</strong>
-                      <p class="muted">Docs Ready: {{ item.document_summary.available_requirements }}</p>
-                      <p class="muted">Docs Missing: {{ item.document_summary.missing_requirements }}</p>
-                      <p class="muted">Evidence Missing: {{ item.document_summary.needed_evidence|length }}</p>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Eligibility Notes</strong>
-                      <p class="muted">{{ item.opportunity.eligibility_notes|default:"No eligibility notes provided." }}</p>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Focus Areas</strong>
-                      <p class="muted">{{ item.opportunity.focus_areas|join:", "|default:"Not provided" }}</p>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Beneficiaries</strong>
-                      <p class="muted">{{ item.opportunity.beneficiaries|join:", "|default:"Not provided" }}</p>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Match Reasons</strong>
-                      <ul>
-                        {% for reason in item.match.reasons %}
-                          <li>{{ reason }}</li>
-                        {% endfor %}
-                      </ul>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Missing Factors</strong>
-                      <ul>
-                        {% for factor in item.match.missing_factors %}
-                          <li>{{ factor }}</li>
-                        {% empty %}
-                          <li>No missing factors detected.</li>
-                        {% endfor %}
-                      </ul>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Improvement Opportunities</strong>
-                      <ul>
-                        {% for suggestion in item.match.improvement_suggestions %}
-                          <li>{{ suggestion }}</li>
-                        {% empty %}
-                          <li>No improvement suggestions for this match.</li>
-                        {% endfor %}
-                      </ul>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Status History</strong>
-                      <p class="muted">Placeholder-ready</p>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Forecast</strong>
-                      <p class="muted">Estimated value: ${{ item.opportunity.estimated_value|floatformat:0|default:"0" }}</p>
-                      <p class="muted">Weighted contribution: ${{ item.forecast_contribution.weighted_value|floatformat:0 }}</p>
-                      <p class="muted">Confidence: {{ item.forecast_contribution.value_confidence }}</p>
-                    </section>
-                    <section class="detail-block">
-                      <strong>Relationship Context</strong>
-                      <p class="muted">{{ item.relationship_context.relationship_label }}</p>
-                      <p class="muted">{{ item.relationship_context.recommended_action }}</p>
-                    </section>
-                  </div>
-                  <p><strong>Current Stage:</strong> {{ item.opportunity.get_lifecycle_status_display }}</p>
-                  <p><strong>Current Lifecycle Status:</strong> {{ item.opportunity.get_lifecycle_status_display }}</p>
-                  <p><strong>Owner:</strong> {{ item.opportunity.assigned_owner|default:"Unassigned" }}</p>
-                  <p><strong>Last Updated:</strong> {{ item.opportunity.updated_at|date:"M j, Y" }}</p>
-                  <p><strong>Recommended Next Step:</strong> {{ stage.recommended_next_step }}</p>
-                </details>
+                <div class="card-meta" style="margin-top: 8px;">
+                  <span class="pill">{{ item.opportunity.get_opportunity_type_display }}</span>
+                  <span class="pill">Docs {{ item.document_summary.document_readiness_score }}</span>
+                  <span class="pill">{{ item.match.level }}</span>
+                </div>
+                <p class="muted">Tasks: {{ item.task_summary.open_tasks }} open · {{ item.task_summary.overdue_tasks }} overdue</p>
+                <p><strong>Next:</strong> {{ stage.recommended_next_step }}</p>
               </section>
             {% empty %}
               <div class="empty-state"><strong>No opportunities</strong>Move opportunities into this lifecycle stage as work progresses.</div>
             {% endfor %}
             {% if stage.opportunities|length > 3 %}
-              <details>
-                <summary>Show remaining pursuits</summary>
-                <ul>
-                  {% for item in stage.opportunities|slice:"3:" %}
-                    <li><a href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">{{ item.opportunity.name }}</a> <span class="pill">{{ item.opportunity.get_priority_level_display }}</span></li>
-                  {% endfor %}
-                </ul>
-              </details>
+              <ul style="margin-top: 8px;">
+                {% for item in stage.opportunities|slice:"3:" %}
+                  <li><a href="{% url 'project-opportunity-workspace' project.pk item.opportunity.pk %}">{{ item.opportunity.name }}</a> <span class="pill">{{ item.opportunity.get_priority_level_display }}</span></li>
+                {% endfor %}
+              </ul>
             {% endif %}
           </article>
         {% endfor %}
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Workflow Context</summary>
-      {% include "signals/_workflow_guidance.html" %}
-    </details>
     {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>

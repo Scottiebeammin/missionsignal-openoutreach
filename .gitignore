@@ -15,3 +15,13 @@ __pycache__/
 /media/
 .cache/
 tests/fixtures/pages/**/*.html
+
+# collectstatic build output (regenerated on deploy)
+/staticfiles/
+
+# demo screenshots (kept locally, not versioned)
+/screenshots/
+
+# patch artifacts
+*.patch
+*.patch.gz.b64

@@ -42,11 +42,6 @@
       <p class="muted">{{ organization.name }} - {{ project.name }}</p>
     </header>
 
-    <details class="panel">
-      <summary>Workflow Context</summary>
-      {% include "signals/_workflow_guidance.html" %}
-    </details>
-
     <section class="panel">
       <h2>Document Readiness</h2>
       <div class="metric-grid">
@@ -80,39 +75,33 @@
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Document List by Status</summary>
+    <section class="panel">
       <h2>Document List by Status</h2>
       {% for label, items in document_summary.grouped_by_status %}
-        <details>
-          <summary>{{ label }} ({{ items|length }})</summary>
-          <div class="item-grid" style="margin-top: 10px;">
-            {% for item in items %}
-              <article class="item-card">
-                <h3>{{ item.title }}</h3>
-                <span class="pill">{{ item.get_document_type_display }}</span>
-                <p class="muted">{{ item.notes|default:"No notes yet." }}</p>
-              </article>
-            {% endfor %}
-          </div>
-        </details>
+        <h3 style="margin-top: 14px;">{{ label }} ({{ items|length }})</h3>
+        <div class="item-grid">
+          {% for item in items %}
+            <article class="item-card">
+              <h3>{{ item.title }}</h3>
+              <span class="pill">{{ item.get_document_type_display }}</span>
+              <p class="muted">{{ item.notes|default:"No notes yet." }}</p>
+            </article>
+          {% endfor %}
+        </div>
       {% endfor %}
-    </details>
+    </section>
 
-    <details class="panel">
-      <summary>Document List by Type</summary>
+    <section class="panel">
       <h2>Document List by Type</h2>
       {% for label, items in document_summary.grouped_by_type %}
-        <details>
-          <summary>{{ label }} ({{ items|length }})</summary>
-          <div class="item-grid" style="margin-top: 10px;">
-            {% for item in items %}
-              <article class="item-card"><strong>{{ item.title }}</strong><p class="muted">{{ item.get_status_display }}</p></article>
-            {% endfor %}
-          </div>
-        </details>
+        <h3 style="margin-top: 14px;">{{ label }} ({{ items|length }})</h3>
+        <div class="item-grid">
+          {% for item in items %}
+            <article class="item-card"><strong>{{ item.title }}</strong><p class="muted">{{ item.get_status_display }}</p></article>
+          {% endfor %}
+        </div>
       {% endfor %}
-    </details>
+    </section>
     {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>

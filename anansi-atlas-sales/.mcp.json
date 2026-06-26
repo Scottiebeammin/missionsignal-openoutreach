@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "hubspot": {
+      "type": "plugin",
+      "pluginId": "sales_hubspot",
+      "description": "CRM — nonprofit pipeline, deal stages, contact history, notes"
+    },
+    "gmail": {
+      "type": "plugin",
+      "pluginId": "marketing_gmail",
+      "description": "Email — stage and review outreach drafts before sending"
+    },
+    "slack": {
+      "type": "plugin",
+      "pluginId": "marketing_slack",
+      "description": "Internal — Monday/Friday pipeline briefs, deal alerts"
+    },
+    "klaviyo": {
+      "type": "plugin",
+      "pluginId": "marketing_klaviyo",
+      "description": "Email sequences — nonprofit nurture flows post-signup"
+    }
+  },
+  "_notes": {
+    "hubspot": "Required for pipeline-pulse and prospect-brief CRM logging",
+    "gmail": "Required for prospect-brief outreach staging",
+    "slack": "Optional — enables automated pipeline alerts",
+    "klaviyo": "Optional — enables automated nurture sequences"
+  }
+}

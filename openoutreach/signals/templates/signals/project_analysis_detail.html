@@ -93,8 +93,8 @@
       </ul>
     </section>
 
-    <details class="panel">
-      <summary>Funding Criteria</summary>
+    <section class="panel">
+      <h2>Funding Criteria</h2>
       {% if funding_criteria %}
         <dl style="margin-top: 12px;">
           <dt>Focus areas</dt><dd>{{ funding_criteria.focus_areas|join:", " }}</dd>
@@ -109,7 +109,7 @@
       {% else %}
         <p style="margin-top: 12px;">Run analysis to generate FundingCriteria.</p>
       {% endif %}
-    </details>
+    </section>
     {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>

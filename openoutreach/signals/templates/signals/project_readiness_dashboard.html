@@ -69,8 +69,7 @@
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Supporting Readiness Detail</summary>
+    <section class="panel">
       <h2>Readiness Health</h2>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ readiness.overall_score }}</strong><span>Overall Readiness</span><p><span class="pill">{{ readiness.level }}</span></p></div>
@@ -79,25 +78,12 @@
         <div class="metric-card"><strong>{{ readiness.evidence_readiness_score }}</strong><span>Evidence Readiness</span></div>
         <div class="metric-card"><strong>{{ readiness.submission_readiness_score }}</strong><span>Submission Readiness</span></div>
       </div>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Workflow Context</summary>
-        {% include "signals/_workflow_guidance.html" %}
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Score Transparency</summary>
-      <div class="insight-grid">
-        {% include "signals/_score_explanation.html" with explanation=score_transparency.readiness %}
-        {% include "signals/_score_explanation.html" with explanation=score_transparency.completeness %}
-      </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Organization Completeness</summary>
+    <section class="panel">
       <h2>Organization Completeness</h2>
       <div class="metric-grid">
-        <div class="metric-card"><strong>{{ readiness.organization_completeness.score }}</strong><span>Organization Completeness Score</span><p><span class="pill">{{ readiness.organization_completeness.level }}</span></p></div>
+        <div class="metric-card"><strong>{{ readiness.organization_completeness.score }}</strong><span>Score</span><p><span class="pill">{{ readiness.organization_completeness.level }}</span></p></div>
         <div class="metric-card"><strong>{{ readiness.organization_completeness.completed_areas|length }}</strong><span>Completed Areas</span></div>
         <div class="metric-card"><strong>{{ readiness.organization_completeness.missing_areas|length }}</strong><span>Missing Areas</span></div>
         <div class="metric-card"><strong>{{ readiness.organization_completeness.highest_leverage_missing_area }}</strong><span>Highest Leverage Missing Area</span></div>
@@ -111,10 +97,9 @@
           </article>
         {% endfor %}
       </div>
-      </details>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Readiness Dimensions</summary>
+    <section class="panel">
       <h2>Readiness Dimensions</h2>
       <div class="metric-grid">
         {% for dimension in readiness.dimensions %}
@@ -126,30 +111,19 @@
           </article>
         {% endfor %}
       </div>
-      </details>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Requirements and Files</summary>
-      <div class="metric-grid">
-        <div class="metric-card"><strong>{{ readiness.document_readiness_score }}</strong><span>Requirement readiness</span><p><a class="pill" href="{% url 'project-documents' project.pk %}">Open Requirements</a></p></div>
-        <div class="metric-card"><strong>{{ readiness.evidence_readiness_score }}</strong><span>File readiness</span><p><a class="pill" href="{% url 'project-evidence' project.pk %}">Open Files</a></p></div>
-        <div class="metric-card"><strong>{{ readiness.submission_readiness_score }}</strong><span>Submission readiness</span></div>
-      </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Opportunity Pursuit Readiness Summary</summary>
-      <h2>Opportunity Pursuit Readiness Summary</h2>
+    <section class="panel">
+      <h2>Opportunity Pursuit Readiness</h2>
       <div class="metric-grid">
         <div class="metric-card"><strong>{{ pursuit_summary.average_score }}</strong><span>Opportunity Readiness Average</span></div>
         <div class="metric-card"><strong>{{ pursuit_summary.ready_opportunities }}</strong><span>Ready Opportunities</span></div>
         <div class="metric-card"><strong>{{ pursuit_summary.needs_preparation_opportunities }}</strong><span>Needs Preparation</span></div>
         <div class="metric-card"><strong>{{ pursuit_summary.strongest_opportunity.name|default:"None" }}</strong><span>Strongest Opportunity</span></div>
       </div>
-      </details>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Readiness Strengths and Gaps</summary>
+    <section class="panel">
       <h2>Readiness Strengths and Gaps</h2>
       <div class="insight-grid">
         <section>
@@ -169,18 +143,16 @@
           </ul>
         </section>
       </div>
-      </details>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Highest Leverage Actions</summary>
+    <section class="panel">
       <h2>Highest Leverage Actions</h2>
       <ol class="advisor-list">
         {% for action in readiness.recommended_actions %}
           <li>{{ action }}<span class="impact-label">Impact: Improves organization and opportunity pursuit readiness.</span></li>
         {% endfor %}
       </ol>
-      </details>
-    </details>
+    </section>
     {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>

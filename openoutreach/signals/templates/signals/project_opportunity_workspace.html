@@ -63,7 +63,10 @@
       <section>
         <p class="eyebrow">Opportunity Workspace V1</p>
         <h1>{{ opportunity.name }}</h1>
-        <p class="muted">{{ opportunity.source_organization|default:opportunity.source_name|default:"No source organization" }} - {{ opportunity.get_opportunity_type_display }}</p>
+        <p class="muted">
+          {% if opportunity.source_organization %}{{ opportunity.source_organization }}{% elif opportunity.source_name %}{{ opportunity.source_name }}{% else %}No source organization{% endif %}
+          — {{ opportunity.get_opportunity_type_display }}
+        </p>
       </section>
       <section class="panel action-panel">
         <h2>Recommended Next Step</h2>
@@ -96,104 +99,51 @@
         <div class="metric-card"><strong>${{ workspace.forecast.weighted_value|floatformat:0 }}</strong><span>Weighted Forecast Contribution</span><p class="muted">{{ workspace.forecast.stage_weight_percent }}% stage weight</p></div>
         <div class="metric-card"><strong>{{ relationship_context.relationship_label }}</strong><span>Relationship Context</span><p class="muted">{{ relationship_context.recommended_action }}</p></div>
       </div>
-      <details style="margin-top: 12px;">
-        <summary>Related Contacts and Partners</summary>
-        <div class="requirement-grid" style="margin-top: 10px;">
-          <article class="requirement-card">
-            <h3>Related Contacts</h3>
-            <ul>
-              {% for contact in relationship_context.related_contacts %}
-                <li>{{ contact.name }} · {{ contact.organization }} · {{ contact.get_relationship_strength_display }}</li>
-              {% empty %}
-                <li>No related contacts yet.</li>
-              {% endfor %}
-            </ul>
-          </article>
-          <article class="requirement-card">
-            <h3>Related Partners</h3>
-            <ul>
-              {% for partner in relationship_context.related_partners %}
-                <li>{{ partner.organization_name }} · {{ partner.get_partner_type_display }} · {{ partner.get_relationship_strength_display }}</li>
-              {% empty %}
-                <li>No related partners yet.</li>
-              {% endfor %}
-            </ul>
-          </article>
-          <article class="requirement-card">
-            <h3>Relationship Context</h3>
-            <p class="muted">{{ relationship_context.recommended_action }}</p>
-          </article>
-        </div>
-      </details>
-      <details style="margin-top: 12px;">
-        <summary>Forecast</summary>
-        <div class="requirement-grid" style="margin-top: 10px;">
-          <article class="requirement-card">
-            <h3>Estimated Value</h3>
-            <p class="muted">${{ workspace.forecast.estimated_value|floatformat:0|default:"0" }}</p>
-          </article>
-          <article class="requirement-card">
-            <h3>Value Confidence</h3>
-            <p class="muted">{{ workspace.forecast.value_confidence }}</p>
-          </article>
-          <article class="requirement-card">
-            <h3>Forecast Notes</h3>
-            <p class="muted">{{ workspace.forecast.forecast_notes|default:"No forecast notes yet." }}</p>
-          </article>
-        </div>
-      </details>
-      <details style="margin-top: 12px;">
-        <summary>Readiness Details</summary>
-        <div class="requirement-grid" style="margin-top: 10px;">
-          <article class="requirement-card">
-            <h3>Score Transparency</h3>
-            <p><strong>Pursuit Readiness:</strong> {{ score_transparency.pursuit.score }} · {{ score_transparency.pursuit.level }}</p>
-            <p class="factor-title">Score Contributors</p>
-            <ul>
-              {% for contributor in score_transparency.pursuit.contributors|slice:":3" %}
-                <li>{{ contributor }}</li>
-              {% endfor %}
-            </ul>
-            <p class="factor-title">Score Gaps</p>
-            <ul>
-              {% for gap in score_transparency.pursuit.gaps|slice:":3" %}
-                <li>{{ gap }}</li>
-              {% endfor %}
-            </ul>
-            <p class="muted"><strong>Highest Leverage Action:</strong> {{ score_transparency.pursuit.highest_leverage_action }}</p>
-          </article>
-          <article class="requirement-card">
-            <h3>Improvement Opportunities</h3>
-            <p class="muted">{{ pursuit_readiness.highest_leverage_improvement }}</p>
-          </article>
-          <article class="requirement-card">
-            <h3>Required Missing Areas</h3>
-            <ul>
-              {% for area in pursuit_readiness.missing_areas %}
-                <li>{{ area }}</li>
-              {% empty %}
-                <li>No required missing areas detected.</li>
-              {% endfor %}
-            </ul>
-          </article>
-          <article class="requirement-card">
-            <h3>Why Ready</h3>
-            <ul>
-              {% for reason in pursuit_readiness.why_ready|slice:":3" %}
-                <li>{{ reason }}</li>
-              {% endfor %}
-            </ul>
-          </article>
-        </div>
-      </details>
-      <details style="margin-top: 12px;" open>
-        <summary>Why It Matches</summary>
-        <ul>
-          {% for reason in workspace.match.reasons %}
-            <li>{{ reason }}</li>
-          {% endfor %}
-        </ul>
-      </details>
+      <div class="requirement-grid" style="margin-top: 12px;">
+        <article class="requirement-card">
+          <h3>Related Contacts</h3>
+          <ul>
+            {% for contact in relationship_context.related_contacts %}
+              <li>{{ contact.name }} · {{ contact.organization }} · {{ contact.get_relationship_strength_display }}</li>
+            {% empty %}
+              <li>No related contacts yet.</li>
+            {% endfor %}
+          </ul>
+        </article>
+        <article class="requirement-card">
+          <h3>Related Partners</h3>
+          <ul>
+            {% for partner in relationship_context.related_partners %}
+              <li>{{ partner.organization_name }} · {{ partner.get_partner_type_display }} · {{ partner.get_relationship_strength_display }}</li>
+            {% empty %}
+              <li>No related partners yet.</li>
+            {% endfor %}
+          </ul>
+        </article>
+        <article class="requirement-card">
+          <h3>Relationship Context</h3>
+          <p class="muted">{{ relationship_context.recommended_action }}</p>
+        </article>
+        <article class="requirement-card">
+          <h3>Forecast</h3>
+          <p class="muted">Estimated: ${{ workspace.forecast.estimated_value|floatformat:0|default:"0" }} · Confidence: {{ workspace.forecast.value_confidence }}</p>
+          <p class="muted">{{ workspace.forecast.forecast_notes|default:"No forecast notes yet." }}</p>
+        </article>
+        <article class="requirement-card">
+          <h3>Readiness Details</h3>
+          <p><strong>Pursuit Readiness:</strong> {{ score_transparency.pursuit.score }} · {{ score_transparency.pursuit.level }}</p>
+          <p class="muted"><strong>Highest Leverage Action:</strong> {{ score_transparency.pursuit.highest_leverage_action }}</p>
+          <p class="muted">{{ pursuit_readiness.highest_leverage_improvement }}</p>
+        </article>
+        <article class="requirement-card">
+          <h3>Why It Matches</h3>
+          <ul>
+            {% for reason in workspace.match.reasons %}
+              <li>{{ reason }}</li>
+            {% endfor %}
+          </ul>
+        </article>
+      </div>
     </section>
 
     <section id="requirements" class="panel">

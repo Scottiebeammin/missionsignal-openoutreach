@@ -228,8 +228,18 @@ def _profile(project, funding_criteria=None) -> dict:
         + _clean_values(organization.outcomes_and_impact)
         + _clean_values(organization.existing_partnerships)
         + _clean_values(organization.current_funding_sources)
+        + _clean_values(organization.search_keywords)
         + [organization.organization_type or ""]
+        + [getattr(project, "intake_notes", "") or ""]
     ).casefold()
+
+    # Build a set of canonical domain keywords from the org's confirmed focus areas.
+    # These are used to boost matches that share the org's core domain(s).
+    domain_keywords: list[str] = []
+    for area in focus_areas:
+        kws = CATEGORY_KEYWORDS.get(area, ())
+        domain_keywords.extend(kws)
+
     return {
         "organization_type": str(organization.organization_type or "").strip(),
         "geography": geography,
@@ -237,6 +247,7 @@ def _profile(project, funding_criteria=None) -> dict:
         "beneficiaries": beneficiaries,
         "program_terms": program_terms,
         "combined_text": combined_text,
+        "domain_keywords": list(dict.fromkeys(domain_keywords)),
         "has_outcomes": _has_values(organization.outcomes_and_impact),
         "has_partnerships": _has_values(organization.existing_partnerships),
         "has_budget": bool(organization.budget_range.strip()),
@@ -377,25 +388,36 @@ def _score_record(
     ).casefold()
 
     geography_matches = _overlap(profile["geography"], record_geography, record_text)
+
+    # Domain-aware focus matching: use the org's canonical domain keywords
+    # so a healthcare org gets healthcare-keyword matches, not generic ones.
+    domain_keywords = profile.get("domain_keywords") or []
     focus_matches = _overlap(profile["focus_areas"], record_focus, record_text)
     focus_matches += _shared_keyword_matches(
-        category_keywords or LEGACY_FOCUS_KEYWORDS,
+        domain_keywords or category_keywords or LEGACY_FOCUS_KEYWORDS,
         profile["combined_text"],
         record_text,
     )
+
     beneficiary_matches = _overlap(profile["beneficiaries"], record_beneficiaries, record_text)
     beneficiary_matches += _keyword_matches(
-        ["youth", "students", "young adults", "job seekers", "low-income residents"],
+        ["youth", "students", "young adults", "job seekers", "low-income residents",
+         "girls", "seniors", "veterans", "immigrants", "refugees", "disabilities"],
         record_text,
     )
+
+    # Program keyword pool: derive from the org's actual domain keywords
+    # so cross-domain pollution (e.g. "technology" matching a health org) is reduced.
+    program_keyword_pool = domain_keywords if domain_keywords else [
+        "workforce", "career", "training", "digital", "technology", "mentoring", "job placement",
+        "housing", "health", "mental health", "food", "veteran", "disability", "reentry",
+        "arts", "senior", "immigrant", "refugee", "environmental justice", "rural",
+    ]
     program_matches = _keyword_matches(
-        [
-            "workforce", "career", "training", "digital", "technology", "mentoring", "job placement",
-            "housing", "health", "mental health", "food", "veteran", "disability", "reentry",
-            "arts", "senior", "immigrant", "refugee", "environmental justice", "rural",
-        ],
+        program_keyword_pool,
         profile["combined_text"] + "\n" + record_text,
     )
+
     organization_type = profile["organization_type"]
     organization_type_match = bool(
         organization_type
@@ -410,10 +432,21 @@ def _score_record(
     beneficiary_score = _factor_score(beneficiary_matches, MATCH_WEIGHTS["beneficiary"])
     program_score = _factor_score(program_matches, MATCH_WEIGHTS["program"])
     organization_score = MATCH_WEIGHTS["organization_type"] if organization_type_match else 0
-    score = max(0, min(
-        geography_score + focus_score + beneficiary_score + program_score + organization_score,
-        100,
-    ))
+
+    base_score = geography_score + focus_score + beneficiary_score + program_score + organization_score
+
+    # Domain alignment boost: if the record shares a canonical focus area with
+    # the org's confirmed focus areas, boost by up to 10 pts so domain-relevant
+    # records always surface above generic ones.
+    domain_boost = 0
+    if profile["focus_areas"] and record_focus:
+        org_focus_set = {f.casefold() for f in profile["focus_areas"]}
+        rec_focus_set = {f.casefold() for f in record_focus}
+        shared = org_focus_set & rec_focus_set
+        if shared:
+            domain_boost = min(10, 5 * len(shared))
+
+    score = max(0, min(base_score + domain_boost, 100))
 
     match_factors = []
     reasons = []

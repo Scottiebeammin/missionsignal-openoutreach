@@ -352,7 +352,7 @@ def build_opportunity_pursuit_readiness(project, opportunity: Opportunity) -> Op
 
 
 def build_opportunity_pursuit_summary(project) -> OpportunityPursuitSummary:
-    opportunities = list(Opportunity.objects.all().order_by("name"))
+    opportunities = list(Opportunity.objects.filter(project=project).order_by("name"))
     readiness = [
         (opportunity, build_opportunity_pursuit_readiness(project, opportunity))
         for opportunity in opportunities

@@ -207,9 +207,8 @@
       <header class="hero">
         <section class="hero-top">
           <div>
-            <p class="eyebrow">Executive Command Center</p>
             <h1>{{ dashboard.organization_name }}</h1>
-            <p class="muted">A calm executive scan: decide the next move, check health, notice urgency.</p>
+            <p class="muted">Your full opportunity landscape — funders, partners, government pathways, and readiness all in one place.</p>
           </div>
         </section>
       </header>
@@ -259,9 +258,9 @@
           <p class="muted">{{ dashboard.lifecycle_summary.health.level }}</p>
         </div>
         <div class="metric-card compact">
-          <span>Forecast Value</span>
-          <strong>${{ dashboard.forecast.weighted_forecast_value|floatformat:0 }}</strong>
-          <p class="muted">{{ dashboard.forecast.forecast_confidence }} confidence</p>
+          <span>Opportunities Found</span>
+          <strong>{{ dashboard.match_health.total_matches }}</strong>
+          <p class="muted">{{ dashboard.match_health.excellent_matches }} excellent match{% if dashboard.match_health.excellent_matches != 1 %}es{% endif %}</p>
         </div>
       </section>
 
@@ -271,16 +270,9 @@
           <div class="panel-header">
             <div>
               <h2>Founding Atlas Partner</h2>
-              <h3>{{ pilot.current_stage }}</h3>
               <p class="muted">{{ pilot.next_step }}</p>
             </div>
-            <a class="button" href="{% url 'project-pilot-workspace' project.pk %}">Open Partner Workspace</a>
-          </div>
-          <div class="metric-grid">
-            <div class="metric-card compact"><strong>{{ pilot.progress_percentage }}%</strong><span>Pilot Progress</span></div>
-            <div class="metric-card compact"><strong>{{ pilot.profile.get_snapshot_status_display }}</strong><span>Snapshot Status</span></div>
-            <div class="metric-card compact"><strong>{{ pilot.profile.get_walkthrough_status_display }}</strong><span>Walkthrough Status</span></div>
-            <div class="metric-card compact"><strong>{% if pilot.snapshot_ready %}Ready{% else %}In Progress{% endif %}</strong><span>Snapshot Delivery</span></div>
+            <a class="button" href="{% url 'project-pilot-workspace' project.pk %}">View Partner Details</a>
           </div>
         </section>
       {% endif %}
@@ -293,23 +285,24 @@
             {% for action in dashboard.executive_actions|slice:":3" %}
               <li>{{ action }}</li>
             {% empty %}
-              <li>Review the organization profile and refresh deterministic analysis.</li>
+              <li>Open your Snapshot to review top-matched funders and recommended next steps.</li>
             {% endfor %}
           </ol>
         </article>
         <article class="command-card">
-          <h2>Opportunity To Watch</h2>
-          <h3>
-            {% if dashboard.lifecycle_summary.highest_priority_active_opportunity %}
-              {{ dashboard.lifecycle_summary.highest_priority_active_opportunity.name }}
-            {% elif dashboard.forecast.highest_value_opportunity %}
-              {{ dashboard.forecast.highest_value_opportunity.name }}
-            {% else %}
-              No active opportunity selected
-            {% endif %}
-          </h3>
-          <p class="muted">The pathway most worth executive attention before opening the deeper workspace.</p>
-          <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
+          <h2>Top Opportunity</h2>
+          {% if dashboard.lifecycle_summary.highest_priority_active_opportunity %}
+            <h3>{{ dashboard.lifecycle_summary.highest_priority_active_opportunity.name }}</h3>
+            <p class="muted">Your highest-priority active pursuit. Open the pipeline to move it forward.</p>
+            <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
+          {% elif dashboard.forecast.highest_value_opportunity %}
+            <h3>{{ dashboard.forecast.highest_value_opportunity.name }}</h3>
+            <p class="muted">Your highest-value opportunity. Add it to the pipeline to start tracking progress.</p>
+            <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
+          {% else %}
+            <p class="muted" style="margin-bottom:14px;">You have {{ dashboard.match_health.total_matches }} matched opportunities. Open Pathways to review them and move your best fit into the pipeline.</p>
+            <a class="pill" href="{% url 'project-opportunities' project.pk %}">Browse Pathways →</a>
+          {% endif %}
         </article>
       </section>
 
@@ -441,7 +434,7 @@
         <div class="panel-header">
           <div>
             <h2>Start Here</h2>
-            <p class="muted">A guided path from executive scan to next action.</p>
+            <p class="muted">Not sure where to begin? Here's a quick guide to your workspace.</p>
           </div>
           <a class="pill" href="{% url 'project-snapshot' project.pk %}">Open Snapshot</a>
         </div>
@@ -455,7 +448,7 @@
           <a class="demo-step" href="{% url 'project-snapshot' project.pk %}">
             <span class="step-number">2</span>
             <strong>Snapshot</strong>
-            <span>The premium consulting-grade executive summary of your opportunity position.</span>
+            <span>Your full opportunity summary — top funders, partners, readiness, and recommended next steps.</span>
           </a>
           <a class="demo-step" href="{% url 'project-opportunities' project.pk %}">
             <span class="step-number">3</span>

@@ -5,75 +5,6 @@
   <title>Opportunity Web - {{ organization.name }}</title>
   {% include "signals/_app_shell_styles.html" %}
   <style>
-    .web-path {
-      display: grid;
-      gap: 14px;
-    }
-    .web-node {
-      position: relative;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #fff;
-      padding: 18px;
-      box-shadow: var(--shadow-sm);
-    }
-    .web-node::after {
-      content: "to";
-      display: block;
-      width: max-content;
-      margin: 14px auto -4px;
-      color: var(--muted);
-      font-size: 0.76rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .web-node:last-child::after {
-      content: "";
-      margin: 0;
-    }
-    .web-node-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-    .web-node-header h2 {
-      margin: 0;
-    }
-    .web-metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin: 12px 0;
-    }
-    .web-metric {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
-      background: var(--surface-subtle);
-    }
-    .web-metric strong {
-      display: block;
-      font-size: 1rem;
-      color: var(--ink);
-    }
-    .web-lists {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-    }
-    .executive-web-summary {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .web-story {
-      border-left: 4px solid var(--accent);
-      background: linear-gradient(180deg, #fff 0%, var(--surface-subtle) 180%);
-    }
     .ecosystem-hero-grid {
       display: grid;
       grid-template-columns: 1.2fr .8fr;
@@ -85,45 +16,70 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
     }
-    .ecosystem-map {
+    .insights-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
-      align-items: stretch;
-    }
-    .ecosystem-zone {
-      position: relative;
-      min-height: 150px;
-      padding: 16px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: linear-gradient(180deg, #fff 0%, #fffaf0 170%);
-      box-shadow: var(--shadow);
-    }
-    .ecosystem-zone::after {
-      content: "";
-      position: absolute;
-      right: -18px;
-      top: 50%;
-      width: 24px;
-      border-top: 2px solid rgba(212, 160, 23, .42);
-    }
-    .ecosystem-zone:nth-child(3n)::after,
-    .ecosystem-zone:last-child::after {
-      display: none;
-    }
-    .ecosystem-zone strong {
-      display: block;
-      color: var(--ink);
-      font-size: 1.05rem;
+      margin-bottom: 16px;
     }
     .insight-card {
-      padding: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: var(--shadow);
       border-left: 4px solid var(--accent);
     }
+    .insight-card h3 { margin-bottom: 8px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .insight-card p { margin: 0; font-size: .92rem; color: var(--ink); font-weight: 600; }
+    .web-node {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+    }
+    .web-node-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .web-node-header h2 { margin: 0; }
+    .web-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .web-metric {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: var(--soft);
+    }
+    .web-metric strong { display: block; font-size: 1rem; color: var(--ink); }
+    .web-lists {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .gap-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .gap-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      background: #fff;
+    }
+    .gap-card strong { display: block; margin-bottom: 4px; }
     @media (max-width: 900px) {
-      .executive-web-summary, .ecosystem-hero-grid, .ecosystem-summary-grid, .ecosystem-map { grid-template-columns: 1fr; }
-      .ecosystem-zone::after { display: none; }
+      .ecosystem-hero-grid, .ecosystem-summary-grid, .insights-grid, .gap-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -132,98 +88,81 @@
   <main>
     <header class="hero">
       <section>
-        <p class="eyebrow">Opportunity Web V2 · Flagship Ecosystem View</p>
-        <h1>The Web of Opportunity</h1>
-        <p class="muted">Funders, partners, relationships, resources, pathways, and outcomes in one executive view.</p>
+        <h1>Opportunity Web</h1>
+        <p class="muted">Funders, partners, relationships, resources, pathways, and readiness — how they connect for {{ organization.name }}.</p>
       </section>
       <section class="metric-card advisor-panel">
         <h2>Ecosystem Health</h2>
         <strong>{{ web.ecosystem_health }}</strong>
         <span>{{ web.ecosystem_health_level }}</span>
-        <p class="muted">Relationship Health is surfaced in the connected web.</p>
-        <p><a class="pill" href="{% url 'project-snapshot' project.pk %}">View Opportunity Web Snapshot</a></p>
+        <p style="margin-top:10px;"><a class="pill" href="{% url 'project-snapshot' project.pk %}">View Full Snapshot →</a></p>
       </section>
     </header>
 
+    <!-- ═══ ECOSYSTEM SUMMARY ════════════════════════════════════════════ -->
     <section id="overview" class="ecosystem-hero-grid" aria-label="Executive ecosystem summary">
-      <article class="panel web-story">
-        <h2>Executive Ecosystem Summary</h2>
+      <article class="panel" style="border-left:5px solid var(--accent); background: linear-gradient(180deg, #fff 0%, var(--accent-soft) 180%);">
+        <h2>Ecosystem Summary</h2>
         <div class="ecosystem-summary-grid" style="margin-top: 12px;">
           <div class="metric-card"><strong>{{ web.ecosystem_health }}</strong><span>Ecosystem Health</span><p class="muted">{{ web.ecosystem_health_level }}</p></div>
           <div class="metric-card"><strong>{{ web.strongest_asset }}</strong><span>Strongest Asset</span></div>
           <div class="metric-card"><strong>{{ web.biggest_constraint }}</strong><span>Biggest Constraint</span></div>
         </div>
       </article>
-      <article class="panel action-panel">
-        <h2>Dominant Insight</h2>
-        <p><strong>{{ web.highest_leverage_actions.0|default:"Review the Snapshot" }}</strong></p>
-        <p class="muted">Highest Leverage Relationship: {{ web.highest_leverage_relationship }}</p>
-        <p class="muted">Highest Leverage Opportunity: {{ web.highest_leverage_opportunity }}</p>
-        <p class="muted">Snapshot is the executive interpretation of this web.</p>
-        <ol class="advisor-list">
-          {% for move in web.strategic_moves|slice:":3" %}
-            <li>{{ move }}</li>
-          {% endfor %}
-        </ol>
-        <p><a class="button" href="{% url 'project-snapshot' project.pk %}">Open Opportunity Web Snapshot</a></p>
+      <article class="panel" style="background: linear-gradient(145deg, #0d1b3d 0%, #17284f 100%); color: #fff; border-color: rgba(212,160,23,.32);">
+        <h2 style="color:#fff; margin-bottom:10px;">Top Move Right Now</h2>
+        <p style="font-size:1.05rem; font-weight:700; color:#fff; margin-bottom:12px;">{{ web.highest_leverage_actions.0|default:"Review the Snapshot for top-matched funders and partners." }}</p>
+        <p class="muted" style="color:#c8d4e0; font-size:.84rem; margin-bottom:6px;">Highest-leverage relationship: {{ web.highest_leverage_relationship }}</p>
+        <p class="muted" style="color:#c8d4e0; font-size:.84rem; margin-bottom:14px;">Highest-leverage opportunity: {{ web.highest_leverage_opportunity }}</p>
+        <a class="button" style="background:var(--accent); color:#18100a;" href="{% url 'project-snapshot' project.pk %}">Open Full Snapshot</a>
       </article>
     </section>
 
-    <section id="relationships" class="panel">
-      <h2>Connected Web</h2>
-      <p class="muted">The Web of Opportunity is the ecosystem surrounding your mission. Mission creates the center.</p>
-      <div class="ecosystem-map" style="margin-top: 14px;">
-        <article class="ecosystem-zone"><span class="pill">Mission</span><strong>Purpose and focus</strong><p class="muted">The reason the web exists and the work every opportunity must serve.</p></article>
-        <article class="ecosystem-zone"><span class="pill">Funders</span><strong>Capital and credibility</strong><p class="muted">Aligned grant, sponsorship, and public funding lanes.</p></article>
-        <article class="ecosystem-zone"><span class="pill">Partners</span><strong>Reach and delivery</strong><p class="muted">Organizations that expand capacity, trust, referrals, and execution.</p></article>
-        <article class="ecosystem-zone"><span class="pill">Relationships</span><strong>Access and momentum</strong><p class="muted">Contacts who can open doors, clarify fit, and accelerate decisions.</p></article>
-        <article class="ecosystem-zone"><span class="pill">Resources</span><strong>Readiness assets</strong><p class="muted">Documents, evidence, capacity, tools, and proof needed to pursue.</p></article>
-        <article class="ecosystem-zone"><span class="pill">Pathways</span><strong>Actionable pursuits</strong><p class="muted">The selected opportunities that move from intelligence to execution.</p></article>
+    <!-- ═══ KEY INSIGHTS ═════════════════════════════════════════════════ -->
+    <section class="insights-grid" id="insights" aria-label="Opportunity web insights">
+      <div class="insight-card">
+        <h3>Opportunity Insight</h3>
+        <p>{{ web.opportunity_insight }}</p>
+      </div>
+      <div class="insight-card">
+        <h3>Relationship Insight</h3>
+        <p>{{ web.relationship_insight }}</p>
+      </div>
+      <div class="insight-card">
+        <h3>Readiness Insight</h3>
+        <p>{{ web.readiness_insight }}</p>
+      </div>
+      <div class="insight-card">
+        <h3>Ecosystem Insight</h3>
+        <p>{{ web.ecosystem_insight }}</p>
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Supporting Web Detail</summary>
-      <h2>Web of Opportunity Story</h2>
-      <p class="muted">Funders and partners bring support. Relationships create access. Resources and evidence build readiness. Pathways become active pursuits. Outcomes prove the work and strengthen the next cycle.</p>
+    <!-- ═══ STRATEGIC MOVES ══════════════════════════════════════════════ -->
+    <section class="panel" id="moves" style="margin-bottom:16px;">
+      <h2>Strategic Moves</h2>
+      <ol class="advisor-list">
+        {% for move in web.strategic_moves %}
+          <li>{{ move }}</li>
+        {% empty %}
+          <li>Open the Snapshot to see recommended actions based on your opportunity web.</li>
+        {% endfor %}
+      </ol>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Workflow Context</summary>
-        {% include "signals/_workflow_guidance.html" %}
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Top 3 Strategic Moves</summary>
-        <ol class="advisor-list">
-          {% for move in web.strategic_moves %}
-            <li>{{ move }}<span class="impact-label">Impact: Strengthens the web around funding, relationships, readiness, or pursuit execution.</span></li>
-          {% endfor %}
-        </ol>
-      </details>
-
-      <details id="insights" style="margin-top: 14px;">
-        <summary>Opportunity Web Insights</summary>
-      <div class="summary-grid">
-        <article class="summary-card insight-card"><strong>Opportunity Insight</strong><span class="muted">{{ web.opportunity_insight }}</span></article>
-        <article class="summary-card insight-card"><strong>Relationship Insight</strong><span class="muted">{{ web.relationship_insight }}</span></article>
-        <article class="summary-card insight-card"><strong>Readiness Insight</strong><span class="muted">{{ web.readiness_insight }}</span></article>
-        <article class="summary-card insight-card"><strong>Ecosystem Insight</strong><span class="muted">{{ web.ecosystem_insight }}</span></article>
-      </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Connected Ecosystem Detail</summary>
-      <p class="muted">The detailed web below shows where the ecosystem is strong and where gaps could slow opportunity movement.</p>
-      <div class="web-path" style="margin-top: 14px;">
-        {% for node in web.nodes %}
-          <article class="web-node">
-            <div class="web-node-header">
-              <div>
-                <p class="eyebrow">{{ node.label }} Node</p>
-                <h2>{{ node.label }}</h2>
-              </div>
-              <span class="pill">{{ node.status }}</span>
+    <!-- ═══ ECOSYSTEM DETAIL ═════════════════════════════════════════════ -->
+    <section class="panel" id="detail" style="margin-bottom:16px;">
+      <h2>Ecosystem Breakdown</h2>
+      <p class="muted" style="margin-bottom:14px;">Where the ecosystem is strong and where gaps could slow opportunity movement.</p>
+      {% for node in web.nodes %}
+        <div class="web-node">
+          <div class="web-node-header">
+            <div>
+              <h2 style="font-size:1rem;">{{ node.label }}</h2>
             </div>
+            <span class="pill">{{ node.status }}</span>
+          </div>
+          {% if node.metrics %}
             <div class="web-metrics">
               {% for label, value in node.metrics %}
                 <div class="web-metric">
@@ -232,50 +171,39 @@
                 </div>
               {% endfor %}
             </div>
-            <div class="web-lists">
+          {% endif %}
+          <div class="web-lists">
+            {% if node.highlights %}
               <section>
                 <h3>Highlights</h3>
-                <ul>
-                  {% for highlight in node.highlights %}
-                    <li>{{ highlight }}</li>
-                  {% endfor %}
-                </ul>
+                <ul>{% for h in node.highlights %}<li>{{ h }}</li>{% endfor %}</ul>
               </section>
+            {% endif %}
+            {% if node.gaps %}
               <section>
                 <h3>Gaps</h3>
-                <ul>
-                  {% for gap in node.gaps %}
-                    <li>{{ gap }}</li>
-                  {% endfor %}
-                </ul>
+                <ul>{% for g in node.gaps %}<li>{{ g }}</li>{% endfor %}</ul>
               </section>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </section>
+
+    <!-- ═══ OPPORTUNITY GAPS ═════════════════════════════════════════════ -->
+    {% if web.opportunity_gaps %}
+      <section class="panel" id="gaps" style="margin-bottom:16px;">
+        <h2>Opportunity Gaps</h2>
+        <p class="muted" style="margin-bottom:12px;">Areas where the web is thin — closing these unlocks more aligned opportunities.</p>
+        <div class="gap-grid">
+          {% for gap in web.opportunity_gaps %}
+            <div class="gap-card">
+              <strong>{{ gap }}</strong>
             </div>
-          </article>
-        {% endfor %}
-      </div>
-      </details>
-
-      <details id="opportunities" style="margin-top: 14px;">
-        <summary>Opportunity Gaps</summary>
-      <div class="summary-grid">
-        {% for gap in web.opportunity_gaps %}
-          <article class="summary-card">
-            <strong>{{ gap }}</strong>
-            <span class="muted">Web gap</span>
-          </article>
-        {% endfor %}
-      </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Highest Leverage Actions</summary>
-      <ol class="advisor-list">
-        {% for action in web.highest_leverage_actions %}
-          <li>{{ action }}<span class="impact-label">Impact: Strengthens the web between mission, relationships, resources, opportunities, and outcomes.</span></li>
-        {% endfor %}
-      </ol>
-      </details>
-    </details>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
 
     {% include "signals/_app_shell_footer.html" %}
   </main>

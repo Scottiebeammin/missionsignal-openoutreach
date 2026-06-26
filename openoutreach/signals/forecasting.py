@@ -110,11 +110,11 @@ def _forecast_confidence(opportunities: list[Opportunity]) -> str:
     return "Low"
 
 
-def build_pipeline_forecast() -> PipelineForecast:
-    opportunities = list(
-        Opportunity.objects.select_related("source_organization", "assigned_owner")
-        .order_by("deadline", "name")
-    )
+def build_pipeline_forecast(project=None) -> PipelineForecast:
+    qs = Opportunity.objects.select_related("source_organization", "assigned_owner").order_by("deadline", "name")
+    if project is not None:
+        qs = qs.filter(project=project)
+    opportunities = list(qs)
     active = [
         opportunity
         for opportunity in opportunities

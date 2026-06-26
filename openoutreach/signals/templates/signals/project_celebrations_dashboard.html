@@ -84,8 +84,7 @@
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Recent Celebration Feed</summary>
+    <section class="panel">
       <h2>Recent Celebration Feed</h2>
       <div class="grid">
         {% for celebration in celebrations.recent_celebrations %}
@@ -100,7 +99,7 @@
           <div class="empty-state"><strong>No celebrations yet</strong>Wins, milestones, and progress highlights will appear here.</div>
         {% endfor %}
       </div>
-    </details>
+    </section>
 
     {% include "signals/_app_shell_footer.html" %}
   </main>

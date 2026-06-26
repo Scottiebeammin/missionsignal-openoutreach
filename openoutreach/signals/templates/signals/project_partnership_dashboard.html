@@ -113,47 +113,34 @@
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Partnership Ecosystem Snapshot</summary>
+    <section class="panel">
+      <h2>Partnership Ecosystem Snapshot</h2>
       <p>Partnerships can help organizations expand reach, credibility, referral pathways, service delivery capacity, funding competitiveness, program sustainability, and community trust.</p>
       <div class="ecosystem-grid">
         {% for item in readiness.ecosystem_items %}
           <div class="ecosystem-card"><strong>{{ item }}</strong></div>
         {% endfor %}
       </div>
-    </details>
+    </section>
 
     <div class="dashboard">
       <div class="stack">
-        <details class="panel" open>
-          <summary>Partnership Categories</summary>
+        <section class="panel">
+          <h2>Partnership Categories</h2>
           <div class="category-grid">
-            {% for category in readiness.categories|slice:":5" %}
+            {% for category in readiness.categories %}
               <article class="category-card">
                 <h3>{{ category.name }}</h3>
                 <p class="muted">{{ category.explanation }}</p>
               </article>
             {% endfor %}
           </div>
-          <details style="margin-top: 12px;">
-            <summary>Show More</summary>
-            <div class="category-grid" style="margin-top: 10px;">
-              {% for category in readiness.categories|slice:"5:" %}
-                <article class="category-card">
-                  <h3>{{ category.name }}</h3>
-                  <p class="muted">{{ category.explanation }}</p>
-                </article>
-              {% empty %}
-                <p class="muted">No additional partnership categories.</p>
-              {% endfor %}
-            </div>
-          </details>
-        </details>
+        </section>
 
-        <details class="panel" open>
-          <summary>Recommended Partner Types</summary>
+        <section class="panel">
+          <h2>Recommended Partner Types</h2>
           <div class="partner-grid">
-            {% for partner in readiness.recommendations|slice:":5" %}
+            {% for partner in readiness.recommendations %}
               <article class="partner-card">
                 <header>
                   <h3>{{ partner.name }}</h3>
@@ -163,28 +150,12 @@
               </article>
             {% endfor %}
           </div>
-          <details style="margin-top: 12px;">
-            <summary>Show More</summary>
-            <div class="partner-grid" style="margin-top: 10px;">
-              {% for partner in readiness.recommendations|slice:"5:" %}
-                <article class="partner-card">
-                  <header>
-                    <h3>{{ partner.name }}</h3>
-                    <span class="score-badge">{{ partner.score }}</span>
-                  </header>
-                  <p>{{ partner.explanation }}</p>
-                </article>
-              {% empty %}
-                <p class="muted">No additional partner types.</p>
-              {% endfor %}
-            </div>
-          </details>
-        </details>
+        </section>
       </div>
 
       <aside class="stack">
-        <details class="panel">
-          <summary>Strengths and Partnership Gaps</summary>
+        <section class="panel">
+          <h2>Strengths and Partnership Gaps</h2>
           <div class="summary-grid">
             <section>
               <h2>Strengths</h2>
@@ -201,10 +172,10 @@
               {% endfor %}
             </section>
           </div>
-        </details>
+        </section>
 
-        <details class="panel">
-          <summary>Partnership Readiness Checklist</summary>
+        <section class="panel">
+          <h2>Partnership Readiness Checklist</h2>
           {% for item in readiness.checklist %}
             <div class="check-row">
               <span class="status {{ item.status_class }}">{{ item.status }}</span>
@@ -212,16 +183,16 @@
               <p class="muted">{{ item.detail }}</p>
             </div>
           {% endfor %}
-        </details>
+        </section>
 
-        <details class="panel">
-          <summary>Recommended Partnership Actions</summary>
+        <section class="panel">
+          <h2>Recommended Partnership Actions</h2>
           <ol class="advisor-list">
             {% for action in readiness.actions|slice:":5" %}
               <li>{{ action }}<span class="impact-label">Impact: Improves partnership readiness and relationship strategy.</span></li>
             {% endfor %}
           </ol>
-        </details>
+        </section>
       </aside>
     </div>
     {% include "signals/_app_shell_footer.html" %}

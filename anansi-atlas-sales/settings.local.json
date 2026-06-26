@@ -1,0 +1,48 @@
+{
+  "seller": {
+    "name": "Marcus Scott",
+    "title": "Founder",
+    "company": "Anansi Atlas",
+    "email": "marcus@anansiatlas.com",
+    "linkedin": "https://linkedin.com/in/marcusscott",
+    "calendly": ""
+  },
+  "product": {
+    "name": "Opportunity Web Snapshot",
+    "tagline": "Map the web of opportunity around your mission.",
+    "description": "A consulting-grade intelligence brief that surfaces aligned funders, partners, community resources, risks, and strategic pathways specific to a nonprofit's mission — with a 30-day action plan.",
+    "price_point": "Founding cohort pricing — contact for details",
+    "intake_url": "https://anansiatlas.com/accounts/signup/",
+    "landing_url": "https://anansiatlas.com/anansi-atlas/"
+  },
+  "icp": {
+    "org_types": ["nonprofit", "fiscally sponsored project", "community-based organization", "social enterprise"],
+    "budget_range": "$250K - $5M annual budget",
+    "stages": ["early-stage", "growth-stage"],
+    "decision_makers": ["Executive Director", "Development Director", "Co-Founder", "Program Director"],
+    "geography": "United States",
+    "focus_areas": [
+      "Youth Development", "Education", "Workforce Development", "Housing", "Mental Health",
+      "Food Security", "Healthcare", "Reentry / Justice-Involved", "LGBTQ+", "Veterans",
+      "Immigrants & Refugees", "Environmental Justice", "Arts & Culture", "Digital Equity",
+      "Community Development"
+    ]
+  },
+  "pipeline": {
+    "founding_cohort_target": 20,
+    "deal_stages": [
+      "prospect",
+      "researched",
+      "outreach_sent",
+      "replied",
+      "discovery_call_scheduled",
+      "discovery_call_completed",
+      "intake_submitted",
+      "snapshot_in_progress",
+      "snapshot_delivered",
+      "active_pilot",
+      "closed_won",
+      "closed_lost"
+    ]
+  }
+}

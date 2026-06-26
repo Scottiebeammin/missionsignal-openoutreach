@@ -130,6 +130,7 @@ class Project(models.Model):
         settings.AUTH_USER_MODEL, blank=True, related_name="missionsignal_projects",
     )
     active = models.BooleanField(default=True)
+    intake_notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -159,10 +160,41 @@ class OrganizationMember(models.Model):
     role = models.CharField(max_length=30, choices=Role.choices, default=Role.STAFF)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Contact info (collected at intake)
+    contact_name = models.CharField(max_length=255, blank=True, default="")
+    contact_position = models.CharField(max_length=255, blank=True, default="")
+    contact_email = models.EmailField(blank=True, default="")
+
+    # Onboarding state
+    has_toured = models.BooleanField(default=False)
+    visited_pages = models.JSONField(default=list, blank=True)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=("user", "project"), name="unique_user_project_member"),
         ]
+
+    ONBOARDING_STEPS = [
+        ("snapshot",      "View your Snapshot",       "project-snapshot"),
+        ("dashboard",     "Explore the Dashboard",    "project-dashboard"),
+        ("ecosystem",     "Review the Ecosystem",     "project-ecosystem"),
+        ("funding",       "Check Funding lanes",      "project-funding"),
+        ("readiness",     "Review Readiness",         "project-readiness"),
+        ("relationships", "Check Relationships",      "project-relationships"),
+        ("pipeline",      "Explore the Pipeline",     "project-pipeline"),
+    ]
+
+    def onboarding_progress(self):
+        visited = set(self.visited_pages or [])
+        return [
+            {"key": key, "label": label, "url_name": url_name, "done": key in visited}
+            for key, label, url_name in self.ONBOARDING_STEPS
+        ]
+
+    @property
+    def onboarding_complete(self):
+        visited = set(self.visited_pages or [])
+        return all(key in visited for key, _, _ in self.ONBOARDING_STEPS)
 
     def __str__(self):
         return f"{self.user} — {self.project} ({self.role})"

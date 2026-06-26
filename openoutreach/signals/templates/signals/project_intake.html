@@ -1,33 +1,560 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Create Anansi Atlas Project</title></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Set Up Your Organization — Anansi Atlas</title>
+  <style>
+    :root {
+      --night:     #07101d;
+      --navy:      #0d1b3d;
+      --deep:      #0d1628;
+      --ink:       #0e1e35;
+      --muted:     #5e6d85;
+      --line:      #dce5eb;
+      --page:      #f7f3eb;
+      --white:     #ffffff;
+      --gold:      #d4a017;
+      --gold-lt:   #e5ad3f;
+      --gold-soft: #fff6dd;
+      --rose:      #c46a3d;
+      --radius:    14px;
+      --radius-lg: 22px;
+      --shadow:    0 1px 3px rgba(13,27,61,.06), 0 16px 40px rgba(13,27,61,.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: var(--page);
+      color: var(--ink);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .intake-header {
+      background: linear-gradient(160deg, #07101d 0%, #0d1628 60%, #12213a 100%);
+      padding: 28px 0 0;
+    }
+    .intake-header-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 28px 32px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+      text-decoration: none;
+    }
+    .brand-mark {
+      width: 32px; height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #e5ad3f, #c96d3c);
+      position: relative; flex-shrink: 0;
+    }
+    .brand-mark::after {
+      content: "";
+      position: absolute; inset: 8px;
+      border: 1.5px solid rgba(8,17,31,.35);
+      border-radius: 50%;
+    }
+    .brand-name { color: #fff; font-size: .96rem; font-weight: 800; letter-spacing: .01em; }
+    .brand-tag  { display: block; color: var(--gold-lt); font-size: .75rem; font-weight: 700; }
+
+    .intake-eyebrow {
+      display: inline-block;
+      font-size: .68rem; font-weight: 900;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--gold-lt); margin-bottom: 10px;
+    }
+    .intake-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 950; line-height: 1;
+      letter-spacing: -.04em; color: #fff;
+      margin-bottom: 10px;
+    }
+    .intake-sub {
+      font-size: .96rem; color: #c5d1e8;
+      max-width: 540px; line-height: 1.6;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar-wrap {
+      background: rgba(255,255,255,.06);
+      height: 3px;
+      margin-top: 28px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--rose));
+      transition: width .4s ease;
+    }
+
+    /* ── Main form area ── */
+    .intake-body {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 28px 60px;
+    }
+
+    /* ── Section cards ── */
+    .form-section {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--white);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .section-num {
+      display: grid;
+      place-items: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: #fff;
+      font-size: .76rem; font-weight: 900;
+      flex-shrink: 0;
+    }
+    .section-name {
+      font-size: .78rem; font-weight: 900;
+      letter-spacing: .09em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .section-required-note {
+      margin-left: auto;
+      font-size: .74rem;
+      color: var(--rose);
+      font-weight: 700;
+    }
+
+    /* ── Field grid ── */
+    /* ── Checkbox grids ── */
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px 16px;
+      margin-top: 10px;
+    }
+    .checkbox-grid label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1.5px solid transparent;
+      transition: border-color .12s, background .12s;
+    }
+    .checkbox-grid label:hover {
+      background: var(--gold-soft);
+      border-color: rgba(212,160,23,.3);
+    }
+    .checkbox-grid input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--gold);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .checkbox-grid input[type="checkbox"]:checked + span {
+      color: var(--navy);
+      font-weight: 800;
+    }
+    /* Override Django's default ul for CheckboxSelectMultiple */
+    .checkbox-grid ul { list-style: none; padding: 0; margin: 0; display: contents; }
+    .checkbox-grid ul li { display: contents; }
+
+    .field-row { margin-bottom: 16px; }
+    .field-row:last-child { margin-bottom: 0; }
+    .field-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .field-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: .84rem; font-weight: 850;
+      color: var(--ink); margin-bottom: 5px;
+    }
+    label .req { color: var(--rose); margin-left: 2px; }
+    label .opt { color: var(--muted); font-weight: 700; font-size: .78rem; margin-left: 4px; }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="email"],
+    select,
+    textarea {
+      width: 100%;
+      border: 1.5px solid #cdd6df;
+      border-radius: var(--radius);
+      padding: 10px 13px;
+      background: #fafaf8;
+      color: var(--ink);
+      font: inherit; font-size: .92rem;
+      transition: border-color .15s ease, box-shadow .15s ease;
+      resize: vertical;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212,160,23,.18);
+      background: #fff;
+    }
+    .field-hint {
+      margin-top: 4px;
+      font-size: .78rem; color: var(--muted);
+    }
+    .field-error {
+      margin-top: 4px;
+      font-size: .80rem; color: #c03535; font-weight: 700;
+    }
+    .errorlist { list-style: none; padding: 0; }
+    .errorlist li { color: #c03535; font-size: .82rem; font-weight: 700; }
+
+    /* ── Submit zone ── */
+    .submit-zone {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 28px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+    .submit-note {
+      font-size: .84rem; color: var(--muted);
+      max-width: 420px; line-height: 1.5;
+    }
+    .btn-submit {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 50px;
+      padding: 13px 28px;
+      border-radius: 999px;
+      border: none;
+      background: var(--gold);
+      color: #0d1b3d;
+      font: inherit; font-size: .96rem; font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(212,160,23,.28);
+      transition: transform .14s ease, box-shadow .14s ease;
+    }
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(212,160,23,.36);
+    }
+
+    /* ── Non-field errors ── */
+    .form-errors {
+      padding: 14px 18px;
+      border: 1.5px solid #f2c7c7;
+      border-radius: var(--radius);
+      background: #fff5f5;
+      margin-bottom: 16px;
+      font-size: .86rem; color: #c03535;
+    }
+
+    @media (max-width: 600px) {
+      .intake-header-inner, .intake-body { padding-left: 18px; padding-right: 18px; }
+      .field-grid-2, .field-grid-3 { grid-template-columns: 1fr; }
+      .submit-zone { flex-direction: column; align-items: stretch; }
+      .btn-submit { justify-content: center; }
+    }
+  </style>
+</head>
 <body>
-  <main>
-    <h1>Create your Anansi Atlas profile</h1>
-    <p>Start with the four required fields. Optional profile details improve Funding readiness.</p>
-    <form method="post">
-      {% csrf_token %}
-      <fieldset>
-        <legend>Required</legend>
-        <p>{{ form.organization_name.label_tag }} {{ form.organization_name }}</p>
-        <p>{{ form.website.label_tag }} {{ form.website }}</p>
-        <p>{{ form.mission.label_tag }} {{ form.mission }}</p>
-        <p>{{ form.programs.label_tag }} {{ form.programs }}</p>
-      </fieldset>
-      <fieldset>
-        <legend>Optional Funding readiness profile</legend>
-        <p>{{ form.organization_type.label_tag }} {{ form.organization_type }} <small>{{ form.organization_type.help_text }}</small></p>
-        <p>{{ form.city.label_tag }} {{ form.city }}</p>
-        <p>{{ form.county.label_tag }} {{ form.county }}</p>
-        <p>{{ form.state.label_tag }} {{ form.state }}</p>
-        <p>{{ form.service_area_notes.label_tag }} {{ form.service_area_notes }}</p>
-        <p>{{ form.outcomes_and_impact.label_tag }} {{ form.outcomes_and_impact }} <small>{{ form.outcomes_and_impact.help_text }}</small></p>
-        <p>{{ form.budget_range.label_tag }} {{ form.budget_range }}</p>
-        <p>{{ form.current_funding_sources.label_tag }} {{ form.current_funding_sources }} <small>{{ form.current_funding_sources.help_text }}</small></p>
-        <p>{{ form.existing_partnerships.label_tag }} {{ form.existing_partnerships }} <small>{{ form.existing_partnerships.help_text }}</small></p>
-      </fieldset>
-      <button type="submit">Analyze Organization</button>
-    </form>
-  </main>
+
+<div class="intake-header">
+  <div class="intake-header-inner">
+    <a class="brand" href="{% url 'anansi-atlas-landing' %}">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </span>
+    </a>
+    <p class="intake-eyebrow">Organization Setup</p>
+    <h1 class="intake-title">Tell us about your organization.</h1>
+    <p class="intake-sub">This builds your Opportunity Web Snapshot — the executive brief showing aligned funders, partners, readiness, and next steps specific to your mission.</p>
+    <div class="progress-bar-wrap" role="progressbar" aria-label="Form completion progress">
+      <div class="progress-bar" style="width: 0%" id="progress-fill"></div>
+    </div>
+  </div>
+</div>
+
+<div class="intake-body">
+  {% if form.non_field_errors %}
+    <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  <form method="post" id="intake-form" novalidate>
+    {% csrf_token %}
+
+    <!-- Section 0: Personal Info -->
+    <div class="form-section">
+      <div class="section-label">
+        <span class="section-num">1</span>
+        <span class="section-name">Your Contact Information</span>
+        <span class="section-required-note">All fields required</span>
+      </div>
+
+      <div class="field-row field-grid-2">
+        <div>
+          <label for="{{ form.contact_name.id_for_label }}">
+            Full Name <span class="req" aria-hidden="true">*</span>
+          </label>
+          {{ form.contact_name }}
+          {% if form.contact_name.errors %}<div class="field-error">{{ form.contact_name.errors }}</div>{% endif %}
+        </div>
+        <div>
+          <label for="{{ form.contact_position.id_for_label }}">
+            Position / Title <span class="req" aria-hidden="true">*</span>
+          </label>
+          {{ form.contact_position }}
+          {% if form.contact_position.errors %}<div class="field-error">{{ form.contact_position.errors }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.contact_email.id_for_label }}">
+          Work Email <span class="req" aria-hidden="true">*</span>
+        </label>
+        {{ form.contact_email }}
+        {% if form.contact_email.errors %}<div class="field-error">{{ form.contact_email.errors }}</div>{% endif %}
+      </div>
+    </div>
+
+    <!-- Section 2: Identity -->
+    <div class="form-section">
+      <div class="section-label">
+        <span class="section-num">2</span>
+        <span class="section-name">Organization Identity</span>
+        <span class="section-required-note">All fields required</span>
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.organization_name.id_for_label }}">
+          Organization Name <span class="req" aria-hidden="true">*</span>
+        </label>
+        {{ form.organization_name }}
+        {% if form.organization_name.errors %}<div class="field-error">{{ form.organization_name.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.website.id_for_label }}">
+          Website <span class="req" aria-hidden="true">*</span>
+        </label>
+        {{ form.website }}
+        {% if form.website.errors %}<div class="field-error">{{ form.website.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-row field-grid-3">
+        <div>
+          <label for="{{ form.city.id_for_label }}">City <span class="req" aria-hidden="true">*</span></label>
+          {{ form.city }}
+          {% if form.city.errors %}<div class="field-error">{{ form.city.errors }}</div>{% endif %}
+        </div>
+        <div>
+          <label for="{{ form.state.id_for_label }}">State <span class="req" aria-hidden="true">*</span></label>
+          {{ form.state }}
+          {% if form.state.errors %}<div class="field-error">{{ form.state.errors }}</div>{% endif %}
+        </div>
+        <div>
+          <label for="{{ form.county.id_for_label }}">County <span class="opt">(optional)</span></label>
+          {{ form.county }}
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.organization_type.id_for_label }}">
+          Organization Type <span class="opt">(optional)</span>
+        </label>
+        {{ form.organization_type }}
+        <p class="field-hint">{{ form.organization_type.help_text }}</p>
+        {% if form.organization_type.errors %}<div class="field-error">{{ form.organization_type.errors }}</div>{% endif %}
+      </div>
+    </div>
+
+    <!-- Section 3: Mission -->
+    <div class="form-section">
+      <div class="section-label">
+        <span class="section-num">3</span>
+        <span class="section-name">Mission &amp; Programs</span>
+        <span class="section-required-note">All fields required</span>
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.mission.id_for_label }}">
+          Mission Statement <span class="req" aria-hidden="true">*</span>
+        </label>
+        {{ form.mission }}
+        <p class="field-hint">Your core purpose — who you serve and why. One to three sentences.</p>
+        {% if form.mission.errors %}<div class="field-error">{{ form.mission.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.programs.id_for_label }}">
+          Programs <span class="req" aria-hidden="true">*</span>
+        </label>
+        {{ form.programs }}
+        <p class="field-hint">Describe your key programs, services, or activities. Include outcomes where you can.</p>
+        {% if form.programs.errors %}<div class="field-error">{{ form.programs.errors }}</div>{% endif %}
+      </div>
+    </div>
+
+    <!-- Section 4: Focus Areas -->
+    <div class="form-section">
+      <div class="section-label">
+        <span class="section-num">4</span>
+        <span class="section-name">Focus Areas</span>
+        <span class="section-required-note" style="color: var(--muted);">Select all that apply</span>
+      </div>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px;">These directly shape which funders, grants, and partners appear in your Opportunity Web. The more specific, the better your matches.</p>
+      <div class="checkbox-grid">
+        {% for widget in form.focus_area_selections %}{{ widget }}{% endfor %}
+      </div>
+      {% if form.focus_area_selections.errors %}<div class="field-error" style="margin-top:8px;">{{ form.focus_area_selections.errors }}</div>{% endif %}
+    </div>
+
+    <!-- Section 5: Who You Serve -->
+    <div class="form-section">
+      <div class="section-label">
+        <span class="section-num">5</span>
+        <span class="section-name">Who You Serve</span>
+        <span class="section-required-note" style="color: var(--muted);">Select all that apply</span>
+      </div>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px;">Identifying your primary populations ensures funders and partners that target the same communities are surfaced for you.</p>
+      <div class="checkbox-grid">
+        {% for widget in form.beneficiary_selections %}{{ widget }}{% endfor %}
+      </div>
+      {% if form.beneficiary_selections.errors %}<div class="field-error" style="margin-top:8px;">{{ form.beneficiary_selections.errors }}</div>{% endif %}
+    </div>
+
+    <!-- Section 6: Funding Context -->
+    <div class="form-section">
+      <div class="section-label">
+        <span class="section-num">6</span>
+        <span class="section-name">Funding &amp; Capacity Context</span>
+        <span class="section-required-note" style="color: var(--muted);">Optional — improves your Snapshot</span>
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.budget_range.id_for_label }}">
+          Annual Budget Range <span class="opt">(optional)</span>
+        </label>
+        {{ form.budget_range }}
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.outcomes_and_impact.id_for_label }}">
+          Outcomes &amp; Impact <span class="opt">(optional)</span>
+        </label>
+        {{ form.outcomes_and_impact }}
+        <p class="field-hint">{{ form.outcomes_and_impact.help_text }}</p>
+      </div>
+
+      <div class="field-row field-grid-2">
+        <div>
+          <label for="{{ form.current_funding_sources.id_for_label }}">
+            Current Funding Sources <span class="opt">(optional)</span>
+          </label>
+          {{ form.current_funding_sources }}
+          <p class="field-hint">{{ form.current_funding_sources.help_text }}</p>
+        </div>
+        <div>
+          <label for="{{ form.existing_partnerships.id_for_label }}">
+            Existing Partnerships <span class="opt">(optional)</span>
+          </label>
+          {{ form.existing_partnerships }}
+          <p class="field-hint">{{ form.existing_partnerships.help_text }}</p>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.service_area_notes.id_for_label }}">
+          Service Area Notes <span class="opt">(optional)</span>
+        </label>
+        {{ form.service_area_notes }}
+        <p class="field-hint">Any geographic context beyond city/state — neighborhoods, counties, regions.</p>
+      </div>
+    </div>
+
+    <!-- Section 7: Notes -->
+    <div class="form-section">
+      <div class="section-label">
+        <span class="section-num">7</span>
+        <span class="section-name">Focus &amp; Notes</span>
+        <span class="section-required-note" style="color: var(--muted);">Optional — but very helpful</span>
+      </div>
+
+      <div class="field-row">
+        <label for="{{ form.intake_notes.id_for_label }}">
+          How can Anansi Atlas help? <span class="opt">(optional)</span>
+        </label>
+        {{ form.intake_notes }}
+        <p class="field-hint">{{ form.intake_notes.help_text }}</p>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-zone">
+      <p class="submit-note">Once submitted, Anansi Atlas will analyze your organization and build your Opportunity Web Snapshot.</p>
+      <button class="btn-submit" type="submit">
+        Build my Opportunity Web →
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+// Progress bar based on required fields filled
+(function() {
+  var required = document.querySelectorAll('input[required], textarea[required], select[required]');
+  // Also track the key fields manually since Django renders without required attr by default
+  var keyFields = ['id_contact_name','id_contact_position','id_contact_email','id_organization_name','id_website','id_mission','id_programs','id_city','id_state'];
+  var fill = document.getElementById('progress-fill');
+
+  function update() {
+    var done = 0;
+    keyFields.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.value.trim()) done++;
+    });
+    fill.style.width = Math.round((done / keyFields.length) * 100) + '%';
+  }
+
+  keyFields.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', update);
+  });
+  update();
+})();
+</script>
+
 </body>
 </html>

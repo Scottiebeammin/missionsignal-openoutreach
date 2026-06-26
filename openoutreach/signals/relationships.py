@@ -313,7 +313,9 @@ def _relationship_terms(item) -> str:
 
 def _opportunities_for_terms(project, terms: str) -> list[str]:
     opportunities = []
-    for opportunity in Opportunity.objects.exclude(status=Opportunity.Status.ARCHIVED):
+    for opportunity in Opportunity.objects.filter(project=project).exclude(lifecycle_status__in=[
+        Opportunity.LifecycleStatus.DECLINED, Opportunity.LifecycleStatus.CLOSED,
+    ]):
         haystack = " ".join([
             opportunity.name,
             opportunity.source_name,

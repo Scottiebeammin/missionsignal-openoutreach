@@ -1141,7 +1141,9 @@ def _source_summary(project) -> SnapshotSourceSummary:
     funders_reviewed = Funder.objects.filter(active=True).exclude(
         intelligence_status=Funder.IntelligenceStatus.ARCHIVED,
     ).count()
-    opportunities_reviewed = Opportunity.objects.exclude(status=Opportunity.Status.ARCHIVED).count()
+    opportunities_reviewed = Opportunity.objects.filter(project=project).exclude(
+        lifecycle_status__in=[Opportunity.LifecycleStatus.DECLINED, Opportunity.LifecycleStatus.CLOSED],
+    ).count()
     ecosystem_entities_reviewed = PartnerOrganization.objects.filter(active=True).exclude(
         intelligence_status=PartnerOrganization.IntelligenceStatus.ARCHIVED,
     ).count()

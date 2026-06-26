@@ -332,11 +332,11 @@ def assign_opportunity_owner(opportunity: Opportunity, owner) -> Opportunity:
     return opportunity
 
 
-def build_lifecycle_summary(limit_per_stage: int | None = None) -> LifecycleSummary:
-    opportunities = list(
-        Opportunity.objects.select_related("source_organization", "assigned_owner")
-        .order_by("deadline", "name")
-    )
+def build_lifecycle_summary(project=None, limit_per_stage: int | None = None) -> LifecycleSummary:
+    qs = Opportunity.objects.select_related("source_organization", "assigned_owner").order_by("deadline", "name")
+    if project is not None:
+        qs = qs.filter(project=project)
+    opportunities = list(qs)
     stages = []
     for value in PIPELINE_STAGE_VALUES:
         stage_opportunities = [

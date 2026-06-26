@@ -124,19 +124,19 @@
 
     <div class="dashboard">
       <div class="stack">
-        <details class="panel" open>
-          <summary>Relevant Public-Sector Lanes</summary>
+        <section class="panel">
+          <h2>Relevant Public-Sector Lanes</h2>
           <div class="lane-grid">
             {% for lane in readiness.public_sector_lanes %}
               <div class="lane-card">{{ lane }}</div>
             {% endfor %}
           </div>
-        </details>
+        </section>
 
-        <details class="panel" open>
-          <summary>Recommended Government Entity Types</summary>
+        <section class="panel">
+          <h2>Recommended Government Entity Types</h2>
           <div class="entity-grid">
-            {% for entity in readiness.recommended_entity_types|slice:":5" %}
+            {% for entity in readiness.recommended_entity_types %}
               <article class="entity-card{% if entity.name == 'City Government' %} city-core{% endif %}">
                 <header>
                   <h3>{{ entity.name }}</h3>
@@ -146,28 +146,12 @@
               </article>
             {% endfor %}
           </div>
-          <details style="margin-top: 12px;">
-            <summary>Show More</summary>
-            <div class="entity-grid" style="margin-top: 10px;">
-              {% for entity in readiness.recommended_entity_types|slice:"5:" %}
-                <article class="entity-card{% if entity.name == 'City Government' %} city-core{% endif %}">
-                  <header>
-                    <h3>{{ entity.name }}</h3>
-                    <span class="score-badge">{{ entity.score }}</span>
-                  </header>
-                  <p>{{ entity.explanation }}</p>
-                </article>
-              {% empty %}
-                <p class="muted">No additional government entity types.</p>
-              {% endfor %}
-            </div>
-          </details>
-        </details>
+        </section>
       </div>
 
       <aside class="stack">
-        <details class="panel">
-          <summary>Strengths and Gaps</summary>
+        <section class="panel">
+          <h2>Strengths and Gaps</h2>
           <div class="summary-grid">
             <section>
               <h2>Strengths</h2>
@@ -184,10 +168,10 @@
               {% endfor %}
             </section>
           </div>
-        </details>
+        </section>
 
-        <details class="panel">
-          <summary>Government Engagement Checklist</summary>
+        <section class="panel">
+          <h2>Government Engagement Checklist</h2>
           <div class="checklist">
             {% for item in readiness.engagement_checklist %}
               <div class="check-row">
@@ -197,16 +181,16 @@
               </div>
             {% endfor %}
           </div>
-        </details>
+        </section>
 
-        <details class="panel">
-          <summary>Recommended Government Actions</summary>
+        <section class="panel">
+          <h2>Recommended Government Actions</h2>
           <ol class="advisor-list">
             {% for action in readiness.recommended_actions|slice:":5" %}
               <li>{{ action }}<span class="impact-label">Impact: Improves agency readiness and public-sector positioning.</span></li>
             {% endfor %}
           </ol>
-        </details>
+        </section>
       </aside>
     </div>
     {% include "signals/_app_shell_footer.html" %}

@@ -69,8 +69,8 @@
       </section>
     </header>
 
-    <details class="panel" open>
-      <summary>Top Opportunities</summary>
+    <section class="panel">
+      <h2>Top Opportunities</h2>
       <div class="section-toolbar">
         <p class="muted">What requires action now: strongest matches and highest-value records.</p>
         <div class="section-actions">
@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class="grid">
-        {% for item in discovery.top_opportunities|slice:":3" %}
+        {% for item in discovery.top_opportunities %}
           <article class="opportunity-card">
             <h3>{{ item.opportunity.name }}</h3>
             <p>
@@ -96,31 +96,12 @@
           </div>
         {% endfor %}
       </div>
-      <details style="margin-top: 12px;">
-        <summary>Show More</summary>
-        <div class="grid" style="margin-top: 10px;">
-          {% for item in discovery.top_opportunities|slice:"3:" %}
-            <article class="opportunity-card">
-              <h3>{{ item.opportunity.name }}</h3>
-              <p>
-                <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
-                <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
-                <span class="score-badge">Match {{ item.match.score }}</span>
-              </p>
-              <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
-            </article>
-          {% empty %}
-            <p class="muted">No additional top opportunities.</p>
-          {% endfor %}
-        </div>
-      </details>
-    </details>
+    </section>
 
-    <details class="panel">
-      <summary>Supporting Pathway Detail</summary>
-      <h2>Pathway Health and Pipeline Context</h2>
+    <section class="panel">
+      <h2>Opportunity Pipeline Summary</h2>
       <div class="section-toolbar">
-        <h2>Opportunity Pipeline Summary</h2>
+        <p class="muted">Pathway health and pipeline context.</p>
         <a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open full pipeline board</a>
       </div>
       <div class="metrics">
@@ -130,34 +111,19 @@
         <div class="metric"><span class="muted">Upcoming Deadlines</span><strong>{{ discovery.upcoming_opportunities }}</strong></div>
         <div class="metric"><span class="muted">Pipeline Health</span><strong>{{ lifecycle.health.score }}</strong></div>
         <div class="metric"><span class="muted">Active Lifecycle Opportunities</span><strong>{{ lifecycle.active_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Total Opportunities</span><strong>{{ discovery.total_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Total Matches</span><strong>{{ match_overview.total_matches }}</strong></div>
+        <div class="metric"><span class="muted">Submitted</span><strong>{{ lifecycle.submitted_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Awarded</span><strong>{{ lifecycle.awarded_opportunities }}</strong></div>
+        <div class="metric"><span class="muted">Highest Priority Active</span><strong>{{ lifecycle.highest_priority_active_opportunity.name|default:"None" }}</strong></div>
       </div>
-      <details style="margin-top: 12px;">
-        <summary>Secondary opportunity and lifecycle details</summary>
-        <div class="metrics" style="margin-top: 10px;">
-          <div class="metric"><span class="muted">Total Opportunities</span><strong>{{ discovery.total_opportunities }}</strong></div>
-          <div class="metric"><span class="muted">Total Matches</span><strong>{{ match_overview.total_matches }}</strong></div>
-          <div class="metric"><span class="muted">Submitted</span><strong>{{ lifecycle.submitted_opportunities }}</strong></div>
-          <div class="metric"><span class="muted">Awarded</span><strong>{{ lifecycle.awarded_opportunities }}</strong></div>
-          <div class="metric"><span class="muted">Highest Priority Active</span><strong>{{ lifecycle.highest_priority_active_opportunity.name|default:"None" }}</strong></div>
-        </div>
-      </details>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Workflow Context</summary>
-        {% include "signals/_workflow_guidance.html" %}
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Opportunity Categories</summary>
-      <div class="section-toolbar">
-        <p class="muted">What can wait: broader sector coverage is grouped below the top categories.</p>
-        <div class="section-actions">
-          <a class="compact-link" href="{% url 'project-discovery' project.pk %}">Show All Categories</a>
-          <span class="pill">Collapse Categories</span>
-        </div>
-      </div>
+    <section class="panel">
+      <h2>Opportunity Categories</h2>
+      <p class="muted">Broader sector coverage grouped by focus area.</p>
       <div class="grid">
-        {% for category in discovery.focus_categories|slice:":5" %}
+        {% for category in discovery.focus_categories %}
           <article class="opportunity-card">
             <h3>{{ category.label }}</h3>
             <p class="muted">{{ category.count }} opportunities</p>
@@ -166,23 +132,10 @@
           <div class="empty-state"><strong>No categories yet</strong>Add focus areas to opportunities to organize the inventory.</div>
         {% endfor %}
       </div>
-      <details style="margin-top: 12px;">
-        <summary>More Categories</summary>
-        <div class="grid" style="margin-top: 10px;">
-          {% for category in discovery.focus_categories|slice:"5:" %}
-            <article class="opportunity-card">
-              <h3>{{ category.label }}</h3>
-              <p class="muted">{{ category.count }} opportunities</p>
-            </article>
-          {% empty %}
-            <p class="muted">No additional categories.</p>
-          {% endfor %}
-        </div>
-      </details>
-      </details>
+    </section>
 
-      <details id="pipeline" style="margin-top: 14px;">
-        <summary>Lifecycle Pipeline Preview</summary>
+    <section id="pipeline" class="panel">
+      <h2>Lifecycle Pipeline Preview</h2>
       <div class="pipeline">
         {% for group in lifecycle.summary_stages %}
           <article class="pipeline-card">
@@ -199,10 +152,10 @@
         {% endfor %}
       </div>
       <p style="margin-top: 12px;"><a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open full pipeline</a></p>
-      </details>
+    </section>
 
-      <details style="margin-top: 14px;">
-        <summary>Advanced Match Health</summary>
+    <section class="panel">
+      <h2>Match Health by Category</h2>
       <div class="grid" style="margin-top: 12px;">
         {% for category in match_overview.categories %}
           <article class="opportunity-card">
@@ -211,8 +164,7 @@
           </article>
         {% endfor %}
       </div>
-      </details>
-    </details>
+    </section>
     {% include "signals/_app_shell_footer.html" %}
   </main>
 </body>

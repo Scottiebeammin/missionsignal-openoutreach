@@ -321,7 +321,7 @@ def _strategic_moves(relationships, discovery_overview, opportunity_gaps: list[s
 
 def build_opportunity_web(project, discovery_overview) -> OpportunityWebOverview:
     relationships = build_relationship_overview(project)
-    forecast = build_pipeline_forecast()
+    forecast = build_pipeline_forecast(project)
     nodes = [
         _mission_node(project),
         _funder_node(project, relationships),

@@ -79,6 +79,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -101,6 +102,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "openoutreach.core.context_processors.onboarding",
             ],
         },
     },
@@ -123,6 +125,14 @@ SITE_ID = 1
 
 STATIC_URL = "/static/"
 STATIC_ROOT = ROOT_DIR / "staticfiles"
+
+# WhiteNoise serves static files directly from gunicorn in production (no separate
+# static host / CDN needed). Compressed storage gzips assets; non-manifest variant
+# avoids hashed-filename lookups that would 500 on any un-collected reference.
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = ROOT_DIR / "media"

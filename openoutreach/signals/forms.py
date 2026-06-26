@@ -1,10 +1,31 @@
 from django import forms
 
+from openoutreach.signals.categories import OPPORTUNITY_FOCUS_CATEGORIES
 from openoutreach.signals.models import InterestSignup, PilotFeedback, PilotProfile
 
 
 def _split_lines(value: str) -> list[str]:
     return [line.strip() for line in value.splitlines() if line.strip()]
+
+
+BENEFICIARY_CHOICES = [
+    ("youth", "Youth & Young People"),
+    ("girls and young women", "Girls & Young Women"),
+    ("families", "Families"),
+    ("seniors", "Seniors & Older Adults"),
+    ("veterans", "Veterans"),
+    ("job seekers", "Job Seekers & Workforce"),
+    ("small businesses", "Small Businesses & Entrepreneurs"),
+    ("people experiencing homelessness", "People Experiencing Homelessness"),
+    ("immigrants and refugees", "Immigrants & Refugees"),
+    ("people with disabilities", "People with Disabilities"),
+    ("LGBTQ+ individuals", "LGBTQ+ Individuals"),
+    ("justice-involved individuals", "Justice-Involved Individuals"),
+    ("low-income residents", "Low-Income Residents"),
+    ("communities of color", "Communities of Color"),
+    ("rural residents", "Rural Residents"),
+    ("communities", "General Community / Residents"),
+]
 
 
 class OrganizationIntakeForm(forms.Form):
@@ -15,6 +36,10 @@ class OrganizationIntakeForm(forms.Form):
         ("$1M - $5M", "$1M - $5M"),
         ("$5M+", "$5M+"),
     ]
+
+    contact_name = forms.CharField(label="Your Full Name", max_length=255)
+    contact_position = forms.CharField(label="Position / Title", max_length=255)
+    contact_email = forms.EmailField(label="Work Email")
 
     organization_name = forms.CharField(label="Organization Name", max_length=255)
     website = forms.URLField(label="Website", max_length=500)
@@ -32,9 +57,9 @@ class OrganizationIntakeForm(forms.Form):
         required=False,
         help_text="Examples: nonprofit, fiscally sponsored project, school, coalition.",
     )
-    city = forms.CharField(label="City (optional)", max_length=255, required=False)
+    city = forms.CharField(label="City", max_length=255)
     county = forms.CharField(label="County (optional)", max_length=255, required=False)
-    state = forms.CharField(label="State (optional)", max_length=255, required=False)
+    state = forms.CharField(label="State", max_length=255)
     service_area_notes = forms.CharField(
         label="Service Area Notes (optional)",
         required=False,
@@ -62,6 +87,27 @@ class OrganizationIntakeForm(forms.Form):
         required=False,
         help_text="Use one partnership per line.",
         widget=forms.Textarea(attrs={"rows": 3}),
+    )
+
+    focus_area_selections = forms.MultipleChoiceField(
+        label="Focus Areas",
+        choices=[(c, c) for c in OPPORTUNITY_FOCUS_CATEGORIES],
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        help_text="Select all that apply — this directly shapes which funders and partners appear in your Opportunity Web.",
+    )
+    beneficiary_selections = forms.MultipleChoiceField(
+        label="Who does your organization serve?",
+        choices=BENEFICIARY_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        help_text="Select all populations your programs primarily serve.",
+    )
+    intake_notes = forms.CharField(
+        label="How can Anansi Atlas help?",
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 5}),
+        help_text="Share the specific challenges, goals, or areas where you're looking for support. This helps us tailor your Opportunity Web to what matters most.",
     )
 
     def clean_outcomes_and_impact(self):

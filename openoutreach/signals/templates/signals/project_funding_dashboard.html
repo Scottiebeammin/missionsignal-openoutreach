@@ -123,19 +123,19 @@
 
     <div class="dashboard">
       <div class="stack">
-        <details class="panel" open>
-          <summary>Funding Themes</summary>
+        <section class="panel">
+          <h2>Funding Themes</h2>
           <div class="theme-grid">
             {% for theme in readiness.funding_themes %}
               <div class="theme-card">{{ theme }}</div>
             {% endfor %}
           </div>
-        </details>
+        </section>
 
-        <details class="panel" open>
-          <summary>Recommended Funder Types</summary>
+        <section class="panel">
+          <h2>Recommended Funder Types</h2>
           <div class="funder-grid">
-            {% for funder in readiness.recommended_funder_types|slice:":5" %}
+            {% for funder in readiness.recommended_funder_types %}
               <article class="funder-card{% if funder.name == 'Local Government' %} local-government{% endif %}">
                 <header>
                   <h3>{{ funder.name }}</h3>
@@ -152,26 +152,10 @@
               </article>
             {% endfor %}
           </div>
-          <details style="margin-top: 12px;">
-            <summary>Show More</summary>
-            <div class="funder-grid" style="margin-top: 10px;">
-              {% for funder in readiness.recommended_funder_types|slice:"5:" %}
-                <article class="funder-card{% if funder.name == 'Local Government' %} local-government{% endif %}">
-                  <header>
-                    <h3>{{ funder.name }}</h3>
-                    <span class="score-badge">{{ funder.score }}</span>
-                  </header>
-                  <p>{{ funder.explanation }}</p>
-                </article>
-              {% empty %}
-                <p class="muted">No additional funder types.</p>
-              {% endfor %}
-            </div>
-          </details>
-        </details>
+        </section>
 
-        <details class="panel local-snapshot" open>
-          <summary>{{ readiness.local_government_snapshot.heading }}</summary>
+        <section class="panel local-snapshot">
+          <h2>{{ readiness.local_government_snapshot.heading }}</h2>
           <p>{{ readiness.local_government_snapshot.relevance }}</p>
           <div class="lane-grid" aria-label="Local Government opportunity lanes">
             {% for lane in readiness.local_government_snapshot.opportunity_lanes %}
@@ -179,12 +163,12 @@
             {% endfor %}
           </div>
           <p class="muted">{{ readiness.local_government_snapshot.next_step }}</p>
-        </details>
+        </section>
       </div>
 
       <aside class="stack">
-        <details class="panel">
-          <summary>Strengths and Gaps</summary>
+        <section class="panel">
+          <h2>Strengths and Gaps</h2>
           <div class="summary-grid">
             <section>
               <h2>Strengths</h2>
@@ -201,10 +185,10 @@
               {% endfor %}
             </section>
           </div>
-        </details>
+        </section>
 
-        <details class="panel">
-          <summary>Grant Readiness Checklist</summary>
+        <section class="panel">
+          <h2>Grant Readiness Checklist</h2>
           <div class="checklist">
             {% for item in readiness.grant_readiness_checklist %}
               <div class="check-row">
@@ -214,16 +198,16 @@
               </div>
             {% endfor %}
           </div>
-        </details>
+        </section>
 
-        <details class="panel">
-          <summary>Recommended Funding Actions</summary>
+        <section class="panel">
+          <h2>Recommended Funding Actions</h2>
           <ol class="advisor-list">
             {% for action in readiness.recommended_funding_actions|slice:":5" %}
               <li>{{ action }}<span class="impact-label">Impact: Improves funding readiness and funder targeting.</span></li>
             {% endfor %}
           </ol>
-        </details>
+        </section>
       </aside>
     </div>
     {% include "signals/_app_shell_footer.html" %}

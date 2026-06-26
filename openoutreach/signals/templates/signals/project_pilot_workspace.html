@@ -137,14 +137,14 @@
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Internal pilot notes</summary>
+    <section class="panel">
+      <h2>Internal Pilot Notes</h2>
       <div class="grid" style="margin-top: 12px;">
         <article class="pilot-card"><h3>Snapshot Notes</h3><p>{{ pilot.profile.snapshot_notes|default:"No snapshot notes yet." }}</p></article>
         <article class="pilot-card"><h3>Meeting Notes</h3><p>{{ pilot.profile.meeting_notes|default:"No walkthrough notes yet." }}</p></article>
         <article class="pilot-card"><h3>Follow-Up Actions</h3><p>{{ pilot.profile.follow_up_actions|default:"No follow-up actions yet." }}</p></article>
       </div>
-    </details>
+    </section>
 
     {% include "signals/_app_shell_footer.html" %}
   </main>

@@ -1,0 +1,52 @@
+# Render Blueprint for Anansi Atlas (Django web service + managed Postgres).
+# Deploy: push to GitHub, then in Render → New → Blueprint → pick this repo.
+# Render reads this file, creates the database and web service, and wires DATABASE_URL.
+#
+# After the first deploy you MUST set (Render dashboard → service → Environment):
+#   ALLOWED_HOSTS         e.g.  anansiatlas.com,www.anansiatlas.com,anansi-atlas.onrender.com
+#   CSRF_TRUSTED_ORIGINS  e.g.  https://anansiatlas.com,https://www.anansiatlas.com
+# and, once an email provider is chosen, the EMAIL_* vars below.
+# SECRET_KEY is generated automatically. DATABASE_URL is injected from the database.
+
+databases:
+  - name: anansi-atlas-db
+    databaseName: anansi
+    user: anansi
+    plan: basic-256mb        # free tier expires after 90 days — use a paid tier for a real launch
+
+services:
+  - type: web
+    name: anansi-atlas
+    runtime: python
+    plan: starter            # avoids the free tier's cold-start sleep; bump to standard if needed
+    branch: main
+    buildCommand: "pip install -r requirements/production.txt && python manage.py collectstatic --noinput"
+    preDeployCommand: "python manage.py migrate"   # runs once per deploy, before traffic switches
+    startCommand: "gunicorn openoutreach.wsgi:application --workers 3 --timeout 120"
+    healthCheckPath: /anansi-atlas/
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: anansi-atlas-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        sync: false           # set in dashboard to your domain(s)
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false           # set in dashboard, https:// included
+      # ── Email (optional now; waitlist still saves if unset). Fill once an ESP is chosen. ──
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false

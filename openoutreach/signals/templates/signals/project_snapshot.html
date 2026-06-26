@@ -5,10 +5,6 @@
   <title>Opportunity Web Snapshot - {{ organization.name }}</title>
   {% include "signals/_app_shell_styles.html" %}
   <style>
-    .deliverable-cover {
-      border-left: 5px solid var(--accent);
-      background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%);
-    }
     .snapshot-command {
       display: grid;
       grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
@@ -23,26 +19,65 @@
       color: #fff;
       box-shadow: var(--shadow);
     }
-    .snapshot-action h2 { color: #fff; }
+    .snapshot-action h2 { color: #fff; margin-bottom: 12px; }
     .snapshot-action .muted { color: #cbd6e4; }
-    .snapshot-action li + li { margin-top: 8px; }
-    .deliverable-list {
+    .snapshot-action ol { margin: 0; padding-left: 20px; }
+    .snapshot-action li { margin-bottom: 10px; color: #fff; font-weight: 700; }
+    .snapshot-action li .impact-label { display: block; font-weight: 400; color: #cbd6e4; font-size: .84rem; margin-top: 3px; }
+    .deliverable-cover {
+      border-left: 5px solid var(--accent);
+      background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%);
+    }
+    .funder-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      background: #fff;
+    }
+    .funder-card strong { display: block; font-size: 1rem; margin-bottom: 4px; }
+    .funder-card .level-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .funder-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .partner-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
-      margin: 12px 0 0;
-      padding: 0;
-      list-style: none;
     }
-    .deliverable-list li {
+    .partner-card {
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 12px;
+      padding: 14px;
       background: #fff;
-      font-weight: 850;
     }
+    .partner-card strong { display: block; margin-bottom: 4px; }
+    .pathways-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .section-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .section-label-row h2 { margin: 0; }
     @media (max-width: 900px) {
-      .snapshot-command, .deliverable-list { grid-template-columns: 1fr; }
+      .snapshot-command, .pathways-grid, .funder-grid, .partner-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -51,9 +86,8 @@
   <main>
     <header class="hero">
       <section>
-        <p class="eyebrow">Opportunity Web Snapshot · Consulting Deliverable</p>
-        <h1>Opportunity Web Snapshot</h1>
-        <p class="muted">A concise executive deliverable for the next 30 days.</p>
+        <h1>{{ organization.name }}</h1>
+        <p class="muted">Your Opportunity Web Snapshot — top funders, partners, pathways, and your 30-day action plan.</p>
       </section>
       <section class="metric-card advisor-panel">
         <h2>Readiness Score</h2>
@@ -62,19 +96,17 @@
       </section>
     </header>
 
+    <!-- ═══ SUMMARY + 30-DAY PLAN ════════════════════════════════════════ -->
     <section class="snapshot-command">
       <article id="summary" class="panel deliverable-cover">
         <h2>Executive Summary</h2>
         <p class="muted">{{ snapshot.mission_overview }}</p>
-        <details style="margin-top: 12px;">
-          <summary>Snapshot metrics</summary>
         <div class="metric-grid" style="margin-top: 12px;">
           <div class="metric-card"><strong>{{ snapshot.readiness_score }}</strong><span>Readiness Score</span><p class="muted">{{ snapshot.readiness_level }}</p></div>
           {% for label, value in snapshot.opportunity_web_summary|slice:":3" %}
             <div class="metric-card"><strong>{{ value }}</strong><span>{{ label }}</span></div>
           {% endfor %}
         </div>
-        </details>
       </article>
       <article id="plan" class="snapshot-action">
         <h2>30-Day Action Plan</h2>
@@ -89,7 +121,167 @@
       </article>
     </section>
 
-    <section id="risks-gaps" class="panel">
+    <!-- ═══ FUNDER PATHWAYS ══════════════════════════════════════════════ -->
+    <section class="pathways-grid" id="funders">
+      <article class="panel">
+        <div class="section-label-row">
+          <h2>Top Funder Pathways</h2>
+          <a class="pill" href="{% url 'project-funding' project.pk %}">Open Funding →</a>
+        </div>
+        <div class="funder-grid">
+          {% for funder in snapshot.funder_fit_insights %}
+            <div class="funder-card">
+              <strong>{{ funder.archetype }}</strong>
+              <span class="level-badge">{{ funder.alignment_level }}</span>
+              <p class="muted" style="font-size:.84rem;">{{ funder.rationale }}</p>
+              {% if funder.preparation_steps %}
+                <p class="muted" style="font-size:.82rem;margin-top:6px;"><strong style="color:var(--ink);">Next step:</strong> {{ funder.preparation_steps.0 }}</p>
+              {% endif %}
+            </div>
+          {% empty %}
+            <p class="muted">Run analysis to generate funder pathway recommendations.</p>
+          {% endfor %}
+        </div>
+      </article>
+      <article class="panel">
+        <div class="section-label-row">
+          <h2>Named Funder Targets</h2>
+        </div>
+        <ul class="advisor-list">
+          {% for target in snapshot.relationship_target_insights %}
+            <li>
+              <strong>{{ target.label }}</strong>
+              <span class="impact-label">{{ target.rationale }}</span>
+            </li>
+          {% empty %}
+            <p class="muted">Named targets will appear as relationship intelligence is added.</p>
+          {% endfor %}
+        </ul>
+      </article>
+    </section>
+
+    <!-- ═══ PARTNER PATHWAYS ═════════════════════════════════════════════ -->
+    <section class="panel" id="partners" style="margin-bottom:16px;">
+      <div class="section-label-row">
+        <h2>Partner Pathways</h2>
+        <a class="pill" href="{% url 'project-ecosystem' project.pk %}">Open Ecosystem →</a>
+      </div>
+      <div class="partner-grid">
+        {% for pathway in snapshot.top_partner_pathway_insights %}
+          <div class="partner-card">
+            <strong>{{ pathway.label }}</strong>
+            <p class="muted" style="font-size:.84rem;">{{ pathway.rationale }}</p>
+            {% if pathway.factors %}
+              <p class="muted" style="font-size:.8rem;margin-top:4px;">{{ pathway.factors|join:" · " }}</p>
+            {% endif %}
+          </div>
+        {% empty %}
+          <p class="muted">Partner pathways will appear after analysis runs.</p>
+        {% endfor %}
+      </div>
+      {% if snapshot.ecosystem_gap_insights %}
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);">
+          <h3 style="margin-bottom:10px;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Ecosystem Gaps to Close</h3>
+          <div class="summary-grid">
+            {% for gap in snapshot.ecosystem_gap_insights %}
+              <article class="summary-card">
+                <strong>{{ gap.label }}</strong>
+                <span class="muted">{{ gap.rationale }}</span>
+              </article>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ TOP OPPORTUNITIES ════════════════════════════════════════════ -->
+    <section class="panel" id="opportunities" style="margin-bottom:16px;">
+      <div class="section-label-row">
+        <h2>Top Opportunities</h2>
+        <a class="pill" href="{% url 'project-opportunities' project.pk %}">Open Pathways →</a>
+      </div>
+      <div class="compact-grid">
+        {% for item in snapshot.top_opportunity_insights %}
+          <article class="compact-card">
+            <strong>{{ item.name }}</strong>
+            <span class="score-badge">Score {{ item.score }}</span>
+            <p class="muted">{{ item.opportunity_type }} · {{ item.priority }} priority · {{ item.level }}</p>
+            <p class="muted"><strong>Why this appears:</strong> {{ item.rationale }}</p>
+            <p class="muted"><strong>Why now:</strong> {{ item.why_now }}</p>
+            <p class="muted"><strong>Preparation required:</strong> {{ item.preparation_required }}</p>
+            {% if item.source_indicators %}
+              <p class="muted"><strong>Signals:</strong> {{ item.source_indicators|join:", " }}</p>
+            {% endif %}
+          </article>
+        {% empty %}
+          <div class="empty-state"><strong>No opportunities yet</strong>Add opportunities to Discovery to populate the Snapshot.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ═══ RELATIONSHIP INTELLIGENCE ═══════════════════════════════════ -->
+    <section class="panel" id="relationships" style="margin-bottom:16px;">
+      <div class="section-label-row">
+        <h2>Relationship Intelligence</h2>
+        <a class="pill" href="{% url 'project-relationships' project.pk %}">Open Relationships →</a>
+      </div>
+      <div class="insight-grid">
+        <section>
+          <h3>Top Relationships To Build</h3>
+          <ul>
+            {% for impact in snapshot.relationship_impact_insights|slice:":4" %}
+              <li>
+                <strong>{{ impact.name }}</strong><br>
+                <span class="muted">{{ impact.impact_level }} · {{ impact.rationale }}</span>
+                {% if impact.opportunities_unlocked %}
+                  <br><span class="muted">Unlocks: {{ impact.opportunities_unlocked|join:", " }}</span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+        <section>
+          <h3>Opportunity Pathways</h3>
+          <ul>
+            {% for pathway in snapshot.relationship_pathway_insights|slice:":4" %}
+              <li>
+                <strong>{{ pathway.relationship_name }}</strong><br>
+                <span class="muted">{{ pathway.pathway|join:" → " }}</span><br>
+                <span class="muted">{{ pathway.expected_partnership_outcomes|join:", " }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+        <section>
+          <h3>Network Health</h3>
+          <ul>
+            {% for indicator in snapshot.network_health_insights %}
+              <li><strong>{{ indicator.label }}</strong><br><span class="muted">{{ indicator.status }} · {{ indicator.rationale }}</span></li>
+            {% endfor %}
+          </ul>
+        </section>
+      </div>
+    </section>
+
+    <!-- ═══ READINESS ════════════════════════════════════════════════════ -->
+    <section class="panel" id="readiness" style="margin-bottom:16px;">
+      <div class="section-label-row">
+        <h2>Readiness Context</h2>
+        <a class="pill" href="{% url 'project-readiness' project.pk %}">Open Readiness →</a>
+      </div>
+      <div class="compact-grid">
+        {% for item in snapshot.readiness_context_insights %}
+          <article class="compact-card">
+            <strong>{{ item.label }}</strong>
+            <p class="muted">{{ item.rationale }}</p>
+            {% if item.factors %}<p class="muted">{{ item.factors|join:", " }}</p>{% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ═══ RISKS & GAPS ═════════════════════════════════════════════════ -->
+    <section id="risks-gaps" class="panel" style="margin-bottom:16px;">
       <h2>Risks and Gaps</h2>
       <div class="summary-grid">
         <section>
@@ -105,259 +297,34 @@
           {% endfor %}
         </section>
         <section>
-          <h3>Top Relationship Gaps</h3>
-          <p class="muted">Funder and partner pathways most worth strengthening.</p>
+          <h3>Organization Intelligence</h3>
+          <div class="insight-grid" style="grid-template-columns:1fr;gap:8px;">
+            {% for theme in snapshot.organization_intelligence.mission_themes|slice:":3" %}
+              <article class="summary-card"><strong>{{ theme }}</strong><span class="muted">Mission theme</span></article>
+            {% endfor %}
+          </div>
         </section>
       </div>
     </section>
 
-    <details class="panel">
-      <summary>Supporting Snapshot Detail</summary>
-      <h2>What This Delivers</h2>
-      <p class="muted">A board-ready interpretation of the Opportunity Web.</p>
-      <ul class="deliverable-list">
-        <li>Executive Summary</li>
-        <li>Top Opportunities</li>
-        <li>Relationship Gaps</li>
-        <li>Readiness Gaps</li>
-        <li>Strategic Moves</li>
-        <li>30-Day Recommendations</li>
-      </ul>
-
-      <details style="margin-top: 14px;">
-        <summary>Workflow Guidance</summary>
-        {% include "signals/_workflow_guidance.html" %}
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Opportunity Overview</summary>
-      <h2>Opportunity Overview</h2>
-      <div class="metric-grid">
-        {% for label, value in snapshot.opportunity_web_summary %}
-          <div class="metric-card"><strong>{{ value }}</strong><span>{{ label }}</span></div>
-        {% endfor %}
+    <!-- ═══ SOURCE SUMMARY ═══════════════════════════════════════════════ -->
+    <section class="panel" id="sources" style="margin-bottom:16px;">
+      <h2>Source Summary</h2>
+      <div class="metric-grid" style="margin-bottom: 14px;">
+        <div class="metric-card"><strong>{{ snapshot.source_summary.sources_reviewed }}</strong><span>Sources reviewed</span></div>
+        <div class="metric-card"><strong>{{ snapshot.source_summary.funders_reviewed }}</strong><span>Funders reviewed</span></div>
+        <div class="metric-card"><strong>{{ snapshot.source_summary.opportunities_reviewed }}</strong><span>Opportunities reviewed</span></div>
+        <div class="metric-card"><strong>{{ snapshot.source_summary.source_types_used|length }}</strong><span>Source types</span></div>
       </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Source Summary</summary>
-        <div class="metric-grid" style="margin-top: 12px;">
-          <div class="metric-card"><strong>{{ snapshot.source_summary.sources_reviewed }}</strong><span>Sources reviewed</span></div>
-          <div class="metric-card"><strong>{{ snapshot.source_summary.funders_reviewed }}</strong><span>Funders reviewed</span></div>
-          <div class="metric-card"><strong>{{ snapshot.source_summary.opportunities_reviewed }}</strong><span>Opportunities reviewed</span></div>
-          <div class="metric-card"><strong>{{ snapshot.source_summary.ecosystem_entities_reviewed }}</strong><span>Ecosystem entities reviewed</span></div>
-          <div class="metric-card"><strong>{{ snapshot.source_summary.source_types_used|length }}</strong><span>Source types used</span></div>
-          <div class="metric-card"><strong>{{ snapshot.source_summary.missing_source_types.0 }}</strong><span>Top missing source</span></div>
-        </div>
-        <div class="insight-grid" style="margin-top: 14px;">
-          <section>
-            <h3>Important Sources</h3>
-            <ul>
-              {% for source in snapshot.source_summary.important_sources %}
-                <li>{{ source }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-          <section>
-            <h3>Source Types Used</h3>
-            <ul>
-              {% for source_type in snapshot.source_summary.source_types_used %}
-                <li>{{ source_type }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-          <section>
-            <h3>Missing Source Guidance</h3>
-            <ul>
-              {% for guidance in snapshot.source_summary.guidance %}
-                <li>{{ guidance }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-        </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Organization Intelligence</summary>
-        <div class="insight-grid" style="margin-top: 14px;">
-          <section>
-            <h3>Mission Themes</h3>
-            <ul>
-              {% for theme in snapshot.organization_intelligence.mission_themes %}
-                <li>{{ theme }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-          <section>
-            <h3>Strategic Priorities</h3>
-            <ul>
-              {% for priority in snapshot.organization_intelligence.strategic_priorities %}
-                <li>{{ priority }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-          <section>
-            <h3>Key Growth Areas</h3>
-            <ul>
-              {% for area in snapshot.organization_intelligence.growth_areas %}
-                <li>{{ area }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-          <section>
-            <h3>Funding Priorities</h3>
-            <ul>
-              {% for priority in snapshot.organization_intelligence.funding_priorities %}
-                <li>{{ priority }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-          <section>
-            <h3>Partnership Priorities</h3>
-            <ul>
-              {% for priority in snapshot.organization_intelligence.partnership_priorities %}
-                <li>{{ priority }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-          <section>
-            <h3>Founder Insights</h3>
-            <ul>
-              {% for insight in snapshot.organization_intelligence.founder_insights %}
-                <li>{{ insight }}</li>
-              {% endfor %}
-            </ul>
-          </section>
-        </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Top Opportunities</summary>
-      <div class="compact-grid">
-        {% for item in snapshot.top_opportunity_insights %}
-          <article class="compact-card">
-            <strong>{{ item.name }}</strong>
-            <span class="score-badge">Score {{ item.score }}</span>
-            <p class="muted">{{ item.opportunity_type }} · {{ item.priority }} priority · {{ item.level }}</p>
-            <p class="muted"><strong>Why this appears:</strong> {{ item.rationale }}</p>
-            <p class="muted"><strong>Why now:</strong> {{ item.why_now }}</p>
-            <p class="muted"><strong>Preparation required:</strong> {{ item.preparation_required }}</p>
-            <p class="muted"><strong>Risk:</strong> {{ item.risks }}</p>
-            {% if item.source_indicators %}
-              <p class="muted"><strong>Signals:</strong> {{ item.source_indicators|join:", " }}</p>
-            {% endif %}
-            <p class="muted">{{ item.factors|join:", " }}</p>
-          </article>
-        {% empty %}
-          <div class="empty-state"><strong>No opportunities yet</strong>Add opportunities to Discovery to populate the Snapshot.</div>
-        {% endfor %}
-      </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Top Relationship Gaps</summary>
-      <div class="insight-grid">
-        <section>
-          <h3>Top Funder Pathways</h3>
-          <p class="muted">Funder Fit</p>
-          <ul>
-            {% for funder in snapshot.funder_fit_insights %}
-              <li>
-                <strong>{{ funder.archetype }}</strong><br>
-                <span class="muted">{{ funder.alignment_level }} · {{ funder.rationale }}</span><br>
-                <span class="muted">Signals: {{ funder.source_indicators|join:", " }}</span><br>
-                <span class="muted">Prepare: {{ funder.preparation_steps|join:", " }}</span>
-              </li>
-            {% endfor %}
-          </ul>
-        </section>
-        <section>
-          <h3>Top Partner Pathways</h3>
-          <ul>
-            {% for pathway in snapshot.top_partner_pathway_insights %}
-              <li><strong>{{ pathway.label }}</strong><br><span class="muted">{{ pathway.rationale }}</span><br><span class="muted">{{ pathway.factors|join:", " }}</span></li>
-            {% endfor %}
-          </ul>
-        </section>
-          <section>
-            <h3>Named Relationship Targets</h3>
-            <ul>
-              {% for target in snapshot.relationship_target_insights %}
-                <li><strong>{{ target.label }}</strong><br><span class="muted">{{ target.rationale }}</span><br><span class="muted">{{ target.factors|join:", " }}</span></li>
-            {% endfor %}
-          </ul>
-        </section>
-        <section>
-          <h3>Ecosystem Gaps</h3>
-          <ul>
-            {% for gap in snapshot.ecosystem_gap_insights %}
-              <li><strong>{{ gap.label }}</strong><br><span class="muted">{{ gap.rationale }}</span></li>
-            {% endfor %}
-          </ul>
-          </section>
-        </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Relationship Intelligence</summary>
-        <div class="insight-grid">
-          <section>
-            <h3>Top Relationships To Build</h3>
-            <ul>
-              {% for impact in snapshot.relationship_impact_insights|slice:":4" %}
-                <li>
-                  <strong>{{ impact.name }}</strong><br>
-                  <span class="muted">{{ impact.impact_level }} · {{ impact.rationale }}</span><br>
-                  <span class="muted">Unlocks: {{ impact.opportunities_unlocked|join:", " }}</span>
-                </li>
-              {% endfor %}
-            </ul>
-          </section>
-          <section>
-            <h3>Opportunity Pathways</h3>
-            <ul>
-              {% for pathway in snapshot.relationship_pathway_insights|slice:":4" %}
-                <li>
-                  <strong>{{ pathway.relationship_name }}</strong><br>
-                  <span class="muted">{{ pathway.pathway|join:" → " }}</span><br>
-                  <span class="muted">{{ pathway.expected_partnership_outcomes|join:", " }}</span>
-                </li>
-              {% endfor %}
-            </ul>
-          </section>
-          <section>
-            <h3>Network Health</h3>
-            <ul>
-              {% for indicator in snapshot.network_health_insights %}
-                <li><strong>{{ indicator.label }}</strong><br><span class="muted">{{ indicator.status }} · {{ indicator.rationale }}</span></li>
-              {% endfor %}
-            </ul>
-          </section>
-        </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Readiness Context</summary>
-        <div class="compact-grid">
-          {% for item in snapshot.readiness_context_insights %}
-            <article class="compact-card">
-              <strong>{{ item.label }}</strong>
-              <p class="muted">{{ item.rationale }}</p>
-              <p class="muted">{{ item.factors|join:", " }}</p>
-            </article>
+      {% if snapshot.source_summary.guidance %}
+        <h3 style="font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Add These Sources</h3>
+        <ul>
+          {% for guidance in snapshot.source_summary.guidance %}
+            <li>{{ guidance }}</li>
           {% endfor %}
-        </div>
-      </details>
-
-      <details style="margin-top: 14px;">
-        <summary>Top Recommended Actions</summary>
-      <ol class="advisor-list">
-        {% for action in snapshot.recommended_action_insights %}
-          <li>{{ action.label }}<span class="impact-label">{{ action.rationale }}</span></li>
-        {% endfor %}
-      </ol>
-      </details>
-    </details>
+        </ul>
+      {% endif %}
+    </section>
 
     {% include "signals/_app_shell_footer.html" %}
   </main>

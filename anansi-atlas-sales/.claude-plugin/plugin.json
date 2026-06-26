@@ -1,0 +1,17 @@
+{
+  "name": "anansi-atlas-sales",
+  "display_name": "Anansi Atlas — Sales & Client Intelligence",
+  "description": "Hermes: AI sales and outreach agent for Anansi Atlas. Researches nonprofits, drafts personalized outreach, prepares client walkthroughs, and manages the founding cohort pipeline.",
+  "version": "1.0.0",
+  "author": "Scott Foundry Group LLC",
+  "skills": [
+    "skills/nonprofit-outreach.md",
+    "skills/client-intelligence.md"
+  ],
+  "commands": [
+    "commands/prospect-brief.md",
+    "commands/client-walkthrough.md",
+    "commands/pipeline-pulse.md"
+  ],
+  "settings": "settings.local.json"
+}

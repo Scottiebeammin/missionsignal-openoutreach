@@ -5,6 +5,7 @@ from openoutreach.core.models import Organization
 from openoutreach.funding.models import FundingCriteria
 from openoutreach.signals.analyzer import OrganizationAnalyzerInput, analyze_deterministically
 from openoutreach.signals.models import OrganizationAnalysisRun
+from openoutreach.signals.website_scraper import scrape_website_text
 
 
 @transaction.atomic
@@ -14,6 +15,15 @@ def analyze_project(project, *, mode="deterministic"):
         raise ValueError(f"Unsupported organization analyzer mode: {mode}")
 
     organization = Organization.objects.select_for_update().get(pk=project.organization_id)
+
+    # Scrape website text to enrich focus/beneficiary detection.
+    # Done outside the transaction-save path so a slow/failed fetch never
+    # blocks the analysis run from being recorded.
+    website_text = scrape_website_text(organization.website)
+
+    # Pull intake notes from the project's primary member if present.
+    intake_notes = project.intake_notes or ""
+
     data = OrganizationAnalyzerInput(
         organization_name=organization.name,
         website=organization.website,
@@ -28,6 +38,10 @@ def analyze_project(project, *, mode="deterministic"):
         budget_range=organization.budget_range,
         current_funding_sources=organization.current_funding_sources,
         existing_partnerships=organization.existing_partnerships,
+        website_text=website_text,
+        intake_notes=intake_notes,
+        focus_area_selections=list(organization.focus_areas or []),
+        beneficiary_selections=list(organization.beneficiaries or []),
     )
     run = (
         OrganizationAnalysisRun.objects.filter(
@@ -39,7 +53,7 @@ def analyze_project(project, *, mode="deterministic"):
     if run is None:
         run = OrganizationAnalysisRun(organization=organization)
     run.status = OrganizationAnalysisRun.Status.RUNNING
-    run.analyzer_version = "deterministic-mvp-v1"
+    run.analyzer_version = "deterministic-mvp-v2"
     run.input_snapshot = data.model_dump()
     run.started_at = timezone.now()
     run.save()

@@ -266,13 +266,18 @@ def build_opportunity_workspace(project, opportunity: Opportunity, funding_crite
     )
 
 
-def build_work_summary() -> OpportunityWorkSummary:
-    opportunities = list(Opportunity.objects.all())
+def build_work_summary(project=None) -> OpportunityWorkSummary:
+    opp_qs = Opportunity.objects.all() if project is None else Opportunity.objects.filter(project=project)
+    opportunities = list(opp_qs)
     for opportunity in opportunities:
         ensure_default_tasks(opportunity)
         ensure_default_deadlines(opportunity)
-    tasks = list(OpportunityTask.objects.all())
-    deadline_displays = [deadline_display(deadline) for deadline in OpportunityDeadline.objects.all()]
+    opp_ids = [opp.pk for opp in opportunities]
+    tasks = list(OpportunityTask.objects.filter(opportunity_id__in=opp_ids))
+    deadline_displays = [
+        deadline_display(deadline)
+        for deadline in OpportunityDeadline.objects.filter(opportunity_id__in=opp_ids)
+    ]
     active_deadlines = [
         display
         for display in deadline_displays
