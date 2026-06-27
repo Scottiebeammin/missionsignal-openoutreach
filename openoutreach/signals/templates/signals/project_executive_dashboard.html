@@ -277,37 +277,31 @@
         </section>
       {% endif %}
 
-      <!-- ═══ STRATEGIC MOVES + OPPORTUNITY TO WATCH ════════════════════════ -->
-      <section class="command-grid section-gap" aria-label="Strategic moves and top opportunity">
-        <article class="command-card">
-          <h2>Top 3 Strategic Moves</h2>
-          <ol class="strategic-list">
-            {% for action in dashboard.executive_actions|slice:":3" %}
-              <li>{{ action }}</li>
-            {% empty %}
-              <li>Open your Snapshot to review top-matched funders and recommended next steps.</li>
-            {% endfor %}
-          </ol>
-        </article>
-        <article class="command-card">
-          <h2>Top Opportunity</h2>
-          {% if dashboard.lifecycle_summary.highest_priority_active_opportunity %}
-            <h3>{{ dashboard.lifecycle_summary.highest_priority_active_opportunity.name }}</h3>
-            <p class="muted">Your highest-priority active pursuit. Open the pipeline to move it forward.</p>
-            <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
-          {% elif dashboard.forecast.highest_value_opportunity %}
-            <h3>{{ dashboard.forecast.highest_value_opportunity.name }}</h3>
-            <p class="muted">Your highest-value opportunity. Add it to the pipeline to start tracking progress.</p>
-            <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
-          {% else %}
-            <p class="muted" style="margin-bottom:14px;">You have {{ dashboard.match_health.total_matches }} matched opportunities. Open Pathways to review them and move your best fit into the pipeline.</p>
-            <a class="pill" href="{% url 'project-opportunities' project.pk %}">Browse Pathways →</a>
-          {% endif %}
-        </article>
-      </section>
+      <!-- ═══ RELATIONSHIPS / ECOSYSTEM + INTELLIGENCE ═════════════════════ -->
+      <section class="intel-grid section-gap" aria-label="Relationships, readiness, and forecast intelligence">
 
-      <!-- ═══ INTELLIGENCE GRID ═════════════════════════════════════════════ -->
-      <section class="intel-grid section-gap" aria-label="Readiness, forecast, and relationship intelligence">
+        <div class="intel-card">
+          <div class="panel-header">
+            <h2>Relationships &amp; Ecosystem</h2>
+            <a class="pill" href="{% url 'project-relationships' project.pk %}">Open →</a>
+          </div>
+          <div class="intel-row">
+            <span>Health score</span>
+            <strong>{{ dashboard.relationships.health.score }} — {{ dashboard.relationships.health.level }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Strong relationships</span>
+            <strong>{{ dashboard.relationships.strong_relationships }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Key gap</span>
+            <strong>{{ dashboard.relationships.relationship_gaps.0|default:"No gap identified" }}</strong>
+          </div>
+          <div class="intel-row">
+            <span>Next action</span>
+            <strong>{{ dashboard.relationships.health.highest_leverage_action|default:"Review relationship map" }}</strong>
+          </div>
+        </div>
 
         <div class="intel-card">
           <div class="panel-header">
@@ -355,30 +349,37 @@
           </div>
         </div>
 
-        <div class="intel-card">
-          <div class="panel-header">
-            <h2>Relationships</h2>
-            <a class="pill" href="{% url 'project-relationships' project.pk %}">Open →</a>
-          </div>
-          <div class="intel-row">
-            <span>Health score</span>
-            <strong>{{ dashboard.relationships.health.score }} — {{ dashboard.relationships.health.level }}</strong>
-          </div>
-          <div class="intel-row">
-            <span>Strong relationships</span>
-            <strong>{{ dashboard.relationships.strong_relationships }}</strong>
-          </div>
-          <div class="intel-row">
-            <span>Key gap</span>
-            <strong>{{ dashboard.relationships.relationship_gaps.0|default:"No gap identified" }}</strong>
-          </div>
-          <div class="intel-row">
-            <span>Next action</span>
-            <strong>{{ dashboard.relationships.health.highest_leverage_action|default:"Review relationship map" }}</strong>
-          </div>
-        </div>
-
       </section>
+
+      <!-- ═══ STRATEGIC MOVES + OPPORTUNITY TO WATCH ════════════════════════ -->
+      <section class="command-grid section-gap" aria-label="Strategic moves and top opportunity">
+        <article class="command-card">
+          <h2>Top 3 Strategic Moves</h2>
+          <ol class="strategic-list">
+            {% for action in dashboard.executive_actions|slice:":3" %}
+              <li>{{ action }}</li>
+            {% empty %}
+              <li>Open your Snapshot to review top-matched funders and recommended next steps.</li>
+            {% endfor %}
+          </ol>
+        </article>
+        <article class="command-card">
+          <h2>Top Opportunity</h2>
+          {% if dashboard.lifecycle_summary.highest_priority_active_opportunity %}
+            <h3>{{ dashboard.lifecycle_summary.highest_priority_active_opportunity.name }}</h3>
+            <p class="muted">Your highest-priority active pursuit. Open the pipeline to move it forward.</p>
+            <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
+          {% elif dashboard.forecast.highest_value_opportunity %}
+            <h3>{{ dashboard.forecast.highest_value_opportunity.name }}</h3>
+            <p class="muted">Your highest-value opportunity. Add it to the pipeline to start tracking progress.</p>
+            <a class="pill" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
+          {% else %}
+            <p class="muted" style="margin-bottom:14px;">You have {{ dashboard.match_health.total_matches }} matched opportunities. Open Pathways to review them and move your best fit into the pipeline.</p>
+            <a class="pill" href="{% url 'project-opportunities' project.pk %}">Browse Pathways →</a>
+          {% endif %}
+        </article>
+      </section>
+
 
       <!-- ═══ ACTIVE PIPELINE ══════════════════════════════════════════════ -->
       <section class="panel section-gap" aria-label="Active pipeline overview">
