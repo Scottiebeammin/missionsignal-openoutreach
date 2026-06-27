@@ -134,8 +134,14 @@
               <strong>{{ funder.archetype }}</strong>
               <span class="level-badge">{{ funder.alignment_level }}</span>
               <p class="muted" style="font-size:.84rem;">{{ funder.rationale }}</p>
+              {% if funder.purpose %}
+                <p class="muted" style="font-size:.82rem;margin-top:6px;"><strong style="color:var(--ink);">What it funds:</strong> {{ funder.purpose }}</p>
+              {% endif %}
               {% if funder.preparation_steps %}
                 <p class="muted" style="font-size:.82rem;margin-top:6px;"><strong style="color:var(--ink);">Next step:</strong> {{ funder.preparation_steps.0 }}</p>
+              {% endif %}
+              {% if funder.website %}
+                <p style="margin-top:10px;"><a class="pill" href="{{ funder.website }}" target="_blank" rel="noopener">View funder →</a></p>
               {% endif %}
             </div>
           {% empty %}

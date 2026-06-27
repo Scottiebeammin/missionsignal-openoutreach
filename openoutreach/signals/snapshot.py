@@ -30,6 +30,8 @@ class SnapshotFunderFit:
     rationale: str
     preparation_steps: list[str]
     source_indicators: list[str]
+    website: str = ""
+    purpose: str = ""
 
 
 @dataclass(frozen=True)
@@ -630,6 +632,8 @@ def _named_funder_fit_insights(sector: dict, context: dict) -> list[SnapshotFund
                 rationale=rationale,
                 preparation_steps=_dedupe(preparation, 3),
                 source_indicators=_funder_source_indicators(funder, score, context),
+                website=funder.website or "",
+                purpose=funder.eligibility_notes or funder.notes or "",
             )
         )
     return insights
