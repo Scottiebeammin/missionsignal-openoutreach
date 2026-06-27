@@ -1,0 +1,369 @@
+{
+  "funders": [
+    {
+      "name": "Central Florida Foundation - 100 Women Strong",
+      "type": "community_foundation",
+      "geography": "Central Florida (Orlando metro)",
+      "focus_areas": [
+        "women and girls",
+        "empowerment",
+        "economic opportunity",
+        "education"
+      ],
+      "website": "https://cffound.org/engaging-community/100-women-strong/",
+      "why_fit": "Giving circle specifically funds programs improving the lives of women and children in Central Florida; aligns with EGI's girls mentorship and empowerment mission.",
+      "eligibility_notes": "501(c)(3) organizations serving Central Florida. Applications typically reviewed by member vote; prior grantees include youth and workforce development nonprofits.",
+      "deadline": "Rolling / annual giving circle cycle (contact foundation for current LOI timeline)"
+    },
+    {
+      "name": "Orlando Magic Youth Foundation",
+      "type": "corporate_foundation",
+      "geography": "Central Florida",
+      "focus_areas": [
+        "at-risk youth",
+        "education",
+        "sports and recreation",
+        "mentoring"
+      ],
+      "website": "https://www.nba.com/magic/omyf/grants",
+      "why_fit": "Core mission is underserved youth in Central Florida; micro and major grant programs open to local nonprofits running mentorship, after-school, and youth development programs.",
+      "eligibility_notes": "Local 501(c)(3) organizations focused on youth. Both major grants and micro grants available; profit status required.",
+      "deadline": "Multiple cycles per year (summer and winter cycles; check site for open dates)"
+    },
+    {
+      "name": "Publix Super Markets Charities",
+      "type": "corporate_foundation",
+      "geography": "Florida, Southeast U.S.",
+      "focus_areas": [
+        "youth",
+        "education",
+        "community well-being"
+      ],
+      "website": "https://corporate.publix.com/about-publix/publix-faq/request-support-sponsorship/publix-charities-giving",
+      "why_fit": "Publix Charities prioritizes youth and education initiatives in communities where Publix operates, making EGI's Orlando-based girls mentorship a strong fit.",
+      "eligibility_notes": "Must be an established 501(c)(3); youth and education focus. Non-monetary requests also considered.",
+      "deadline": "Rolling, though many awards are coordinated regionally; early submission recommended."
+    },
+    {
+      "name": "City of Orlando Community Investment Grant Program",
+      "type": "local_government",
+      "geography": "Orlando, FL",
+      "focus_areas": [
+        "youth development",
+        "education",
+        "community services",
+        "neighborhood support"
+      ],
+      "website": "https://www.orlando.gov/Our-Government/Get-Involved/Non-Profits-and-Community-Organizations/Community-Investment-Grant",
+      "why_fit": "Direct local government grant stream supporting nonprofits delivering programs that strengthen Orlando neighborhoods and serve youth.",
+      "eligibility_notes": "Organizations must serve City of Orlando residents and maintain a nonprofit profile in Central Florida Nonprofit Search.",
+      "deadline": "Annual cycle with set application windows; verify current year dates on site."
+    },
+    {
+      "name": "CareerSource Central Florida",
+      "type": "workforce_board",
+      "geography": "Central Florida (Orange, Osceola, Seminole, Lake, Sumter counties)",
+      "focus_areas": [
+        "workforce development",
+        "youth employment",
+        "career pathways",
+        "education"
+      ],
+      "website": "https://www.careersourcecentralflorida.com/",
+      "why_fit": "Administers federal and state workforce funding that supports youth training, mentorship, and career-readiness programs\u2014directly applicable to EGI's mentorship and skill-building goals.",
+      "eligibility_notes": "Nonprofit and education partners can apply for specific youth programs; must align with WIOA youth eligibility and local workforce priorities.",
+      "deadline": "Program-specific solicitations; annual plan available online."
+    },
+    {
+      "name": "Central Florida Women's League Foundation",
+      "type": "family_foundation",
+      "geography": "Central Florida",
+      "focus_areas": [
+        "women and girls",
+        "education",
+        "community improvement"
+      ],
+      "website": "https://cfwl.org/index.php/about-us/",
+      "why_fit": "Known for awarding grants to community nonprofits and scholarships to young women; mission closely overlaps with EGI's target population and goals.",
+      "eligibility_notes": "501(c)(3) organizations and scholarship programs serving Central Florida; formal application required.",
+      "deadline": "Annual grant cycle; verify current deadline via website contact form."
+    },
+    {
+      "name": "VyStar Foundation",
+      "type": "corporate_foundation",
+      "geography": "Florida (with Central Florida reach)",
+      "focus_areas": [
+        "youth empowerment",
+        "education",
+        "career counseling",
+        "community development"
+      ],
+      "website": "https://vystarfoundation.org/",
+      "why_fit": "Funds youth empowerment and career counseling programs across Florida, including recent youth nonprofit grants that align with EGI's mentorship model.",
+      "eligibility_notes": "Open to nonprofits within VyStar service areas; youth and education focus preferred.",
+      "deadline": "Annual grant cycles and occasional rapid-response awards; check website for current solicitations."
+    }
+  ],
+  "partners": [
+    {
+      "name": "Boys & Girls Clubs of Central Florida",
+      "type": "nonprofit",
+      "geography": "Central Florida (15 counties, strong Orlando presence)",
+      "focus_areas": [
+        "youth development",
+        "mentoring",
+        "STEM",
+        "after-school programs"
+      ],
+      "website": "https://bgccf.org/",
+      "why_fit": "Large youth-serving network with existing infrastructure, staff, and facilities; shared interest in girls' mentorship and after-school enrichment.",
+      "collaboration_opportunities": "Co-host girls-only mentorship tracks at Club sites, share volunteer mentor pools, cross-promote programming, and jointly apply for youth workforce/education grants."
+    },
+    {
+      "name": "Orange County Public Schools",
+      "type": "school_district",
+      "geography": "Orlando / Orange County, FL",
+      "focus_areas": [
+        "K-12 education",
+        "youth services",
+        "career and college readiness"
+      ],
+      "website": "https://www.ocps.net/",
+      "why_fit": "Direct access to girls in middle and high school\u2014the core audience for EGI's mentorship and empowerment programming\u2014through existing school structures.",
+      "collaboration_opportunities": "In-school mentorship sessions, parent-night presentations, referral pipeline into programming, shared use of school facilities for workshops."
+    },
+    {
+      "name": "Orange County Library System",
+      "type": "public_library",
+      "geography": "Orange County, FL (Orlando metro)",
+      "focus_areas": [
+        "youth programming",
+        "literacy",
+        "STEM",
+        "career readiness",
+        "community engagement"
+      ],
+      "website": "https://www.ocls.net/",
+      "why_fit": "Libraries are trusted community hubs that already run teen and girls programs; ideal venue and promotional partner for workshops, book clubs, and mentor meetups.",
+      "collaboration_opportunities": "Host EGI mentorship events and leadership workshops at library branches, co-sponsor teen summer series, cross-market through library event calendars and e-newsletters."
+    },
+    {
+      "name": "Hispanic Chamber of Metro Orlando",
+      "type": "community_based_organization",
+      "geography": "Orlando / Central Florida",
+      "focus_areas": [
+        "Latino/Hispanic community",
+        "small business",
+        "youth leadership",
+        "professional development"
+      ],
+      "website": "https://hispanicchamber.com/",
+      "why_fit": "Chamber networks connect nonprofits to business sponsors, mentors, and Latino/Hispanic families\u2014broadening EGI's reach and potential mentor pipeline in Central Florida.",
+      "collaboration_opportunities": "Introduce EGI to member mentors and corporate sponsors, co-host leadership/networking events for young women, provide internship and job-shadow pathways."
+    },
+    {
+      "name": "Valencia College",
+      "type": "community_college",
+      "geography": "Orlando / Orange and Osceola counties, FL",
+      "focus_areas": [
+        "higher education access",
+        "career pathways",
+        "youth workforce development"
+      ],
+      "website": "https://www.valenciacollege.edu/",
+      "why_fit": "Community colleges prioritize youth pathways and career coaching; can provide college-readiness components and campus-based mentor training or venues.",
+      "collaboration_opportunities": "Develop college-readiness modules for EGI mentees, co-design scholarship or dual-enrollment info sessions, use campus spaces for summer immersion programs."
+    },
+    {
+      "name": "Orlando Health",
+      "type": "healthcare_organization",
+      "geography": "Orlando / Central Florida",
+      "focus_areas": [
+        "community health",
+        "youth wellness",
+        "mental health",
+        "preventive care"
+      ],
+      "website": "https://www.orlandohealth.com/",
+      "why_fit": "Health system with community benefit and foundation arms; can lend wellness expertise, mental health speakers, and health-screening resources to a girls' mentorship program.",
+      "collaboration_opportunities": "Provide health and wellness workshops (nutrition, stress management, reproductive health), sponsor program events, connect mentees with healthcare career shadowing."
+    },
+    {
+      "name": "Prospera",
+      "type": "community_based_organization",
+      "geography": "Orlando / Central Florida (multi-site)",
+      "focus_areas": [
+        "economic empowerment",
+        "Hispanic entrepreneurs",
+        "small business",
+        "workforce development"
+      ],
+      "website": "https://prosperausa.org/",
+      "why_fit": "Bilingual economic development nonprofit serving Hispanic families and entrepreneurs; offers complementary empowerment angle and access to bilingual mentors and families.",
+      "collaboration_opportunities": "Bilingual co-facilitation, referral network for Spanish-speaking mentees and families, joint small-business or financial-literacy workshops for girls."
+    }
+  ],
+  "resources": [
+    {
+      "name": "TechSoup",
+      "type": "nonprofit_support_center",
+      "geography": "United States (national)",
+      "focus_areas": [
+        "technology access",
+        "software donations",
+        "capacity building",
+        "cost savings"
+      ],
+      "resource_categories": [
+        "technology",
+        "software donations",
+        "discounts"
+      ],
+      "website": "https://www.techsoup.org/",
+      "why_fit": "Primary connector for discounted or donated technology products and software for U.S. 501(c)(3)s; EGI can procure hardware and software at reduced cost.",
+      "eligibility_notes": "Must be a recognized 501(c)(3) in good standing. Product availability varies; registration required. Some items have quantity or budget restrictions."
+    },
+    {
+      "name": "Google for Nonprofits",
+      "type": "software_donation_program",
+      "geography": "United States and select countries",
+      "focus_areas": [
+        "digital access",
+        "productivity technology",
+        "advertising",
+        "cloud services"
+      ],
+      "resource_categories": [
+        "software",
+        "technology",
+        "cloud",
+        "advertising"
+      ],
+      "website": "https://www.google.com/nonprofits/",
+      "why_fit": "Provides free or discounted Google Workspace, Google Ad Grants, and YouTube tools\u2014critical for a small nonprofit managing donor outreach, scheduling, and communications.",
+      "eligibility_notes": "U.S. 501(c)(3) organizations with a valid EIN and a matching domain for account verification are eligible.",
+      "deadline": "Rolling; organizations can apply anytime."
+    },
+    {
+      "name": "Microsoft for Nonprofits",
+      "type": "software_donation_program",
+      "geography": "United States",
+      "focus_areas": [
+        "productivity software",
+        "cloud services",
+        "operational technology"
+      ],
+      "resource_categories": [
+        "software",
+        "technology",
+        "cloud"
+      ],
+      "website": "https://www.microsoft.com/en-us/nonprofits",
+      "why_fit": "Offers donated and discounted Microsoft 365, cloud credits, and productivity tools\u2014helping EGI operate securely and professionally on a nonprofit budget.",
+      "eligibility_notes": "U.S. 501(c)(3) and similar charitable organizations. Some offers donated via TechSoup; other subscriptions discounted directly.",
+      "deadline": "Rolling eligibility; product availability continues indefinitely."
+    },
+    {
+      "name": "Canva for Nonprofits",
+      "type": "software_donation_program",
+      "geography": "United States and select countries",
+      "focus_areas": [
+        "design",
+        "marketing",
+        "social media",
+        "visual communications"
+      ],
+      "resource_categories": [
+        "software",
+        "technology",
+        "design tools"
+      ],
+      "website": "https://www.canva.com/for-nonprofits/",
+      "why_fit": "Free Canva Pro access supports fast, branded creation of flyers, lesson materials, social media, reports, and fundraising materials without a designer.",
+      "eligibility_notes": "Qualifying 501(c)(3) or similar nonprofit. Application verified by TechSoup or Canva; approved users receive Canva for Nonprofits team access.",
+      "deadline": "Rolling."
+    },
+    {
+      "name": "Salesforce Nonprofit Cloud (Power of Us Program)",
+      "type": "software_donation_program",
+      "geography": "United States and internationally",
+      "focus_areas": [
+        "CRM",
+        "donor management",
+        "program management",
+        "volunteer coordination"
+      ],
+      "resource_categories": [
+        "software",
+        "technology",
+        "CRM",
+        "cloud"
+      ],
+      "website": "https://www.salesforce.org/product/nonprofit-success-pack/",
+      "why_fit": "Free or deeply discounted CRM and nonprofit-specific cloud edition helps track donors, mentors, mentees, program outcomes, and volunteer hours at scale.",
+      "eligibility_notes": "501(c)(3) or equivalent. Requires Salesforce.org application and verification; some add-on products remain discounted rather than free.",
+      "deadline": "Rolling program enrollment."
+    },
+    {
+      "name": "AmeriCorps through Volunteer Florida",
+      "type": "americorps_national_service",
+      "geography": "Florida",
+      "focus_areas": [
+        "national service",
+        "volunteer staffing",
+        "capacity building",
+        "youth services"
+      ],
+      "resource_categories": [
+        "national service",
+        "volunteers",
+        "capacity building"
+      ],
+      "website": "https://www.volunteerflorida.org/americorps-grant-opportunities-formula/",
+      "why_fit": "Provides national-service member placements to nonprofits, delivering dedicated program capacity and a living-stipend-supported workforce at low cost to EGI.",
+      "eligibility_notes": "Nonprofit/host organizations must be selected via competitive formula or subgrant for AmeriCorps member placements; sponsor organization requirements apply.",
+      "deadline": "Opportunity announcements tied to annual AmeriCorps funding cycles; check current solicitations."
+    },
+    {
+      "name": "University of Central Florida - Nonprofit Capacity Building Program",
+      "type": "technical_assistance_provider",
+      "geography": "Orange County, FL (Orlando metro)",
+      "focus_areas": [
+        "capacity building",
+        "nonprofit management",
+        "technical assistance",
+        "organizational development"
+      ],
+      "resource_categories": [
+        "technical assistance",
+        "capacity building",
+        "training"
+      ],
+      "website": "https://ccie.ucf.edu/public-administration/cpnm/capacity-building/",
+      "why_fit": "UCF offers free or low-cost capacity-building training and one-on-one technical assistance to Orange County nonprofits\u2014ideal for strengthening EGI's operations and grant readiness.",
+      "eligibility_notes": "Typically limited to Orange County nonprofits; cohort-based selection and competitive application for technical assistance slots.",
+      "deadline": "Annual or semester-based cohort applications."
+    },
+    {
+      "name": "National Council of Nonprofits",
+      "type": "nonprofit_support_center",
+      "geography": "United States (national)",
+      "focus_areas": [
+        "policy",
+        "capacity building",
+        "advocacy",
+        "nonprofit best practices"
+      ],
+      "resource_categories": [
+        "capacity building",
+        "advocacy",
+        "training",
+        "resources"
+      ],
+      "website": "https://www.councilofnonprofits.org/",
+      "why_fit": "Free resources, training, and advocacy guidance for nonprofits; helps EGI stay compliant, improve governance, and access best-practice toolkits without cost.",
+      "eligibility_notes": "Open access to many online resources; some premium member benefits require organizational membership.",
+      "deadline": "Rolling."
+    }
+  ]
+}
