@@ -43,10 +43,12 @@ services:
         value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"
       - key: CSRF_TRUSTED_ORIGINS
         value: "https://*.onrender.com,https://anansiatlas.com,https://www.anansiatlas.com"
-      # ── Email (optional now; waitlist still saves if unset). Fill once an ESP is chosen. ──
+      # ── Email (waitlist still saves to DB if unset; these enable confirmation sends). ──
       - key: EMAIL_HOST
         sync: false
       - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_USE_TLS
         sync: false
       - key: EMAIL_HOST_USER
         sync: false
