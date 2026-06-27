@@ -89,7 +89,7 @@
     <header class="hero">
       <section>
         <h1>Opportunity Web</h1>
-        <p class="muted">Funders, partners, relationships, resources, pathways, and readiness — how they connect for {{ organization.name }}.</p>
+        <p class="muted">The map of opportunity around {{ organization.name }}'s mission — funders, partners, government pathways, resources, and readiness, and how they connect.</p>
       </section>
       <section class="metric-card advisor-panel">
         <h2>Ecosystem Health</h2>
@@ -98,6 +98,14 @@
         <p style="margin-top:10px;"><a class="pill" href="{% url 'project-snapshot' project.pk %}">View Full Snapshot →</a></p>
       </section>
     </header>
+
+    <!-- ═══ WHAT THIS IS ═════════════════════════════════════════════════ -->
+    <section class="panel" style="border-left:5px solid var(--accent); margin-bottom:16px;">
+      <h2 style="margin-bottom:8px;">What is the Opportunity Web?</h2>
+      <p class="muted" style="max-width:800px; line-height:1.65; margin:0;">
+        Every mission is surrounded by opportunity — the <strong style="color:var(--ink);">funders, partners, government pathways, and resources</strong> connected to your work, plus the <strong style="color:var(--ink);">readiness</strong> you need to reach them. The Opportunity Web maps all of it in one place and shows <strong style="color:var(--ink);">how the pieces connect</strong> — so instead of a scattered list, you see the whole landscape at once: where your strongest opportunities are, what's holding you back, and the single highest-leverage move to make next.
+      </p>
+    </section>
 
     <!-- ═══ ECOSYSTEM SUMMARY ════════════════════════════════════════════ -->
     <section id="overview" class="ecosystem-hero-grid" aria-label="Executive ecosystem summary">
