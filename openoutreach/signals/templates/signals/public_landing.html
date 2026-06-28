@@ -218,10 +218,10 @@
 
     h2.display {
       font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(2rem, 4vw, 3.4rem);
+      font-size: clamp(2rem, 4vw, 3.6rem);
       font-weight: 600;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
+      line-height: 1.08;
+      letter-spacing: -0.025em;
       margin-bottom: 16px;
     }
     h2.display em { font-style: italic; color: var(--gold-lt); }
@@ -380,11 +380,12 @@
       transform: translateY(-2px);
     }
     .snap-icon {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: rgba(201,144,30,0.12);
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(201,144,30,0.14);
+      border: 1px solid rgba(201,144,30,0.22);
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
-      margin-bottom: 14px;
+      font-size: 1.15rem;
+      margin-bottom: 16px;
     }
     .snap-card h3 {
       font-family: 'DM Sans', sans-serif;
@@ -786,6 +787,14 @@
       margin: 0;
     }
 
+    /* ── SECTION DIVIDER ── */
+    .section-divider {
+      width: 60px; height: 1px;
+      background: linear-gradient(90deg, var(--gold-lt), transparent);
+      margin: 0 auto 32px;
+      opacity: 0.5;
+    }
+
     /* ── SCROLL REVEAL ── */
     .reveal {
       opacity: 0;
@@ -1102,17 +1111,19 @@
   <!-- Hero copy -->
   <div class="shell hero-content">
     <div class="hero-inner">
-      <p class="eyebrow eyebrow-gold reveal">Opportunity Ecosystem Intelligence</p>
+      <p class="eyebrow eyebrow-gold reveal">Early Access · Founding Cohort · 19 Seats</p>
+      <div class="gold-rule reveal" style="margin-bottom:20px;"></div>
       <h1 class="hero-h1 reveal reveal-delay-1">
-        Stop missing the funders, partners, and pathways <em>already aligned with your mission.</em>
+        Your mission deserves a map. <em>Not a mountain of research.</em>
       </h1>
       <p class="hero-sub reveal reveal-delay-2">
-        Map the funders, partners, and pathways already aligned with your mission — in one platform built around your nonprofit. Founding Atlas Partners get early platform access, a guided Opportunity Web Snapshot, and founder-led support for $150/month.
+        Anansi Atlas organizes the funders, partners, and pathways already aligned with your nonprofit into one clear platform — starting with a guided Opportunity Web Snapshot. Founding Atlas Partners get early access, a walkthrough, and founder-led support for $150/month.
       </p>
       <div class="hero-btns reveal reveal-delay-3">
-        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
+        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat — $150/mo →</a>
         <a class="btn btn-ghost btn-lg" href="#what-you-get">See What's Included</a>
       </div>
+      <p class="reveal reveal-delay-4" style="font-size:0.78rem;color:rgba(229,173,63,0.65);margin-top:-16px;font-weight:500;">19 seats remaining · Rate locked for life · No risk — cancel any time</p>
       <div class="trust-bar reveal reveal-delay-4">
         <span>Built for nonprofits</span>
         <div class="trust-dot" aria-hidden="true"></div>
@@ -1166,11 +1177,12 @@
     <section aria-label="What Founding Atlas Partners receive">
       <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">What You Receive</p>
       <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:680px;margin:0 auto;">
-        Platform access. A guided Snapshot.<br><em>Founder-led support.</em>
+        Everything you need to move<br><em>with clarity and confidence.</em>
       </h2>
-      <p class="body-muted body-lg reveal reveal-delay-2" style="text-align:center;max-width:580px;margin:16px auto 0;">
-        Founding Atlas Partners don't just get a report. They get early access to a platform built around their mission — with a guided first deliverable and direct support from the founder.
+      <p class="body-muted body-lg reveal reveal-delay-2" style="text-align:center;max-width:560px;margin:16px auto 0;">
+        Founding Atlas Partners receive platform access, a guided Snapshot, and founder-led support — not a report that sits in a folder.
       </p>
+      <p class="reveal reveal-delay-3" style="text-align:center;margin-top:10px;font-size:0.78rem;color:rgba(229,173,63,0.55);font-style:italic;">Built with founding nonprofit partners during early access — your input shapes the platform.</p>
       <div class="snap-grid" style="margin-top:48px;">
         <div class="snap-card reveal">
           <div class="snap-icon" aria-hidden="true">🖥️</div>
@@ -1212,6 +1224,10 @@
           <h3>Priority Feature Input</h3>
           <p>Founding partners shape the platform. Your feedback and needs get priority as Anansi Atlas is built with real nonprofit teams during the founding cohort stage.</p>
         </div>
+      </div>
+      <div style="text-align:center;margin-top:48px;" class="reveal">
+        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
+        <p style="margin-top:12px;font-size:0.78rem;color:var(--muted);">19 seats remaining · $150/month · Locked for life</p>
       </div>
     </section>
   </div>
@@ -1424,14 +1440,14 @@
         <div class="form-left">
           <p class="section-label eyebrow-gold reveal" style="margin-bottom:12px;">Ready to Move?</p>
           <h2 class="display reveal reveal-delay-1">
-            Two ways in.<br><em>Both get you started.</em>
+            Ready to map your<br><em>opportunity ecosystem?</em>
           </h2>
 
           <!-- Path 1: Claim now -->
           <div class="reveal reveal-delay-2" style="margin-top:24px;border:1.5px solid rgba(229,173,63,0.35);border-radius:var(--r);padding:20px 22px;background:rgba(229,173,63,0.05);">
             <p style="font-size:0.70rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:8px;">Ready now</p>
-            <p style="font-size:0.95rem;font-weight:700;color:var(--white);margin-bottom:6px;">Claim your founding seat directly</p>
-            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:14px;line-height:1.6;">$150/month · Pro access · Locked for life. Stripe checkout takes 2 minutes. We'll reach out within 24 hours to schedule your Snapshot walkthrough.</p>
+            <p style="font-size:0.95rem;font-weight:700;color:var(--white);margin-bottom:6px;">Secure your founding seat now</p>
+            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:14px;line-height:1.6;">$150/month · Pro access · Rate locked for life. Takes 2 minutes. We'll reach out within 24 hours to start your Snapshot.</p>
             <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="width:100%;justify-content:center;">Apply for a Founding Seat → $150/mo</a>
           </div>
 
@@ -1627,6 +1643,7 @@
 <div class="how-zone">
   <div class="shell">
     <section aria-label="Frequently asked questions">
+      <div class="section-divider reveal"></div>
       <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Common Questions</p>
       <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto 48px;">
         <em>Answers</em> before you decide.
