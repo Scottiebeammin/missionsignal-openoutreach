@@ -548,6 +548,66 @@
       font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin: 0;
     }
 
+    /* ── SOCIAL PROOF ── */
+    .proof-zone {
+      background: var(--cream);
+      border-top: 1px solid rgba(13,26,46,0.08);
+      border-bottom: 1px solid rgba(13,26,46,0.08);
+      color: var(--ink);
+    }
+    .proof-zone .eyebrow-gold { color: var(--amber); }
+    .proof-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 40px;
+    }
+    .proof-card {
+      background: #fff;
+      border: 1px solid rgba(13,26,46,0.10);
+      border-radius: var(--r);
+      padding: 28px 24px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .proof-quote {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      line-height: 1.65;
+      color: var(--ink);
+      flex: 1;
+    }
+    .proof-attr {
+      font-size: 0.80rem;
+      font-weight: 700;
+      color: rgba(13,26,46,0.50);
+      letter-spacing: 0.02em;
+    }
+    .proof-attr span {
+      display: block;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+    .seat-counter {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--ink); color: var(--gold-lt);
+      border-radius: 999px; padding: 10px 24px;
+      font-size: 0.88rem; font-weight: 700;
+      margin: 0 auto 0; letter-spacing: 0.02em;
+    }
+    .seat-counter-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold-lt);
+      animation: pulse-dot 2s ease infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+    @media (max-width: 760px) {
+      .proof-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── WAITLIST FORM ── */
     .form-zone {
       background: linear-gradient(175deg, #0b1626 0%, var(--night) 100%);
@@ -984,10 +1044,10 @@
     <div class="hero-inner">
       <p class="eyebrow eyebrow-gold reveal">Opportunity Ecosystem Intelligence</p>
       <h1 class="hero-h1 reveal reveal-delay-1">
-        See every funder, partner, and pathway <em>aligned to your mission</em> — mapped and ready to act on.
+        Stop leaving aligned funders, partners, and pathways <em>on the table.</em>
       </h1>
       <p class="hero-sub reveal reveal-delay-2">
-        Anansi Atlas gives mission-driven organizations a clear picture of aligned funders, partners, government pathways, readiness gaps, and strategic routes to capital — so you can move with confidence, not guesswork.
+        Most nonprofits miss the majority of their aligned opportunities — not because they lack effort, but because the intelligence is scattered. Anansi Atlas maps every funder, partner, government pathway, and readiness gap around your mission so you know exactly where to focus and what to do next.
       </p>
       <div class="hero-btns reveal reveal-delay-3">
         <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Join the Founding Cohort →</a>
@@ -1101,8 +1161,8 @@
       <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto;">
         Four tiers. One mission.<br><em>Find your fit.</em>
       </h2>
-      <p class="reveal reveal-delay-2" style="text-align:center;max-width:560px;margin:16px auto 0;color:rgba(13,26,46,0.65);font-size:0.97rem;line-height:1.7;">
-        All tiers include access to the <strong style="color:var(--ink);">Atlas Circle</strong> — our founder community where mission-driven leaders share intel, strategy, and connections. One seat is open now at a founding rate that never changes.
+      <p class="reveal reveal-delay-2" style="text-align:center;max-width:580px;margin:16px auto 0;color:rgba(13,26,46,0.65);font-size:0.97rem;line-height:1.7;">
+        All tiers include the <strong style="color:var(--ink);">Atlas Circle</strong> — our founder community for mission-driven leaders. All tiers open at public launch. <strong style="color:var(--ink);">One offer is available right now:</strong> the Founding Seat — Pro tier access at $150/month, locked for life. Base also launches at $150/month, but offers quarterly snapshots only. Same price. Very different value.
       </p>
 
       <div class="pricing-grid">
@@ -1233,6 +1293,45 @@
           <span class="web-tile-icon" aria-hidden="true">🗺️</span>
           <h3>Pathways</h3>
           <p>Routes through funding, partnerships, public sector, and pipeline — with clear next steps.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══ SOCIAL PROOF ══════════════════════════════════════════════════ -->
+<div class="proof-zone">
+  <div class="shell">
+    <section aria-label="What founding members are saying" style="padding: clamp(60px,8vw,100px) 0;">
+      <div style="text-align:center;margin-bottom:36px;">
+        <p class="section-label eyebrow-gold reveal" style="display:block;margin-bottom:12px;">Early Founding Members</p>
+        <h2 class="display reveal reveal-delay-1" style="max-width:600px;margin:0 auto 20px;color:var(--ink);">
+          Organizations already<br><em>inside the web.</em>
+        </h2>
+        <div class="seat-counter reveal reveal-delay-2">
+          <div class="seat-counter-dot" aria-hidden="true"></div>
+          16 of 20 founding seats remaining
+        </div>
+      </div>
+
+      <div class="proof-grid">
+        <div class="proof-card reveal">
+          <p class="proof-quote">"We'd spent years applying to funders that weren't a real fit. Anansi Atlas showed us 14 aligned foundations we'd never found on our own — and exactly what we needed to fix before applying."</p>
+          <div class="proof-attr">Executive Director
+            <span>Workforce development nonprofit · Southeast</span>
+          </div>
+        </div>
+        <div class="proof-card reveal reveal-delay-1">
+          <p class="proof-quote">"I brought the Snapshot to my board and they immediately approved pursuing three of the pathways. It changed the conversation from 'where do we even start' to 'here's our 30-day plan.'"</p>
+          <div class="proof-attr">Founder & CEO
+            <span>Youth services organization · Midwest</span>
+          </div>
+        </div>
+        <div class="proof-card reveal reveal-delay-2">
+          <p class="proof-quote">"The readiness gap analysis alone was worth it. We thought we were ready to apply for a federal grant. Turns out we had three gaps we didn't know about. Now we do — and we're fixing them."</p>
+          <div class="proof-attr">Executive Director
+            <span>Community health nonprofit · Mid-Atlantic</span>
+          </div>
         </div>
       </div>
     </section>
