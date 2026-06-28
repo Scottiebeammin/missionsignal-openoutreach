@@ -123,7 +123,7 @@ def public_landing_thanks(request):
 
 
 # Simple in-process cache: (count, timestamp)
-_seat_cache: tuple[int, float] | None = None
+_seat_cache = None  # (claimed_count, timestamp) or None
 _SEAT_CACHE_TTL = 300  # 5 minutes
 _FOUNDING_SEAT_TOTAL = 20
 
@@ -138,7 +138,7 @@ def founding_seat_count(request):
         secret_key = os.getenv("STRIPE_SECRET_KEY", "")
         price_id = os.getenv("STRIPE_FOUNDING_PRICE_ID", "")
         if not secret_key or not price_id:
-            return JsonResponse({"claimed": 4, "remaining": 16, "total": _FOUNDING_SEAT_TOTAL, "live": False})
+            return JsonResponse({"claimed": 1, "remaining": 19, "total": _FOUNDING_SEAT_TOTAL, "live": False})
         try:
             stripe.api_key = secret_key
             subs = stripe.Subscription.list(price=price_id, status="active", limit=100)
