@@ -151,8 +151,9 @@
     }
 
     .hero-inner {
-      max-width: 580px;
+      max-width: 520px;
       margin-right: auto;
+      margin-left: 0;
     }
 
     .eyebrow {
@@ -401,155 +402,119 @@
       color: var(--ink);
     }
     .cohort-zone .eyebrow-gold { color: var(--amber); }
-    .cohort-zone .display, .cohort-zone h2, .cohort-zone h3 { color: var(--ink); }
-    .cohort-zone .body-muted { color: rgba(13,26,46,0.65); }
-    .cohort-zone .cohort-callout { background: var(--ink); color: var(--white); }
-    .cohort-zone .tier-table { color: var(--ink); }
-    .cohort-zone .tier-table th { background: rgba(13,26,46,0.08); color: var(--ink); border-color: rgba(13,26,46,0.12); }
-    .cohort-zone .tier-table td { border-color: rgba(13,26,46,0.10); color: rgba(13,26,46,0.80); }
-    .cohort-zone .tier-table td:first-child { color: rgba(13,26,46,0.75); }
-    .cohort-zone .tier-table th.highlight-col { background: var(--gold); color: #fff; }
-    .cohort-zone .tier-table td.highlight-col { background: rgba(201,144,30,0.08); color: var(--ink); }
-    .cohort-zone .tier-mobile-note { color: rgba(13,26,46,0.50); }
-    .cohort-zone::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 50%; transform: translateX(-50%);
-      width: 600px; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold-lt), transparent);
-    }
-    .cohort-layout {
+    .cohort-zone h2, .cohort-zone h3 { color: var(--ink); }
+
+    /* Pricing cards grid */
+    .pricing-grid {
       display: grid;
-      grid-template-columns: 1.1fr 1.9fr;
-      gap: 64px;
-      align-items: start;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+      align-items: stretch;
     }
-    .cohort-callout {
-      background: linear-gradient(145deg, #111e38, #0d1730);
-      border: 1.5px solid var(--line-gold);
+    .price-card {
+      background: #fff;
+      border: 1.5px solid rgba(13,26,46,0.10);
       border-radius: var(--r-lg);
-      padding: 32px 28px;
-      position: sticky; top: 100px;
+      padding: 32px 28px 28px;
+      display: flex; flex-direction: column;
+      position: relative;
     }
-    .cohort-badge {
+    .price-card.featured {
+      background: var(--ink);
+      border-color: var(--gold);
+      box-shadow: 0 8px 40px rgba(201,144,30,0.18);
+      transform: translateY(-8px);
+      color: var(--white);
+    }
+    .price-card-badge {
       display: inline-block;
-      background: rgba(229,173,63,0.12);
-      border: 1px solid var(--line-gold);
-      border-radius: 999px;
-      padding: 5px 14px;
-      font-size: 0.72rem; font-weight: 800;
-      letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--gold-lt);
+      background: var(--gold);
+      color: #fff;
+      font-size: 0.68rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 3px 12px; border-radius: 999px;
       margin-bottom: 16px;
+      align-self: flex-start;
     }
-    .cohort-price {
+    .price-card-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 3.2rem; font-weight: 700;
-      color: var(--gold-lt);
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .price-card.featured .price-card-name { color: var(--gold-lt); }
+    .price-card-tagline {
+      font-size: 0.82rem;
+      color: rgba(13,26,46,0.55);
+      margin-bottom: 24px;
+    }
+    .price-card.featured .price-card-tagline { color: var(--muted); }
+    .price-card-amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem; font-weight: 700;
+      color: var(--ink);
       line-height: 1;
       margin-bottom: 4px;
     }
-    .cohort-price sup {
-      font-size: 1.4rem; font-weight: 400; vertical-align: top; margin-top: 8px;
-    }
-    .cohort-price-sub {
-      font-size: 0.85rem; color: var(--muted); margin-bottom: 20px;
-    }
-    .cohort-vs {
-      font-size: 0.82rem; color: var(--muted);
-      padding: 10px 14px;
-      background: rgba(255,255,255,0.04);
-      border-radius: var(--r-sm);
+    .price-card-amount sup { font-size: 1.2rem; vertical-align: top; margin-top: 6px; font-weight: 400; }
+    .price-card-amount span { font-size: 1rem; font-weight: 400; font-family: 'DM Sans', sans-serif; }
+    .price-card.featured .price-card-amount { color: var(--gold-lt); }
+    .price-card-billing {
+      font-size: 0.78rem;
+      color: rgba(13,26,46,0.50);
       margin-bottom: 24px;
+    }
+    .price-card.featured .price-card-billing { color: var(--muted-lt); }
+    .price-card-divider {
+      height: 1px;
+      background: rgba(13,26,46,0.10);
+      margin-bottom: 20px;
+    }
+    .price-card.featured .price-card-divider { background: rgba(255,255,255,0.10); }
+    .price-card-features {
+      list-style: none;
+      display: grid; gap: 10px;
+      margin-bottom: 28px;
+      flex: 1;
+    }
+    .price-card-features li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 0.87rem;
+      color: rgba(13,26,46,0.75);
+    }
+    .price-card.featured .price-card-features li { color: rgba(200,215,235,0.85); }
+    .price-card-features li::before {
+      content: '✓';
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: rgba(201,144,30,0.12);
+      border: 1px solid rgba(201,144,30,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 800;
+      color: var(--gold);
+      margin-top: 1px;
+    }
+    .price-card.featured .price-card-features li::before {
+      background: rgba(229,173,63,0.15);
+      border-color: rgba(229,173,63,0.45);
+      color: var(--gold-lt);
+    }
+    .price-card-features li.na { opacity: 0.35; }
+    .price-card-features li.na::before { content: '—'; background: transparent; border-color: transparent; color: rgba(13,26,46,0.30); font-weight: 400; }
+    .price-card .btn { width: 100%; justify-content: center; }
+    .price-card-note {
+      font-size: 0.74rem;
+      color: rgba(13,26,46,0.45);
+      text-align: center;
+      margin-top: 10px;
       line-height: 1.5;
     }
-    .cohort-vs strong { color: rgba(240,220,180,0.75); }
-    .cohort-features {
-      list-style: none; margin-bottom: 24px;
-      display: grid; gap: 8px;
-    }
-    .cohort-features li {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 0.88rem; color: var(--muted);
-    }
-    .cohort-features li::before {
-      content: '✓'; flex-shrink: 0;
-      width: 18px; height: 18px; border-radius: 50%;
-      background: rgba(229,173,63,0.12);
-      border: 1px solid rgba(229,173,63,0.40);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.68rem; font-weight: 800;
-      color: var(--gold-lt);
-    }
+    .price-card.featured .price-card-note { color: var(--muted-lt); }
     .check-icon { display: none; }
-    .scarcity-note {
-      font-size: 0.78rem; color: var(--muted-lt);
-      text-align: center; margin-top: 12px;
-      line-height: 1.55;
-    }
-
-    /* Tier table */
-    .tier-intro {
-      margin-bottom: 32px;
-    }
-    .tier-intro p { color: var(--muted); font-size: 0.97rem; line-height: 1.7; }
-    .tier-table-wrap { overflow-x: auto; }
-    .tier-mobile-note { display: none; font-size: 0.78rem; color: var(--muted); text-align: center; margin-top: 10px; }
-    .tier-table {
-      width: 100%; border-collapse: collapse;
-      font-size: 0.88rem;
-    }
-    .tier-table th {
-      padding: 14px 18px;
-      text-align: center;
-      font-weight: 700;
-      font-size: 0.82rem;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-      border-bottom: 1px solid var(--line);
-    }
-    .tier-table th.highlight-col {
-      background: rgba(229,173,63,0.08);
-      color: var(--gold-lt);
-      border: 1px solid var(--line-gold);
-      border-bottom: none;
-      border-radius: var(--r-sm) var(--r-sm) 0 0;
-    }
-    .tier-table td {
-      padding: 13px 18px;
-      text-align: center;
-      color: var(--muted);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .tier-table td:first-child { text-align: left; color: rgba(200,215,235,0.80); }
-    .tier-table td.highlight-col {
-      background: rgba(229,173,63,0.05);
-      border-left: 1px solid var(--line-gold);
-      border-right: 1px solid var(--line-gold);
-      color: var(--white);
-    }
-    .tier-table tr:last-child td.highlight-col {
-      border-bottom: 1px solid var(--line-gold);
-      border-radius: 0 0 var(--r-sm) var(--r-sm);
-    }
-    .tier-table .price-row td {
-      padding-top: 20px;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.6rem; font-weight: 700;
-      color: var(--white);
-    }
-    .tier-table .price-row td.highlight-col { color: var(--gold-lt); }
-    .tier-check { color: var(--gold-lt); font-weight: 700; }
-    .tier-dash  { color: rgba(255,255,255,0.18); }
-    .founding-label {
-      display: inline-block;
-      background: var(--gold-lt);
-      color: #150e02;
-      font-size: 0.68rem; font-weight: 800;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 999px;
-      margin-left: 6px; vertical-align: middle;
-    }
+    .scarcity-note { display: none; }
+    .tier-mobile-note { display: none; }
 
     /* ── OPPORTUNITY WEB SECTION ── */
     .web-section { background: var(--night); }
@@ -754,11 +719,8 @@
       .snap-grid { grid-template-columns: 1fr 1fr; }
       .web-tiles { grid-template-columns: 1fr; }
       .form-layout { gap: 32px; }
-      .tier-table th, .tier-table td { padding: 10px 12px; font-size: 0.80rem; }
-      /* On mobile show only Feature + Founding column */
-      .tier-table th:not(:first-child):not(.highlight-col),
-      .tier-table td:not(:first-child):not(.highlight-col) { display: none; }
-      .tier-mobile-note { display: block; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .price-card.featured { transform: none; }
     }
     @media (max-width: 520px) {
       .snap-grid { grid-template-columns: 1fr; }
@@ -1133,108 +1095,73 @@
 <!-- ═══ FOUNDING COHORT OFFER ════════════════════════════════════════ -->
 <div class="cohort-zone">
   <div class="shell">
-    <section aria-label="Founding Atlas Partner offer">
-      <div class="cohort-layout">
+    <section aria-label="Founding Atlas Partner offer" style="padding: clamp(60px,8vw,100px) 0;">
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Founding Atlas Partners</p>
+      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto;">
+        Believe in the vision.<br><em>Get rewarded for it permanently.</em>
+      </h2>
+      <p class="reveal reveal-delay-2" style="text-align:center;max-width:520px;margin:16px auto 0;color:rgba(13,26,46,0.65);font-size:0.97rem;line-height:1.7;">
+        20 founding seats — full Pro access at $150/month, locked for life. When we open publicly, Pro is $497/month. Founding members never see that price.
+      </p>
 
-        <!-- Left: callout + CTA -->
-        <div>
-          <div class="cohort-callout reveal">
-            <div class="cohort-badge">Founding Atlas Partners · 20 seats only</div>
-            <div class="cohort-price"><sup>$</sup>150<span style="font-size:1.2rem;font-weight:400;color:var(--muted);"> /mo</span></div>
-            <p class="cohort-price-sub">Pro access · Locked for life</p>
-            <div class="cohort-vs">
-              When we open publicly, Pro is <strong>$497/month</strong>.<br>
-              Founding members <strong>never see that price</strong>.
-            </div>
-            <ul class="cohort-features">
-              <li><span class="check-icon">✓</span> Monthly Opportunity Web Snapshot</li>
-              <li><span class="check-icon">✓</span> Partner matching</li>
-              <li><span class="check-icon">✓</span> Readiness tracking</li>
-              <li><span class="check-icon">✓</span> Quarterly strategy calls</li>
-              <li><span class="check-icon">✓</span> Priority delivery</li>
-              <li><span class="check-icon">✓</span> Custom reporting</li>
-            </ul>
-            <a class="btn btn-gold btn-lg" href="#get-started" style="width:100%;justify-content:center;">
-              Apply for a Founding Seat →
-            </a>
-            <p class="scarcity-note">Once these 20 seats close, they close permanently.<br>Early Atlas Partners cohort opens next at $200/month.</p>
-          </div>
+      <div class="pricing-grid">
+
+        <!-- Base -->
+        <div class="price-card reveal">
+          <p class="price-card-name">Base</p>
+          <p class="price-card-tagline">Get started with the essentials</p>
+          <div class="price-card-amount"><sup>$</sup>150<span>/mo</span></div>
+          <p class="price-card-billing">At public launch</p>
+          <div class="price-card-divider"></div>
+          <ul class="price-card-features">
+            <li>Quarterly Opportunity Web Snapshot</li>
+            <li>Funder discovery</li>
+            <li>Government pathway mapping</li>
+            <li class="na">Partner matching</li>
+            <li class="na">Readiness tracking</li>
+            <li class="na">Strategy calls</li>
+          </ul>
+          <a class="btn btn-ghost" href="#get-started">Join the waitlist</a>
+          <p class="price-card-note">Available at public launch</p>
         </div>
 
-        <!-- Right: tier table -->
-        <div>
-          <p class="section-label eyebrow-gold reveal" style="margin-bottom:12px;">All tiers, all prices</p>
-          <h2 class="display reveal reveal-delay-1" style="margin-bottom:0;">
-            Believe in the vision.<br><em>Get rewarded for it permanently.</em>
-          </h2>
-          <div class="tier-intro reveal reveal-delay-2" style="margin-top:20px;">
-            <p>We are opening 20 Founding Atlas Partner seats for organizations that want to get in at the ground floor. Founding members get full Pro access — everything Anansi Atlas offers — at $150/month, locked for life.</p>
-          </div>
-          <div class="tier-table-wrap reveal reveal-delay-2">
-            <table class="tier-table" role="table" aria-label="Anansi Atlas pricing tiers">
-              <thead>
-                <tr>
-                  <th style="text-align:left;"></th>
-                  <th>Base</th>
-                  <th class="highlight-col">Founding <span class="founding-label">NOW</span></th>
-                  <th>Growth</th>
-                  <th>Pro</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="price-row">
-                  <td>Public price</td>
-                  <td>$150<span style="font-size:0.75rem;font-weight:400;color:var(--muted);">/mo</span></td>
-                  <td class="highlight-col">$150<span style="font-size:0.75rem;font-weight:400;color:var(--muted);">/mo</span></td>
-                  <td>$297<span style="font-size:0.75rem;font-weight:400;color:var(--muted);">/mo</span></td>
-                  <td>$497<span style="font-size:0.75rem;font-weight:400;color:var(--muted);">/mo</span></td>
-                </tr>
-                <tr>
-                  <td>Opportunity Web Snapshot</td>
-                  <td>Quarterly</td>
-                  <td class="highlight-col">Monthly</td>
-                  <td>Monthly</td>
-                  <td>Monthly</td>
-                </tr>
-                <tr>
-                  <td>Partner matching</td>
-                  <td><span class="tier-dash">—</span></td>
-                  <td class="highlight-col"><span class="tier-check">✓</span></td>
-                  <td><span class="tier-check">✓</span></td>
-                  <td><span class="tier-check">✓</span></td>
-                </tr>
-                <tr>
-                  <td>Readiness tracking</td>
-                  <td><span class="tier-dash">—</span></td>
-                  <td class="highlight-col"><span class="tier-check">✓</span></td>
-                  <td><span class="tier-check">✓</span></td>
-                  <td><span class="tier-check">✓</span></td>
-                </tr>
-                <tr>
-                  <td>Strategy calls</td>
-                  <td><span class="tier-dash">—</span></td>
-                  <td class="highlight-col"><span class="tier-check">✓</span></td>
-                  <td><span class="tier-dash">—</span></td>
-                  <td><span class="tier-check">✓</span></td>
-                </tr>
-                <tr>
-                  <td>Priority delivery</td>
-                  <td><span class="tier-dash">—</span></td>
-                  <td class="highlight-col"><span class="tier-check">✓</span></td>
-                  <td><span class="tier-dash">—</span></td>
-                  <td><span class="tier-check">✓</span></td>
-                </tr>
-                <tr>
-                  <td>Custom reporting</td>
-                  <td><span class="tier-dash">—</span></td>
-                  <td class="highlight-col"><span class="tier-check">✓</span></td>
-                  <td><span class="tier-dash">—</span></td>
-                  <td><span class="tier-check">✓</span></td>
-                </tr>
-              </tbody>
-            </table>
-            <p class="tier-mobile-note">Base · Growth · Pro tiers available at launch</p>
-          </div>
+        <!-- Founding — Featured -->
+        <div class="price-card featured reveal reveal-delay-1">
+          <span class="price-card-badge">🕸 20 Seats Only — Open Now</span>
+          <p class="price-card-name">Founding Partner</p>
+          <p class="price-card-tagline">Pro access · Locked for life</p>
+          <div class="price-card-amount"><sup>$</sup>150<span>/mo</span></div>
+          <p class="price-card-billing">Forever — never increases</p>
+          <div class="price-card-divider"></div>
+          <ul class="price-card-features">
+            <li>Monthly Opportunity Web Snapshot</li>
+            <li>Partner matching</li>
+            <li>Readiness tracking</li>
+            <li>Quarterly strategy calls</li>
+            <li>Priority delivery</li>
+            <li>Custom reporting</li>
+          </ul>
+          <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
+          <p class="price-card-note">Once 20 seats close, they close permanently.<br>Early cohort opens next at $200/month.</p>
+        </div>
+
+        <!-- Pro -->
+        <div class="price-card reveal reveal-delay-2">
+          <p class="price-card-name">Pro</p>
+          <p class="price-card-tagline">Everything, fully unlocked</p>
+          <div class="price-card-amount"><sup>$</sup>497<span>/mo</span></div>
+          <p class="price-card-billing">At public launch</p>
+          <div class="price-card-divider"></div>
+          <ul class="price-card-features">
+            <li>Monthly Opportunity Web Snapshot</li>
+            <li>Partner matching</li>
+            <li>Readiness tracking</li>
+            <li>Monthly strategy calls</li>
+            <li>Priority delivery</li>
+            <li>Custom reporting</li>
+          </ul>
+          <a class="btn btn-ghost" href="#get-started">Join the waitlist</a>
+          <p class="price-card-note">Available at public launch</p>
         </div>
 
       </div>
