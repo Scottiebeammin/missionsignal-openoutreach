@@ -112,7 +112,7 @@
       padding: 18px 0;
     }
     .brand { display: inline-flex; align-items: center; }
-    .brand-logo { height: 44px; width: auto; border-radius: 8px; mix-blend-mode: screen; }
+    .brand-logo { height: 44px; width: auto; border-radius: 0; }
 
     /* ── HERO ── */
     .hero-zone {
@@ -244,11 +244,18 @@
 
     /* ── FOUNDER STORY ── */
     .founder-zone {
-      background: var(--deep);
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
+      background: var(--cream);
+      border-top: 1px solid rgba(13,26,46,0.10);
+      border-bottom: 1px solid rgba(13,26,46,0.10);
       position: relative; overflow: hidden;
+      color: var(--ink);
     }
+    .founder-zone .eyebrow-gold { color: var(--amber); }
+    .founder-zone .gold-rule { background: var(--gold); }
+    .founder-zone .founder-quote { color: var(--ink); border-left-color: var(--gold); }
+    .founder-zone .founder-body p { color: rgba(13,26,46,0.75); }
+    .founder-zone .founder-cred { color: rgba(13,26,46,0.65); }
+    .founder-zone strong { color: var(--ink); }
     .founder-zone::before {
       content: '';
       position: absolute; left: 0; top: 0; bottom: 0;
@@ -296,7 +303,14 @@
     .founder-body p + p { margin-top: 14px; }
 
     /* ── HOW IT WORKS ── */
-    .how-zone { background: var(--night); }
+    .how-zone { background: var(--cream); color: var(--ink); }
+    .how-zone .eyebrow-gold { color: var(--amber); }
+    .how-zone .display, .how-zone h2 { color: var(--ink); }
+    .how-zone .body-muted { color: rgba(13,26,46,0.65); }
+    .how-zone .how-num { background: var(--gold); color: #fff; }
+    .how-zone .how-step { background: rgba(13,26,46,0.06); border-color: rgba(13,26,46,0.10); }
+    .how-zone .how-step h3 { color: var(--ink); }
+    .how-zone .how-step p { color: rgba(13,26,46,0.70); }
     .how-steps {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -382,9 +396,21 @@
 
     /* ── FOUNDING COHORT ── */
     .cohort-zone {
-      background: var(--deep);
+      background: var(--cream);
       position: relative; overflow: hidden;
+      color: var(--ink);
     }
+    .cohort-zone .eyebrow-gold { color: var(--amber); }
+    .cohort-zone .display, .cohort-zone h2, .cohort-zone h3 { color: var(--ink); }
+    .cohort-zone .body-muted { color: rgba(13,26,46,0.65); }
+    .cohort-zone .cohort-callout { background: var(--ink); color: var(--white); }
+    .cohort-zone .tier-table { color: var(--ink); }
+    .cohort-zone .tier-table th { background: rgba(13,26,46,0.08); color: var(--ink); border-color: rgba(13,26,46,0.12); }
+    .cohort-zone .tier-table td { border-color: rgba(13,26,46,0.10); color: rgba(13,26,46,0.80); }
+    .cohort-zone .tier-table td:first-child { color: rgba(13,26,46,0.75); }
+    .cohort-zone .tier-table th.highlight-col { background: var(--gold); color: #fff; }
+    .cohort-zone .tier-table td.highlight-col { background: rgba(201,144,30,0.08); color: var(--ink); }
+    .cohort-zone .tier-mobile-note { color: rgba(13,26,46,0.50); }
     .cohort-zone::after {
       content: '';
       position: absolute;
