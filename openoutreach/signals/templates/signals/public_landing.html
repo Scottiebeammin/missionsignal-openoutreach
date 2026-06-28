@@ -4,1077 +4,1498 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Anansi Atlas — The Web of Opportunity</title>
-  <meta name="description" content="Anansi Atlas helps nonprofits map the funders, partners, resources, readiness gaps, pathways, and practical next steps around their mission.">
+  <meta name="description" content="Anansi Atlas maps the funders, partners, government pathways, readiness gaps, and strategic routes to capital around your mission — so you can move with confidence.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --night:      #07101d;
-      --navy:       #101a32;
-      --deep:       #0d1628;
-      --panel:      #111d34;
-      --page:       #f4ede0;
-      --paper:      #fffaf0;
-      --white:      #ffffff;
-      --ink:        #0e1e35;
-      --ink-soft:   #2a3f5a;
-      --muted:      #5e6d85;
-      --muted-dk:   #b9c3d6;
-      --line:       rgba(255,255,255,0.12);
-      --line-soft:  rgba(14,30,53,0.12);
-      --gold:       #c9901e;
-      --gold-lt:    #e5ad3f;
-      --gold-pale:  #fff6dd;
-      --ember:      #a85419;
-      --ember-lt:   #c96d3c;
-      --shadow-sm:  0 2px 12px rgba(8,17,31,0.08);
-      --shadow:     0 12px 40px rgba(8,17,31,0.12);
-      --shadow-lg:  0 24px 70px rgba(8,17,31,0.18);
-      --radius-sm:  12px;
-      --radius:     20px;
-      --radius-lg:  28px;
+      --night:     #060e1b;
+      --deep:      #090f1c;
+      --navy:      #0c1526;
+      --panel:     #111e33;
+      --panel-lt:  #16243c;
+      --gold:      #c9901e;
+      --gold-lt:   #e5ad3f;
+      --gold-pale: #f5d47a;
+      --gold-glow: rgba(229,173,63,0.22);
+      --amber:     #b8791a;
+      --white:     #ffffff;
+      --cream:     #f6efe2;
+      --ink:       #0d1a2e;
+      --muted:     rgba(185,200,225,0.72);
+      --muted-lt:  rgba(210,220,238,0.55);
+      --line:      rgba(255,255,255,0.09);
+      --line-gold: rgba(229,173,63,0.20);
+      --r-sm: 10px;
+      --r:    18px;
+      --r-lg: 26px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; font-size: 16px; }
 
     body {
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-      line-height: 1.55;
-      color: var(--ink);
-      background: var(--page);
+      font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+      background: var(--night);
+      color: var(--white);
+      line-height: 1.6;
+      overflow-x: hidden;
     }
 
     a { color: inherit; text-decoration: none; }
     p { margin-bottom: 1em; }
     p:last-child { margin-bottom: 0; }
 
+    .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+
     .shell {
       max-width: 1160px;
       margin: 0 auto;
-      padding: 0 28px;
+      padding: 0 32px;
     }
 
-    /* ── Skip link ── */
     .skip-link {
       position: absolute; top: -200%; left: 16px;
       background: var(--gold-lt); color: #18100a;
       padding: 10px 20px; border-radius: 0 0 10px 10px;
-      font-weight: 800; font-size: 0.92rem; z-index: 9999;
+      font-weight: 800; font-size: 0.9rem; z-index: 9999;
     }
     .skip-link:focus { top: 0; }
 
-    /* ── Buttons ── */
+    /* ── BUTTONS ── */
     .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      gap: 6px; min-height: 44px; padding: 11px 22px;
-      border-radius: 999px; font-weight: 750; font-size: 0.92rem;
-      letter-spacing: -0.01em; border: 1.5px solid transparent;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      min-height: 46px; padding: 12px 26px;
+      border-radius: 999px; font-weight: 700; font-size: 0.95rem;
+      letter-spacing: 0.01em; border: 1.5px solid transparent;
       cursor: pointer; text-decoration: none; line-height: 1;
-      transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+      transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease, border-color 150ms ease;
+      font-family: 'DM Sans', sans-serif;
     }
-    .btn:hover  { transform: translateY(-1px); }
+    .btn:hover  { transform: translateY(-2px); }
     .btn:active { transform: translateY(0); }
-
-    .btn-ghost {
-      background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.18);
-      color: var(--white);
-    }
-    .btn-ghost:hover { background: rgba(255,255,255,0.16); border-color: rgba(229,173,63,0.45); }
 
     .btn-gold {
       background: var(--gold-lt); border-color: var(--gold-lt);
-      color: #18100a; box-shadow: 0 8px 28px rgba(229,173,63,0.22);
+      color: #150e02;
+      box-shadow: 0 6px 28px rgba(229,173,63,0.28);
     }
-    .btn-gold:hover { box-shadow: 0 14px 38px rgba(229,173,63,0.30); }
-
-    .btn-outline-dark {
-      background: transparent; border-color: var(--line-soft); color: var(--ink);
+    .btn-gold:hover {
+      background: var(--gold-pale); border-color: var(--gold-pale);
+      box-shadow: 0 12px 40px rgba(229,173,63,0.38);
     }
-    .btn-outline-dark:hover { border-color: rgba(14,30,53,0.30); background: rgba(255,255,255,0.6); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.18);
+      color: var(--white);
+    }
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(229,173,63,0.40);
+    }
+    .btn-lg { min-height: 54px; padding: 15px 32px; font-size: 1rem; }
 
-    .btn-lg { min-height: 52px; padding: 14px 28px; font-size: 1rem; }
-
-    /* ── Site header ── */
-    .site-header { background: var(--page); border-bottom: 1px solid var(--line-soft); position: sticky; top: 0; z-index: 100; }
-
+    /* ── NAV ── */
+    #site-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      transition: background 300ms ease, border-color 300ms ease, backdrop-filter 300ms ease;
+      border-bottom: 1px solid transparent;
+    }
+    #site-nav.scrolled {
+      background: rgba(6,14,27,0.92);
+      backdrop-filter: blur(16px);
+      border-color: var(--line);
+    }
     .topnav {
       display: flex; align-items: center; justify-content: space-between;
-      gap: 16px; padding: 16px 0;
+      padding: 18px 0;
     }
+    .brand { display: inline-flex; align-items: center; }
+    .brand-logo { height: 44px; width: auto; border-radius: 8px; }
 
-    .brand { display: inline-flex; align-items: center; color: var(--ink); }
-
-    .brand-logo {
-      height: 48px; width: auto; display: block;
-      border-radius: 10px; flex-shrink: 0;
-    }
-
-    .nav-links { display: flex; align-items: center; gap: 8px; }
-
-    /* ── Typography ── */
-    .eyebrow {
-      display: inline-block; font-size: 0.70rem; font-weight: 900;
-      letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 12px;
-    }
-    .eyebrow-gold       { color: var(--gold-lt); }
-    .eyebrow-ember-dark { color: var(--ember); }
-    .eyebrow-muted      { color: var(--muted-dk); }
-
-    h1 {
-      font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 0.96;
-      letter-spacing: -0.055em; font-weight: 950; margin-bottom: 18px;
-    }
-    h2 {
-      font-size: clamp(1.6rem, 3.2vw, 2.5rem); line-height: 1.05;
-      letter-spacing: -0.04em; font-weight: 900; margin-bottom: 12px;
-    }
-    h3 { font-size: 0.97rem; font-weight: 850; letter-spacing: -0.02em; margin-bottom: 7px; }
-
-    .text-white    { color: var(--white); }
-    .text-muted    { color: var(--muted); }
-    .text-muted-dk { color: var(--muted-dk); }
-
-    .lead { font-size: clamp(0.97rem, 1.6vw, 1.10rem); line-height: 1.62; }
-
-    /* ── Hero (dark) ── */
+    /* ── HERO ── */
     .hero-zone {
-      background: linear-gradient(160deg, #07101d 0%, #0d1628 60%, #12213a 100%);
+      position: relative;
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      overflow: hidden;
+      background: radial-gradient(ellipse 80% 70% at 60% 50%, #0d1e40 0%, #070f1e 55%, #040a15 100%);
     }
 
-    .hero {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 28px; align-items: center;
-      padding: clamp(36px,4.5vw,60px) 0 clamp(40px,5vw,68px);
+    /* Full-bleed SVG web behind the hero */
+    .hero-web-bg {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: flex-end;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .hero-web-bg svg {
+      width: 65%; height: 100%;
+      opacity: 0.9;
     }
 
-    .hero-copy { color: var(--white); }
+    /* Gold aurora behind web */
+    .hero-aurora {
+      position: absolute;
+      right: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 55vw; height: 80vh;
+      background: radial-gradient(ellipse at 60% 50%, rgba(201,144,30,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative; z-index: 10;
+      padding: clamp(100px,14vw,140px) 0 clamp(60px,8vw,80px);
+    }
+
+    .hero-inner {
+      max-width: 580px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem; font-weight: 800;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .eyebrow-gold { color: var(--gold-lt); }
+    .eyebrow-muted { color: var(--muted); }
+    .eyebrow-amber { color: var(--gold); }
+
+    .hero-h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 600;
+      line-height: 1.06;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      margin-bottom: 22px;
+    }
+    .hero-h1 em {
+      font-style: italic;
+      color: var(--gold-lt);
+    }
 
     .hero-sub {
-      max-width: 500px; color: #c5d1e8;
-      font-size: clamp(0.96rem, 1.4vw, 1.08rem);
-      margin-bottom: 24px; line-height: 1.65;
+      font-size: clamp(1rem, 1.5vw, 1.1rem);
+      color: var(--muted);
+      line-height: 1.68;
+      max-width: 500px;
+      margin-bottom: 36px;
     }
 
     .hero-btns {
-      display: flex; align-items: center; gap: 10px;
-      flex-wrap: wrap; margin-bottom: 22px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 32px;
     }
 
-    .hero-trust { display: flex; flex-wrap: wrap; gap: 7px; }
-
-    .trust-pill {
-      display: inline-flex; align-items: center; min-height: 30px;
-      padding: 5px 13px; border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 999px; background: rgba(255,255,255,0.055);
-      color: var(--muted-dk); font-size: 0.80rem; font-weight: 750;
+    .trust-bar {
+      display: flex; align-items: center; gap: 6px;
+      flex-wrap: wrap;
+    }
+    .trust-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--gold); opacity: 0.5; flex-shrink: 0;
+    }
+    .trust-bar span {
+      font-size: 0.80rem; color: var(--muted-lt); font-weight: 500;
     }
 
-    /* ── Spider web panel (hero right side) ── */
-    .web-panel {
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: var(--radius-lg);
-      background: linear-gradient(148deg, #080f1e 0%, #0d1930 100%);
-      box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.06);
-      overflow: hidden; aspect-ratio: 1 / 0.9;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .web-panel svg { width: 100%; height: 100%; }
+    /* ── SECTION BASE ── */
+    section { padding: clamp(60px,8vw,100px) 0; }
 
-    /* ── Content zone (cream with web bg) ── */
-    .content-zone {
-      background: var(--page);
-      position: relative;
-      overflow: hidden;
+    .section-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem; font-weight: 800;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      margin-bottom: 16px;
     }
 
-    /* The spider web bg watermark */
-    .web-bg {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: min(900px, 120vw);
-      height: min(900px, 120vw);
-      pointer-events: none;
-      opacity: 0.055;
-      z-index: 0;
+    h2.display {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    h2.display em { font-style: italic; color: var(--gold-lt); }
+
+    h3.card-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      margin-bottom: 8px; color: var(--white);
     }
 
-    .content-zone .shell { position: relative; z-index: 1; }
+    .body-muted { color: var(--muted); line-height: 1.68; }
+    .body-lg    { font-size: clamp(1rem, 1.4vw, 1.08rem); }
 
-    /* ── Why Anansi Atlas (value cards, light) ── */
-    .why-grid {
-      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;
-    }
-    .why-card {
-      background: var(--white); border: 1px solid var(--line-soft);
-      border-top: 3px solid var(--gold-lt); border-radius: var(--radius);
-      box-shadow: var(--shadow-sm); padding: 26px 22px;
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
-    .why-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-    .why-card h3 { color: var(--ink); font-size: 1.04rem; font-weight: 850; letter-spacing: -0.01em; margin-bottom: 8px; }
-    .why-card p  { color: var(--ink-soft); font-size: 0.95rem; line-height: 1.62; margin: 0; }
-    @media (max-width: 820px) { .why-grid { grid-template-columns: 1fr; } }
-
-    /* ── Section cards ── */
-    .section-wrap {
-      border: 1px solid var(--line-soft);
-      border-radius: var(--radius-lg);
-      background: rgba(255,250,240,0.90);
-      box-shadow: var(--shadow);
-      padding: clamp(22px,4vw,44px);
-      margin-bottom: 14px;
-    }
-    .section-wrap.dark {
-      background: linear-gradient(148deg, #0c172a, #15233c);
-      border-color: rgba(255,255,255,0.09);
-    }
-    .section-wrap.dark h2, .section-wrap.dark h3 { color: var(--white); }
-    .section-wrap.dark p { color: var(--muted-dk); }
-
-    /* ── What you get (2-col) ── */
-    .snapshot-layout {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 32px; align-items: start;
+    /* ── GOLD RULE ── */
+    .gold-rule {
+      width: 48px; height: 2px;
+      background: linear-gradient(90deg, var(--gold-lt), transparent);
+      border-radius: 2px;
+      margin-bottom: 24px;
     }
 
-    .snap-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 8px; margin-top: 16px;
+    /* ── FOUNDER STORY ── */
+    .founder-zone {
+      background: var(--deep);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      position: relative; overflow: hidden;
     }
-
-    .snap-item {
-      display: flex; align-items: center; gap: 9px;
-      border: 1px solid rgba(255,255,255,0.11);
-      border-radius: 10px; padding: 10px 14px;
-      background: rgba(255,255,255,0.07);
-      font-weight: 800; color: var(--white);
-      font-size: 0.88rem;
+    .founder-zone::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, transparent, var(--gold-lt) 30%, var(--gold) 70%, transparent);
     }
-
-    .snap-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--gold-lt); flex-shrink: 0;
+    .founder-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 64px;
+      align-items: center;
     }
-
-    /* ── Eco tiles ── */
-    .eco-grid {
-      display: grid; grid-template-columns: repeat(3, minmax(0,1fr));
-      gap: 9px; margin-top: 20px;
+    .founder-avatar-block { text-align: center; }
+    .founder-monogram {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: linear-gradient(135deg, #1a2d50, #0e1c36);
+      border: 1.5px solid var(--line-gold);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 600;
+      color: var(--gold-lt);
+      margin-bottom: 16px;
     }
-
-    .eco-tile {
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 16px; padding: 14px 16px;
-      background: rgba(255,255,255,0.05);
+    .founder-cred {
+      font-size: 0.82rem; line-height: 1.7;
+      color: var(--muted);
     }
-    .eco-tile strong { display: block; color: var(--white); font-size: 0.88rem; margin-bottom: 3px; }
-    .eco-tile span   { color: var(--muted-dk); font-size: 0.80rem; line-height: 1.4; }
-
-    /* ── Form section ── */
-    .capture-layout {
-      display: grid; grid-template-columns: 1fr 1.1fr;
-      gap: 28px; align-items: start;
+    .founder-cred strong { display: block; color: var(--white); font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+    blockquote.founder-quote {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.58;
+      color: rgba(240,230,210,0.90);
+      border-left: 2px solid var(--gold);
+      padding-left: 28px;
+      margin-bottom: 28px;
     }
-
-    .cohort-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
-
-    .cpill {
-      display: inline-flex; align-items: center; min-height: 34px;
-      padding: 6px 13px; border: 1px solid var(--line-soft);
-      border-radius: 999px; background: rgba(255,255,255,0.70);
-      color: var(--navy); font-size: 0.86rem; font-weight: 800;
+    .founder-body {
+      font-size: 0.97rem;
+      color: var(--muted);
+      line-height: 1.72;
     }
+    .founder-body p + p { margin-top: 14px; }
 
-    .form-card {
-      border: 1px solid var(--line-soft); border-radius: var(--radius-lg);
-      padding: 24px; background: var(--white); box-shadow: var(--shadow);
-    }
-
-    form { display: grid; gap: 13px; }
-
-    label {
-      display: block; margin-bottom: 5px;
-      font-size: 0.86rem; font-weight: 850; color: var(--ink);
-    }
-
-    input, select, textarea {
-      width: 100%; border: 1.5px solid #c4cdd8;
-      border-radius: var(--radius-sm); padding: 10px 13px;
-      background: #fafaf8; color: var(--ink);
-      font: inherit; font-size: 0.91rem;
-      transition: border-color 140ms ease, box-shadow 140ms ease;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--gold-lt);
-      box-shadow: 0 0 0 3px rgba(229,173,63,0.40);
-      outline: none; background: var(--white);
-    }
-
-    .form-grid {
-      display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 11px;
-    }
-    .wide { grid-column: 1 / -1; }
-
-    .field-errors { margin-top: 4px; font-size: 0.82rem; color: #c03535; }
-
-    .form-note {
-      font-size: 0.81rem; color: var(--muted);
-      text-align: center; margin-top: 4px;
-    }
-
-    /* ── How it works ── */
-    .how-it-works {
-      padding: clamp(28px, 4vw, 44px) 0;
-    }
+    /* ── HOW IT WORKS ── */
+    .how-zone { background: var(--night); }
     .how-steps {
-      display: flex;
-      align-items: flex-start;
-      gap: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 48px;
+      position: relative;
+    }
+    .how-steps::before {
+      content: '';
+      position: absolute;
+      top: 28px; left: calc(33.3% + 28px); right: calc(33.3% + 28px);
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold), transparent 50%, var(--gold));
+      opacity: 0.3;
+      pointer-events: none;
     }
     .how-step {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 14px;
-      padding: 0 16px;
+      padding: 32px 28px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: rgba(255,255,255,0.03);
+      position: relative;
+      transition: border-color 200ms ease, background 200ms ease;
+    }
+    .how-step:hover {
+      border-color: var(--line-gold);
+      background: rgba(201,144,30,0.04);
     }
     .how-num {
-      width: 48px; height: 48px; flex-shrink: 0;
+      width: 56px; height: 56px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #e5ad3f, #c96d3c);
+      border: 1.5px solid var(--line-gold);
+      background: linear-gradient(135deg, rgba(229,173,63,0.12), rgba(201,144,30,0.06));
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; font-weight: 900; color: #18100a;
-      box-shadow: 0 6px 18px rgba(229,173,63,0.28);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 600;
+      color: var(--gold-lt);
+      margin-bottom: 20px;
     }
-    .how-body h3 { font-size: 0.97rem; margin-bottom: 6px; color: var(--ink); }
-    .how-body p  { font-size: 0.86rem; color: var(--muted); line-height: 1.55; margin: 0; }
-    .how-connector {
-      flex-shrink: 0;
-      width: 48px;
-      height: 2px;
-      background: linear-gradient(90deg, rgba(229,173,63,0.5), rgba(201,144,30,0.2));
-      margin-top: 24px;
-      border-radius: 999px;
+    .how-step h3 { color: var(--white); font-weight: 700; font-size: 1.02rem; margin-bottom: 10px; }
+    .how-step p  { color: var(--muted); font-size: 0.90rem; line-height: 1.65; margin: 0; }
+
+    /* ── WHAT'S IN THE SNAPSHOT ── */
+    .snap-zone {
+      background: linear-gradient(175deg, #0a1525 0%, #060d1b 100%);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
     }
-    @media (max-width: 680px) {
-      .how-steps { flex-direction: column; align-items: center; gap: 10px; }
-      .how-connector { width: 2px; height: 28px; background: linear-gradient(180deg, rgba(229,173,63,0.5), rgba(201,144,30,0.2)); margin: 0; }
-      .how-step { padding: 0; }
+    .snap-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 48px;
+    }
+    .snap-card {
+      padding: 24px 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: rgba(255,255,255,0.03);
+      transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
+      cursor: default;
+    }
+    .snap-card:hover {
+      border-color: rgba(229,173,63,0.35);
+      background: rgba(201,144,30,0.06);
+      transform: translateY(-2px);
+    }
+    .snap-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(201,144,30,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 14px;
+    }
+    .snap-card h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem; font-weight: 700;
+      color: var(--white); margin-bottom: 6px;
+    }
+    .snap-card p {
+      font-size: 0.82rem; color: var(--muted); line-height: 1.55; margin: 0;
     }
 
-    /* ── Tabs ── */
+    /* ── FOUNDING COHORT ── */
+    .cohort-zone {
+      background: var(--deep);
+      position: relative; overflow: hidden;
+    }
+    .cohort-zone::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-lt), transparent);
+    }
+    .cohort-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap: 64px;
+      align-items: start;
+    }
+    .cohort-callout {
+      background: linear-gradient(145deg, #111e38, #0d1730);
+      border: 1.5px solid var(--line-gold);
+      border-radius: var(--r-lg);
+      padding: 32px 28px;
+      position: sticky; top: 100px;
+    }
+    .cohort-badge {
+      display: inline-block;
+      background: rgba(229,173,63,0.12);
+      border: 1px solid var(--line-gold);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 0.72rem; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--gold-lt);
+      margin-bottom: 16px;
+    }
+    .cohort-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.2rem; font-weight: 700;
+      color: var(--gold-lt);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .cohort-price sup {
+      font-size: 1.4rem; font-weight: 400; vertical-align: top; margin-top: 8px;
+    }
+    .cohort-price-sub {
+      font-size: 0.85rem; color: var(--muted); margin-bottom: 20px;
+    }
+    .cohort-vs {
+      font-size: 0.82rem; color: var(--muted);
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      border-radius: var(--r-sm);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .cohort-vs strong { color: rgba(240,220,180,0.75); }
+    .cohort-features {
+      list-style: none; margin-bottom: 24px;
+      display: grid; gap: 8px;
+    }
+    .cohort-features li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.88rem; color: var(--muted);
+    }
+    .cohort-features li::before {
+      content: '✓'; flex-shrink: 0;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(229,173,63,0.12);
+      border: 1px solid rgba(229,173,63,0.40);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 800;
+      color: var(--gold-lt);
+    }
+    .check-icon { display: none; }
+    .scarcity-note {
+      font-size: 0.78rem; color: var(--muted-lt);
+      text-align: center; margin-top: 12px;
+      line-height: 1.55;
+    }
+
+    /* Tier table */
+    .tier-intro {
+      margin-bottom: 32px;
+    }
+    .tier-intro p { color: var(--muted); font-size: 0.97rem; line-height: 1.7; }
+    .tier-table-wrap { overflow-x: auto; }
+    .tier-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .tier-table th {
+      padding: 14px 18px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+    }
+    .tier-table th.highlight-col {
+      background: rgba(229,173,63,0.08);
+      color: var(--gold-lt);
+      border: 1px solid var(--line-gold);
+      border-bottom: none;
+      border-radius: var(--r-sm) var(--r-sm) 0 0;
+    }
+    .tier-table td {
+      padding: 13px 18px;
+      text-align: center;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .tier-table td:first-child { text-align: left; color: rgba(200,215,235,0.80); }
+    .tier-table td.highlight-col {
+      background: rgba(229,173,63,0.05);
+      border-left: 1px solid var(--line-gold);
+      border-right: 1px solid var(--line-gold);
+      color: var(--white);
+    }
+    .tier-table tr:last-child td.highlight-col {
+      border-bottom: 1px solid var(--line-gold);
+      border-radius: 0 0 var(--r-sm) var(--r-sm);
+    }
+    .tier-table .price-row td {
+      padding-top: 20px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--white);
+    }
+    .tier-table .price-row td.highlight-col { color: var(--gold-lt); }
+    .tier-check { color: var(--gold-lt); font-weight: 700; }
+    .tier-dash  { color: rgba(255,255,255,0.18); }
+    .founding-label {
+      display: inline-block;
+      background: var(--gold-lt);
+      color: #150e02;
+      font-size: 0.68rem; font-weight: 800;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 999px;
+      margin-left: 6px; vertical-align: middle;
+    }
+
+    /* ── OPPORTUNITY WEB SECTION ── */
+    .web-section { background: var(--night); }
+    .web-tiles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 48px;
+    }
+    .web-tile {
+      padding: 28px 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: rgba(255,255,255,0.025);
+      transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
+    }
+    .web-tile:hover {
+      border-color: rgba(229,173,63,0.30);
+      background: rgba(201,144,30,0.05);
+      transform: translateY(-2px);
+    }
+    .web-tile-icon {
+      font-size: 1.4rem; margin-bottom: 14px; display: block;
+    }
+    .web-tile h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.97rem; font-weight: 700;
+      color: var(--white); margin-bottom: 8px;
+    }
+    .web-tile p {
+      font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin: 0;
+    }
+
+    /* ── WAITLIST FORM ── */
+    .form-zone {
+      background: linear-gradient(175deg, #0b1626 0%, var(--night) 100%);
+      border-top: 1px solid var(--line);
+    }
+    .form-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 64px;
+      align-items: start;
+    }
+    .form-left h2 { margin-bottom: 16px; }
+    .form-left .body-muted { margin-bottom: 24px; font-size: 0.97rem; }
+    .founding-pills {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-bottom: 28px;
+    }
+    .fpill {
+      display: inline-flex; align-items: center; min-height: 32px;
+      padding: 5px 14px;
+      border: 1px solid var(--line-gold);
+      border-radius: 999px;
+      background: rgba(229,173,63,0.07);
+      color: var(--gold-pale);
+      font-size: 0.82rem; font-weight: 600;
+    }
+    .form-card {
+      background: #0f1c32;
+      border: 1.5px solid rgba(255,255,255,0.10);
+      border-radius: var(--r-lg);
+      padding: 32px;
+    }
+
     .tab-nav {
       display: flex; gap: 4px;
-      border-bottom: 1px solid var(--line-soft);
-      margin-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 24px;
     }
     .tab-btn {
       flex: 1; padding: 10px 14px;
       background: none; border: none; border-bottom: 2px solid transparent;
-      margin-bottom: -1px; font: inherit; font-size: 0.88rem; font-weight: 800;
-      color: var(--muted); cursor: pointer; border-radius: 6px 6px 0 0;
-      transition: color 140ms, border-color 140ms;
+      margin-bottom: -1px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 700;
+      color: var(--muted); cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      transition: color 150ms, border-color 150ms;
     }
-    .tab-btn:hover { color: var(--ink); }
-    .tab-btn.active { color: var(--ink); border-bottom-color: var(--gold); }
+    .tab-btn:hover { color: var(--white); }
+    .tab-btn.active { color: var(--white); border-bottom-color: var(--gold); }
 
-    /* ── Founder strip (dark, slim, at the bottom) ── */
-    .founder-strip {
-      background: linear-gradient(135deg, #0c172a, #15233c);
-      border-top: 1px solid rgba(255,255,255,0.07);
-    }
+    form { display: grid; gap: 14px; }
 
-    .founder-inner {
-      display: flex; align-items: center; gap: 20px;
-      padding: 28px 0;
-      flex-wrap: wrap;
+    label {
+      display: block; margin-bottom: 5px;
+      font-size: 0.84rem; font-weight: 700; color: rgba(210,225,245,0.85);
     }
 
-    .founder-avatar {
-      width: 52px; height: 52px; flex-shrink: 0;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #e5ad3f, #c96d3c);
+    input, select {
+      width: 100%;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: var(--r-sm);
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+      font: inherit; font-size: 0.91rem;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+    input::placeholder { color: rgba(180,200,230,0.30); }
+    input:focus, select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(229,173,63,0.18);
+      outline: none;
+      background: rgba(255,255,255,0.07);
+    }
+    select option { background: #0c1526; color: var(--white); }
+
+    .field-errors { margin-top: 4px; font-size: 0.80rem; color: #f87171; }
+    .form-note { font-size: 0.80rem; color: var(--muted); text-align: center; margin-top: 8px; }
+
+    /* ── MYTHOLOGY CLOSE ── */
+    .myth-zone {
+      background: linear-gradient(170deg, #060d1c 0%, #04090f 100%);
+      border-top: 1px solid var(--line);
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .myth-zone::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 400px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .myth-web-bg {
+      position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      color: #18100a; font-size: 1.1rem; font-weight: 900;
+      pointer-events: none; opacity: 0.04;
     }
-
-    .founder-meta { flex: 1; min-width: 200px; }
-    .founder-meta strong { display: block; color: var(--white); font-size: 1rem; }
-    .founder-meta span   { color: var(--muted-dk); font-size: 0.85rem; }
-
-    .founder-quote {
-      flex: 2; min-width: 260px;
-      color: var(--muted-dk); font-size: 0.92rem;
-      line-height: 1.6; font-style: italic;
-      border-left: 2px solid rgba(229,173,63,0.30);
-      padding-left: 16px;
+    .myth-web-bg svg { width: 70%; }
+    .myth-content { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
+    .myth-anansi {
+      font-size: 1.8rem; margin-bottom: 24px; display: block;
+      opacity: 0.7;
     }
+    blockquote.myth-quote {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.52;
+      color: rgba(240,230,210,0.90);
+      margin-bottom: 24px;
+    }
+    .myth-attr {
+      font-size: 0.85rem; color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .myth-attr strong { color: rgba(220,200,170,0.80); }
 
-    /* ── Footer ── */
-    footer {
-      display: flex; justify-content: space-between; align-items: center;
+    /* ── FOOTER ── */
+    .site-footer {
+      background: var(--night);
+      border-top: 1px solid var(--line);
+      padding: 24px 0;
+    }
+    .footer-inner {
+      display: flex; align-items: center; justify-content: space-between;
       gap: 16px; flex-wrap: wrap;
-      padding: 18px 0 14px;
-      color: #5a6a80; font-size: 0.84rem;
-      border-top: 1px solid var(--line-soft);
     }
+    .footer-copy {
+      font-size: 0.82rem; color: var(--muted);
+    }
+    .footer-links {
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    }
+    .footer-links a { font-size: 0.82rem; color: var(--muted); transition: color 150ms; }
+    .footer-links a:hover { color: var(--gold-lt); }
+    .footer-links a.gold { color: var(--gold); font-weight: 600; }
 
-    /* ── Responsive ── */
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 600ms ease, transform 600ms ease;
+    }
+    .reveal.in { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 100ms; }
+    .reveal-delay-2 { transition-delay: 200ms; }
+    .reveal-delay-3 { transition-delay: 300ms; }
+    .reveal-delay-4 { transition-delay: 400ms; }
+
+    /* ── RESPONSIVE ── */
     @media (max-width: 1040px) {
-      .hero, .snapshot-layout, .capture-layout { grid-template-columns: 1fr; }
-      .web-panel { aspect-ratio: unset; min-height: 320px; order: -1; }
-      .eco-grid  { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .founder-inner { gap: 16px; }
+      .founder-layout, .cohort-layout, .form-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .cohort-callout { position: static; }
+      .snap-grid { grid-template-columns: repeat(2, 1fr); }
+      .web-tiles { grid-template-columns: repeat(2, 1fr); }
     }
-
-    @media (max-width: 680px) {
-      .shell { padding: 0 16px; }
-      /* Nav: shrink logo on phones */
-      .brand-logo { height: 40px; }
-      .nav-links .btn { padding: 10px 16px; font-size: 0.88rem; }
-      /* Hero */
-      .hero { gap: 18px; padding: clamp(28px,5vw,44px) 0; }
-      h1 { font-size: clamp(2rem, 8.5vw, 3rem); margin-bottom: 14px; }
-      .hero-sub { font-size: 0.95rem; }
-      .hero-btns { flex-direction: column; }
-      .hero-btns .btn { width: 100%; justify-content: center; }
-      .hero-trust { gap: 6px; }
-      .trust-pill { font-size: 0.76rem; padding: 4px 10px; }
-      /* Web panel */
-      .web-panel { min-height: 260px; border-radius: var(--radius); }
-      /* Sections */
-      .eco-grid, .snap-grid, .form-grid { grid-template-columns: 1fr; }
-      .section-wrap { padding: 20px 18px; }
-      /* How it works */
-      .how-steps { flex-direction: column; gap: 16px; }
-      .how-connector { display: none; }
-      footer { flex-direction: column; align-items: flex-start; gap: 8px; }
+    @media (max-width: 760px) {
+      .shell { padding: 0 20px; }
+      .brand-logo { height: 38px; }
+      .hero-web-bg { opacity: 0.35; }
+      .how-steps { grid-template-columns: 1fr; gap: 12px; }
+      .snap-grid { grid-template-columns: 1fr 1fr; }
+      .web-tiles { grid-template-columns: 1fr; }
+      .form-layout { gap: 32px; }
+      .tier-table th, .tier-table td { padding: 10px 12px; font-size: 0.80rem; }
     }
-
-    @media (max-width: 420px) {
-      .brand-logo { height: 34px; }
+    @media (max-width: 520px) {
+      .snap-grid { grid-template-columns: 1fr; }
+      .hero-btns { flex-direction: column; align-items: stretch; }
+      .hero-btns .btn { text-align: center; justify-content: center; }
+      .form-card { padding: 22px 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      svg animate, svg animateMotion { dur: 10000s; }
     }
   </style>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
-<!-- ═══ NAV ═══════════════════════════════════════════════════════ -->
-<header class="site-header">
+<!-- ═══ NAV ════════════════════════════════════════════════════════ -->
+<nav id="site-nav" aria-label="Anansi Atlas navigation">
   <div class="shell">
-    <nav class="topnav" aria-label="Anansi Atlas navigation">
+    <div class="topnav">
       <a class="brand" href="{% url 'anansi-atlas-landing' %}" aria-label="Anansi Atlas — The Web of Opportunity">
-        <img class="brand-logo" src="{% static 'signals/anansi-atlas-logo.png' %}" alt="Anansi Atlas — The Web of Opportunity" width="496" height="248">
+        <img class="brand-logo" src="{% static 'signals/anansi-atlas-logo.png' %}" alt="Anansi Atlas" width="496" height="248">
       </a>
-      <div class="nav-links">
-        <a class="btn btn-gold" href="#get-started">Join the Waitlist →</a>
-      </div>
-    </nav>
+      <a class="btn btn-gold" href="#get-started">Join the Founding Cohort →</a>
+    </div>
   </div>
-</header>
+</nav>
 
-<!-- ═══ HERO ══════════════════════════════════════════════════════ -->
-<div class="hero-zone">
-  <div class="shell">
-    <div class="hero">
+<!-- ═══ HERO ════════════════════════════════════════════════════════ -->
+<div class="hero-zone" id="main-content">
 
-      <div class="hero-copy">
-        <p class="eyebrow eyebrow-gold">Opportunity Ecosystem Intelligence</p>
-        <h1 class="text-white">See every funder, partner, and pathway aligned to your mission — mapped and ready to act on.</h1>
-        <p class="hero-sub">Anansi Atlas gives mission-driven organizations a clear picture of aligned funders, partners, government pathways, readiness gaps, and strategic routes to capital — so you can move with confidence, not guesswork.</p>
-        <div class="hero-btns">
-          <a class="btn btn-gold btn-lg" href="#get-started">Join the Waitlist →</a>
-          <a class="btn btn-ghost btn-lg" href="#what-you-get">See What's Inside</a>
-        </div>
-        <div class="hero-trust">
-          <span class="trust-pill">Built for nonprofits</span>
-          <span class="trust-pill">Personal onboarding</span>
-          <span class="trust-pill">Uncover hidden opportunities</span>
-          <span class="trust-pill">Action-first</span>
-        </div>
+  <!-- Aurora glow -->
+  <div class="hero-aurora" aria-hidden="true"></div>
+
+  <!-- Web SVG — right side structural backdrop -->
+  <div class="hero-web-bg" aria-hidden="true">
+    <svg viewBox="-30 -27 620 558" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="wBg" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#0e1c35"/>
+          <stop offset="100%" stop-color="#07101d"/>
+        </radialGradient>
+        <radialGradient id="wHubAura" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#c9901e" stop-opacity="0.50"/>
+          <stop offset="55%"  stop-color="#c9901e" stop-opacity="0.14"/>
+          <stop offset="100%" stop-color="#c9901e" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="wNodeGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#e5ad3f" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#e5ad3f" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="wSg0" x1="280" y1="252" x2="480" y2="252" gradientUnits="userSpaceOnUse">
+          <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
+          <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
+        </linearGradient>
+        <linearGradient id="wSg1" x1="280" y1="252" x2="380" y2="425" gradientUnits="userSpaceOnUse">
+          <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
+          <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
+        </linearGradient>
+        <linearGradient id="wSg2" x1="280" y1="252" x2="180" y2="425" gradientUnits="userSpaceOnUse">
+          <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
+          <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
+        </linearGradient>
+        <linearGradient id="wSg3" x1="280" y1="252" x2="80" y2="252" gradientUnits="userSpaceOnUse">
+          <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
+          <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
+        </linearGradient>
+        <linearGradient id="wSg4" x1="280" y1="252" x2="180" y2="79" gradientUnits="userSpaceOnUse">
+          <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
+          <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
+        </linearGradient>
+        <linearGradient id="wSg5" x1="280" y1="252" x2="380" y2="79" gradientUnits="userSpaceOnUse">
+          <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
+          <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
+        </linearGradient>
+        <filter id="wGlow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <path id="wTp0" d="M280,252 L480,252"/>
+        <path id="wTp1" d="M280,252 L380,425"/>
+        <path id="wTp2" d="M280,252 L180,425"/>
+        <path id="wTp3" d="M280,252 L80,252"/>
+        <path id="wTp4" d="M280,252 L180,79"/>
+        <path id="wTp5" d="M280,252 L380,79"/>
+      </defs>
+      <rect x="-30" y="-27" width="620" height="558" fill="url(#wBg)"/>
+      <ellipse cx="310" cy="210" rx="190" ry="130" fill="#162850" fill-opacity="0.10"/>
+      <ellipse cx="250" cy="300" rx="150" ry="110" fill="#c9901e" fill-opacity="0.04"/>
+      <circle cx="280" cy="252" r="140" fill="url(#wHubAura)"/>
+      <g stroke="#c9901e" stroke-width="5" opacity="0.07" stroke-linecap="round">
+        <line x1="280" y1="252" x2="480" y2="252"/>
+        <line x1="280" y1="252" x2="380" y2="425"/>
+        <line x1="280" y1="252" x2="180" y2="425"/>
+        <line x1="280" y1="252" x2="80" y2="252"/>
+        <line x1="280" y1="252" x2="180" y2="79"/>
+        <line x1="280" y1="252" x2="380" y2="79"/>
+      </g>
+      <g stroke="#c9901e" stroke-width="0.75" opacity="0.14">
+        <line x1="280" y1="252" x2="453" y2="352"/>
+        <line x1="280" y1="252" x2="280" y2="452"/>
+        <line x1="280" y1="252" x2="107" y2="352"/>
+        <line x1="280" y1="252" x2="107" y2="152"/>
+        <line x1="280" y1="252" x2="280" y2="52"/>
+        <line x1="280" y1="252" x2="453" y2="152"/>
+      </g>
+      <line x1="280" y1="252" x2="480" y2="252" stroke="url(#wSg0)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="380" y2="425" stroke="url(#wSg1)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="180" y2="425" stroke="url(#wSg2)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="80" y2="252" stroke="url(#wSg3)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="180" y2="79" stroke="url(#wSg4)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="380" y2="79" stroke="url(#wSg5)" stroke-width="1.5"/>
+      <circle cx="280" cy="252" r="44" fill="none" stroke="#c9901e" stroke-width="0.7" opacity="0.28"/>
+      <circle cx="280" cy="252" r="44" fill="none" stroke="#e5ad3f" stroke-width="1.3" opacity="0.6" stroke-dasharray="24 252" stroke-dashoffset="0">
+        <animate attributeName="stroke-dashoffset" values="0;-276" dur="7s" repeatCount="indefinite" calcMode="linear"/>
+        <animate attributeName="opacity" values="0.6;0.3;0.6" dur="3.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="280" cy="252" r="82" fill="none" stroke="#c9901e" stroke-width="0.9" opacity="0.36">
+        <animate attributeName="opacity" values="0.36;0.18;0.36" dur="5s" repeatCount="indefinite" begin="1.2s"/>
+      </circle>
+      <circle cx="280" cy="252" r="120" fill="none" stroke="#c9901e" stroke-width="0.75" opacity="0.24"/>
+      <circle cx="280" cy="252" r="148" fill="none" stroke="#c9901e" stroke-width="0.65" opacity="0.16"/>
+      <circle cx="280" cy="252" r="164" fill="none" stroke="#c9901e" stroke-width="0.55" opacity="0.10"/>
+      <circle cx="280" cy="252" r="172" fill="none" stroke="#c9901e" stroke-width="0.45" opacity="0.07"/>
+      <g fill="#e5ad3f" opacity="0.82">
+        <circle cx="324" cy="252" r="2.6"/><circle cx="318" cy="273" r="2.3"/>
+        <circle cx="302" cy="290" r="2.3"/><circle cx="280" cy="296" r="2.6"/>
+        <circle cx="258" cy="290" r="2.3"/><circle cx="242" cy="273" r="2.3"/>
+        <circle cx="236" cy="252" r="2.6"/><circle cx="242" cy="231" r="2.3"/>
+        <circle cx="258" cy="214" r="2.3"/><circle cx="280" cy="208" r="2.6"/>
+        <circle cx="302" cy="214" r="2.3"/><circle cx="318" cy="231" r="2.3"/>
+      </g>
+      <g fill="#c9901e" opacity="0.44">
+        <circle cx="362" cy="252" r="2.0"/><circle cx="351" cy="293" r="1.8"/>
+        <circle cx="321" cy="323" r="1.8"/><circle cx="280" cy="334" r="2.0"/>
+        <circle cx="239" cy="323" r="1.8"/><circle cx="209" cy="293" r="1.8"/>
+        <circle cx="198" cy="252" r="2.0"/><circle cx="209" cy="211" r="1.8"/>
+        <circle cx="239" cy="181" r="1.8"/><circle cx="280" cy="170" r="2.0"/>
+        <circle cx="321" cy="181" r="1.8"/><circle cx="351" cy="211" r="1.8"/>
+      </g>
+      <g fill="#c9901e" opacity="0.24">
+        <circle cx="400" cy="252" r="1.7"/><circle cx="340" cy="356" r="1.7"/>
+        <circle cx="220" cy="356" r="1.7"/><circle cx="160" cy="252" r="1.7"/>
+        <circle cx="220" cy="148" r="1.7"/><circle cx="340" cy="148" r="1.7"/>
+      </g>
+      <!-- Travel dots -->
+      <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
+        <animateMotion dur="2.6s" repeatCount="indefinite" begin="0s"><mpath href="#wTp0"/></animateMotion>
+        <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="0s"/>
+        <animate attributeName="r" values="2;3.4;2" dur="2.6s" repeatCount="indefinite" begin="0s"/>
+      </circle>
+      <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
+        <animateMotion dur="2.6s" repeatCount="indefinite" begin="0.43s"><mpath href="#wTp1"/></animateMotion>
+        <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="0.43s"/>
+        <animate attributeName="r" values="2;3.4;2" dur="2.6s" repeatCount="indefinite" begin="0.43s"/>
+      </circle>
+      <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
+        <animateMotion dur="2.6s" repeatCount="indefinite" begin="0.87s"><mpath href="#wTp2"/></animateMotion>
+        <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="0.87s"/>
+        <animate attributeName="r" values="2;3.4;2" dur="2.6s" repeatCount="indefinite" begin="0.87s"/>
+      </circle>
+      <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
+        <animateMotion dur="2.6s" repeatCount="indefinite" begin="1.30s"><mpath href="#wTp3"/></animateMotion>
+        <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="1.30s"/>
+        <animate attributeName="r" values="2;3.4;2" dur="2.6s" repeatCount="indefinite" begin="1.30s"/>
+      </circle>
+      <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
+        <animateMotion dur="2.6s" repeatCount="indefinite" begin="1.73s"><mpath href="#wTp4"/></animateMotion>
+        <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="1.73s"/>
+        <animate attributeName="r" values="2;3.4;2" dur="2.6s" repeatCount="indefinite" begin="1.73s"/>
+      </circle>
+      <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
+        <animateMotion dur="2.6s" repeatCount="indefinite" begin="2.17s"><mpath href="#wTp5"/></animateMotion>
+        <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="2.17s"/>
+        <animate attributeName="r" values="2;3.4;2" dur="2.6s" repeatCount="indefinite" begin="2.17s"/>
+      </circle>
+      <!-- Nodes -->
+      <circle cx="480" cy="252" r="26" fill="url(#wNodeGlow)"/>
+      <circle cx="480" cy="252" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
+        <animate attributeName="r" values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="0s"/>
+        <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="0s"/>
+      </circle>
+      <circle cx="480" cy="252" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
+      <circle cx="480" cy="252" r="6.5" fill="#c9901e"/>
+      <circle cx="480" cy="252" r="3" fill="#f8e080"/>
+      <rect x="493" y="244" width="64" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
+      <text x="525" y="256.5" fill="#f0d878" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">FUNDERS</text>
+      <circle cx="380" cy="425" r="26" fill="url(#wNodeGlow)"/>
+      <circle cx="380" cy="425" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
+        <animate attributeName="r" values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="0.43s"/>
+        <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="0.43s"/>
+      </circle>
+      <circle cx="380" cy="425" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
+      <circle cx="380" cy="425" r="6.5" fill="#c9901e"/>
+      <circle cx="380" cy="425" r="3" fill="#f8e080"/>
+      <rect x="343" y="437" width="74" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
+      <text x="380" y="449.5" fill="#f0d878" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">PARTNERS</text>
+      <circle cx="180" cy="425" r="26" fill="url(#wNodeGlow)"/>
+      <circle cx="180" cy="425" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
+        <animate attributeName="r" values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="0.87s"/>
+        <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="0.87s"/>
+      </circle>
+      <circle cx="180" cy="425" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
+      <circle cx="180" cy="425" r="6.5" fill="#c9901e"/>
+      <circle cx="180" cy="425" r="3" fill="#f8e080"/>
+      <rect x="133" y="437" width="94" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
+      <text x="180" y="449.5" fill="#f0d878" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">GOVERNMENT</text>
+      <circle cx="80" cy="252" r="26" fill="url(#wNodeGlow)"/>
+      <circle cx="80" cy="252" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
+        <animate attributeName="r" values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="1.30s"/>
+        <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="1.30s"/>
+      </circle>
+      <circle cx="80" cy="252" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
+      <circle cx="80" cy="252" r="6.5" fill="#c9901e"/>
+      <circle cx="80" cy="252" r="3" fill="#f8e080"/>
+      <rect x="-7" y="244" width="81" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
+      <text x="33.5" y="256.5" fill="#f0d878" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">RESOURCES</text>
+      <circle cx="180" cy="79" r="26" fill="url(#wNodeGlow)"/>
+      <circle cx="180" cy="79" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
+        <animate attributeName="r" values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="1.73s"/>
+        <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="1.73s"/>
+      </circle>
+      <circle cx="180" cy="79" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
+      <circle cx="180" cy="79" r="6.5" fill="#c9901e"/>
+      <circle cx="180" cy="79" r="3" fill="#f8e080"/>
+      <rect x="133" y="58" width="94" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
+      <text x="180" y="70.5" fill="#f0d878" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">READINESS</text>
+      <circle cx="380" cy="79" r="26" fill="url(#wNodeGlow)"/>
+      <circle cx="380" cy="79" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
+        <animate attributeName="r" values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="2.17s"/>
+        <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="2.17s"/>
+      </circle>
+      <circle cx="380" cy="79" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
+      <circle cx="380" cy="79" r="6.5" fill="#c9901e"/>
+      <circle cx="380" cy="79" r="3" fill="#f8e080"/>
+      <rect x="340" y="58" width="80" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
+      <text x="380" y="70.5" fill="#f0d878" font-size="9.5" font-family="DM Sans,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">PATHWAYS</text>
+      <!-- Hub -->
+      <circle cx="280" cy="252" r="52" fill="none" stroke="#e5ad3f" stroke-width="1.3" stroke-opacity="0">
+        <animate attributeName="r" values="52;78;52" dur="4.0s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-opacity" values="0.45;0;0.45" dur="4.0s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="280" cy="252" r="52" fill="none" stroke="#c9901e" stroke-width="0.9" stroke-opacity="0">
+        <animate attributeName="r" values="52;66;52" dur="4.0s" repeatCount="indefinite" begin="2.0s"/>
+        <animate attributeName="stroke-opacity" values="0.28;0;0.28" dur="4.0s" repeatCount="indefinite" begin="2.0s"/>
+      </circle>
+      <circle cx="280" cy="252" r="44" fill="#07111f" stroke="#c9901e" stroke-width="1.4" stroke-opacity="0.62"/>
+      <circle cx="280" cy="252" r="34" fill="none" stroke="#e5ad3f" stroke-width="0.7" stroke-opacity="0.22"/>
+      <circle cx="280" cy="252" r="44" fill="none" stroke="#e5ad3f" stroke-width="1.8" stroke-opacity="0.55" stroke-dasharray="32 244" stroke-dashoffset="0">
+        <animate attributeName="stroke-dashoffset" values="0;-276" dur="9s" repeatCount="indefinite" calcMode="linear"/>
+        <animate attributeName="stroke-opacity" values="0.55;0.22;0.55" dur="4.5s" repeatCount="indefinite"/>
+      </circle>
+      <text x="280" y="245" fill="#f0e8d0" font-size="9" font-family="DM Sans,sans-serif" font-weight="900" letter-spacing="0.13em" text-anchor="middle">YOUR</text>
+      <text x="280" y="259" fill="#f0e8d0" font-size="9" font-family="DM Sans,sans-serif" font-weight="900" letter-spacing="0.13em" text-anchor="middle">MISSION</text>
+    </svg>
+  </div>
+
+  <!-- Hero copy -->
+  <div class="shell hero-content">
+    <div class="hero-inner">
+      <p class="eyebrow eyebrow-gold reveal">Opportunity Ecosystem Intelligence</p>
+      <h1 class="hero-h1 reveal reveal-delay-1">
+        See every funder, partner, and pathway <em>aligned to your mission</em> — mapped and ready to act on.
+      </h1>
+      <p class="hero-sub reveal reveal-delay-2">
+        Anansi Atlas gives mission-driven organizations a clear picture of aligned funders, partners, government pathways, readiness gaps, and strategic routes to capital — so you can move with confidence, not guesswork.
+      </p>
+      <div class="hero-btns reveal reveal-delay-3">
+        <a class="btn btn-gold btn-lg" href="#get-started">Join the Founding Cohort →</a>
+        <a class="btn btn-ghost btn-lg" href="#what-you-get">See What's Inside</a>
       </div>
-
-      <!-- Spider web SVG -->
-      <div class="web-panel" role="img" aria-label="Diagram of the Opportunity Web showing Your Mission at the center, connected to Funders, Partners, Government, Resources, Readiness, and Pathways">
-        <svg viewBox="-30 -27 620 558" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;">
-          <style>
-            @media (prefers-reduced-motion: reduce) {
-              svg animate, svg animateMotion { dur: 10000s; }
-            }
-          </style>
-          <defs>
-            <!-- Background depth -->
-            <radialGradient id="wBg" cx="50%" cy="50%" r="60%">
-              <stop offset="0%"   stop-color="#0e1c35"/>
-              <stop offset="100%" stop-color="#07101d"/>
-            </radialGradient>
-            <!-- Hub ambient aura — wider, softer -->
-            <radialGradient id="wHubAura" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stop-color="#c9901e" stop-opacity="0.50"/>
-              <stop offset="55%"  stop-color="#c9901e" stop-opacity="0.14"/>
-              <stop offset="100%" stop-color="#c9901e" stop-opacity="0"/>
-            </radialGradient>
-            <!-- Node glow halos -->
-            <radialGradient id="wNodeGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stop-color="#e5ad3f" stop-opacity="0.55"/>
-              <stop offset="100%" stop-color="#e5ad3f" stop-opacity="0"/>
-            </radialGradient>
-            <!-- Spoke gradients: bright at hub, fades at node -->
-            <linearGradient id="wSg0" x1="280" y1="252" x2="480" y2="252" gradientUnits="userSpaceOnUse">
-              <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
-              <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
-            </linearGradient>
-            <linearGradient id="wSg1" x1="280" y1="252" x2="380" y2="425" gradientUnits="userSpaceOnUse">
-              <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
-              <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
-            </linearGradient>
-            <linearGradient id="wSg2" x1="280" y1="252" x2="180" y2="425" gradientUnits="userSpaceOnUse">
-              <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
-              <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
-            </linearGradient>
-            <linearGradient id="wSg3" x1="280" y1="252" x2="80" y2="252" gradientUnits="userSpaceOnUse">
-              <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
-              <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
-            </linearGradient>
-            <linearGradient id="wSg4" x1="280" y1="252" x2="180" y2="79" gradientUnits="userSpaceOnUse">
-              <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
-              <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
-            </linearGradient>
-            <linearGradient id="wSg5" x1="280" y1="252" x2="380" y2="79" gradientUnits="userSpaceOnUse">
-              <stop offset="5%"   stop-color="#f5d060" stop-opacity="0.92"/>
-              <stop offset="100%" stop-color="#c9901e" stop-opacity="0.18"/>
-            </linearGradient>
-            <!-- Glow filter for travel dots and hub center -->
-            <filter id="wGlow" x="-80%" y="-80%" width="260%" height="260%">
-              <feGaussianBlur stdDeviation="2.5" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <!-- Travel dot paths — one per spoke -->
-            <path id="wTp0" d="M280,252 L480,252"/>
-            <path id="wTp1" d="M280,252 L380,425"/>
-            <path id="wTp2" d="M280,252 L180,425"/>
-            <path id="wTp3" d="M280,252 L80,252"/>
-            <path id="wTp4" d="M280,252 L180,79"/>
-            <path id="wTp5" d="M280,252 L380,79"/>
-          </defs>
-
-          <!-- Background (covers full expanded viewBox) -->
-          <rect x="-30" y="-27" width="620" height="558" fill="url(#wBg)"/>
-          <!-- Subtle depth nebula -->
-          <ellipse cx="310" cy="210" rx="190" ry="130" fill="#162850" fill-opacity="0.10"/>
-          <ellipse cx="250" cy="300" rx="150" ry="110" fill="#c9901e"  fill-opacity="0.04"/>
-
-          <!-- Hub ambient aura -->
-          <circle cx="280" cy="252" r="140" fill="url(#wHubAura)"/>
-
-          <!-- ── SPOKES ── -->
-          <!-- Bloom layer: wide dim strokes create a soft radiance behind each spoke -->
-          <g stroke="#c9901e" stroke-width="5" opacity="0.07" stroke-linecap="round">
-            <line x1="280" y1="252" x2="480" y2="252"/>
-            <line x1="280" y1="252" x2="380" y2="425"/>
-            <line x1="280" y1="252" x2="180" y2="425"/>
-            <line x1="280" y1="252" x2="80" y2="252"/>
-            <line x1="280" y1="252" x2="180" y2="79"/>
-            <line x1="280" y1="252" x2="380" y2="79"/>
-          </g>
-          <!-- 6 dim secondary half-spokes (between main spokes) -->
-          <g stroke="#c9901e" stroke-width="0.75" opacity="0.14">
-            <line x1="280" y1="252" x2="453" y2="352"/>
-            <line x1="280" y1="252" x2="280" y2="452"/>
-            <line x1="280" y1="252" x2="107" y2="352"/>
-            <line x1="280" y1="252" x2="107" y2="152"/>
-            <line x1="280" y1="252" x2="280" y2="52"/>
-            <line x1="280" y1="252" x2="453" y2="152"/>
-          </g>
-          <!-- 6 main labeled spokes (gradient) -->
-          <line x1="280" y1="252" x2="480" y2="252" stroke="url(#wSg0)" stroke-width="1.5"/>
-          <line x1="280" y1="252" x2="380" y2="425" stroke="url(#wSg1)" stroke-width="1.5"/>
-          <line x1="280" y1="252" x2="180" y2="425" stroke="url(#wSg2)" stroke-width="1.5"/>
-          <line x1="280" y1="252" x2="80" y2="252" stroke="url(#wSg3)" stroke-width="1.5"/>
-          <line x1="280" y1="252" x2="180" y2="79" stroke="url(#wSg4)" stroke-width="1.5"/>
-          <line x1="280" y1="252" x2="380" y2="79" stroke="url(#wSg5)" stroke-width="1.5"/>
-
-          <!-- ── RINGS — smooth circles instead of polygons ── -->
-          <!-- Ring 1 (r=44): shimmer arc rotates continuously -->
-          <circle cx="280" cy="252" r="44" fill="none" stroke="#c9901e" stroke-width="0.7" opacity="0.28"/>
-          <circle cx="280" cy="252" r="44" fill="none" stroke="#e5ad3f" stroke-width="1.3" opacity="0.6"
-            stroke-dasharray="24 252" stroke-dashoffset="0">
-            <animate attributeName="stroke-dashoffset" values="0;-276" dur="7s" repeatCount="indefinite" calcMode="linear"/>
-            <animate attributeName="opacity"           values="0.6;0.3;0.6"    dur="3.5s" repeatCount="indefinite"/>
-          </circle>
-          <!-- Ring 2 (r=82): soft breathe -->
-          <circle cx="280" cy="252" r="82" fill="none" stroke="#c9901e" stroke-width="0.9" opacity="0.36">
-            <animate attributeName="opacity" values="0.36;0.18;0.36" dur="5s" repeatCount="indefinite" begin="1.2s"/>
-          </circle>
-          <!-- Rings 3-6: static, fading outward -->
-          <circle cx="280" cy="252" r="120" fill="none" stroke="#c9901e" stroke-width="0.75" opacity="0.24"/>
-          <circle cx="280" cy="252" r="148" fill="none" stroke="#c9901e" stroke-width="0.65" opacity="0.16"/>
-          <circle cx="280" cy="252" r="164" fill="none" stroke="#c9901e" stroke-width="0.55" opacity="0.10"/>
-          <circle cx="280" cy="252" r="172" fill="none" stroke="#c9901e" stroke-width="0.45" opacity="0.07"/>
-
-          <!-- ── INTERSECTION DOTS — ring crossings ── -->
-          <!-- Inner ring (r=44) — 12 positions, brightest -->
-          <g fill="#e5ad3f" opacity="0.82">
-            <circle cx="324" cy="252" r="2.6"/><circle cx="318" cy="273" r="2.3"/>
-            <circle cx="302" cy="290" r="2.3"/><circle cx="280" cy="296" r="2.6"/>
-            <circle cx="258" cy="290" r="2.3"/><circle cx="242" cy="273" r="2.3"/>
-            <circle cx="236" cy="252" r="2.6"/><circle cx="242" cy="231" r="2.3"/>
-            <circle cx="258" cy="214" r="2.3"/><circle cx="280" cy="208" r="2.6"/>
-            <circle cx="302" cy="214" r="2.3"/><circle cx="318" cy="231" r="2.3"/>
-          </g>
-          <!-- Middle ring (r=82) — 12 positions -->
-          <g fill="#c9901e" opacity="0.44">
-            <circle cx="362" cy="252" r="2.0"/><circle cx="351" cy="293" r="1.8"/>
-            <circle cx="321" cy="323" r="1.8"/><circle cx="280" cy="334" r="2.0"/>
-            <circle cx="239" cy="323" r="1.8"/><circle cx="209" cy="293" r="1.8"/>
-            <circle cx="198" cy="252" r="2.0"/><circle cx="209" cy="211" r="1.8"/>
-            <circle cx="239" cy="181" r="1.8"/><circle cx="280" cy="170" r="2.0"/>
-            <circle cx="321" cy="181" r="1.8"/><circle cx="351" cy="211" r="1.8"/>
-          </g>
-          <!-- Outer ring (r=120) — main spoke crossings only -->
-          <g fill="#c9901e" opacity="0.24">
-            <circle cx="400" cy="252" r="1.7"/><circle cx="340" cy="356" r="1.7"/>
-            <circle cx="220" cy="356" r="1.7"/><circle cx="160" cy="252" r="1.7"/>
-            <circle cx="220" cy="148" r="1.7"/><circle cx="340" cy="148" r="1.7"/>
-          </g>
-
-          <!-- ── TRAVEL DOTS — 6 spokes, evenly staggered at 0.43s ── -->
-          <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
-            <animateMotion dur="2.6s" repeatCount="indefinite" begin="0s"><mpath href="#wTp0"/></animateMotion>
-            <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="0s"/>
-            <animate attributeName="r"       values="2;3.4;2"                                 dur="2.6s" repeatCount="indefinite" begin="0s"/>
-          </circle>
-          <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
-            <animateMotion dur="2.6s" repeatCount="indefinite" begin="0.43s"><mpath href="#wTp1"/></animateMotion>
-            <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="0.43s"/>
-            <animate attributeName="r"       values="2;3.4;2"                                 dur="2.6s" repeatCount="indefinite" begin="0.43s"/>
-          </circle>
-          <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
-            <animateMotion dur="2.6s" repeatCount="indefinite" begin="0.87s"><mpath href="#wTp2"/></animateMotion>
-            <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="0.87s"/>
-            <animate attributeName="r"       values="2;3.4;2"                                 dur="2.6s" repeatCount="indefinite" begin="0.87s"/>
-          </circle>
-          <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
-            <animateMotion dur="2.6s" repeatCount="indefinite" begin="1.30s"><mpath href="#wTp3"/></animateMotion>
-            <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="1.30s"/>
-            <animate attributeName="r"       values="2;3.4;2"                                 dur="2.6s" repeatCount="indefinite" begin="1.30s"/>
-          </circle>
-          <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
-            <animateMotion dur="2.6s" repeatCount="indefinite" begin="1.73s"><mpath href="#wTp4"/></animateMotion>
-            <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="1.73s"/>
-            <animate attributeName="r"       values="2;3.4;2"                                 dur="2.6s" repeatCount="indefinite" begin="1.73s"/>
-          </circle>
-          <circle r="3.4" fill="#f8e080" filter="url(#wGlow)">
-            <animateMotion dur="2.6s" repeatCount="indefinite" begin="2.17s"><mpath href="#wTp5"/></animateMotion>
-            <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.07;0.87;1" dur="2.6s" repeatCount="indefinite" begin="2.17s"/>
-            <animate attributeName="r"       values="2;3.4;2"                                 dur="2.6s" repeatCount="indefinite" begin="2.17s"/>
-          </circle>
-
-          <!-- ── NODES — layered design: aura → outer ring → body → bright core ── -->
-
-          <!-- FUNDERS (480,252) -->
-          <circle cx="480" cy="252" r="26" fill="url(#wNodeGlow)"/>
-          <circle cx="480" cy="252" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
-            <animate attributeName="r"             values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="0s"/>
-            <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="0s"/>
-          </circle>
-          <circle cx="480" cy="252" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
-          <circle cx="480" cy="252" r="6.5" fill="#c9901e"/>
-          <circle cx="480" cy="252" r="3"   fill="#f8e080"/>
-          <rect x="493" y="244" width="64" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
-          <text x="525" y="256.5" fill="#f0d878" font-size="9.5" font-family="Inter,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">FUNDERS</text>
-
-          <!-- PARTNERS (380,425) -->
-          <circle cx="380" cy="425" r="26" fill="url(#wNodeGlow)"/>
-          <circle cx="380" cy="425" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
-            <animate attributeName="r"             values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="0.43s"/>
-            <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="0.43s"/>
-          </circle>
-          <circle cx="380" cy="425" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
-          <circle cx="380" cy="425" r="6.5" fill="#c9901e"/>
-          <circle cx="380" cy="425" r="3"   fill="#f8e080"/>
-          <rect x="343" y="437" width="74" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
-          <text x="380" y="449.5" fill="#f0d878" font-size="9.5" font-family="Inter,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">PARTNERS</text>
-
-          <!-- GOVERNMENT (180,425) -->
-          <circle cx="180" cy="425" r="26" fill="url(#wNodeGlow)"/>
-          <circle cx="180" cy="425" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
-            <animate attributeName="r"             values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="0.87s"/>
-            <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="0.87s"/>
-          </circle>
-          <circle cx="180" cy="425" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
-          <circle cx="180" cy="425" r="6.5" fill="#c9901e"/>
-          <circle cx="180" cy="425" r="3"   fill="#f8e080"/>
-          <rect x="133" y="437" width="94" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
-          <text x="180" y="449.5" fill="#f0d878" font-size="9.5" font-family="Inter,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">GOVERNMENT</text>
-
-          <!-- RESOURCES (80,252) -->
-          <circle cx="80" cy="252" r="26" fill="url(#wNodeGlow)"/>
-          <circle cx="80" cy="252" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
-            <animate attributeName="r"             values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="1.30s"/>
-            <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="1.30s"/>
-          </circle>
-          <circle cx="80" cy="252" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
-          <circle cx="80" cy="252" r="6.5" fill="#c9901e"/>
-          <circle cx="80" cy="252" r="3"   fill="#f8e080"/>
-          <rect x="-7" y="244" width="81" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
-          <text x="33.5" y="256.5" fill="#f0d878" font-size="9.5" font-family="Inter,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">RESOURCES</text>
-
-          <!-- READINESS (180,79) -->
-          <circle cx="180" cy="79" r="26" fill="url(#wNodeGlow)"/>
-          <circle cx="180" cy="79" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
-            <animate attributeName="r"             values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="1.73s"/>
-            <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="1.73s"/>
-          </circle>
-          <circle cx="180" cy="79" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
-          <circle cx="180" cy="79" r="6.5" fill="#c9901e"/>
-          <circle cx="180" cy="79" r="3"   fill="#f8e080"/>
-          <rect x="133" y="58" width="94" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
-          <text x="180" y="70.5" fill="#f0d878" font-size="9.5" font-family="Inter,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">READINESS</text>
-
-          <!-- PATHWAYS (380,79) -->
-          <circle cx="380" cy="79" r="26" fill="url(#wNodeGlow)"/>
-          <circle cx="380" cy="79" r="12" fill="none" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0">
-            <animate attributeName="r"             values="12;24;12" dur="3.0s" repeatCount="indefinite" begin="2.17s"/>
-            <animate attributeName="stroke-opacity" values="0.55;0;0.55" dur="3.0s" repeatCount="indefinite" begin="2.17s"/>
-          </circle>
-          <circle cx="380" cy="79" r="12" fill="#08121f" stroke="#e5ad3f" stroke-width="1.1" stroke-opacity="0.72"/>
-          <circle cx="380" cy="79" r="6.5" fill="#c9901e"/>
-          <circle cx="380" cy="79" r="3"   fill="#f8e080"/>
-          <rect x="340" y="58" width="80" height="17" rx="8" fill="#06101e" fill-opacity="0.92" stroke="#e5ad3f" stroke-width="0.8" stroke-opacity="0.62"/>
-          <text x="380" y="70.5" fill="#f0d878" font-size="9.5" font-family="Inter,sans-serif" font-weight="800" letter-spacing="0.09em" text-anchor="middle">PATHWAYS</text>
-
-          <!-- ── CENTER HUB ── -->
-          <!-- Outer pulse ring 1 -->
-          <circle cx="280" cy="252" r="52" fill="none" stroke="#e5ad3f" stroke-width="1.3" stroke-opacity="0">
-            <animate attributeName="r"             values="52;78;52"     dur="4.0s" repeatCount="indefinite"/>
-            <animate attributeName="stroke-opacity" values="0.45;0;0.45" dur="4.0s" repeatCount="indefinite"/>
-          </circle>
-          <!-- Outer pulse ring 2 (offset phase) -->
-          <circle cx="280" cy="252" r="52" fill="none" stroke="#c9901e" stroke-width="0.9" stroke-opacity="0">
-            <animate attributeName="r"             values="52;66;52"     dur="4.0s" repeatCount="indefinite" begin="2.0s"/>
-            <animate attributeName="stroke-opacity" values="0.28;0;0.28" dur="4.0s" repeatCount="indefinite" begin="2.0s"/>
-          </circle>
-          <!-- Hub body -->
-          <circle cx="280" cy="252" r="44" fill="#07111f" stroke="#c9901e" stroke-width="1.4" stroke-opacity="0.62"/>
-          <!-- Inner decorative ring -->
-          <circle cx="280" cy="252" r="34" fill="none" stroke="#e5ad3f" stroke-width="0.7" stroke-opacity="0.22"/>
-          <!-- Rotating shimmer arc on hub border -->
-          <circle cx="280" cy="252" r="44" fill="none" stroke="#e5ad3f" stroke-width="1.8" stroke-opacity="0.55"
-            stroke-dasharray="32 244" stroke-dashoffset="0">
-            <animate attributeName="stroke-dashoffset" values="0;-276" dur="9s" repeatCount="indefinite" calcMode="linear"/>
-            <animate attributeName="stroke-opacity"    values="0.55;0.22;0.55" dur="4.5s" repeatCount="indefinite"/>
-          </circle>
-          <!-- Hub label -->
-          <text x="280" y="245" fill="#f0e8d0" font-size="9" font-family="Inter,sans-serif" font-weight="900" letter-spacing="0.13em" text-anchor="middle">YOUR</text>
-          <text x="280" y="259" fill="#f0e8d0" font-size="9" font-family="Inter,sans-serif" font-weight="900" letter-spacing="0.13em" text-anchor="middle">MISSION</text>
-        </svg>
+      <div class="trust-bar reveal reveal-delay-4">
+        <span>Built for nonprofits</span>
+        <div class="trust-dot" aria-hidden="true"></div>
+        <span>Founding cohort open</span>
+        <div class="trust-dot" aria-hidden="true"></div>
+        <span>20 seats only</span>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- ═══ MAIN CONTENT ══════════════════════════════════════════════ -->
-<main id="main-content">
-<div class="content-zone">
+<main>
 
-  <!-- Watermark web bg -->
-  <svg class="web-bg" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-    <g stroke="#c9901e" stroke-width="1.2" fill="none">
-      <!-- 12 spokes from center -->
-      <line x1="400" y1="400" x2="760" y2="400"/>
-      <line x1="400" y1="400" x2="712" y2="568"/>
-      <line x1="400" y1="400" x2="580" y2="712"/>
-      <line x1="400" y1="400" x2="400" y2="760"/>
-      <line x1="400" y1="400" x2="220" y2="712"/>
-      <line x1="400" y1="400" x2="88"  y2="568"/>
-      <line x1="400" y1="400" x2="40"  y2="400"/>
-      <line x1="400" y1="400" x2="88"  y2="232"/>
-      <line x1="400" y1="400" x2="220" y2="88"/>
-      <line x1="400" y1="400" x2="400" y2="40"/>
-      <line x1="400" y1="400" x2="580" y2="88"/>
-      <line x1="400" y1="400" x2="712" y2="232"/>
-      <!-- Rings -->
-      <polygon points="460,400 450,434 424,458 400,466 376,458 350,434 340,400 350,366 376,342 400,334 424,342 450,366"/>
-      <polygon points="520,400 504,462 460,510 400,528 340,510 296,462 280,400 296,338 340,290 400,272 460,290 504,338"/>
-      <polygon points="590,400 567,490 500,566 400,596 300,566 233,490 210,400 233,310 300,234 400,204 500,234 567,310"/>
-      <polygon points="652,400 624,514 548,606 400,650 252,606 176,514 148,400 176,286 252,194 400,150 548,194 624,286"/>
-      <polygon points="718,400 685,540 596,644 400,704 204,644 115,540 82,400 115,260 204,156 400,96 596,156 685,260"/>
-    </g>
-  </svg>
-
-  <div class="shell" style="padding-top:32px; padding-bottom:44px;">
-
-    <!-- ── WHY ANANSI ATLAS ──────────────────────────────────── -->
-    <section class="section-wrap" aria-label="Why Anansi Atlas" style="margin-bottom:14px;">
-      <p class="eyebrow eyebrow-ember-dark" style="text-align:center; display:block; margin-bottom:10px;">Why Anansi Atlas</p>
-      <h2 style="text-align:center; max-width:760px; margin:0 auto 14px;">See the web of opportunity your mission already lives in</h2>
-      <p class="lead text-muted" style="text-align:center; max-width:660px; margin:0 auto 32px;">Around every mission is a web of opportunity — the funders, partners, government programs, and resources tied to your work, and the routes that connect them. Most of it stays hidden across scattered places. Anansi Atlas maps the whole web, so you can see how it connects and where to move first.</p>
-      <div class="why-grid">
-        <article class="why-card">
-          <h3>See the whole landscape</h3>
-          <p>Funders, partners, government pathways, and resources around your mission — mapped in one place. You understand your full opportunity, not just the pieces you happened to find.</p>
-        </article>
-        <article class="why-card">
-          <h3>Know where you stand</h3>
-          <p>See where your organization is strong and where it isn't ready yet. That clarity sharpens every funder conversation and tells you what to strengthen before you ask.</p>
-        </article>
-        <article class="why-card">
-          <h3>Move with a strategy</h3>
-          <p>More than a list of opportunities — you get the routes to reach them. Clear, prioritized next steps toward capital and partnership, built around where your mission is headed.</p>
-        </article>
+<!-- ═══ FOUNDER STORY ════════════════════════════════════════════════ -->
+<div class="founder-zone">
+  <div class="shell">
+    <section aria-label="Founder story" style="padding: clamp(60px,8vw,100px) 0;">
+      <div class="founder-layout">
+        <div class="founder-avatar-block reveal">
+          <div class="founder-monogram" aria-hidden="true">MS</div>
+          <div class="founder-cred">
+            <strong>The Founder</strong>
+            Built from inside the sector<br>
+            U.S. Air Force Veteran<br>
+            Former nonprofit executive
+          </div>
+        </div>
+        <div>
+          <p class="section-label eyebrow-gold reveal">From the founder</p>
+          <div class="gold-rule reveal reveal-delay-1"></div>
+          <blockquote class="founder-quote reveal reveal-delay-1">
+            "Built by someone who came from your world."
+          </blockquote>
+          <div class="founder-body reveal reveal-delay-2">
+            <p>I spent years working inside the nonprofit sector at the executive level. In that role I watched mission-driven organizations work incredibly hard while consistently missing opportunities that were sitting right in front of them.</p>
+            <p>Not because they weren't trying. Because the opportunities were scattered.</p>
+            <p>Funders they never knew existed. Partners they never connected with. Government pathways nobody surfaced. Readiness gaps that quietly blocked every grant application.</p>
+            <p>That experience is why I built Anansi Atlas.</p>
+          </div>
+        </div>
       </div>
     </section>
+  </div>
+</div>
 
-    <!-- ── HOW IT WORKS ──────────────────────────────────────── -->
-    <section class="how-it-works" aria-label="How Anansi Atlas works">
-      <p class="eyebrow eyebrow-ember-dark" style="text-align:center; display:block; margin-bottom:18px;">How It Works</p>
+<!-- ═══ HOW IT WORKS ════════════════════════════════════════════════ -->
+<div class="how-zone">
+  <div class="shell">
+    <section aria-label="How Anansi Atlas works">
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">How It Works</p>
+      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:600px;margin:0 auto 0;">
+        Three steps to your <em>Opportunity Web Snapshot</em>
+      </h2>
       <div class="how-steps">
-
-        <div class="how-step">
+        <div class="how-step reveal">
           <div class="how-num" aria-hidden="true">1</div>
-          <div class="how-body">
-            <h3>Join the waitlist</h3>
-            <p>Share a few details about your organization — name, email, and your mission. Takes about a minute, no account or credit card needed.</p>
-          </div>
+          <h3>Join the waitlist</h3>
+          <p>Share details about your organization — name, email, mission, and focus areas. Takes about a minute. No account or credit card needed.</p>
         </div>
-
-        <div class="how-connector" aria-hidden="true"></div>
-
-        <div class="how-step">
+        <div class="how-step reveal reveal-delay-1">
           <div class="how-num" aria-hidden="true">2</div>
-          <div class="how-body">
-            <h3>We'll reach out to learn more</h3>
-            <p>We connect with you to understand your mission, focus areas, who you serve, and where you need support — then get you set up.</p>
-          </div>
+          <h3>We connect with you</h3>
+          <p>We reach out to learn your mission, who you serve, where you need support — and get you set up inside Anansi Atlas personally.</p>
         </div>
-
-        <div class="how-connector" aria-hidden="true"></div>
-
-        <div class="how-step">
+        <div class="how-step reveal reveal-delay-2">
           <div class="how-num" aria-hidden="true">3</div>
-          <div class="how-body">
-            <h3>Get your Opportunity Web Snapshot</h3>
-            <p>We build your Snapshot — aligned funders, strategic partners, readiness gaps, and a 30-day action plan around your mission — and walk you through it personally.</p>
-          </div>
+          <h3>Get your Opportunity Web Snapshot</h3>
+          <p>We build your Snapshot — aligned funders, strategic partners, readiness gaps, and a 30-day action plan — and walk you through it personally.</p>
         </div>
-
       </div>
-      <div style="text-align:center; margin-top:28px;">
-        <a class="btn btn-gold btn-lg" href="#get-started">Join the Waitlist →</a>
+      <div style="text-align:center; margin-top:40px;" class="reveal">
+        <a class="btn btn-gold btn-lg" href="#get-started">Apply for a Founding Seat →</a>
       </div>
     </section>
+  </div>
+</div>
 
-    <div style="height:14px;"></div>
-
-    <!-- ── WHAT YOU GET ────────────────────────────────────── -->
-    <section id="what-you-get" class="section-wrap dark" style="margin-bottom:14px;">
-      <div class="snapshot-layout">
-        <div>
-          <p class="eyebrow eyebrow-gold">The Opportunity Web Snapshot</p>
-          <h2>A consulting-grade brief that turns scattered signals into strategic clarity.</h2>
-          <p class="lead text-muted-dk">Your Snapshot maps the funders, partners, government pathways, resources, readiness gaps, and capital opportunities surrounding your mission — giving you a clearer view of where to focus next.</p>
-          <div class="snap-grid">
-            <div class="snap-item"><span class="snap-dot" aria-hidden="true"></span>Aligned funders</div>
-            <div class="snap-item"><span class="snap-dot" aria-hidden="true"></span>Potential partners</div>
-            <div class="snap-item"><span class="snap-dot" aria-hidden="true"></span>Community resources</div>
-            <div class="snap-item"><span class="snap-dot" aria-hidden="true"></span>Readiness gaps</div>
-            <div class="snap-item"><span class="snap-dot" aria-hidden="true"></span>Government pathways</div>
-            <div class="snap-item"><span class="snap-dot" aria-hidden="true"></span>Capital opportunities</div>
-            <div class="snap-item"><span class="snap-dot" aria-hidden="true"></span>Recommended next steps</div>
-            <div class="snap-item"><span class="snap-dot" aria-hidden="true"></span>30-day action plan</div>
-          </div>
+<!-- ═══ WHAT'S IN THE SNAPSHOT ══════════════════════════════════════ -->
+<div class="snap-zone" id="what-you-get">
+  <div class="shell">
+    <section aria-label="What's in the Snapshot">
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">The Opportunity Web Snapshot</p>
+      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:680px;margin:0 auto;">
+        A consulting-grade brief that turns <em>scattered signals</em> into strategic clarity.
+      </h2>
+      <div class="snap-grid">
+        <div class="snap-card reveal">
+          <div class="snap-icon" aria-hidden="true">💰</div>
+          <h3>Aligned funders</h3>
+          <p>Named foundations, government lanes, and sponsors matched to your mission and geography.</p>
         </div>
-        <div>
-          <p class="eyebrow eyebrow-muted">The Web of Opportunity</p>
-          <h2 style="font-size:clamp(1.2rem,2.2vw,1.7rem); margin-bottom:10px;">The opportunity already exists — it's just scattered.</h2>
-          <p class="text-muted-dk" style="font-size:0.92rem; line-height:1.6; margin-bottom:16px;">Funders, partners, programs, and resources sit in dozens of disconnected places. Anansi Atlas brings them together so you can see the whole web at once.</p>
-          <div class="eco-grid" style="margin-top:0; grid-template-columns:1fr 1fr;">
-            <div class="eco-tile">
-              <div aria-hidden="true" style="font-size:0.95rem;margin-bottom:6px;">💰</div>
-              <strong>Funders</strong>
-              <span>Aligned foundations, government lanes, sponsors, and funding readiness gaps.</span>
-            </div>
-            <div class="eco-tile">
-              <div aria-hidden="true" style="font-size:0.95rem;margin-bottom:6px;">🤝</div>
-              <strong>Partners</strong>
-              <span>Organizations that expand reach, trust, referrals, and delivery capacity.</span>
-            </div>
-            <div class="eco-tile">
-              <div aria-hidden="true" style="font-size:0.95rem;margin-bottom:6px;">📦</div>
-              <strong>Resources</strong>
-              <span>Technical assistance, tools, evidence, and capacity supports.</span>
-            </div>
-            <div class="eco-tile">
-              <div aria-hidden="true" style="font-size:0.95rem;margin-bottom:6px;">📊</div>
-              <strong>Readiness</strong>
-              <span>Know exactly what's needed to compete for each opportunity — before you pursue it.</span>
-            </div>
-            <div class="eco-tile">
-              <div aria-hidden="true" style="font-size:0.95rem;margin-bottom:6px;">🗺️</div>
-              <strong>Pathways</strong>
-              <span>Routes through funding, partnerships, public sector, and pipeline.</span>
-            </div>
-            <div class="eco-tile">
-              <div aria-hidden="true" style="font-size:0.95rem;margin-bottom:6px;">✅</div>
-              <strong>Next Steps</strong>
-              <span>Focused actions your team can move on immediately.</span>
-            </div>
-          </div>
+        <div class="snap-card reveal reveal-delay-1">
+          <div class="snap-icon" aria-hidden="true">🤝</div>
+          <h3>Potential partners</h3>
+          <p>Organizations that expand reach, trust, referrals, and delivery capacity around your work.</p>
+        </div>
+        <div class="snap-card reveal reveal-delay-2">
+          <div class="snap-icon" aria-hidden="true">📦</div>
+          <h3>Community resources</h3>
+          <p>Technical assistance, tools, AmeriCorps programs, and capacity supports you can access now.</p>
+        </div>
+        <div class="snap-card reveal reveal-delay-3">
+          <div class="snap-icon" aria-hidden="true">📊</div>
+          <h3>Readiness gaps</h3>
+          <p>Know exactly what's blocking each opportunity — before you pursue it.</p>
+        </div>
+        <div class="snap-card reveal">
+          <div class="snap-icon" aria-hidden="true">🏛️</div>
+          <h3>Government pathways</h3>
+          <p>Federal, state, and local programs aligned to your focus areas and beneficiary populations.</p>
+        </div>
+        <div class="snap-card reveal reveal-delay-1">
+          <div class="snap-icon" aria-hidden="true">🗺️</div>
+          <h3>Capital opportunities</h3>
+          <p>Grants, contracts, and sponsorships ranked by fit and your organization's current readiness.</p>
+        </div>
+        <div class="snap-card reveal reveal-delay-2">
+          <div class="snap-icon" aria-hidden="true">⚡</div>
+          <h3>Recommended next steps</h3>
+          <p>Focused, prioritized actions your team can move on immediately — not a 40-page report.</p>
+        </div>
+        <div class="snap-card reveal reveal-delay-3">
+          <div class="snap-icon" aria-hidden="true">📅</div>
+          <h3>30-day action plan</h3>
+          <p>A concrete sprint built around your mission's highest-leverage moves in the next month.</p>
         </div>
       </div>
     </section>
+  </div>
+</div>
 
-    <!-- ── GET STARTED ─────────────────────────────────────── -->
-    <section id="get-started" class="section-wrap">
-      <div class="capture-layout">
+<!-- ═══ FOUNDING COHORT OFFER ════════════════════════════════════════ -->
+<div class="cohort-zone">
+  <div class="shell">
+    <section aria-label="Founding Atlas Partner offer">
+      <div class="cohort-layout">
+
+        <!-- Left: callout + CTA -->
         <div>
-          <p class="eyebrow eyebrow-ember-dark">Early Access</p>
-          <h2>Be among the first organizations inside Anansi Atlas.</h2>
-          <p class="lead text-muted">We're opening access to a founding cohort of nonprofits. Join the waitlist to get your Opportunity Web Snapshot — aligned funders, strategic partners, readiness gaps, and a 30-day action plan specific to your mission.</p>
-          <div class="cohort-pills">
-            <span class="cpill">Aligned funders</span>
-            <span class="cpill">Strategic partners</span>
-            <span class="cpill">Founder walkthrough</span>
-            <span class="cpill">30-day action plan</span>
-            <span class="cpill">Readiness gaps</span>
+          <div class="cohort-callout reveal">
+            <div class="cohort-badge">Founding Atlas Partners · 20 seats only</div>
+            <div class="cohort-price"><sup>$</sup>150<span style="font-size:1.2rem;font-weight:400;color:var(--muted);"> /mo</span></div>
+            <p class="cohort-price-sub">Pro access · Locked for life</p>
+            <div class="cohort-vs">
+              When we open publicly, Pro is <strong>$497/month</strong>.<br>
+              Founding members <strong>never see that price</strong>.
+            </div>
+            <ul class="cohort-features">
+              <li><span class="check-icon">✓</span> Monthly Opportunity Web Snapshot</li>
+              <li><span class="check-icon">✓</span> Partner matching</li>
+              <li><span class="check-icon">✓</span> Readiness tracking</li>
+              <li><span class="check-icon">✓</span> Quarterly strategy calls</li>
+              <li><span class="check-icon">✓</span> Priority delivery</li>
+              <li><span class="check-icon">✓</span> Custom reporting</li>
+            </ul>
+            <a class="btn btn-gold btn-lg" href="#get-started" style="width:100%;justify-content:center;">
+              Apply for a Founding Seat →
+            </a>
+            <p class="scarcity-note">Once these 20 seats close, they close permanently.<br>Early Atlas Partners cohort opens next at $200/month.</p>
           </div>
-          <p style="margin-top:20px; font-size:0.88rem; color:var(--muted); font-style:italic;">Strategic clarity shouldn't be a luxury reserved for organizations with expensive consultants.</p>
-          <p style="margin-top:12px; font-size:0.88rem; color:var(--muted);">
-            Questions? Email us at
-            <a href="mailto:info@anansiatlas.com" style="color:var(--gold); font-weight:700;">info@anansiatlas.com</a>
+        </div>
+
+        <!-- Right: tier table -->
+        <div>
+          <p class="section-label eyebrow-gold reveal" style="margin-bottom:12px;">All tiers, all prices</p>
+          <h2 class="display reveal reveal-delay-1" style="margin-bottom:0;">
+            Believe in the vision.<br><em>Get rewarded for it permanently.</em>
+          </h2>
+          <div class="tier-intro reveal reveal-delay-2" style="margin-top:20px;">
+            <p>We are opening 20 Founding Atlas Partner seats for organizations that want to get in at the ground floor. Founding members get full Pro access — everything Anansi Atlas offers — at $150/month, locked for life.</p>
+          </div>
+          <div class="tier-table-wrap reveal reveal-delay-2">
+            <table class="tier-table" role="table" aria-label="Anansi Atlas pricing tiers">
+              <thead>
+                <tr>
+                  <th style="text-align:left;"></th>
+                  <th>Base</th>
+                  <th class="highlight-col">Founding <span class="founding-label">NOW</span></th>
+                  <th>Growth</th>
+                  <th>Pro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="price-row">
+                  <td>Public price</td>
+                  <td>$150<span style="font-size:0.75rem;font-weight:400;color:var(--muted);">/mo</span></td>
+                  <td class="highlight-col">$150<span style="font-size:0.75rem;font-weight:400;color:var(--muted);">/mo</span></td>
+                  <td>$297<span style="font-size:0.75rem;font-weight:400;color:var(--muted);">/mo</span></td>
+                  <td>$497<span style="font-size:0.75rem;font-weight:400;color:var(--muted);">/mo</span></td>
+                </tr>
+                <tr>
+                  <td>Opportunity Web Snapshot</td>
+                  <td>Quarterly</td>
+                  <td class="highlight-col">Monthly</td>
+                  <td>Monthly</td>
+                  <td>Monthly</td>
+                </tr>
+                <tr>
+                  <td>Partner matching</td>
+                  <td><span class="tier-dash">—</span></td>
+                  <td class="highlight-col"><span class="tier-check">✓</span></td>
+                  <td><span class="tier-check">✓</span></td>
+                  <td><span class="tier-check">✓</span></td>
+                </tr>
+                <tr>
+                  <td>Readiness tracking</td>
+                  <td><span class="tier-dash">—</span></td>
+                  <td class="highlight-col"><span class="tier-check">✓</span></td>
+                  <td><span class="tier-check">✓</span></td>
+                  <td><span class="tier-check">✓</span></td>
+                </tr>
+                <tr>
+                  <td>Strategy calls</td>
+                  <td><span class="tier-dash">—</span></td>
+                  <td class="highlight-col"><span class="tier-check">✓</span></td>
+                  <td><span class="tier-dash">—</span></td>
+                  <td><span class="tier-check">✓</span></td>
+                </tr>
+                <tr>
+                  <td>Priority delivery</td>
+                  <td><span class="tier-dash">—</span></td>
+                  <td class="highlight-col"><span class="tier-check">✓</span></td>
+                  <td><span class="tier-dash">—</span></td>
+                  <td><span class="tier-check">✓</span></td>
+                </tr>
+                <tr>
+                  <td>Custom reporting</td>
+                  <td><span class="tier-dash">—</span></td>
+                  <td class="highlight-col"><span class="tier-check">✓</span></td>
+                  <td><span class="tier-dash">—</span></td>
+                  <td><span class="tier-check">✓</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══ THE WEB OF OPPORTUNITY ══════════════════════════════════════ -->
+<div class="web-section">
+  <div class="shell">
+    <section aria-label="The Web of Opportunity">
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">The Web of Opportunity</p>
+      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto;">
+        The opportunity already exists.<br><em>It's just scattered.</em>
+      </h2>
+      <p class="body-muted body-lg reveal reveal-delay-2" style="text-align:center;max-width:560px;margin:16px auto 0;">
+        Funders, partners, programs, and resources sit in dozens of disconnected places. Anansi Atlas brings them together so you can see the whole web at once.
+      </p>
+      <div class="web-tiles">
+        <div class="web-tile reveal">
+          <span class="web-tile-icon" aria-hidden="true">💰</span>
+          <h3>Funders</h3>
+          <p>Aligned foundations, government lanes, sponsors, and funding readiness gaps specific to your mission.</p>
+        </div>
+        <div class="web-tile reveal reveal-delay-1">
+          <span class="web-tile-icon" aria-hidden="true">🤝</span>
+          <h3>Partners</h3>
+          <p>Organizations that expand reach, trust, referrals, and delivery capacity around your work.</p>
+        </div>
+        <div class="web-tile reveal reveal-delay-2">
+          <span class="web-tile-icon" aria-hidden="true">📦</span>
+          <h3>Resources</h3>
+          <p>Technical assistance, tools, evidence, and capacity supports you can access without a grant.</p>
+        </div>
+        <div class="web-tile reveal">
+          <span class="web-tile-icon" aria-hidden="true">📊</span>
+          <h3>Readiness</h3>
+          <p>Know exactly what's needed to compete for each opportunity — before you pursue it.</p>
+        </div>
+        <div class="web-tile reveal reveal-delay-1">
+          <span class="web-tile-icon" aria-hidden="true">🏛️</span>
+          <h3>Government</h3>
+          <p>Federal, state, and local pathways aligned to your focus areas and beneficiary populations.</p>
+        </div>
+        <div class="web-tile reveal reveal-delay-2">
+          <span class="web-tile-icon" aria-hidden="true">🗺️</span>
+          <h3>Pathways</h3>
+          <p>Routes through funding, partnerships, public sector, and pipeline — with clear next steps.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══ WAITLIST FORM ════════════════════════════════════════════════ -->
+<div class="form-zone" id="get-started">
+  <div class="shell">
+    <section aria-label="Apply for a founding seat">
+      <div class="form-layout">
+
+        <div class="form-left">
+          <p class="section-label eyebrow-gold reveal" style="margin-bottom:12px;">Founding Atlas Partners</p>
+          <h2 class="display reveal reveal-delay-1">
+            Be among the<br><em>first 20 organizations</em><br>inside Anansi Atlas.
+          </h2>
+          <p class="body-muted reveal reveal-delay-2" style="margin-top:16px;">
+            We're opening 20 Founding Partner seats for nonprofits that want to get in at the ground floor. You'll get your Opportunity Web Snapshot, a personal walkthrough, and Pro access locked at $150/month for life.
+          </p>
+          <div class="founding-pills reveal reveal-delay-2">
+            <span class="fpill">Aligned funders</span>
+            <span class="fpill">Strategic partners</span>
+            <span class="fpill">Personal walkthrough</span>
+            <span class="fpill">30-day action plan</span>
+            <span class="fpill">Readiness gaps</span>
+            <span class="fpill">Pro access · locked for life</span>
+          </div>
+          <p style="margin-top:20px; font-size:0.88rem; color:var(--muted); font-style:italic;" class="reveal reveal-delay-3">
+            Strategic clarity shouldn't be a luxury reserved for organizations with expensive consultants.
+          </p>
+          <p style="margin-top:12px; font-size:0.88rem; color:var(--muted);" class="reveal reveal-delay-3">
+            Questions? <a href="mailto:info@anansiatlas.com" style="color:var(--gold-lt);font-weight:600;">info@anansiatlas.com</a>
           </p>
         </div>
 
-        <div class="form-card">
-          <!-- Tab nav -->
-          <div class="tab-nav" role="tablist" aria-label="Get started options">
-            <button class="tab-btn active" role="tab" aria-selected="true"  aria-controls="tab-waitlist"  id="btn-waitlist"  onclick="switchTab('waitlist')">Join Waitlist</button>
-            <button class="tab-btn"        role="tab" aria-selected="false" aria-controls="tab-invest"    id="btn-invest"    onclick="switchTab('invest')">Investor Inquiries</button>
-          </div>
+        <div class="reveal reveal-delay-2">
+          <div class="form-card">
+            <div class="tab-nav" role="tablist" aria-label="Application options">
+              <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-waitlist" id="btn-waitlist" onclick="switchTab('waitlist')">Apply for a Seat</button>
+              <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-invest" id="btn-invest" onclick="switchTab('invest')">Investor Inquiries</button>
+            </div>
 
-          <!-- Waitlist tab -->
-          <div id="tab-waitlist" role="tabpanel" aria-labelledby="btn-waitlist" class="tab-panel">
-            <p style="font-size:0.88rem; color:var(--muted); margin-bottom:16px; line-height:1.6;">Tell us about your organization and we'll reach out to schedule your onboarding and Snapshot walkthrough.</p>
-            {% if signup_failed %}
-              <p style="background:rgba(168,84,25,0.10); border:1px solid rgba(168,84,25,0.30); color:var(--ember); padding:10px 14px; border-radius:10px; font-size:0.85rem; margin-bottom:14px;">
-                Please check the highlighted fields below and try again.
+            <div id="tab-waitlist" role="tabpanel" aria-labelledby="btn-waitlist" class="tab-panel">
+              <p style="font-size:0.86rem;color:var(--muted);margin-bottom:18px;line-height:1.65;">
+                Tell us about your organization and we'll reach out to schedule your onboarding and Snapshot walkthrough.
               </p>
-            {% endif %}
-            <form action="{% url 'anansi-atlas-landing' %}" method="post">
-              {% csrf_token %}
-              <input type="hidden" name="interest_type" value="founding_atlas_partners">
-              <div>
-                <label for="wl-name">Your name</label>
-                <input id="wl-name" name="name" type="text" placeholder="Jane Smith" value="{{ form.name.value|default:'' }}" required>
-                {% if form.name.errors %}<span class="field-errors">{{ form.name.errors.0 }}</span>{% endif %}
-              </div>
-              <div>
-                <label for="wl-org">Organization name</label>
-                <input id="wl-org" name="organization" type="text" placeholder="Your organization name" value="{{ form.organization.value|default:'' }}" required>
-                {% if form.organization.errors %}<span class="field-errors">{{ form.organization.errors.0 }}</span>{% endif %}
-              </div>
-              <div>
-                <label for="wl-email">Work email</label>
-                <input id="wl-email" name="email" type="email" placeholder="jane@yourorg.org" value="{{ form.email.value|default:'' }}" required>
-                {% if form.email.errors %}<span class="field-errors">{{ form.email.errors.0 }}</span>{% endif %}
-              </div>
-              <div>
-                <label for="wl-role">Your role</label>
-                <select id="wl-role" name="role">
-                  <option value="">Select your role</option>
-                  {% for opt in waitlist_roles %}
-                    <option {% if form.role.value == opt %}selected{% endif %}>{{ opt }}</option>
-                  {% endfor %}
-                </select>
-                {% if form.role.errors %}<span class="field-errors">{{ form.role.errors.0 }}</span>{% endif %}
-              </div>
-              <button class="btn btn-gold btn-lg" type="submit" style="width:100%; justify-content:center; border:none; cursor:pointer; margin-top:4px;">
-                Get on the List →
-              </button>
-            </form>
-            <p class="form-note" style="margin-top:10px;">We'll follow up within 48 hours to schedule your walkthrough.</p>
-            <p class="form-note" style="margin-top:6px;">Free during the founding cohort. Paid plans launching later in 2026.</p>
-          </div>
+              {% if signup_failed %}
+                <p style="background:rgba(248,113,113,0.10);border:1px solid rgba(248,113,113,0.25);color:#fca5a5;padding:10px 14px;border-radius:10px;font-size:0.84rem;margin-bottom:16px;">
+                  Please check the highlighted fields and try again.
+                </p>
+              {% endif %}
+              <form action="{% url 'anansi-atlas-landing' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="interest_type" value="founding_atlas_partners">
+                <div>
+                  <label for="wl-name">Your name</label>
+                  <input id="wl-name" name="name" type="text" placeholder="Jane Smith" value="{{ form.name.value|default:'' }}" required autocomplete="name">
+                  {% if form.name.errors %}<span class="field-errors">{{ form.name.errors.0 }}</span>{% endif %}
+                </div>
+                <div>
+                  <label for="wl-org">Organization name</label>
+                  <input id="wl-org" name="organization" type="text" placeholder="Your organization name" value="{{ form.organization.value|default:'' }}" required autocomplete="organization">
+                  {% if form.organization.errors %}<span class="field-errors">{{ form.organization.errors.0 }}</span>{% endif %}
+                </div>
+                <div>
+                  <label for="wl-email">Work email</label>
+                  <input id="wl-email" name="email" type="email" placeholder="jane@yourorg.org" value="{{ form.email.value|default:'' }}" required autocomplete="email">
+                  {% if form.email.errors %}<span class="field-errors">{{ form.email.errors.0 }}</span>{% endif %}
+                </div>
+                <div>
+                  <label for="wl-role">Your role</label>
+                  <select id="wl-role" name="role" autocomplete="organization-title">
+                    <option value="">Select your role</option>
+                    {% for opt in waitlist_roles %}
+                      <option {% if form.role.value == opt %}selected{% endif %}>{{ opt }}</option>
+                    {% endfor %}
+                  </select>
+                  {% if form.role.errors %}<span class="field-errors">{{ form.role.errors.0 }}</span>{% endif %}
+                </div>
+                <button class="btn btn-gold btn-lg" type="submit" style="width:100%;justify-content:center;border:none;cursor:pointer;margin-top:4px;">
+                  Apply for a Founding Seat →
+                </button>
+              </form>
+              <p class="form-note" style="margin-top:12px;">We'll follow up within 48 hours to schedule your walkthrough.</p>
+              <p class="form-note" style="margin-top:6px;font-weight:600;color:rgba(229,173,63,0.80);">Founding Atlas Partners · $150/month · Pro access · 20 seats only · Locked for life</p>
+            </div>
 
-          <!-- Invest tab -->
-          <div id="tab-invest" role="tabpanel" aria-labelledby="btn-invest" class="tab-panel" hidden>
-            <p style="font-size:0.88rem; color:var(--muted); margin-bottom:16px; line-height:1.6;">Anansi Atlas is an early-stage platform built to become the operating intelligence layer for mission-driven organizations. We're open to conversations with aligned investors.</p>
-            <ul style="list-style:none; padding:0; display:grid; gap:10px; margin-bottom:20px;">
-              <li style="display:flex; gap:10px; align-items:flex-start; font-size:0.88rem;">
-                <span style="color:var(--gold); font-weight:900; flex-shrink:0;">→</span>
-                <span><strong>Market:</strong> 1.5M+ nonprofits in the US with limited access to strategic intelligence tools</span>
-              </li>
-              <li style="display:flex; gap:10px; align-items:flex-start; font-size:0.88rem;">
-                <span style="color:var(--gold); font-weight:900; flex-shrink:0;">→</span>
-                <span><strong>Model:</strong> SaaS platform with consulting-grade AI analysis, self-serve intake, and founder-led onboarding</span>
-              </li>
-              <li style="display:flex; gap:10px; align-items:flex-start; font-size:0.88rem;">
-                <span style="color:var(--gold); font-weight:900; flex-shrink:0;">→</span>
-                <span><strong>Stage:</strong> Founding cohort in progress, building toward paid tiers</span>
-              </li>
-              <li style="display:flex; gap:10px; align-items:flex-start; font-size:0.88rem;">
-                <span style="color:var(--gold); font-weight:900; flex-shrink:0;">→</span>
-                <span><strong>Founded by:</strong> Marcus Scott, Scott Foundry Group LLC</span>
-              </li>
-            </ul>
-            <a class="btn btn-gold btn-lg" href="mailto:info@anansiatlas.com?subject=Investment%20Inquiry%20%E2%80%94%20Anansi%20Atlas" style="width:100%; display:flex; justify-content:center;">
-              Reach Out →
-            </a>
-            <p class="form-note" style="margin-top:10px;">Email us at <a href="mailto:info@anansiatlas.com" style="color:var(--gold);">info@anansiatlas.com</a> with the subject "Investment Inquiry".</p>
+            <div id="tab-invest" role="tabpanel" aria-labelledby="btn-invest" class="tab-panel" hidden>
+              <p style="font-size:0.86rem;color:var(--muted);margin-bottom:16px;line-height:1.65;">
+                Anansi Atlas is an early-stage platform built to become the operating intelligence layer for mission-driven organizations. We're open to conversations with aligned investors.
+              </p>
+              <ul style="list-style:none;padding:0;display:grid;gap:10px;margin-bottom:20px;">
+                <li style="display:flex;gap:10px;align-items:flex-start;font-size:0.86rem;color:var(--muted);">
+                  <span style="color:var(--gold-lt);font-weight:700;flex-shrink:0;">→</span>
+                  <span><strong style="color:var(--white);">Market:</strong> 1.5M+ nonprofits in the US with limited access to strategic intelligence tools</span>
+                </li>
+                <li style="display:flex;gap:10px;align-items:flex-start;font-size:0.86rem;color:var(--muted);">
+                  <span style="color:var(--gold-lt);font-weight:700;flex-shrink:0;">→</span>
+                  <span><strong style="color:var(--white);">Model:</strong> SaaS platform with consulting-grade AI analysis, self-serve intake, and founder-led onboarding</span>
+                </li>
+                <li style="display:flex;gap:10px;align-items:flex-start;font-size:0.86rem;color:var(--muted);">
+                  <span style="color:var(--gold-lt);font-weight:700;flex-shrink:0;">→</span>
+                  <span><strong style="color:var(--white);">Stage:</strong> Founding cohort in progress, building toward paid tiers</span>
+                </li>
+                <li style="display:flex;gap:10px;align-items:flex-start;font-size:0.86rem;color:var(--muted);">
+                  <span style="color:var(--gold-lt);font-weight:700;flex-shrink:0;">→</span>
+                  <span><strong style="color:var(--white);">Founded by:</strong> Marcus Scott, Scott Foundry Group LLC — U.S. Air Force Veteran, former nonprofit executive</span>
+                </li>
+              </ul>
+              <a class="btn btn-gold btn-lg" href="mailto:info@anansiatlas.com?subject=Investment%20Inquiry%20%E2%80%94%20Anansi%20Atlas" style="width:100%;display:flex;justify-content:center;">
+                Reach Out →
+              </a>
+              <p class="form-note" style="margin-top:10px;">Email <a href="mailto:info@anansiatlas.com" style="color:var(--gold-lt);">info@anansiatlas.com</a> with subject "Investment Inquiry".</p>
+            </div>
           </div>
         </div>
 
       </div>
     </section>
-
-    <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-panel').forEach(function(p) { p.hidden = true; });
-      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
-      document.getElementById('tab-' + name).hidden = false;
-      document.getElementById('btn-' + name).classList.add('active');
-      document.getElementById('btn-' + name).setAttribute('aria-selected','true');
-    }
-    </script>
-
   </div>
 </div>
 
-<!-- ═══ FOUNDER STRIP ════════════════════════════════════════════ -->
-<div class="founder-strip">
+<!-- ═══ MYTHOLOGY CLOSE ══════════════════════════════════════════════ -->
+<div class="myth-zone">
+  <div class="myth-web-bg" aria-hidden="true">
+    <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#c9901e" stroke-width="1.2" fill="none">
+        <line x1="400" y1="400" x2="760" y2="400"/>
+        <line x1="400" y1="400" x2="580" y2="712"/>
+        <line x1="400" y1="400" x2="220" y2="712"/>
+        <line x1="400" y1="400" x2="40" y2="400"/>
+        <line x1="400" y1="400" x2="220" y2="88"/>
+        <line x1="400" y1="400" x2="580" y2="88"/>
+        <polygon points="460,400 424,458 400,466 376,458 340,400 376,342 400,334 424,342"/>
+        <polygon points="520,400 460,510 400,528 340,510 280,400 340,290 400,272 460,290"/>
+        <polygon points="590,400 500,566 400,596 300,566 210,400 300,234 400,204 500,234"/>
+        <polygon points="652,400 548,606 400,650 252,606 148,400 252,194 400,150 548,194"/>
+        <polygon points="718,400 596,644 400,704 204,644 82,400 204,156 400,96 596,156"/>
+      </g>
+    </svg>
+  </div>
   <div class="shell">
-    <div class="founder-inner">
-      <div class="founder-avatar" aria-hidden="true">MS</div>
-      <div class="founder-meta">
-        <strong>Marcus Scott</strong>
-        <span>Founder, Anansi Atlas · Scott Foundry Group LLC</span>
+    <section aria-label="The Anansi story" style="padding: clamp(80px,10vw,120px) 0;">
+      <div class="myth-content">
+        <span class="myth-anansi" aria-hidden="true">🕸️</span>
+        <blockquote class="myth-quote reveal">
+          "In West African tradition, Anansi is the spider — keeper of stories, weaver of connections, bridge between worlds. Anansi Atlas maps the web of opportunity around your mission: the relationships, resources, and strategic paths already there, waiting to be seen."
+        </blockquote>
+        <p class="myth-attr reveal reveal-delay-1">
+          — <strong>Marcus "Scotty" Scott</strong><br>
+          Founder, Anansi Atlas · Scott Foundry Group LLC<br>
+          U.S. Air Force Veteran · Former nonprofit executive
+        </p>
+        <div style="margin-top:36px;" class="reveal reveal-delay-2">
+          <a class="btn btn-gold btn-lg" href="#get-started">Apply for a Founding Seat →</a>
+        </div>
       </div>
-      <p class="founder-quote">
-        "In West African tradition, Anansi is the spider — keeper of stories, weaver of connections, bridge between worlds. Anansi Atlas maps the web of opportunity around your mission: the relationships, resources, and strategic paths already there, waiting to be seen."
-      </p>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ FOOTER ════════════════════════════════════════════════════ -->
-<div style="background: var(--page);">
-  <div class="shell">
-    <footer>
-      <span>© 2026 <strong>Scott Foundry Group LLC</strong>. All rights reserved.</span>
-      <span style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-        <a href="mailto:info@anansiatlas.com" style="color:var(--muted);">info@anansiatlas.com</a>
-        <a href="mailto:marcusscott43@gmail.com" style="color:var(--muted);">marcus@anansiatlas.com</a>
-        <a href="#get-started" style="color:var(--gold);">Join the Waitlist →</a>
-      </span>
-    </footer>
+    </section>
   </div>
 </div>
 
 </main>
 
+<!-- ═══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-inner">
+      <span class="footer-copy">© 2026 <strong>Scott Foundry Group LLC</strong>. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="mailto:info@anansiatlas.com">info@anansiatlas.com</a>
+        <a href="#get-started" class="gold">Join the Founding Cohort →</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ── Tab switcher ── */
+  function switchTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.hidden = true; });
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    document.getElementById('tab-' + name).hidden = false;
+    document.getElementById('btn-' + name).classList.add('active');
+    document.getElementById('btn-' + name).setAttribute('aria-selected', 'true');
+  }
+
+  /* ── Nav: solid on scroll ── */
+  var nav = document.getElementById('site-nav');
+  window.addEventListener('scroll', function() {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  /* ── Scroll reveal ── */
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  /* ── Hero elements reveal on load ── */
+  window.addEventListener('load', function() {
+    document.querySelectorAll('.hero-inner .reveal').forEach(function(el) {
+      el.classList.add('in');
+    });
+  });
+</script>
 </body>
 </html>

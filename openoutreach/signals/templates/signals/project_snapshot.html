@@ -140,6 +140,9 @@
               {% if funder.preparation_steps %}
                 <p class="muted" style="font-size:.82rem;margin-top:6px;"><strong style="color:var(--ink);">Next step:</strong> {{ funder.preparation_steps.0 }}</p>
               {% endif %}
+              {% if funder.deadline %}
+                <p style="margin-top:8px;"><span style="display:inline-block;background:var(--gold);color:#fff;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:20px;">Deadline: {{ funder.deadline }}</span></p>
+              {% endif %}
               {% if funder.website %}
                 <p style="margin-top:10px;"><a class="pill" href="{{ funder.website }}" target="_blank" rel="noopener">View funder →</a></p>
               {% endif %}
@@ -173,18 +176,53 @@
         <a class="pill" href="{% url 'project-ecosystem' project.pk %}">Open Ecosystem →</a>
       </div>
       <div class="partner-grid">
-        {% for pathway in snapshot.top_partner_pathway_insights %}
+        {% for partner in snapshot.partner_fit_insights %}
           <div class="partner-card">
-            <strong>{{ pathway.label }}</strong>
-            <p class="muted" style="font-size:.84rem;">{{ pathway.rationale }}</p>
-            {% if pathway.factors %}
-              <p class="muted" style="font-size:.8rem;margin-top:4px;">{{ pathway.factors|join:" · " }}</p>
+            <strong>{{ partner.name }}</strong>
+            <span class="level-badge" style="font-size:.72rem;">{{ partner.partner_type }}</span>
+            <p class="muted" style="font-size:.84rem;margin-top:6px;">{{ partner.rationale }}</p>
+            {% if partner.purpose %}
+              <p class="muted" style="font-size:.82rem;margin-top:6px;"><strong style="color:var(--ink);">What it offers:</strong> {{ partner.purpose }}</p>
+            {% endif %}
+            {% if partner.website %}
+              <p style="margin-top:10px;"><a class="pill" href="{{ partner.website }}" target="_blank" rel="noopener">View partner →</a></p>
             {% endif %}
           </div>
         {% empty %}
-          <p class="muted">Partner pathways will appear after analysis runs.</p>
+          {% for pathway in snapshot.top_partner_pathway_insights %}
+            <div class="partner-card">
+              <strong>{{ pathway.label }}</strong>
+              <p class="muted" style="font-size:.84rem;">{{ pathway.rationale }}</p>
+              {% if pathway.factors %}
+                <p class="muted" style="font-size:.8rem;margin-top:4px;">{{ pathway.factors|join:" · " }}</p>
+              {% endif %}
+            </div>
+          {% empty %}
+            <p class="muted">Partner pathways will appear after analysis runs.</p>
+          {% endfor %}
         {% endfor %}
       </div>
+
+      {% if snapshot.resource_fit_insights %}
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line);">
+          <h3 style="margin-bottom:12px;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Resources & Capacity Support</h3>
+          <div class="partner-grid">
+            {% for resource in snapshot.resource_fit_insights %}
+              <div class="partner-card">
+                <strong>{{ resource.name }}</strong>
+                <span class="level-badge" style="font-size:.72rem;">{{ resource.resource_type }}</span>
+                <p class="muted" style="font-size:.84rem;margin-top:6px;">{{ resource.rationale }}</p>
+                {% if resource.purpose %}
+                  <p class="muted" style="font-size:.82rem;margin-top:6px;"><strong style="color:var(--ink);">What it offers:</strong> {{ resource.purpose }}</p>
+                {% endif %}
+                {% if resource.website %}
+                  <p style="margin-top:10px;"><a class="pill" href="{{ resource.website }}" target="_blank" rel="noopener">View resource →</a></p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
       {% if snapshot.ecosystem_gap_insights %}
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);">
           <h3 style="margin-bottom:10px;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Ecosystem Gaps to Close</h3>

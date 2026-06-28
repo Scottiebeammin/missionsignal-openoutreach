@@ -32,6 +32,25 @@ class SnapshotFunderFit:
     source_indicators: list[str]
     website: str = ""
     purpose: str = ""
+    deadline: str = ""
+
+
+@dataclass(frozen=True)
+class SnapshotPartnerFit:
+    name: str
+    partner_type: str
+    rationale: str
+    website: str = ""
+    purpose: str = ""
+
+
+@dataclass(frozen=True)
+class SnapshotResourceFit:
+    name: str
+    resource_type: str
+    rationale: str
+    website: str = ""
+    purpose: str = ""
 
 
 @dataclass(frozen=True)
@@ -77,6 +96,8 @@ class OpportunityWebSnapshot:
     recommended_action_insights: list[SnapshotInsight]
     source_summary: SnapshotSourceSummary
     funder_fit_insights: list[SnapshotFunderFit]
+    partner_fit_insights: list[SnapshotPartnerFit]
+    resource_fit_insights: list[SnapshotResourceFit]
     ecosystem_gap_insights: list[SnapshotInsight]
     readiness_context_insights: list[SnapshotInsight]
     organization_intelligence: OrganizationIntelligence
@@ -586,7 +607,7 @@ def _funder_source_indicators(funder, score: int, context: dict) -> list[str]:
     return _dedupe(indicators, 4)
 
 
-def _named_funder_fit_insights(sector: dict, context: dict) -> list[SnapshotFunderFit]:
+def _named_funder_fit_insights(project, sector: dict, context: dict) -> list[SnapshotFunderFit]:
     from openoutreach.funding.models import Funder
 
     sector_terms = sector.get("terms", []) + context["focus"] + context["beneficiaries"]
@@ -634,9 +655,98 @@ def _named_funder_fit_insights(sector: dict, context: dict) -> list[SnapshotFund
                 source_indicators=_funder_source_indicators(funder, score, context),
                 website=funder.website or "",
                 purpose=funder.eligibility_notes or funder.notes or "",
+                deadline=_funder_deadline(project, funder.name),
             )
         )
     return insights
+
+
+def _named_partner_fit_insights(sector: dict, context: dict) -> list[SnapshotPartnerFit]:
+    from openoutreach.funding.models import PartnerOrganization
+
+    sector_terms = sector.get("terms", []) + context["focus"] + context["beneficiaries"]
+    candidates = []
+    for partner in PartnerOrganization.objects.filter(active=True).exclude(
+        intelligence_status=PartnerOrganization.IntelligenceStatus.ARCHIVED,
+    ):
+        score = 70
+        score += min(_overlap_count(partner.focus_areas, sector_terms) * 6, 18)
+        score += min(_overlap_count(partner.beneficiaries, context["beneficiaries"] + sector_terms) * 5, 12)
+        score += min(_overlap_count(partner.geography, context["geography"]) * 5, 10)
+        candidates.append((min(score, 98), partner.name.casefold(), partner))
+    candidates.sort(key=lambda item: (-item[0], item[1]))
+
+    insights = []
+    for _score, _sort_name, partner in candidates[:4]:
+        purpose = partner.mission_alignment_notes or partner.opportunity_notes or partner.notes or ""
+        rationale = (
+            f"{partner.name} is a {partner.get_partner_type_display().lower()} with alignment around "
+            f"{', '.join(_dedupe(partner.focus_areas, 2)) or sector['label'].lower()}."
+        )
+        if context["geography"] and partner.geography:
+            rationale += f" Geography overlaps with {context['geography'][0]}."
+        rationale += _record_source_label(partner.source_references)
+        insights.append(
+            SnapshotPartnerFit(
+                name=partner.name,
+                partner_type=partner.get_partner_type_display(),
+                rationale=rationale,
+                website=partner.website or "",
+                purpose=purpose,
+            )
+        )
+    return insights
+
+
+def _named_resource_fit_insights(sector: dict, context: dict) -> list[SnapshotResourceFit]:
+    from openoutreach.funding.models import ResourceProvider
+
+    sector_terms = sector.get("terms", []) + context["focus"] + context["beneficiaries"]
+    candidates = []
+    for provider in ResourceProvider.objects.filter(active=True):
+        score = 70
+        score += min(_overlap_count(provider.focus_areas, sector_terms) * 6, 18)
+        score += min(_overlap_count(provider.geography, context["geography"]) * 5, 10)
+        candidates.append((min(score, 98), provider.name.casefold(), provider))
+    candidates.sort(key=lambda item: (-item[0], item[1]))
+
+    insights = []
+    for _score, _sort_name, provider in candidates[:4]:
+        purpose = provider.eligibility_notes or provider.notes or ""
+        rationale = (
+            f"{provider.name} is a {provider.get_resource_type_display().lower()} offering resources "
+            f"aligned to {', '.join(_dedupe(provider.focus_areas, 2)) or sector['label'].lower()} work."
+        )
+        if context["geography"] and provider.geography:
+            rationale += f" Serves {context['geography'][0]}."
+        insights.append(
+            SnapshotResourceFit(
+                name=provider.name,
+                resource_type=provider.get_resource_type_display(),
+                rationale=rationale,
+                website=provider.website or "",
+                purpose=purpose,
+            )
+        )
+    return insights
+
+
+def _funder_deadline(project, funder_name: str) -> str:
+    from openoutreach.funding.models import Opportunity
+
+    opp = (
+        Opportunity.objects.filter(
+            project=project,
+            source_name__iexact=funder_name,
+            deadline__isnull=False,
+        )
+        .exclude(lifecycle_status=Opportunity.LifecycleStatus.CLOSED)
+        .order_by("deadline")
+        .first()
+    )
+    if opp and opp.deadline:
+        return opp.deadline.strftime("%b %-d, %Y")
+    return ""
 
 
 def _named_relationship_insights(project, sector: dict, context: dict) -> list[SnapshotInsight]:
@@ -837,6 +947,7 @@ def _funder_fit_insights(
     funder_pathways: list[SnapshotInsight],
     sector: dict,
     context: dict,
+    project=None,
 ) -> list[SnapshotFunderFit]:
     prep = []
     if not context["outcomes_defined"]:
@@ -848,7 +959,7 @@ def _funder_fit_insights(
     if not context["funding_defined"]:
         prep.append("List current and recent funding sources.")
     prep.append(f"Create a one-page {sector['label']} funding brief.")
-    insights = _named_funder_fit_insights(sector, context)
+    insights = _named_funder_fit_insights(project, sector, context)
     seen = {item.archetype.casefold() for item in insights}
     for index, pathway in enumerate(funder_pathways[:5]):
         if pathway.label.casefold() in seen:
@@ -1209,7 +1320,9 @@ def build_opportunity_web_snapshot(
     )
     relationship_target_insights = _relationship_target_insights(project, sector, context)
     top_opportunity_insights = _opportunity_insights(discovery, context, organization_intelligence)
-    funder_fit_insights = _funder_fit_insights(funder_pathway_insights, sector, context)
+    funder_fit_insights = _funder_fit_insights(funder_pathway_insights, sector, context, project=project)
+    partner_fit_insights = _named_partner_fit_insights(sector, context)
+    resource_fit_insights = _named_resource_fit_insights(sector, context)
     ecosystem_gap_insights = _ecosystem_gap_insights(relationship_target_insights, sector)
     readiness_context_insights = _readiness_context_insights(top_resource_gaps, top_risks_gaps, sector)
     recommended_action_insights = _action_insights(
@@ -1248,6 +1361,8 @@ def build_opportunity_web_snapshot(
         recommended_action_insights=recommended_action_insights,
         source_summary=source_summary,
         funder_fit_insights=funder_fit_insights,
+        partner_fit_insights=partner_fit_insights,
+        resource_fit_insights=resource_fit_insights,
         ecosystem_gap_insights=ecosystem_gap_insights,
         readiness_context_insights=readiness_context_insights,
         organization_intelligence=organization_intelligence,
