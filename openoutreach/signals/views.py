@@ -142,7 +142,7 @@ def founding_seat_count(request):
         try:
             stripe.api_key = secret_key
             subs = stripe.Subscription.list(price=price_id, status="active", limit=100)
-            claimed = len(subs.data)
+            claimed = len(subs.data) + 1  # founder seat offset
         except Exception:
             claimed = _seat_cache[0] if _seat_cache else 4
         _seat_cache = (claimed, now)
