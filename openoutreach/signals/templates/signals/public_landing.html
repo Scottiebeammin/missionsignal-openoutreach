@@ -407,8 +407,8 @@
     /* Pricing cards grid */
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
       margin-top: 48px;
       align-items: stretch;
     }
@@ -416,7 +416,7 @@
       background: #fff;
       border: 1.5px solid rgba(13,26,46,0.10);
       border-radius: var(--r-lg);
-      padding: 32px 28px 28px;
+      padding: 28px 22px 24px;
       display: flex; flex-direction: column;
       position: relative;
     }
@@ -710,6 +710,7 @@
       .cohort-callout { position: static; }
       .snap-grid { grid-template-columns: repeat(2, 1fr); }
       .web-tiles { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 760px) {
       .shell { padding: 0 20px; }
@@ -1092,16 +1093,16 @@
   </div>
 </div>
 
-<!-- ═══ FOUNDING COHORT OFFER ════════════════════════════════════════ -->
+<!-- ═══ PLANS & PRICING ══════════════════════════════════════════════ -->
 <div class="cohort-zone">
   <div class="shell">
-    <section aria-label="Founding Atlas Partner offer" style="padding: clamp(60px,8vw,100px) 0;">
-      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Founding Atlas Partners</p>
+    <section aria-label="Plans and pricing" style="padding: clamp(60px,8vw,100px) 0;">
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Plans &amp; Pricing</p>
       <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto;">
-        Believe in the vision.<br><em>Get rewarded for it permanently.</em>
+        Four tiers. One mission.<br><em>Find your fit.</em>
       </h2>
-      <p class="reveal reveal-delay-2" style="text-align:center;max-width:520px;margin:16px auto 0;color:rgba(13,26,46,0.65);font-size:0.97rem;line-height:1.7;">
-        20 founding seats — full Pro access at $150/month, locked for life. When we open publicly, Pro is $497/month. Founding members never see that price.
+      <p class="reveal reveal-delay-2" style="text-align:center;max-width:560px;margin:16px auto 0;color:rgba(13,26,46,0.65);font-size:0.97rem;line-height:1.7;">
+        All tiers include access to the <strong style="color:var(--ink);">Atlas Circle</strong> — our founder community where mission-driven leaders share intel, strategy, and connections. One seat is open now at a founding rate that never changes.
       </p>
 
       <div class="pricing-grid">
@@ -1109,64 +1110,80 @@
         <!-- Base -->
         <div class="price-card reveal">
           <p class="price-card-name">Base</p>
-          <p class="price-card-tagline">Get started with the essentials</p>
+          <p class="price-card-tagline">Clarity at a glance</p>
           <div class="price-card-amount"><sup>$</sup>150<span>/mo</span></div>
           <p class="price-card-billing">At public launch</p>
           <div class="price-card-divider"></div>
           <ul class="price-card-features">
-            <li>Monthly Opportunity Web Snapshot</li>
-            <li>Partner matching</li>
-            <li>Funder discovery</li>
-            <li>Quarterly founder call</li>
-            <li>Resources &amp; capacity support</li>
-            <li>Readiness tracking</li>
-            <li>Custom reporting</li>
-            <li>Priority delivery</li>
+            <li>Quarterly Opportunity Web Snapshot</li>
+            <li>Partner &amp; funder matching</li>
+            <li>Government pathways</li>
+            <li>Community resources</li>
+            <li>Atlas Circle — Quarterly</li>
           </ul>
           <a class="btn btn-ghost" href="#get-started">Join the waitlist</a>
           <p class="price-card-note">Available at public launch</p>
         </div>
 
-        <!-- Founding — Featured -->
-        <div class="price-card featured reveal reveal-delay-1">
-          <span class="price-card-badge">🕸 20 Seats Only — Open Now</span>
-          <p class="price-card-name">Founding Partner</p>
-          <p class="price-card-tagline">Pro access · Locked for life</p>
-          <div class="price-card-amount"><sup>$</sup>150<span>/mo</span></div>
-          <p class="price-card-billing">Forever — never increases</p>
+        <!-- Standard -->
+        <div class="price-card reveal reveal-delay-1">
+          <p class="price-card-name">Standard</p>
+          <p class="price-card-tagline">Stay current, stay ready</p>
+          <div class="price-card-amount"><sup>$</sup>297<span>/mo</span></div>
+          <p class="price-card-billing">At public launch</p>
           <div class="price-card-divider"></div>
           <ul class="price-card-features">
             <li>Monthly Opportunity Web Snapshot</li>
-            <li>Partner matching</li>
-            <li>Funder discovery</li>
-            <li>Monthly founder call</li>
-            <li>Resources &amp; capacity support</li>
+            <li>Partner &amp; funder matching</li>
+            <li>Government pathways</li>
             <li>Readiness tracking</li>
-            <li>Custom reporting</li>
+            <li>Funding alerts</li>
+            <li>Atlas Circle — Monthly</li>
+          </ul>
+          <a class="btn btn-ghost" href="#get-started">Join the waitlist</a>
+          <p class="price-card-note">Available at public launch</p>
+        </div>
+
+        <!-- Pro — Featured with Founding Partner offer -->
+        <div class="price-card featured reveal reveal-delay-2">
+          <span class="price-card-badge">🕸 20 Founding Seats — Open Now</span>
+          <p class="price-card-name">Pro</p>
+          <p class="price-card-tagline">Full access · Strategy included</p>
+          <div class="price-card-amount"><sup>$</sup>150<span>/mo</span></div>
+          <p style="font-size:0.73rem;color:rgba(229,173,63,0.55);margin-bottom:4px;margin-top:-18px;text-decoration:line-through;">$497/mo at public launch</p>
+          <p class="price-card-billing">Founding rate — locked for life</p>
+          <div class="price-card-divider"></div>
+          <ul class="price-card-features">
+            <li>Monthly Opportunity Web Snapshot</li>
+            <li>Partner &amp; funder matching</li>
+            <li>Government pathways</li>
+            <li>Readiness tracking</li>
+            <li>Funding alerts</li>
+            <li>Strategy calls 2×/month</li>
             <li>Priority delivery</li>
+            <li>Custom reporting</li>
+            <li>Atlas Circle — Monthly + hot seat</li>
           </ul>
           <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
           <p class="price-card-note">Once 20 seats close, they close permanently.<br>Early cohort opens next at $200/month.</p>
         </div>
 
-        <!-- Pro -->
-        <div class="price-card reveal reveal-delay-2">
-          <p class="price-card-name">Pro</p>
-          <p class="price-card-tagline">Everything, fully unlocked</p>
-          <div class="price-card-amount"><sup>$</sup>497<span>/mo</span></div>
+        <!-- Enterprise -->
+        <div class="price-card reveal reveal-delay-3">
+          <p class="price-card-name">Enterprise</p>
+          <p class="price-card-tagline">White-glove · Multi-program</p>
+          <div class="price-card-amount" style="font-size:2.2rem;letter-spacing:-0.01em;">Custom</div>
           <p class="price-card-billing">At public launch</p>
           <div class="price-card-divider"></div>
           <ul class="price-card-features">
-            <li>Monthly Opportunity Web Snapshot</li>
-            <li>Funder discovery</li>
-            <li>Partner matching</li>
-            <li>Resources & capacity support</li>
-            <li>Readiness tracking</li>
-            <li>Monthly strategy calls</li>
-            <li>Priority delivery</li>
-            <li>Custom reporting</li>
+            <li>Everything in Pro</li>
+            <li>Dedicated account manager</li>
+            <li>Multi-program coverage</li>
+            <li>Board-ready reporting</li>
+            <li>White-glove onboarding</li>
+            <li>Atlas Circle — Private sessions</li>
           </ul>
-          <a class="btn btn-ghost" href="#get-started">Join the waitlist</a>
+          <a class="btn btn-ghost" href="mailto:info@anansiatlas.com?subject=Enterprise%20Inquiry%20%E2%80%94%20Anansi%20Atlas">Contact us</a>
           <p class="price-card-note">Available at public launch</p>
         </div>
 
