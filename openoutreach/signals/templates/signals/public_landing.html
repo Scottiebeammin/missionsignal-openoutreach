@@ -789,6 +789,23 @@
       .hero-btns .btn { text-align: center; justify-content: center; }
       .form-card { padding: 22px 18px; }
     }
+    /* ── STICKY MOBILE CTA ── */
+    .sticky-cta {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+      background: rgba(6,14,27,0.97);
+      border-top: 1px solid rgba(229,173,63,0.25);
+      padding: 12px 20px;
+      gap: 10px;
+      backdrop-filter: blur(12px);
+      transform: translateY(100%);
+      transition: transform 300ms ease;
+    }
+    .sticky-cta.visible { transform: translateY(0); }
+    @media (max-width: 760px) {
+      .sticky-cta { display: flex; flex-direction: column; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .reveal { opacity: 1; transform: none; transition: none; }
       svg animate, svg animateMotion { dur: 10000s; }
@@ -797,6 +814,12 @@
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- ── Sticky mobile CTA bar ── -->
+<div class="sticky-cta" id="sticky-cta" aria-hidden="true">
+  <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="justify-content:center;">Claim Your Founding Seat · $150/mo →</a>
+  <a class="btn btn-ghost" href="#get-started" style="justify-content:center;font-size:0.88rem;">Have Questions? Get More Info</a>
+</div>
 
 <!-- ═══ NAV ════════════════════════════════════════════════════════ -->
 <nav id="site-nav" aria-label="Anansi Atlas navigation">
@@ -1050,8 +1073,8 @@
         In nearly every organization we've analyzed, there were 10 or more aligned funding opportunities sitting in plain sight — qualified, available, completely off their radar. Not because of lack of effort. Because the intelligence was scattered. Anansi Atlas brings it together so you know exactly where to focus and what to do next.
       </p>
       <div class="hero-btns reveal reveal-delay-3">
-        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Join the Founding Cohort →</a>
-        <a class="btn btn-ghost btn-lg" href="#what-you-get">See What's Inside</a>
+        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Claim Your Founding Seat →</a>
+        <a class="btn btn-ghost btn-lg" href="#get-started">Have Questions? Talk to Us</a>
       </div>
       <div class="trust-bar reveal reveal-delay-4">
         <span>Built for nonprofits</span>
@@ -1092,8 +1115,9 @@
           <p>We deliver your Snapshot with a personal walkthrough — aligned funders, strategic partners, readiness gaps, and a clear 30-day action plan.</p>
         </div>
       </div>
-      <div style="text-align:center; margin-top:40px;" class="reveal">
-        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
+      <div style="text-align:center; margin-top:40px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;" class="reveal">
+        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Claim Your Founding Seat →</a>
+        <a class="btn btn-ghost btn-lg" href="#get-started">Get More Information</a>
       </div>
     </section>
   </div>
@@ -1325,26 +1349,35 @@
       <div class="form-layout">
 
         <div class="form-left">
-          <p class="section-label eyebrow-gold reveal" style="margin-bottom:12px;">Founding Atlas Partners</p>
+          <p class="section-label eyebrow-gold reveal" style="margin-bottom:12px;">Ready to Move?</p>
           <h2 class="display reveal reveal-delay-1">
-            Be among the<br><em>first 20 organizations</em><br>inside Anansi Atlas.
+            Two ways in.<br><em>Both get you started.</em>
           </h2>
-          <p class="body-muted reveal reveal-delay-2" style="margin-top:16px;">
-            We're opening 20 Founding Partner seats for nonprofits ready to move with clarity. You'll get your Opportunity Web Snapshot, a personal walkthrough, and Pro access locked at $150/month — for life.
-          </p>
-          <div class="founding-pills reveal reveal-delay-2">
-            <span class="fpill">Aligned funders</span>
-            <span class="fpill">Strategic partners</span>
-            <span class="fpill">Personal walkthrough</span>
-            <span class="fpill">30-day action plan</span>
-            <span class="fpill">Readiness gaps</span>
-            <span class="fpill">Pro access · locked for life</span>
+
+          <!-- Path 1: Claim now -->
+          <div class="reveal reveal-delay-2" style="margin-top:24px;border:1.5px solid rgba(229,173,63,0.35);border-radius:var(--r);padding:20px 22px;background:rgba(229,173,63,0.05);">
+            <p style="font-size:0.70rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:8px;">Ready now</p>
+            <p style="font-size:0.95rem;font-weight:700;color:var(--white);margin-bottom:6px;">Claim your founding seat directly</p>
+            <p style="font-size:0.84rem;color:var(--muted);margin-bottom:14px;line-height:1.6;">$150/month · Pro access · Locked for life. Stripe checkout takes 2 minutes. We'll reach out within 24 hours to schedule your Snapshot walkthrough.</p>
+            <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="width:100%;justify-content:center;">Claim Your Founding Seat → $150/mo</a>
           </div>
-          <p style="margin-top:20px; font-size:0.88rem; color:var(--muted); font-style:italic;" class="reveal reveal-delay-3">
-            Strategic clarity shouldn't be a luxury reserved for organizations with expensive consultants.
-          </p>
-          <p style="margin-top:12px; font-size:0.88rem; color:var(--muted);" class="reveal reveal-delay-3">
-            Questions? <a href="mailto:info@anansiatlas.com" style="color:var(--gold-lt);font-weight:600;">info@anansiatlas.com</a>
+
+          <!-- Divider -->
+          <div style="display:flex;align-items:center;gap:12px;margin:20px 0;" class="reveal reveal-delay-2">
+            <div style="flex:1;height:1px;background:rgba(255,255,255,0.10);"></div>
+            <span style="font-size:0.78rem;color:var(--muted);font-weight:600;">OR</span>
+            <div style="flex:1;height:1px;background:rgba(255,255,255,0.10);"></div>
+          </div>
+
+          <!-- Path 2: Learn more -->
+          <div class="reveal reveal-delay-3">
+            <p style="font-size:0.70rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Have questions first</p>
+            <p style="font-size:0.95rem;font-weight:700;color:var(--white);margin-bottom:6px;">Tell us about your organization</p>
+            <p style="font-size:0.84rem;color:var(--muted);line-height:1.6;">Fill out the form → we'll reach out personally to answer your questions and walk you through what Anansi Atlas would look like for your specific mission.</p>
+          </div>
+
+          <p style="margin-top:20px; font-size:0.84rem; color:var(--muted);" class="reveal reveal-delay-3">
+            Direct questions? <a href="mailto:info@anansiatlas.com" style="color:var(--gold-lt);font-weight:600;">info@anansiatlas.com</a>
           </p>
         </div>
 
@@ -1464,8 +1497,9 @@
         <p class="myth-attr reveal reveal-delay-1">
           — Founder, Anansi Atlas
         </p>
-        <div style="margin-top:36px;" class="reveal reveal-delay-2">
-          <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
+        <div style="margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;" class="reveal reveal-delay-2">
+          <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Claim Your Founding Seat →</a>
+          <a class="btn btn-ghost btn-lg" href="#get-started">Get More Information</a>
         </div>
       </div>
     </section>
@@ -1545,8 +1579,10 @@
 
   /* ── Nav: solid on scroll ── */
   var nav = document.getElementById('site-nav');
+  var stickyCta = document.getElementById('sticky-cta');
   window.addEventListener('scroll', function() {
     nav.classList.toggle('scrolled', window.scrollY > 40);
+    if (stickyCta) stickyCta.classList.toggle('visible', window.scrollY > 500);
   }, { passive: true });
 
   /* ── Scroll reveal ── */
