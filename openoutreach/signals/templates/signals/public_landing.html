@@ -129,9 +129,11 @@
       display: flex; align-items: center; justify-content: flex-end;
       pointer-events: none;
       overflow: hidden;
+      mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 30%, black 55%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) 30%, black 55%);
     }
     .hero-web-bg svg {
-      width: 65%; height: 100%;
+      width: 60%; height: 100%;
       opacity: 0.9;
     }
 
@@ -1149,8 +1151,8 @@
           <span class="price-card-badge">🕸 20 Founding Seats — Open Now</span>
           <p class="price-card-name">Pro</p>
           <p class="price-card-tagline">Full access · Strategy included</p>
-          <div class="price-card-amount"><sup>$</sup>150<span>/mo</span></div>
-          <p style="font-size:0.73rem;color:rgba(229,173,63,0.55);margin-bottom:4px;margin-top:-18px;text-decoration:line-through;">$497/mo at public launch</p>
+          <div class="price-card-amount" style="margin-bottom:2px;"><sup>$</sup>150<span>/mo</span></div>
+          <p style="font-size:0.73rem;color:rgba(229,173,63,0.55);margin-bottom:6px;text-decoration:line-through;">$497/mo at public launch</p>
           <p class="price-card-billing">Founding rate — locked for life</p>
           <div class="price-card-divider"></div>
           <ul class="price-card-features">
