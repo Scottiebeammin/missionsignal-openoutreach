@@ -1308,9 +1308,9 @@
         <h2 class="display reveal reveal-delay-1" style="max-width:600px;margin:0 auto 20px;color:var(--ink);">
           Organizations already<br><em>inside the web.</em>
         </h2>
-        <div class="seat-counter reveal reveal-delay-2">
+        <div class="seat-counter reveal reveal-delay-2" id="seat-counter">
           <div class="seat-counter-dot" aria-hidden="true"></div>
-          16 of 20 founding seats remaining
+          <span id="seat-counter-text">16 of 20 founding seats remaining</span>
         </div>
       </div>
 
@@ -1588,6 +1588,24 @@
       el.classList.add('in');
     });
   });
+
+  /* ── Live seat counter ── */
+  function updateSeatCounter() {
+    fetch('/anansi-atlas/seats/')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var el = document.getElementById('seat-counter-text');
+        if (!el) return;
+        if (data.remaining <= 0) {
+          el.textContent = 'Founding seats closed — join the waitlist';
+        } else {
+          el.textContent = data.remaining + ' of ' + data.total + ' founding seats remaining';
+        }
+      })
+      .catch(function() {});
+  }
+  updateSeatCounter();
+  setInterval(updateSeatCounter, 300000); // refresh every 5 min
 </script>
 </body>
 </html>

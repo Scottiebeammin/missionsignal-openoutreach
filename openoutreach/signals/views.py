@@ -1,4 +1,9 @@
+import os
+import time
+
+import stripe
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -115,6 +120,34 @@ def public_landing_page(request):
 
 def public_landing_thanks(request):
     return render(request, "signals/public_landing_thanks.html")
+
+
+# Simple in-process cache: (count, timestamp)
+_seat_cache: tuple[int, float] | None = None
+_SEAT_CACHE_TTL = 300  # 5 minutes
+_FOUNDING_SEAT_TOTAL = 20
+
+
+def founding_seat_count(request):
+    """Return live claimed/remaining seat count from Stripe, cached 5 min."""
+    global _seat_cache
+    now = time.monotonic()
+    if _seat_cache and (now - _seat_cache[1]) < _SEAT_CACHE_TTL:
+        claimed = _seat_cache[0]
+    else:
+        secret_key = os.getenv("STRIPE_SECRET_KEY", "")
+        price_id = os.getenv("STRIPE_FOUNDING_PRICE_ID", "")
+        if not secret_key or not price_id:
+            return JsonResponse({"claimed": 4, "remaining": 16, "total": _FOUNDING_SEAT_TOTAL, "live": False})
+        try:
+            stripe.api_key = secret_key
+            subs = stripe.Subscription.list(price=price_id, status="active", limit=100)
+            claimed = len(subs.data)
+        except Exception:
+            claimed = _seat_cache[0] if _seat_cache else 4
+        _seat_cache = (claimed, now)
+    remaining = max(0, _FOUNDING_SEAT_TOTAL - claimed)
+    return JsonResponse({"claimed": claimed, "remaining": remaining, "total": _FOUNDING_SEAT_TOTAL, "live": True})
 
 
 def pilot_onboarding(request):

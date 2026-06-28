@@ -7,6 +7,7 @@ urlpatterns = [
     path("", views.public_landing_page, name="home"),
     path("anansi-atlas/", views.public_landing_page, name="anansi-atlas-landing"),
     path("anansi-atlas/thanks/", views.public_landing_thanks, name="anansi-atlas-thanks"),
+    path("anansi-atlas/seats/", views.founding_seat_count, name="founding-seat-count"),
     path("pilot/", views.pilot_onboarding, name="pilot-onboarding"),
     # Login-gated org intake — reached after sign-in via the portal redirect (by name).
     path("intake/", views.project_intake, name="project-intake"),

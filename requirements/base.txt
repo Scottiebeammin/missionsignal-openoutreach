@@ -17,3 +17,4 @@ scikit-learn
 huggingface_hub
 questionary
 linkedin-agent-cli
+stripe
