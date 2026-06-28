@@ -749,6 +749,43 @@
     .footer-links a:hover { color: var(--gold-lt); }
     .footer-links a.gold { color: var(--gold); font-weight: 600; }
 
+    /* ── FAQ ── */
+    .faq-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(13,26,46,0.10);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .faq-q {
+      font-weight: 700;
+      font-size: 0.97rem;
+      color: var(--ink);
+      padding: 18px 22px;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .faq-q::-webkit-details-marker { display: none; }
+    .faq-q::after {
+      content: '+';
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--gold);
+      flex-shrink: 0;
+      transition: transform 200ms ease;
+    }
+    details[open] .faq-q::after { content: '−'; }
+    .faq-a {
+      padding: 0 22px 18px;
+      font-size: 0.90rem;
+      line-height: 1.70;
+      color: rgba(13,26,46,0.68);
+      margin: 0;
+    }
+
     /* ── SCROLL REVEAL ── */
     .reveal {
       opacity: 0;
@@ -817,7 +854,7 @@
 
 <!-- ── Sticky mobile CTA bar ── -->
 <div class="sticky-cta" id="sticky-cta" aria-hidden="true">
-  <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="justify-content:center;">Claim Your Founding Seat · $150/mo →</a>
+  <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="justify-content:center;">Apply for a Founding Seat · $150/mo →</a>
   <a class="btn btn-ghost" href="#get-started" style="justify-content:center;font-size:0.88rem;">Have Questions? Get More Info</a>
 </div>
 
@@ -1067,14 +1104,14 @@
     <div class="hero-inner">
       <p class="eyebrow eyebrow-gold reveal">Opportunity Ecosystem Intelligence</p>
       <h1 class="hero-h1 reveal reveal-delay-1">
-        Stop leaving aligned funders, partners, and pathways <em>on the table.</em>
+        Stop missing the funders, partners, and pathways <em>already aligned with your mission.</em>
       </h1>
       <p class="hero-sub reveal reveal-delay-2">
-        In nearly every organization we've analyzed, there were 10 or more aligned funding opportunities sitting in plain sight — qualified, available, completely off their radar. Not because of lack of effort. Because the intelligence was scattered. Anansi Atlas brings it together so you know exactly where to focus and what to do next.
+        Anansi Atlas gives nonprofits early access to a platform that maps the web of opportunity around their mission — aligned funders, strategic partners, government pathways, readiness gaps, and clear next steps. Founding Atlas Partners receive platform access, a guided Opportunity Web Snapshot, and founder-led support for $150/month.
       </p>
       <div class="hero-btns reveal reveal-delay-3">
-        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Claim Your Founding Seat →</a>
-        <a class="btn btn-ghost btn-lg" href="#get-started">Have Questions? Talk to Us</a>
+        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
+        <a class="btn btn-ghost btn-lg" href="#what-you-get">See What's Included</a>
       </div>
       <div class="trust-bar reveal reveal-delay-4">
         <span>Built for nonprofits</span>
@@ -1116,61 +1153,96 @@
         </div>
       </div>
       <div style="text-align:center; margin-top:40px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;" class="reveal">
-        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Claim Your Founding Seat →</a>
+        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
         <a class="btn btn-ghost btn-lg" href="#get-started">Get More Information</a>
       </div>
     </section>
   </div>
 </div>
 
-<!-- ═══ WHAT'S IN THE SNAPSHOT ══════════════════════════════════════ -->
+<!-- ═══ WHAT FOUNDING PARTNERS RECEIVE ══════════════════════════════ -->
 <div class="snap-zone" id="what-you-get">
   <div class="shell">
-    <section aria-label="What's in the Snapshot">
-      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">The Opportunity Web Snapshot</p>
+    <section aria-label="What Founding Atlas Partners receive">
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">What You Receive</p>
       <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:680px;margin:0 auto;">
-        A consulting-grade brief that turns <em>disconnected opportunities</em> into a clear roadmap.
+        Platform access. A guided Snapshot.<br><em>Founder-led support.</em>
       </h2>
-      <div class="snap-grid">
+      <p class="body-muted body-lg reveal reveal-delay-2" style="text-align:center;max-width:580px;margin:16px auto 0;">
+        Founding Atlas Partners don't just get a report. They get early access to a platform built around their mission — with a guided first deliverable and direct support from the founder.
+      </p>
+      <div class="snap-grid" style="margin-top:48px;">
         <div class="snap-card reveal">
-          <div class="snap-icon" aria-hidden="true">💰</div>
-          <h3>Aligned funders</h3>
-          <p>Named foundations, government lanes, and sponsors matched to your mission and geography.</p>
+          <div class="snap-icon" aria-hidden="true">🖥️</div>
+          <h3>Anansi Atlas Platform Access</h3>
+          <p>A private organizational workspace where your mission, funders, partners, readiness gaps, and next steps live together in one Opportunity Web.</p>
         </div>
         <div class="snap-card reveal reveal-delay-1">
-          <div class="snap-icon" aria-hidden="true">🤝</div>
-          <h3>Potential partners</h3>
-          <p>Organizations that expand reach, trust, referrals, and delivery capacity around your work.</p>
+          <div class="snap-icon" aria-hidden="true">🕸️</div>
+          <h3>Opportunity Web Snapshot</h3>
+          <p>Your first guided map inside the platform — aligned funders, strategic partners, readiness gaps, and a 30-day action plan built around your nonprofit's mission.</p>
         </div>
         <div class="snap-card reveal reveal-delay-2">
-          <div class="snap-icon" aria-hidden="true">📦</div>
-          <h3>Community resources</h3>
-          <p>Technical assistance, tools, AmeriCorps programs, and capacity supports you can access now.</p>
+          <div class="snap-icon" aria-hidden="true">💰</div>
+          <h3>Funder &amp; Partner Matching</h3>
+          <p>Organized matches based on your mission, population served, geography, programs, and funding readiness — not generic grant lists.</p>
         </div>
         <div class="snap-card reveal reveal-delay-3">
           <div class="snap-icon" aria-hidden="true">📊</div>
-          <h3>Readiness gaps</h3>
-          <p>Know exactly what's blocking each opportunity — before you pursue it.</p>
+          <h3>Readiness Gap Tracking</h3>
+          <p>See exactly what may be holding your organization back — missing outcomes data, unclear budgets, weak partner evidence — before you apply.</p>
         </div>
         <div class="snap-card reveal">
-          <div class="snap-icon" aria-hidden="true">🏛️</div>
-          <h3>Government pathways</h3>
-          <p>Federal, state, and local programs aligned to your focus areas and beneficiary populations.</p>
+          <div class="snap-icon" aria-hidden="true">📅</div>
+          <h3>30-Day Action Plan</h3>
+          <p>A practical next-step plan so your team knows what to do first, who to contact, and what to prepare — not a 40-page report.</p>
         </div>
         <div class="snap-card reveal reveal-delay-1">
-          <div class="snap-icon" aria-hidden="true">🗺️</div>
-          <h3>Capital opportunities</h3>
-          <p>Grants, contracts, and sponsorships ranked by fit and your organization's current readiness.</p>
+          <div class="snap-icon" aria-hidden="true">🤝</div>
+          <h3>Founder-Guided Support</h3>
+          <p>Work directly with the Anansi Atlas founder during the founding cohort period to apply the insights and help shape the platform around real nonprofit needs.</p>
         </div>
         <div class="snap-card reveal reveal-delay-2">
-          <div class="snap-icon" aria-hidden="true">⚡</div>
-          <h3>Recommended next steps</h3>
-          <p>Focused, prioritized actions your team can move on immediately — not a 40-page report.</p>
+          <div class="snap-icon" aria-hidden="true">🏛️</div>
+          <h3>Government Pathways</h3>
+          <p>Federal, state, and local programs aligned to your focus areas and beneficiary populations — organized inside your platform workspace.</p>
         </div>
         <div class="snap-card reveal reveal-delay-3">
-          <div class="snap-icon" aria-hidden="true">📅</div>
-          <h3>30-day action plan</h3>
-          <p>A concrete sprint built around your mission's highest-leverage moves in the next month.</p>
+          <div class="snap-icon" aria-hidden="true">⭐</div>
+          <h3>Priority Feature Input</h3>
+          <p>Founding partners shape the platform. Your feedback and needs get priority as Anansi Atlas is built with real nonprofit teams during the founding cohort stage.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══ WHY PLATFORM ACCESS MATTERS ═════════════════════════════════ -->
+<div class="how-zone">
+  <div class="shell">
+    <section aria-label="Why platform access matters">
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Why Platform Access Matters</p>
+      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto;">
+        Not another spreadsheet.<br><em>A place to keep building.</em>
+      </h2>
+      <p class="body-muted body-lg reveal reveal-delay-2" style="text-align:center;max-width:580px;margin:16px auto 0;">
+        Most nonprofits don't need more research. They need a place where their mission, opportunities, funders, partners, gaps, and next steps can live together — and a clear starting point.
+      </p>
+      <div class="how-steps" style="margin-top:48px;">
+        <div class="how-step reveal">
+          <div class="how-num" aria-hidden="true">1</div>
+          <h3>The Snapshot gives you clarity</h3>
+          <p>Your Opportunity Web Snapshot is the first guided map inside Anansi Atlas — built around your mission, geography, programs, and growth goals.</p>
+        </div>
+        <div class="how-step reveal reveal-delay-1">
+          <div class="how-num" aria-hidden="true">2</div>
+          <h3>The platform gives you a home base</h3>
+          <p>Your private workspace keeps funders, partners, readiness insights, government pathways, and action steps organized in one place — not scattered across tabs and files.</p>
+        </div>
+        <div class="how-step reveal reveal-delay-2">
+          <div class="how-num" aria-hidden="true">3</div>
+          <h3>You keep building from it</h3>
+          <p>As your organization grows, your Opportunity Web grows with it. Founding partners shape the platform while getting the intelligence they need to move with confidence right now.</p>
         </div>
       </div>
     </section>
@@ -1243,18 +1315,19 @@
           <p class="price-card-billing">Founding rate — locked for life</p>
           <div class="price-card-divider"></div>
           <ul class="price-card-features">
-            <li>Monthly Opportunity Web Snapshot</li>
-            <li>Partner &amp; funder matching</li>
-            <li>Government pathways</li>
-            <li>Readiness tracking</li>
-            <li>Funding alerts</li>
-            <li>Strategy calls 2×/month</li>
-            <li>Priority delivery</li>
-            <li>Custom reporting</li>
-            <li>Atlas Circle — Monthly + hot seat</li>
+            <li>Early Anansi Atlas platform access</li>
+            <li>Private organization workspace</li>
+            <li>Guided Opportunity Web Snapshot</li>
+            <li>Funder &amp; partner matching</li>
+            <li>Government pathway identification</li>
+            <li>Readiness gap review</li>
+            <li>30-day action plan</li>
+            <li>Founder-led walkthrough</li>
+            <li>Priority feature input</li>
+            <li>Future Pro access locked in</li>
           </ul>
           <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
-          <p class="price-card-note">Once 20 seats close, they close permanently.<br>Early cohort opens next at $200/month.</p>
+          <p class="price-card-note">Once 20 seats close, they close permanently.<br>Public Pro pricing increases after founding cohort closes.</p>
         </div>
 
         <!-- Enterprise -->
@@ -1359,7 +1432,7 @@
             <p style="font-size:0.70rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:8px;">Ready now</p>
             <p style="font-size:0.95rem;font-weight:700;color:var(--white);margin-bottom:6px;">Claim your founding seat directly</p>
             <p style="font-size:0.84rem;color:var(--muted);margin-bottom:14px;line-height:1.6;">$150/month · Pro access · Locked for life. Stripe checkout takes 2 minutes. We'll reach out within 24 hours to schedule your Snapshot walkthrough.</p>
-            <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="width:100%;justify-content:center;">Claim Your Founding Seat → $150/mo</a>
+            <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="width:100%;justify-content:center;">Apply for a Founding Seat → $150/mo</a>
           </div>
 
           <!-- Divider -->
@@ -1498,7 +1571,7 @@
           — Founder, Anansi Atlas
         </p>
         <div style="margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;" class="reveal reveal-delay-2">
-          <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Claim Your Founding Seat →</a>
+          <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
           <a class="btn btn-ghost btn-lg" href="#get-started">Get More Information</a>
         </div>
       </div>
@@ -1545,6 +1618,44 @@
             <p>I wanted to create a clearer way for nonprofits and mission-driven organizations to see the full web of opportunity around their mission — and know where to focus next.</p>
           </div>
         </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══ FAQ ══════════════════════════════════════════════════════════ -->
+<div class="how-zone">
+  <div class="shell">
+    <section aria-label="Frequently asked questions">
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Common Questions</p>
+      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto 48px;">
+        <em>Answers</em> before you decide.
+      </h2>
+      <div style="display:grid;gap:16px;max-width:760px;margin:0 auto;">
+        <details class="faq-item reveal" open>
+          <summary class="faq-q">Do founding partners get access to the platform?</summary>
+          <p class="faq-a">Yes. Founding Atlas Partners receive early access to the Anansi Atlas platform, along with a guided Opportunity Web Snapshot and founder-led support.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-1">
+          <summary class="faq-q">Is the Snapshot a report or part of the platform?</summary>
+          <p class="faq-a">Both. The Snapshot is the first guided map of your organization's opportunity ecosystem. It can be reviewed as a deliverable, but it is also connected to your organization's platform workspace.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-2">
+          <summary class="faq-q">Is Anansi Atlas just a grant search tool?</summary>
+          <p class="faq-a">No. Anansi Atlas looks beyond grants. It helps organize funders, partners, government pathways, community resources, readiness gaps, and next steps around your mission — all in one platform.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-3">
+          <summary class="faq-q">What does early access mean?</summary>
+          <p class="faq-a">Early access means your organization gets into the platform during the founding cohort stage while the product is being refined with real nonprofit teams. Founding partners help shape the tools around actual nonprofit needs.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary class="faq-q">Can we help shape the platform?</summary>
+          <p class="faq-a">Yes. Founding partners receive priority input opportunities so their needs can help shape future features, workflows, and platform improvements. You're not just a customer — you're a co-builder.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-1">
+          <summary class="faq-q">What happens after the founding cohort closes?</summary>
+          <p class="faq-a">Founding Atlas Partners keep their $150/month rate locked for life — even as public pricing increases. The next cohort (Early Atlas Partners) opens at $200/month. Public Pro launches at $497/month.</p>
+        </details>
       </div>
     </section>
   </div>
