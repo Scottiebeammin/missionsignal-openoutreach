@@ -4,6 +4,32 @@
 {% block nav_waitlist %}active{% endblock %}
 
 {% block content %}
+
+{% if nurture_counts %}
+<div class="stat-grid" style="margin-bottom:20px;">
+  <div class="stat-card">
+    <div class="stat-label">Not Yet Emailed</div>
+    <div class="stat-value">{{ nurture_counts.step_0 }}</div>
+    <div class="stat-sub">Awaiting day-1 email</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Day 1 Sent</div>
+    <div class="stat-value">{{ nurture_counts.step_1 }}</div>
+    <div class="stat-sub">Received first email</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Day 3 Sent</div>
+    <div class="stat-value">{{ nurture_counts.step_2 }}</div>
+    <div class="stat-sub">Received example email</div>
+  </div>
+  <div class="stat-card gold">
+    <div class="stat-label">Day 7 Sent</div>
+    <div class="stat-value">{{ nurture_counts.step_3 }}</div>
+    <div class="stat-sub">Full sequence complete</div>
+  </div>
+</div>
+{% endif %}
+
 <div class="section-card">
   <div class="section-card-header">
     <div class="section-card-title">All Signups ({{ signups|length }})</div>
@@ -16,7 +42,8 @@
           <th>Organization</th>
           <th>Email</th>
           <th>Role</th>
-          <th>Type</th>
+          <th>Status</th>
+          <th>Nurture</th>
           <th>Date</th>
         </tr>
       </thead>
@@ -25,10 +52,17 @@
         <tr>
           <td>{{ signup.name }}</td>
           <td>{{ signup.organization|default:"—" }}</td>
-          <td><a href="mailto:{{ signup.email }}">{{ signup.email }}</a></td>
+          <td><a href="mailto:{{ signup.email }}" style="color:var(--gold-lt);">{{ signup.email }}</a></td>
           <td style="color:rgba(255,255,255,0.45);">{{ signup.role|default:"—" }}</td>
-          <td><span class="badge badge-gold">{{ signup.interest_type|default:"—" }}</span></td>
-          <td style="color:rgba(255,255,255,0.35);font-size:0.78rem;">{{ signup.created_at|date:"M j, Y g:i A" }}</td>
+          <td>
+            {% if signup.status == "converted" %}<span class="badge badge-green">Converted</span>
+            {% elif signup.status == "contacted" %}<span class="badge badge-gold">Contacted</span>
+            {% elif signup.status == "reviewed" %}<span class="badge badge-muted">Reviewed</span>
+            {% elif signup.status == "archived" %}<span class="badge badge-red">Archived</span>
+            {% else %}<span class="badge badge-muted">New</span>{% endif %}
+          </td>
+          <td style="color:rgba(255,255,255,0.45);font-size:0.8rem;">Step {{ signup.nurture_step }}/3</td>
+          <td style="color:rgba(255,255,255,0.35);font-size:0.78rem;">{{ signup.created_at|date:"M j, Y" }}</td>
         </tr>
         {% endfor %}
       </tbody>

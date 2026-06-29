@@ -131,8 +131,20 @@ def operator_waitlist(request):
     try:
         from openoutreach.signals.models import InterestSignup
         signups = InterestSignup.objects.order_by("-created_at")
+        nurture_counts = {
+            "step_0": signups.filter(nurture_step=0).count(),
+            "step_1": signups.filter(nurture_step=1).count(),
+            "step_2": signups.filter(nurture_step=2).count(),
+            "step_3": signups.filter(nurture_step=3).count(),
+        }
+        status_counts = {
+            s.value: signups.filter(status=s).count()
+            for s in InterestSignup.Status
+        }
     except Exception:
         signups = []
+        nurture_counts = {}
+        status_counts = {}
 
-    ctx = {"signups": signups}
+    ctx = {"signups": signups, "nurture_counts": nurture_counts, "status_counts": status_counts}
     return render(request, "signals/operator/waitlist.html", ctx)
