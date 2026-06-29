@@ -316,6 +316,12 @@
       </a>
     </div>
     <div class="nav-section">
+      <div class="nav-label">Data</div>
+      <a href="{% url 'operator-funders' %}" class="nav-link {% block nav_funders %}{% endblock %}">
+        <span class="nav-icon">◈</span> Funder Database
+      </a>
+    </div>
+    <div class="nav-section">
       <div class="nav-label">System</div>
       <a href="/admin/" class="nav-link">
         <span class="nav-icon">⚙️</span> Django Admin

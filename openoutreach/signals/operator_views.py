@@ -143,6 +143,61 @@ def operator_waitlist_status(request, pk):
 
 
 @_operator_required
+def operator_funders(request):
+    from openoutreach.funding.models import Funder
+    status_filter = request.GET.get("status", "")
+    qs = Funder.objects.order_by("verification_status", "name")
+    if status_filter:
+        qs = qs.filter(verification_status=status_filter)
+
+    # Normalize geography to list for consistent template rendering
+    funders = list(qs)
+    for f in funders:
+        if isinstance(f.geography, str):
+            f.geography = [f.geography] if f.geography else []
+
+    from django.db.models import Count
+    status_counts = {
+        row["verification_status"]: row["count"]
+        for row in Funder.objects.values("verification_status").annotate(count=Count("id"))
+    }
+    ctx = {
+        "funders": funders,
+        "status_filter": status_filter,
+        "status_counts": status_counts,
+        "total": Funder.objects.count(),
+    }
+    return render(request, "signals/operator/funders.html", ctx)
+
+
+@_operator_required
+@require_POST
+def operator_funder_verify(request, pk):
+    from openoutreach.funding.models import Funder
+    from django.utils import timezone
+    funder = get_object_or_404(Funder, pk=pk)
+    new_status = request.POST.get("verification_status", "").strip()
+    note = request.POST.get("note", "").strip()
+    if new_status in Funder.VerificationStatus.values:
+        funder.verification_status = new_status
+        funder.last_reviewed_at = timezone.now()
+        if note:
+            funder.notes = (funder.notes + "\n\n" + note).strip() if funder.notes else note
+        funder.save(update_fields=["verification_status", "last_reviewed_at", "notes"])
+        messages.success(request, f"{funder.name} → {funder.get_verification_status_display()}")
+    else:
+        messages.error(request, f"Invalid status: {new_status}")
+    next_url = request.POST.get("next", "operator-funders")
+    status_param = request.POST.get("status_filter", "")
+    base = redirect("operator-funders")
+    if status_param:
+        from django.http import HttpResponseRedirect
+        from django.urls import reverse
+        return HttpResponseRedirect(reverse("operator-funders") + f"?status={status_param}")
+    return redirect("operator-funders")
+
+
+@_operator_required
 def operator_waitlist(request):
     try:
         from openoutreach.signals.models import InterestSignup

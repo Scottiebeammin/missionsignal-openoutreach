@@ -1,0 +1,169 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}Funder Database{% endblock %}
+{% block page_title %}Funder Database{% endblock %}
+{% block nav_funders %}active{% endblock %}
+
+{% block content %}
+
+<!-- Status filter tabs -->
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+  <a href="{% url 'operator-funders' %}" class="btn btn-ghost btn-sm {% if not status_filter %}btn-active{% endif %}" style="{% if not status_filter %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">
+    All <span style="opacity:.6;font-size:.78rem;">({{ total }})</span>
+  </a>
+  <a href="?status=unverified" class="btn btn-ghost btn-sm {% if status_filter == 'unverified' %}btn-active{% endif %}" style="{% if status_filter == 'unverified' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">
+    Unverified <span style="opacity:.6;font-size:.78rem;">({{ status_counts.unverified|default:0 }})</span>
+  </a>
+  <a href="?status=needs_review" class="btn btn-ghost btn-sm {% if status_filter == 'needs_review' %}btn-active{% endif %}" style="{% if status_filter == 'needs_review' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">
+    Needs Review <span style="opacity:.6;font-size:.78rem;">({{ status_counts.needs_review|default:0 }})</span>
+  </a>
+  <a href="?status=reviewed" class="btn btn-ghost btn-sm {% if status_filter == 'reviewed' %}btn-active{% endif %}" style="{% if status_filter == 'reviewed' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">
+    Reviewed <span style="opacity:.6;font-size:.78rem;">({{ status_counts.reviewed|default:0 }})</span>
+  </a>
+  <a href="?status=verified" class="btn btn-ghost btn-sm {% if status_filter == 'verified' %}btn-active{% endif %}" style="{% if status_filter == 'verified' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">
+    Verified <span style="opacity:.6;font-size:.78rem;">({{ status_counts.verified|default:0 }})</span>
+  </a>
+</div>
+
+<!-- Progress bar -->
+{% with verified=status_counts.verified|default:0 %}
+{% if total %}
+<div style="margin-bottom:20px;">
+  <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+    <span style="font-size:.78rem;font-weight:700;color:rgba(255,255,255,.5);">Verification progress</span>
+    <span style="font-size:.78rem;font-weight:800;color:var(--gold-lt);">{{ verified }}/{{ total }} verified</span>
+  </div>
+  <div style="height:5px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;">
+    <div style="height:100%;width:{% widthratio verified total 100 %}%;background:linear-gradient(90deg,var(--gold-lt),#f5c842);border-radius:999px;transition:width .4s;"></div>
+  </div>
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="section-card">
+  <div class="section-card-header">
+    <div class="section-card-title">{{ funders|length }} funder{% if funders|length != 1 %}s{% endif %}{% if status_filter %} — {{ status_filter|title|cut:"_" }}{% endif %}</div>
+  </div>
+
+  {% if funders %}
+  <div style="display:flex;flex-direction:column;gap:12px;padding:12px;">
+    {% for funder in funders %}
+    <div class="funder-card" id="funder-{{ funder.pk }}">
+      <div class="funder-card-top">
+        <div class="funder-card-info">
+          <div class="funder-name">{{ funder.name }}</div>
+          <div class="funder-meta">
+            <span>{{ funder.get_funder_type_display }}</span>
+            {% if funder.geography %}· <span>{{ funder.geography|join:", " }}</span>{% endif %}
+            {% if funder.website %} · <a href="{{ funder.website }}" target="_blank" rel="noopener" style="color:var(--gold-lt);">website ↗</a>{% endif %}
+          </div>
+          {% if funder.focus_areas %}
+          <div class="funder-tags">
+            {% for area in funder.focus_areas|slice:":5" %}
+            <span class="tag">{{ area }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% if funder.notes %}
+          <div class="funder-notes">{{ funder.notes|truncatechars:200 }}</div>
+          {% endif %}
+        </div>
+        <div class="funder-card-actions">
+          {% if funder.verification_status == "verified" %}
+            <span class="badge badge-green">✓ Verified</span>
+          {% elif funder.verification_status == "reviewed" %}
+            <span class="badge badge-gold">Reviewed</span>
+          {% elif funder.verification_status == "needs_review" %}
+            <span class="badge badge-red">Needs Review</span>
+          {% else %}
+            <span class="badge badge-muted">Unverified</span>
+          {% endif %}
+
+          <div class="verify-actions">
+            <form method="post" action="{% url 'operator-funder-verify' funder.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="verification_status" value="verified">
+              <input type="hidden" name="status_filter" value="{{ status_filter }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#4ade80;border-color:rgba(74,222,128,.3);" title="Mark verified">✓ Verify</button>
+            </form>
+            <form method="post" action="{% url 'operator-funder-verify' funder.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="verification_status" value="needs_review">
+              <input type="hidden" name="status_filter" value="{{ status_filter }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#f87171;border-color:rgba(248,113,113,.3);" title="Flag for review">⚑ Flag</button>
+            </form>
+            <a href="/admin/funding/funder/{{ funder.pk }}/change/" target="_blank" class="btn btn-ghost btn-sm" title="Edit in admin">Edit ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inline note form (collapsed by default) -->
+      <div class="note-form" id="note-form-{{ funder.pk }}" style="display:none;">
+        <form method="post" action="{% url 'operator-funder-verify' funder.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="verification_status" value="{{ funder.verification_status }}">
+          <input type="hidden" name="status_filter" value="{{ status_filter }}">
+          <textarea name="note" rows="2" placeholder="Add a verification note…" style="
+            width:100%;border:1px solid rgba(255,255,255,.12);border-radius:8px;
+            background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:.82rem;
+            padding:8px 10px;resize:vertical;margin-bottom:8px;
+          "></textarea>
+          <button type="submit" class="btn btn-ghost btn-sm">Save note</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('note-form-{{ funder.pk }}').style.display='none'">Cancel</button>
+        </form>
+      </div>
+      <button class="add-note-btn" onclick="
+        var f=document.getElementById('note-form-{{ funder.pk }}');
+        f.style.display = f.style.display==='none' ? 'block' : 'none';
+      ">+ Add note</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="empty-state">No funders match this filter.</div>
+  {% endif %}
+</div>
+
+<style>
+  .funder-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 12px;
+    padding: 16px 18px;
+    transition: border-color .15s;
+  }
+  .funder-card:hover { border-color: rgba(212,160,23,.25); }
+  .funder-card-top {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .funder-card-info { flex: 1; min-width: 0; }
+  .funder-name { font-size: .96rem; font-weight: 800; color: #fff; margin-bottom: 3px; }
+  .funder-meta { font-size: .78rem; color: rgba(255,255,255,.45); margin-bottom: 8px; }
+  .funder-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+  .tag {
+    font-size: .72rem; font-weight: 700;
+    background: rgba(212,160,23,.12); color: var(--gold-lt);
+    border: 1px solid rgba(212,160,23,.2);
+    border-radius: 6px; padding: 2px 8px;
+  }
+  .funder-notes { font-size: .78rem; color: rgba(255,255,255,.4); line-height: 1.5; }
+  .funder-card-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .verify-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .add-note-btn {
+    background: none; border: none; color: rgba(255,255,255,.3);
+    font: inherit; font-size: .75rem; cursor: pointer;
+    padding: 4px 0 0; text-align: left;
+  }
+  .add-note-btn:hover { color: var(--gold-lt); }
+  .note-form { margin-top: 10px; border-top: 1px solid rgba(255,255,255,.08); padding-top: 10px; }
+</style>
+
+{% endblock %}
