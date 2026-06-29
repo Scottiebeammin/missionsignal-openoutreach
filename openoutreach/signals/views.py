@@ -899,3 +899,19 @@ def project_module_placeholder(request, pk, module):
             "module": module_config,
         },
     )
+
+
+def seo_grant_research(request):
+    return render(request, "signals/seo/grant_research.html")
+
+
+def seo_funding_intelligence(request):
+    return render(request, "signals/seo/funding_intelligence.html")
+
+
+def seo_opportunity_mapping(request):
+    return render(request, "signals/seo/opportunity_mapping.html")
+
+
+def seo_readiness_assessment(request):
+    return render(request, "signals/seo/readiness_assessment.html")

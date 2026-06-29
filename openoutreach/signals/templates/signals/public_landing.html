@@ -904,6 +904,112 @@
   </style>
   <!-- Plausible Analytics — privacy-first, no cookies -->
   <script defer data-domain="anansiatlas.com" src="https://plausible.io/js/script.js"></script>
+  <!-- Schema.org structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://anansiatlas.com/#organization",
+        "name": "Anansi Atlas",
+        "url": "https://anansiatlas.com",
+        "logo": "https://anansiatlas.com/static/signals/anansi-atlas-logo.png",
+        "email": "info@anansiatlas.com",
+        "description": "Nonprofit opportunity intelligence platform. Maps funders, partners, government pathways, and funding readiness for mission-driven organizations.",
+        "foundingDate": "2026",
+        "parentOrganization": {
+          "@type": "Organization",
+          "name": "Scott Foundry Group LLC"
+        },
+        "sameAs": []
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://anansiatlas.com/#software",
+        "name": "Anansi Atlas — Opportunity Web Snapshot",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://anansiatlas.com",
+        "description": "Nonprofit grant research and funding intelligence software. Delivers a personalized Opportunity Web Snapshot — ranked funders, strategic partners, active grants, funding readiness score, and 30-day action plan.",
+        "offers": {
+          "@type": "Offer",
+          "price": "150.00",
+          "priceCurrency": "USD",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "150.00",
+            "priceCurrency": "USD",
+            "unitText": "MONTH"
+          },
+          "description": "Founding partner rate — locked for life. Includes full platform access and 45-minute personal walkthrough call."
+        },
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "Nonprofit Executive Directors and Development Directors"
+        },
+        "provider": {
+          "@id": "https://anansiatlas.com/#organization"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://anansiatlas.com/#website",
+        "url": "https://anansiatlas.com",
+        "name": "Anansi Atlas",
+        "description": "The Web of Opportunity — nonprofit funding intelligence built around your mission.",
+        "publisher": {
+          "@id": "https://anansiatlas.com/#organization"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Anansi Atlas?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Anansi Atlas is a nonprofit opportunity intelligence platform that delivers an Opportunity Web Snapshot — a personalized intelligence brief mapping aligned funders, strategic partners, active grants, government pathways, and a funding readiness score for your specific organization."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does Anansi Atlas cost?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The founding partner rate is $150/month, locked for life for the first 20 organizations. Standard pricing after the founding cohort is $299/month. No per-report fees, no usage limits, cancel anytime."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long does the intake form take?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "About 10 minutes. You'll answer questions about your mission, programs, geography, focus areas, and who you serve."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "When do I get my Opportunity Web Snapshot?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Your Snapshot is included in the founding pilot. Once you're onboarded, we build it around your specific mission and schedule your personal walkthrough call — that's where you see it together with the Anansi Atlas team."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is Anansi Atlas different from grant databases like Candid or GrantStation?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Grant databases show you who exists. Anansi Atlas shows you who is aligned to your specific mission, whether you're ready to pursue them, what partnerships strengthen your applications, and what government pathways fit your work — with a prioritized action plan."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>

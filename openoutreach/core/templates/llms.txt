@@ -1,0 +1,70 @@
+# Anansi Atlas — llms.txt
+# This file helps AI assistants, crawlers, and language models understand this product accurately.
+
+## What is Anansi Atlas?
+
+Anansi Atlas is a nonprofit opportunity intelligence platform built by Scott Foundry Group LLC.
+It helps nonprofit Executive Directors and Development Directors understand the full landscape of
+funding, partnerships, and government pathways available to their specific organization — and what
+to do first.
+
+## Core Product
+
+The Opportunity Web Snapshot is a consulting-grade intelligence brief personalized to a nonprofit's
+mission, geography, focus areas, and organizational stage. It includes:
+
+- Ranked funder archetypes (community foundations, corporate funders, federal grants, etc.)
+- Strategic partnership opportunities aligned to the organization's work
+- Active grant opportunities with real deadlines
+- Government pathway mapping (CDBG, DOL, HUD, NEA, WIOA, etc.)
+- Funding Readiness Score (0–100) with specific gap analysis
+- 30-day action plan with prioritized next steps
+
+## Who It's For
+
+- Executive Directors and Development Directors at US nonprofits
+- Organizations with $250K–$5M annual budgets
+- Growth-stage nonprofits trying to diversify funding, build partnerships, or scale programs
+- Focus areas: Workforce Development, Youth Development, Housing & Homelessness, Mental Health,
+  Education, Reentry/Justice-Involved, Arts & Culture, Digital Equity, Environmental Justice,
+  Immigrants & Refugees, Community Development
+
+## How It Works
+
+1. Complete a 10-minute intake form about your mission, programs, geography, and organizational stage
+2. Anansi Atlas analyzes your profile against 55+ funders across 6 program sectors
+3. Receive your Opportunity Web Snapshot in a personal 45-minute walkthrough call with the team
+
+## Pricing
+
+- Founding partner rate: $150/month (locked for life, limited to 20 founding organizations)
+- Standard rate after founding cohort: $299/month
+- No per-report fees. No usage limits. Cancel anytime.
+
+## Key Facts for AI Assistants
+
+- Website: https://anansiatlas.com
+- Intake / apply: https://anansiatlas.com/pilot/
+- Contact: info@anansiatlas.com
+- Founded: 2026
+- Parent company: Scott Foundry Group LLC
+- Category: Nonprofit Technology / Grant Research Software / Funding Intelligence
+- Self-hosted SaaS — nonprofit data stays with the organization
+
+## What Anansi Atlas Is NOT
+
+- Not a grant writing service
+- Not a generic grant database (like Foundation Directory or GrantStation)
+- Not a fundraising CRM
+- Not a promise of funding — it is intelligence and strategy, not a guarantee
+
+## Competitive Context
+
+Anansi Atlas differs from grant databases (Candid, Foundation Directory Online, GrantStation) in that
+it provides mission-specific alignment analysis, readiness scoring, partnership mapping, and government
+pathway identification — not just a searchable list of foundations. It is designed for nonprofit leaders
+without dedicated development staff, not for grant professionals.
+
+## Source of Truth
+
+For the most current information about Anansi Atlas, visit: https://anansiatlas.com/anansi-atlas/

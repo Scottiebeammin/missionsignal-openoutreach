@@ -20,6 +20,11 @@ urlpatterns = [
     path("operator/waitlist/", operator_views.operator_waitlist, name="operator-waitlist"),
     path("operator/waitlist/<int:pk>/status/", operator_views.operator_waitlist_status, name="operator-waitlist-status"),
     path("operator/waitlist/<int:pk>/enrich/", operator_views.operator_enrich_signup, name="operator-waitlist-enrich"),
+    # SEO content pages
+    path("nonprofit-grant-research/", views.seo_grant_research, name="nonprofit-grant-research"),
+    path("nonprofit-funding-intelligence/", views.seo_funding_intelligence, name="nonprofit-funding-intelligence"),
+    path("opportunity-mapping-for-nonprofits/", views.seo_opportunity_mapping, name="opportunity-mapping-nonprofits"),
+    path("nonprofit-readiness-assessment/", views.seo_readiness_assessment, name="nonprofit-readiness-assessment"),
     # Public homepage = the landing page (so the bare domain shows it, not a login wall).
     path("", views.public_landing_page, name="home"),
     path("anansi-atlas/", views.public_landing_page, name="anansi-atlas-landing"),

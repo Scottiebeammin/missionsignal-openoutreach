@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /accounts/
+Disallow: /portal/
+Disallow: /operator/
+Disallow: /projects/
+Disallow: /onboarding/
+
+Sitemap: https://anansiatlas.com/sitemap.xml

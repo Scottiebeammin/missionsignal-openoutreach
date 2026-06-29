@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nonprofit Funding Readiness Assessment | Anansi Atlas</title>
+  <meta name="description" content="The Anansi Atlas Readiness Score gives nonprofits an honest 0–100 assessment of their funding readiness — with specific gaps named and a clear path to close them before applying.">
+  <link rel="canonical" href="https://anansiatlas.com/nonprofit-readiness-assessment/">
+  <meta property="og:title" content="Nonprofit Funding Readiness Assessment | Anansi Atlas">
+  <meta property="og:description" content="Know where your organizational gaps are before you apply. The Readiness Score tells you exactly what to strengthen and in what order.">
+  <meta property="og:url" content="https://anansiatlas.com/nonprofit-readiness-assessment/">
+  <script defer data-domain="anansiatlas.com" src="https://plausible.io/js/script.js"></script>
+  <style>
+    :root { --ink: #0D1B3D; --gold: #D4A017; --page: #F7F3EB; --muted: #5e6d85; --line: rgba(13,27,61,0.09); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: var(--page); color: var(--ink); line-height: 1.7; }
+    .topnav { background: #07101d; display: flex; align-items: center; padding: 0 32px; height: 56px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-mark { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, #D4A017, #C46A3D); }
+    .brand-name { font-size: .95rem; font-weight: 800; color: #fff; }
+    .shell { max-width: 760px; margin: 0 auto; padding: 56px 28px 80px; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 900; letter-spacing: -.04em; line-height: 1.1; margin-bottom: 18px; }
+    h2 { font-size: 1.3rem; font-weight: 800; margin: 40px 0 12px; }
+    h3 { font-size: 1.05rem; font-weight: 700; margin: 24px 0 8px; }
+    p { margin-bottom: 16px; color: #2a3a5c; }
+    ul { margin: 0 0 16px 20px; }
+    li { margin-bottom: 8px; color: #2a3a5c; }
+    .lead { font-size: 1.12rem; color: var(--muted); margin-bottom: 32px; line-height: 1.65; }
+    .score-demo { background: #07101d; border-radius: 18px; padding: 28px 32px; margin: 32px 0; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .score-ring { width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(#D4A017 0% 72%, rgba(255,255,255,.1) 72%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .score-inner { width: 74px; height: 74px; border-radius: 50%; background: #07101d; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    .score-num { font-size: 1.5rem; font-weight: 900; color: #D4A017; line-height: 1; }
+    .score-label { font-size: .6rem; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .05em; }
+    .score-text h3 { color: #fff; margin: 0 0 6px; font-size: 1rem; }
+    .score-text p { color: rgba(255,255,255,.55); font-size: .85rem; margin: 0; line-height: 1.5; }
+    .gap-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+    .gap-item { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+    .gap-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .gap-body h4 { font-size: .9rem; font-weight: 800; color: var(--ink); margin: 0 0 3px; }
+    .gap-body p { font-size: .83rem; color: var(--muted); margin: 0; line-height: 1.4; }
+    .cta-box { background: #07101d; border-radius: 18px; padding: 32px; text-align: center; margin: 48px 0; }
+    .cta-box h2 { color: #fff; margin: 0 0 10px; }
+    .cta-box p { color: rgba(255,255,255,.6); margin-bottom: 20px; }
+    .btn-gold { display: inline-block; background: #D4A017; color: #18100a; font-weight: 800; border-radius: 999px; padding: 13px 30px; text-decoration: none; font-size: 1rem; }
+    .related { border-top: 1px solid var(--line); margin-top: 56px; padding-top: 28px; }
+    .related-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .related-links a { font-size: .88rem; font-weight: 700; color: var(--gold); text-decoration: none; border: 1px solid rgba(212,160,23,.3); border-radius: 8px; padding: 6px 14px; }
+    .page-footer { text-align: center; padding: 24px; font-size: .82rem; color: var(--muted); border-top: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="brand" href="/">
+    <span class="brand-mark"></span>
+    <span class="brand-name">Anansi Atlas</span>
+  </a>
+</nav>
+
+<div class="shell">
+  <h1>Nonprofit Funding Readiness Assessment — Know Before You Apply</h1>
+  <p class="lead">Most grant rejections aren't about the quality of your work — they're about readiness gaps that could have been identified and closed before you applied. The Anansi Atlas Readiness Score shows you exactly where those gaps are.</p>
+
+  <div class="score-demo">
+    <div class="score-ring">
+      <div class="score-inner">
+        <span class="score-num">72</span>
+        <span class="score-label">/ 100</span>
+      </div>
+    </div>
+    <div class="score-text">
+      <h3>Strong foundation — a few gaps to close</h3>
+      <p>Your mission alignment and program clarity are strong. Key gaps: outcomes documentation is informal, no workforce board relationship yet. Both are closable in 60–90 days and would significantly strengthen your top two funder targets.</p>
+    </div>
+  </div>
+
+  <h2>What Is a Funding Readiness Assessment?</h2>
+  <p>A funding readiness assessment evaluates your organization's current capacity, documentation, partnerships, and track record against the specific requirements of your target funders. It tells you not just <em>who</em> you should pursue — but <em>whether you're ready</em> to pursue them, and what to strengthen before you do.</p>
+  <p>This is different from a general organizational assessment. It's funder-specific: the gaps that matter for a community foundation are different from those that matter for a federal workforce grant or a corporate funder.</p>
+
+  <h2>What Readiness Actually Means</h2>
+  <p>When a funder evaluates a grant application, they're looking at far more than your program description. They're assessing:</p>
+
+  <div class="gap-list">
+    <div class="gap-item">
+      <span class="gap-icon">📊</span>
+      <div class="gap-body">
+        <h4>Outcomes documentation</h4>
+        <p>Can you demonstrate measurable impact? Do you have data on who you served, what changed for them, and how you know? Informal storytelling isn't enough for most funders.</p>
+      </div>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon">🤝</span>
+      <div class="gap-body">
+        <h4>Partnership relationships</h4>
+        <p>Do you have formal partnerships with organizations whose credibility strengthens your application? Government funders especially want to see established relationships before they invest.</p>
+      </div>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon">📋</span>
+      <div class="gap-body">
+        <h4>Organizational infrastructure</h4>
+        <p>Financial management systems, board governance, and compliance records. Funders assess organizational health before program quality — a weak infrastructure disqualifies strong programs.</p>
+      </div>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon">🗺️</span>
+      <div class="gap-body">
+        <h4>Funder relationship history</h4>
+        <p>Do you have prior grants from aligned funders who can serve as references? Cold applications from unknown organizations face a harder road than warm ones.</p>
+      </div>
+    </div>
+    <div class="gap-item">
+      <span class="gap-icon">📝</span>
+      <div class="gap-body">
+        <h4>Program documentation</h4>
+        <p>Is your program model documented clearly enough that a funder can understand what they're funding? Logic models, program summaries, and evaluation frameworks signal organizational maturity.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>How the Anansi Atlas Readiness Score Works</h2>
+  <p>Your Readiness Score (0–100) is calculated from your intake responses, cross-referenced against the requirements of your top funder targets. It's not a generic organizational health score — it's calibrated to the specific funders and opportunities most relevant to your mission.</p>
+  <p>A score of 50–65 typically means strong mission clarity but underdeveloped documentation or partnerships — gaps that are closable in 90 days. A score of 70–85 means you're competitive for most of your top targets, with a few specific areas to strengthen. Above 85, you're well-positioned to pursue your full opportunity landscape aggressively.</p>
+  <p>Every Readiness Score comes with specific gap analysis — not "improve your outcomes tracking" (vague), but "Document 3 outcome metrics for your workforce program using your existing data — this is the primary gap blocking your DOL eligibility" (actionable).</p>
+
+  <h2>Why This Matters Before You Apply</h2>
+  <p>A rejected grant application costs you time, staff energy, and sometimes a relationship with a funder you'll want to approach again later. Knowing your readiness gaps before you apply means:</p>
+  <ul>
+    <li>You don't waste a proposal on a funder you're not ready for</li>
+    <li>You close the gaps that matter most before your top deadline</li>
+    <li>You sequence your applications so earlier wins strengthen later ones</li>
+    <li>You have a roadmap for organizational development that's tied directly to funding outcomes</li>
+  </ul>
+
+  <div class="cta-box">
+    <h2>Get your Readiness Score</h2>
+    <p>It's included in your Opportunity Web Snapshot — part of the Anansi Atlas founding pilot. $150/month, locked for life.</p>
+    <a class="btn-gold" href="/pilot/">Apply for a Founding Seat →</a>
+  </div>
+
+  <div class="related">
+    <h3>More from Anansi Atlas</h3>
+    <div class="related-links">
+      <a href="/nonprofit-grant-research/">Grant Research</a>
+      <a href="/nonprofit-funding-intelligence/">Funding Intelligence</a>
+      <a href="/opportunity-mapping-for-nonprofits/">Opportunity Mapping</a>
+      <a href="/anansi-atlas/">About Anansi Atlas</a>
+    </div>
+  </div>
+</div>
+
+<footer class="page-footer">© 2026 Scott Foundry Group LLC · <a href="/" style="color:inherit;">anansiatlas.com</a></footer>
+</body>
+</html>
