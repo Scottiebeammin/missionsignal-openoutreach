@@ -200,8 +200,8 @@
       <div class="step-num">✓</div>
       <div class="step-meta">
         <div class="step-body">
-          <h3>Opportunity Web mapped</h3>
-          <p>Anansi Atlas has analyzed your mission and mapped aligned funders, partners, government pathways, readiness gaps, and a 30-day action plan.</p>
+          <h3>Profile received</h3>
+          <p>Your mission, programs, focus areas, and context are in. We have everything we need to build your Opportunity Web Snapshot.</p>
         </div>
         <span class="step-badge badge-done">Complete</span>
       </div>
@@ -210,36 +210,22 @@
       <div class="step-num">3</div>
       <div class="step-meta">
         <div class="step-body">
-          <h3>Your Snapshot is ready</h3>
-          <p>Open it now — everything is built. Then book your founder walkthrough to go through it with Marcus personally.</p>
+          <h3>Your Founder Walkthrough</h3>
+          <p>Marcus will reach out within 24 hours to schedule your 45-minute session. That's where you'll see your Opportunity Web Snapshot — built around your mission, reviewed together.</p>
         </div>
-        <span class="step-badge badge-ready">Ready now</span>
+        <span class="step-badge badge-active">Up next</span>
       </div>
     </div>
   </div>
 
-  <div class="cta-block">
-    <a class="btn-gold" href="{% url 'project-snapshot' project.pk %}">
-      Open Your Snapshot →
-    </a>
-    <p class="cta-note">No waiting. Your full Opportunity Web is ready right now.</p>
-  </div>
-
-  <!-- Share strip -->
-  <div class="share-strip">
-    <span class="share-label">Share your Snapshot:</span>
-    <input type="text" id="share-url" readonly value="{{ request.scheme }}://{{ request.get_host }}{% url 'project-snapshot-public' project.share_token %}">
-    <button onclick="copyShare()">Copy link</button>
-  </div>
-
-  <!-- Walkthrough card -->
+  <!-- Walkthrough card — primary CTA -->
   <div class="walkthrough-card">
     <div class="walkthrough-icon">🗓</div>
     <div class="walkthrough-body">
-      <h3>Book your Founder Walkthrough</h3>
-      <p>Every founding partner gets a personal 45-minute session with Marcus — we'll walk through your Snapshot together, build your first action plan, and answer every question you have.</p>
-      <a class="btn-ghost-sm" href="mailto:info@anansiatlas.com?subject=Founder Walkthrough — {{ project.organization.name }}&body=Hi Marcus, I just completed my intake for {{ project.organization.name }} and would love to schedule my founder walkthrough. What times work for you?">
-        Request a walkthrough →
+      <h3>Want to move faster? Reach out directly.</h3>
+      <p>Marcus will contact you within 24 hours — but if you'd like to get on the calendar now, send a quick note and he'll get you scheduled immediately.</p>
+      <a class="btn-ghost-sm" href="mailto:info@anansiatlas.com?subject=Founder Walkthrough — {{ project.organization.name }}&body=Hi Marcus, I just completed my intake for {{ project.organization.name }} and would love to get my walkthrough scheduled. What times work for you?">
+        Email Marcus to schedule →
       </a>
     </div>
   </div>
