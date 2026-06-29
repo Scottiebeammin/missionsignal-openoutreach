@@ -3,6 +3,24 @@ from django import forms
 from openoutreach.signals.categories import OPPORTUNITY_FOCUS_CATEGORIES
 from openoutreach.signals.models import InterestSignup, PilotFeedback, PilotProfile
 
+US_STATES = [
+    ("", "Select state…"),
+    ("AL", "Alabama"), ("AK", "Alaska"), ("AZ", "Arizona"), ("AR", "Arkansas"),
+    ("CA", "California"), ("CO", "Colorado"), ("CT", "Connecticut"), ("DE", "Delaware"),
+    ("DC", "District of Columbia"), ("FL", "Florida"), ("GA", "Georgia"), ("HI", "Hawaii"),
+    ("ID", "Idaho"), ("IL", "Illinois"), ("IN", "Indiana"), ("IA", "Iowa"),
+    ("KS", "Kansas"), ("KY", "Kentucky"), ("LA", "Louisiana"), ("ME", "Maine"),
+    ("MD", "Maryland"), ("MA", "Massachusetts"), ("MI", "Michigan"), ("MN", "Minnesota"),
+    ("MS", "Mississippi"), ("MO", "Missouri"), ("MT", "Montana"), ("NE", "Nebraska"),
+    ("NV", "Nevada"), ("NH", "New Hampshire"), ("NJ", "New Jersey"), ("NM", "New Mexico"),
+    ("NY", "New York"), ("NC", "North Carolina"), ("ND", "North Dakota"), ("OH", "Ohio"),
+    ("OK", "Oklahoma"), ("OR", "Oregon"), ("PA", "Pennsylvania"), ("RI", "Rhode Island"),
+    ("SC", "South Carolina"), ("SD", "South Dakota"), ("TN", "Tennessee"), ("TX", "Texas"),
+    ("UT", "Utah"), ("VT", "Vermont"), ("VA", "Virginia"), ("WA", "Washington"),
+    ("WV", "West Virginia"), ("WI", "Wisconsin"), ("WY", "Wyoming"),
+    ("PR", "Puerto Rico"), ("VI", "U.S. Virgin Islands"), ("GU", "Guam"),
+]
+
 
 def _split_lines(value: str) -> list[str]:
     return [line.strip() for line in value.splitlines() if line.strip()]
@@ -73,7 +91,7 @@ class OrganizationIntakeForm(forms.Form):
     )
     city = forms.CharField(label="City", max_length=255)
     county = forms.CharField(label="County (optional)", max_length=255, required=False)
-    state = forms.CharField(label="State", max_length=255)
+    state = forms.ChoiceField(label="State", choices=US_STATES)
     service_area_notes = forms.CharField(
         label="Service Area Notes (optional)",
         required=False,
