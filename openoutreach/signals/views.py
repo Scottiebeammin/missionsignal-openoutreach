@@ -173,6 +173,11 @@ def project_intake(request):
                 analyze_project(project, mode="deterministic")
             except Exception:
                 pass  # analysis failure must never block onboarding
+            # Fire AI research in the background — LLM call can take 30-120s,
+            # so we don't make the user wait.
+            import threading
+            from openoutreach.signals.research import research_project as _research
+            threading.Thread(target=_research, args=(project,), daemon=True).start()
             return redirect("project-intake-success", pk=project.pk)
     else:
         form = OrganizationIntakeForm()
