@@ -85,6 +85,63 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="snapshot" %}
   <main>
+
+  {% if first_visit %}
+  <div id="welcome-banner" style="
+    background: linear-gradient(135deg, #0d1b3d 0%, #17284f 100%);
+    border: 1px solid rgba(212,160,23,0.35);
+    border-radius: 18px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    position: relative;
+    color: #fff;
+  ">
+    <button onclick="dismissWelcome()" aria-label="Dismiss" style="
+      position: absolute; top: 16px; right: 18px;
+      background: none; border: none; color: rgba(255,255,255,0.5);
+      font-size: 1.3rem; cursor: pointer; line-height: 1;
+    ">×</button>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+      <span style="font-size:1.6rem;">🕸️</span>
+      <div>
+        <h2 style="margin:0; font-size:1.15rem; font-weight:900; color:#fff;">Welcome to your Opportunity Web, {{ organization.name }}.</h2>
+        <p style="margin:4px 0 0; font-size:0.85rem; color:rgba(255,255,255,0.6);">Your Snapshot is ready. Here's how to make the most of it.</p>
+      </div>
+    </div>
+    <ol style="margin:0; padding-left:20px; display:grid; gap:10px;">
+      <li style="font-size:0.9rem; color:rgba(255,255,255,0.88); line-height:1.5;">
+        <strong style="color:#d4a017;">Read your Executive Summary</strong> — it's just below. Start there to understand your readiness score and top matches.
+      </li>
+      <li style="font-size:0.9rem; color:rgba(255,255,255,0.88); line-height:1.5;">
+        <strong style="color:#d4a017;">Review your 30-Day Action Plan</strong> — prioritized next steps written specifically for your mission and stage.
+      </li>
+      <li style="font-size:0.9rem; color:rgba(255,255,255,0.88); line-height:1.5;">
+        <strong style="color:#d4a017;">Explore Funder &amp; Partner Pathways</strong> — scroll down to see aligned funders, strategic partners, and active opportunities.
+      </li>
+      <li style="font-size:0.9rem; color:rgba(255,255,255,0.88); line-height:1.5;">
+        <strong style="color:#d4a017;">Book your Founder Walkthrough</strong> — reply to your welcome email and Marcus will schedule a personal 45-minute session to walk through this with you.
+      </li>
+    </ol>
+    <p style="margin:16px 0 0; font-size:0.82rem; color:rgba(255,255,255,0.45);">This message only shows once.</p>
+  </div>
+  <script>
+    function dismissWelcome() {
+      document.getElementById('welcome-banner').remove();
+      fetch('{% url "onboarding-toured" %}', {
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
+      });
+    }
+    // Auto-mark toured after 8 seconds even if not dismissed
+    setTimeout(() => {
+      fetch('{% url "onboarding-toured" %}', {
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
+      });
+    }, 8000);
+  </script>
+  {% endif %}
+
     <header class="hero">
       <section>
         <h1>{{ organization.name }}</h1>

@@ -530,6 +530,10 @@ def project_snapshot(request, pk):
     except Exception:
         pass
 
+    from openoutreach.core.models import OrganizationMember
+    member = OrganizationMember.objects.filter(user=request.user, project=project).first()
+    first_visit = member and not member.has_toured
+
     return render(
         request,
         "signals/project_snapshot.html",
@@ -538,6 +542,7 @@ def project_snapshot(request, pk):
             "organization": project.organization,
             "snapshot": snapshot,
             "web": web,
+            "first_visit": first_visit,
             **_workflow_context(project, "understand", snapshot.recommended_next_actions[:2]),
         },
     )
