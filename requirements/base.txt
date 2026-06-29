@@ -18,3 +18,4 @@ huggingface_hub
 questionary
 linkedin-agent-cli
 stripe
+django-unfold

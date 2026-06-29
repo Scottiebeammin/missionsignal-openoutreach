@@ -60,6 +60,8 @@ if not DEBUG and SECRET_KEY == _DEFAULT_SECRET:
 CSRF_TRUSTED_ORIGINS = _env_list("CSRF_TRUSTED_ORIGINS", [])
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",
     "django.contrib.sites",
     "openoutreach.admin_config.AnansiAdminConfig",
     "django.contrib.auth",
@@ -160,3 +162,101 @@ USE_I18N = True
 USE_TZ = True
 
 TESTING = sys.argv[1:2] == ["test"]
+
+# ── Unfold Admin ─────────────────────────────────────────────────────────────
+UNFOLD = {
+    "SITE_TITLE": "Anansi Atlas",
+    "SITE_HEADER": "Anansi Atlas",
+    "SITE_SUBHEADER": "Operator Console",
+    "SITE_URL": "/operator/",
+    "SITE_ICON": {
+        "light": lambda request: "/static/signals/anansi-atlas-logo.png",
+        "dark":  lambda request: "/static/signals/anansi-atlas-logo.png",
+    },
+    "COLORS": {
+        "primary": {
+            "50":  "250 244 230",
+            "100": "245 235 205",
+            "200": "235 210 155",
+            "300": "225 185 105",
+            "400": "215 165 65",
+            "500": "201 144 30",
+            "600": "175 120 20",
+            "700": "145 95 15",
+            "800": "110 70 10",
+            "900": "75 45 5",
+            "950": "45 25 2",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": False,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": "Operator",
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",
+                        "link": "/operator/",
+                    },
+                    {
+                        "title": "Organizations",
+                        "icon": "business",
+                        "link": "/operator/organizations/",
+                    },
+                    {
+                        "title": "Waitlist",
+                        "icon": "list",
+                        "link": "/operator/waitlist/",
+                    },
+                ],
+            },
+            {
+                "title": "Data",
+                "items": [
+                    {
+                        "title": "Projects",
+                        "icon": "folder",
+                        "link": "/admin/core/project/",
+                    },
+                    {
+                        "title": "Funders",
+                        "icon": "payments",
+                        "link": "/admin/funding/funder/",
+                    },
+                    {
+                        "title": "Opportunities",
+                        "icon": "star",
+                        "link": "/admin/funding/opportunity/",
+                    },
+                    {
+                        "title": "Partners",
+                        "icon": "handshake",
+                        "link": "/admin/funding/partnerorganization/",
+                    },
+                    {
+                        "title": "Signups",
+                        "icon": "person_add",
+                        "link": "/admin/signals/interestsignup/",
+                    },
+                ],
+            },
+            {
+                "title": "Config",
+                "items": [
+                    {
+                        "title": "Site Configuration",
+                        "icon": "settings",
+                        "link": "/admin/core/siteconfig/",
+                    },
+                    {
+                        "title": "Users",
+                        "icon": "manage_accounts",
+                        "link": "/admin/auth/user/",
+                    },
+                ],
+            },
+        ],
+    },
+}

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
 
 from openoutreach.funding.models import (
     Funder,
@@ -21,14 +22,14 @@ from openoutreach.funding.models import (
 
 
 @admin.register(FundingCriteria)
-class FundingCriteriaAdmin(admin.ModelAdmin):
+class FundingCriteriaAdmin(UnfoldModelAdmin):
     list_display = ("project", "deadline_horizon_days", "analyzer_confidence", "updated_at")
     search_fields = ("project__organization__name", "inclusion_criteria", "exclusion_criteria")
     raw_id_fields = ("project", "source_analysis_run")
 
 
 @admin.register(Funder)
-class FunderAdmin(admin.ModelAdmin):
+class FunderAdmin(UnfoldModelAdmin):
     list_display = (
         "name", "funder_type", "intelligence_status", "verification_status",
         "geography", "active", "last_reviewed_at", "website",
@@ -39,21 +40,21 @@ class FunderAdmin(admin.ModelAdmin):
 
 
 @admin.register(GovernmentEntity)
-class GovernmentEntityAdmin(admin.ModelAdmin):
+class GovernmentEntityAdmin(UnfoldModelAdmin):
     list_display = ("name", "entity_type", "department_or_office", "geography", "active", "website")
     list_filter = ("entity_type", "active")
     search_fields = ("name", "department_or_office", "notes", "website")
 
 
 @admin.register(ResourceProvider)
-class ResourceProviderAdmin(admin.ModelAdmin):
+class ResourceProviderAdmin(UnfoldModelAdmin):
     list_display = ("name", "resource_type", "geography", "active", "website")
     list_filter = ("resource_type", "active")
     search_fields = ("name", "eligibility_notes", "notes", "website")
 
 
 @admin.register(PartnerOrganization)
-class PartnerOrganizationAdmin(admin.ModelAdmin):
+class PartnerOrganizationAdmin(UnfoldModelAdmin):
     list_display = (
         "name", "partner_type", "intelligence_status", "verification_status",
         "geography", "active", "last_reviewed_at", "website",
@@ -67,7 +68,7 @@ class PartnerOrganizationAdmin(admin.ModelAdmin):
 
 
 @admin.register(SourceOrganization)
-class SourceOrganizationAdmin(admin.ModelAdmin):
+class SourceOrganizationAdmin(UnfoldModelAdmin):
     list_display = ("name", "organization_type", "verification_status", "geography", "active", "last_reviewed_at", "website")
     list_filter = ("organization_type", "verification_status", "active")
     list_editable = ("verification_status",)
@@ -75,7 +76,7 @@ class SourceOrganizationAdmin(admin.ModelAdmin):
 
 
 @admin.register(Opportunity)
-class OpportunityAdmin(admin.ModelAdmin):
+class OpportunityAdmin(UnfoldModelAdmin):
     list_display = (
         "name", "opportunity_type", "source_organization", "source_type",
         "status", "lifecycle_status", "priority_level", "estimated_value",
@@ -94,7 +95,7 @@ class OpportunityAdmin(admin.ModelAdmin):
 
 
 @admin.register(OpportunityTask)
-class OpportunityTaskAdmin(admin.ModelAdmin):
+class OpportunityTaskAdmin(UnfoldModelAdmin):
     list_display = ("title", "opportunity", "status", "priority", "due_date", "owner", "updated_at")
     list_filter = ("status", "priority", "owner")
     search_fields = ("title", "description", "opportunity__name", "owner__username")
@@ -103,7 +104,7 @@ class OpportunityTaskAdmin(admin.ModelAdmin):
 
 
 @admin.register(OpportunityDeadline)
-class OpportunityDeadlineAdmin(admin.ModelAdmin):
+class OpportunityDeadlineAdmin(UnfoldModelAdmin):
     list_display = ("title", "opportunity", "deadline_type", "status", "deadline_date", "updated_at")
     list_filter = ("deadline_type", "status")
     search_fields = ("title", "notes", "opportunity__name")
@@ -112,7 +113,7 @@ class OpportunityDeadlineAdmin(admin.ModelAdmin):
 
 
 @admin.register(DocumentVaultItem)
-class DocumentVaultItemAdmin(admin.ModelAdmin):
+class DocumentVaultItemAdmin(UnfoldModelAdmin):
     list_display = ("title", "project", "document_type", "status", "uploaded_at", "updated_at")
     list_filter = ("document_type", "status")
     search_fields = ("title", "notes", "project__organization__name", "project__name", "file_reference")
@@ -121,7 +122,7 @@ class DocumentVaultItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(EvidenceLibraryItem)
-class EvidenceLibraryItemAdmin(admin.ModelAdmin):
+class EvidenceLibraryItemAdmin(UnfoldModelAdmin):
     list_display = (
         "title", "project", "evidence_type", "related_program", "metric_name", "status", "evidence_date",
     )
@@ -135,7 +136,7 @@ class EvidenceLibraryItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(OpportunityDocumentRequirement)
-class OpportunityDocumentRequirementAdmin(admin.ModelAdmin):
+class OpportunityDocumentRequirementAdmin(UnfoldModelAdmin):
     list_display = ("title", "opportunity", "requirement_type", "status", "linked_document", "updated_at")
     list_filter = ("requirement_type", "status")
     search_fields = ("title", "notes", "opportunity__name", "linked_document__title")
@@ -151,7 +152,7 @@ class FundingOpportunitySourceInline(admin.TabularInline):
 
 
 @admin.register(FundingOpportunity)
-class FundingOpportunityAdmin(admin.ModelAdmin):
+class FundingOpportunityAdmin(UnfoldModelAdmin):
     list_display = ("title", "funder", "status", "deadline_at", "amount_min", "amount_max")
     list_filter = ("status", "opportunity_type")
     search_fields = ("title", "summary", "external_id")
@@ -162,14 +163,14 @@ class FundingOpportunityAdmin(admin.ModelAdmin):
 
 
 @admin.register(FundingOpportunitySource)
-class FundingOpportunitySourceAdmin(admin.ModelAdmin):
+class FundingOpportunitySourceAdmin(UnfoldModelAdmin):
     list_display = ("opportunity", "source_record", "is_primary", "first_seen_at", "last_seen_at")
     search_fields = ("opportunity__title", "source_external_id", "source_url")
     raw_id_fields = ("opportunity", "source_record")
 
 
 @admin.register(FundingSignal)
-class FundingSignalAdmin(admin.ModelAdmin):
+class FundingSignalAdmin(UnfoldModelAdmin):
     list_display = ("project", "opportunity", "state", "score", "confidence", "eligibility_status")
     list_filter = ("state", "eligibility_status")
     search_fields = ("project__organization__name", "opportunity__title", "explanation")
@@ -177,7 +178,7 @@ class FundingSignalAdmin(admin.ModelAdmin):
 
 
 @admin.register(FundingSignalFeedback)
-class FundingSignalFeedbackAdmin(admin.ModelAdmin):
+class FundingSignalFeedbackAdmin(UnfoldModelAdmin):
     list_display = ("signal", "label", "user", "created_at")
     list_filter = ("label",)
     search_fields = ("reason", "signal__opportunity__title")

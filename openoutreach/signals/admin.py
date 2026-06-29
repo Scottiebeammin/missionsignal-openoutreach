@@ -1,4 +1,5 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
 from django.db.models import Q
 
 from openoutreach.signals.models import (
@@ -57,7 +58,7 @@ class PilotOperationalFilter(admin.SimpleListFilter):
 
 
 @admin.register(Celebration)
-class CelebrationAdmin(admin.ModelAdmin):
+class CelebrationAdmin(UnfoldModelAdmin):
     list_display = ("title", "project", "celebration_type", "organization_name", "updated_at")
     list_filter = ("celebration_type",)
     search_fields = ("title", "description", "impact", "organization_name", "project__name")
@@ -66,7 +67,7 @@ class CelebrationAdmin(admin.ModelAdmin):
 
 
 @admin.register(OrganizationContact)
-class OrganizationContactAdmin(admin.ModelAdmin):
+class OrganizationContactAdmin(UnfoldModelAdmin):
     list_display = ("name", "project", "organization", "contact_type", "relationship_strength", "status", "updated_at")
     list_filter = ("contact_type", "relationship_strength", "status")
     search_fields = ("name", "title", "organization", "email", "notes", "project__name")
@@ -75,7 +76,7 @@ class OrganizationContactAdmin(admin.ModelAdmin):
 
 
 @admin.register(PartnerOrganization)
-class RelationshipPartnerOrganizationAdmin(admin.ModelAdmin):
+class RelationshipPartnerOrganizationAdmin(UnfoldModelAdmin):
     list_display = (
         "organization_name", "project", "partner_type", "relationship_strength",
         "status", "geography", "website",
@@ -90,7 +91,7 @@ class RelationshipPartnerOrganizationAdmin(admin.ModelAdmin):
 
 
 @admin.register(InterestSignup)
-class InterestSignupAdmin(admin.ModelAdmin):
+class InterestSignupAdmin(UnfoldModelAdmin):
     list_display = ("organization", "name", "email", "interest_type", "status", "created_at")
     list_filter = ("interest_type", "status", "created_at")
     search_fields = ("name", "organization", "email", "role", "website", "message")
@@ -98,7 +99,7 @@ class InterestSignupAdmin(admin.ModelAdmin):
 
 
 @admin.register(PilotProfile)
-class PilotProfileAdmin(admin.ModelAdmin):
+class PilotProfileAdmin(UnfoldModelAdmin):
     list_display = (
         "organization_name",
         "contact_name",
@@ -146,7 +147,7 @@ class PilotProfileAdmin(admin.ModelAdmin):
 
 
 @admin.register(PilotFeedback)
-class PilotFeedbackAdmin(admin.ModelAdmin):
+class PilotFeedbackAdmin(UnfoldModelAdmin):
     list_display = ("pilot", "would_recommend", "created_at", "updated_at")
     list_filter = ("would_recommend", "created_at")
     search_fields = (
@@ -161,7 +162,7 @@ class PilotFeedbackAdmin(admin.ModelAdmin):
 
 
 @admin.register(OrganizationSourcePage)
-class OrganizationSourcePageAdmin(admin.ModelAdmin):
+class OrganizationSourcePageAdmin(UnfoldModelAdmin):
     list_display = (
         "organization", "project", "title", "source_type", "review_status", "relevance",
         "fetch_status", "last_reviewed_at", "updated_at",
@@ -176,7 +177,7 @@ class OrganizationSourcePageAdmin(admin.ModelAdmin):
 
 
 @admin.register(OrganizationAnalysisRun)
-class OrganizationAnalysisRunAdmin(admin.ModelAdmin):
+class OrganizationAnalysisRunAdmin(UnfoldModelAdmin):
     list_display = ("organization", "status", "analyzer_version", "created_at", "completed_at")
     list_filter = ("status", "analyzer_version")
     raw_id_fields = ("organization",)

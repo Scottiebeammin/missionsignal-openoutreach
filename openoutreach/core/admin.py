@@ -1,13 +1,14 @@
 # openoutreach/core/admin.py
 from django.contrib import admin
 from django.contrib import messages
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
 
 from openoutreach.core.models import Campaign, Organization, Project, SiteConfig, Task
 from openoutreach.signals.analysis_service import analyze_project
 
 
 @admin.register(SiteConfig)
-class SiteConfigAdmin(admin.ModelAdmin):
+class SiteConfigAdmin(UnfoldModelAdmin):
     list_display = ("__str__", "llm_provider", "ai_model", "llm_api_base")
 
     def has_add_permission(self, request):
@@ -18,13 +19,13 @@ class SiteConfigAdmin(admin.ModelAdmin):
 
 
 @admin.register(Campaign)
-class CampaignAdmin(admin.ModelAdmin):
+class CampaignAdmin(UnfoldModelAdmin):
     list_display = ("name", "booking_link", "is_freemium", "action_fraction")
     filter_horizontal = ("users",)
 
 
 @admin.register(Organization)
-class OrganizationAdmin(admin.ModelAdmin):
+class OrganizationAdmin(UnfoldModelAdmin):
     list_display = ("name", "website", "city", "state", "analysis_status", "active", "created_at")
     list_filter = ("analysis_status", "active", "state")
     search_fields = ("name", "website", "mission", "city", "county", "state", "service_area_notes")
@@ -36,7 +37,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 @admin.register(Project)
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(UnfoldModelAdmin):
     list_display = ("name", "organization", "active", "created_at")
     list_filter = ("active",)
     search_fields = ("name", "organization__name", "organization__website", "programs")
@@ -79,7 +80,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 
 @admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
+class TaskAdmin(UnfoldModelAdmin):
     list_display = ("task_type", "status", "scheduled_at", "payload", "created_at")
     list_filter = ("task_type", "status")
     readonly_fields = (
