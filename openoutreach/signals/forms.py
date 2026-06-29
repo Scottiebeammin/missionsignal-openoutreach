@@ -48,8 +48,22 @@ class OrganizationIntakeForm(forms.Form):
         widget=forms.Textarea(attrs={"rows": 5}),
     )
     programs = forms.CharField(
-        label="Programs",
-        widget=forms.Textarea(attrs={"rows": 8}),
+        label="Describe Your Programs",
+        widget=forms.Textarea(attrs={
+            "rows": 8,
+            "placeholder": (
+                "Example:\n"
+                "Workforce Readiness — 12-week job training program serving adults 18–45 "
+                "in [city]. 60 participants per cohort, 78% placement rate.\n\n"
+                "Youth Mentorship — after-school program for middle schoolers in [county]. "
+                "Partners with local schools."
+            ),
+        }),
+        help_text=(
+            "Describe each program you run — what it does, who it serves, "
+            "and any outcomes or numbers you track. One program per paragraph. "
+            "This is the single most important field for building your Opportunity Web."
+        ),
     )
     organization_type = forms.CharField(
         label="Organization Type (optional)",
@@ -93,21 +107,30 @@ class OrganizationIntakeForm(forms.Form):
         label="Focus Areas",
         choices=[(c, c) for c in OPPORTUNITY_FOCUS_CATEGORIES],
         widget=forms.CheckboxSelectMultiple,
-        required=False,
+        required=True,
         help_text="Select all that apply — this directly shapes which funders and partners appear in your Opportunity Web.",
+        error_messages={"required": "Please select at least one focus area so we can match you with aligned funders."},
     )
     beneficiary_selections = forms.MultipleChoiceField(
-        label="Who does your organization serve?",
+        label="Who does your organization primarily serve?",
         choices=BENEFICIARY_CHOICES,
         widget=forms.CheckboxSelectMultiple,
-        required=False,
+        required=True,
         help_text="Select all populations your programs primarily serve.",
+        error_messages={"required": "Please select at least one population served."},
     )
     intake_notes = forms.CharField(
-        label="How can Anansi Atlas help?",
+        label="What specific funding or partnership challenges are you facing?",
         required=False,
-        widget=forms.Textarea(attrs={"rows": 5}),
-        help_text="Share the specific challenges, goals, or areas where you're looking for support. This helps us tailor your Opportunity Web to what matters most.",
+        widget=forms.Textarea(attrs={
+            "rows": 5,
+            "placeholder": (
+                "Examples: We've never applied for federal grants before and don't know where to start. "
+                "We're trying to grow from $400K to $1M in the next two years. "
+                "We need a workforce board partnership to unlock state funding."
+            ),
+        }),
+        help_text="The more specific you are, the more tailored your Opportunity Web and 30-day action plan will be.",
     )
 
     def clean_outcomes_and_impact(self):
