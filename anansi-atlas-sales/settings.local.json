@@ -1,18 +1,19 @@
 {
   "seller": {
-    "name": "Marcus Scott",
-    "title": "Founder",
+    "name": "The Anansi Atlas Team",
+    "title": "Founding Team",
     "company": "Anansi Atlas",
-    "email": "marcus@anansiatlas.com",
-    "linkedin": "https://linkedin.com/in/marcusscott",
+    "email": "info@anansiatlas.com",
+    "linkedin": "https://linkedin.com/company/anansiatlas",
     "calendly": ""
   },
   "product": {
     "name": "Opportunity Web Snapshot",
     "tagline": "Map the web of opportunity around your mission.",
     "description": "A consulting-grade intelligence brief that surfaces aligned funders, partners, community resources, risks, and strategic pathways specific to a nonprofit's mission — with a 30-day action plan.",
-    "price_point": "Founding cohort pricing — contact for details",
-    "intake_url": "https://anansiatlas.com/accounts/signup/",
+    "price_point": "$150/month — founding cohort rate, locked for life",
+    "founding_seats_total": 20,
+    "intake_url": "https://anansiatlas.com/pilot/",
     "landing_url": "https://anansiatlas.com/anansi-atlas/"
   },
   "icp": {

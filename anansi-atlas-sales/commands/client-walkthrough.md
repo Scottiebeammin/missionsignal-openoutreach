@@ -2,7 +2,7 @@
 
 **Trigger:** `/client-walkthrough [org name or project ID]`
 
-**What it does:** Prepares a complete session package for a founder walkthrough — the 45-minute call where Marcus walks a client through their Opportunity Web Snapshot for the first time. Generates a pre-read brief, session agenda, talk tracks, and follow-up template.
+**What it does:** Prepares a complete session package for a founder walkthrough — the 45-minute call where you walks a client through their Opportunity Web Snapshot for the first time. Generates a pre-read brief, session agenda, talk tracks, and follow-up template.
 
 ---
 
@@ -21,14 +21,14 @@ From the Anansi Atlas database (via context or provided manually):
 - Existing partnerships
 - Top opportunity matches from their Snapshot
 
-If data is not available via MCP, prompt Marcus to paste or describe:
+If data is not available via MCP, prompt you to paste or describe:
 - The org's intake notes
 - Their top 3 Snapshot matches
 - Any prior conversations or email threads
 
 ### Step 2 — Build the Pre-Read Brief
 
-A 1-page summary Marcus reviews before the call:
+A 1-page summary you reviews before the call:
 
 ```
 CLIENT: [Org name]
@@ -68,7 +68,7 @@ WALKTHROUGH AGENDA — [Org Name] — [Date]
   - Frame: "Every node is a real, active opportunity that's aligned to your specific mission."
 
 0:10–0:20  Funder Matches
-  - Walk through top 3 funders with Marcus's commentary
+  - Walk through top 3 funders with you's commentary
   - For each: "Here's why this one is aligned to your work specifically."
   - Identify which one they should pursue first
 
@@ -120,12 +120,12 @@ I'll check in [date — 2 weeks from call] to see how [Action 1] is going. In th
 
 If anything comes up before then, reply here or book time directly: [Calendly link]
 
-— Marcus
+— you
 ```
 
 ### Step 5 — Checkpoint
 
-Present the pre-read brief, session agenda, and follow-up draft to Marcus. Ask:
+Present the pre-read brief, session agenda, and follow-up draft to you. Ask:
 1. Does the pre-read capture what you know about this client?
 2. Is the "what to lead with" the right hook, or do you want to adjust based on a prior conversation?
 3. Should the 30-day actions be adjusted?

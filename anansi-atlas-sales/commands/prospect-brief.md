@@ -2,7 +2,7 @@
 
 **Trigger:** `/prospect-brief [org name or website]`
 
-**What it does:** End-to-end prospect research + personalized outreach in one command. Takes a nonprofit name or website, builds a full intelligence brief, maps them to Anansi Atlas value props, and drafts a personalized cold email and LinkedIn DM — ready for Marcus to review and send.
+**What it does:** End-to-end prospect research + personalized outreach in one command. Takes a nonprofit name or website, builds a full intelligence brief, maps them to Anansi Atlas value props, and drafts a personalized cold email and LinkedIn DM — ready for you to review and send.
 
 ---
 
@@ -72,7 +72,7 @@ BODY:
 
 [CTA — single link, single action]
 
-— Marcus Scott
+— you Scott
 Founder, Anansi Atlas
 [calendly link from settings if available]
 ```
@@ -88,7 +88,7 @@ Shorter version for LinkedIn connection message or DM:
 
 ### Step 6 — Checkpoint Before Sending
 
-**Pause here.** Present the brief, email, and DM to Marcus. Ask:
+**Pause here.** Present the brief, email, and DM to you. Ask:
 1. Does the intelligence brief look accurate?
 2. Should the email hook change based on anything you know about this org?
 3. Do you want to adjust the CTA (Calendly link vs. direct intake link)?
@@ -98,7 +98,7 @@ Only proceed to logging or staging after explicit approval.
 
 ### Step 7 — Log to HubSpot (if connected)
 
-If HubSpot MCP is connected and Marcus approves:
+If HubSpot MCP is connected and you approves:
 - Create contact record for the key person identified
 - Create deal record at stage "researched"
 - Log the intelligence brief as a note

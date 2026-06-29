@@ -16,7 +16,7 @@ If HubSpot is connected:
 - Count deals by stage
 
 If HubSpot is not connected:
-- Prompt Marcus to describe his current pipeline (can be a quick verbal rundown)
+- Prompt you to describe your current pipeline (can be a quick verbal rundown)
 
 ### Step 2 — Build the Pipeline Snapshot
 
@@ -69,7 +69,7 @@ THIS WEEK'S TOP 3:
 
 ### Step 5 — Checkpoint
 
-Present the full pulse to Marcus. Ask:
+Present the full pulse to you. Ask:
 - Are there any deals missing from this view?
 - Should any deal stage be updated?
 - Which of the top 3 actions do you want to tackle first?
