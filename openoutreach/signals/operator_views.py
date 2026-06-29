@@ -198,6 +198,52 @@ def operator_funder_verify(request, pk):
 
 
 @_operator_required
+@require_POST
+def operator_research_funder(request, pk):
+    from openoutreach.funding.models import Funder
+    from openoutreach.signals.research import research_funder
+    import threading
+
+    funder = get_object_or_404(Funder, pk=pk)
+    status_filter = request.POST.get("status_filter", "")
+
+    def _run():
+        try:
+            research_funder(funder)
+        except Exception as e:
+            logger.error("Funder research failed for pk=%s: %s", pk, e)
+
+    threading.Thread(target=_run, daemon=True).start()
+    messages.success(request, f"Research started for {funder.name} — refresh in a moment.")
+    from django.http import HttpResponseRedirect
+    from django.urls import reverse
+    url = reverse("operator-funders")
+    if status_filter:
+        url += f"?status={status_filter}"
+    return HttpResponseRedirect(url)
+
+
+@_operator_required
+@require_POST
+def operator_enrich_signup(request, pk):
+    from openoutreach.signals.models import InterestSignup
+    from openoutreach.signals.research import research_signup
+    import threading
+
+    signup = get_object_or_404(InterestSignup, pk=pk)
+
+    def _run():
+        try:
+            research_signup(signup)
+        except Exception as e:
+            logger.error("Signup enrichment failed for pk=%s: %s", pk, e)
+
+    threading.Thread(target=_run, daemon=True).start()
+    messages.success(request, f"Enrichment started for {signup.organization or signup.email} — refresh in a moment.")
+    return redirect("operator-waitlist")
+
+
+@_operator_required
 def operator_waitlist(request):
     try:
         from openoutreach.signals.models import InterestSignup

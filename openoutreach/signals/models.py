@@ -103,6 +103,7 @@ class InterestSignup(models.Model):
     message = models.TextField(blank=True, default="")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
     nurture_step = models.PositiveSmallIntegerField(default=0)
+    research_brief = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

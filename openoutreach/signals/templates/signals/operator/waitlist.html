@@ -65,20 +65,47 @@
           <td style="color:rgba(255,255,255,0.45);font-size:0.8rem;">Step {{ signup.nurture_step }}/3</td>
           <td style="color:rgba(255,255,255,0.35);font-size:0.78rem;">{{ signup.created_at|date:"M j, Y" }}</td>
           <td>
-            <form method="post" action="{% url 'operator-waitlist-status' signup.pk %}" style="display:flex;gap:6px;align-items:center;">
-              {% csrf_token %}
-              <select name="status" style="
-                background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
-                border-radius:8px;color:#fff;font-size:0.75rem;padding:5px 8px;cursor:pointer;
-              ">
-                <option value="new" {% if signup.status == "new" %}selected{% endif %}>New</option>
-                <option value="reviewed" {% if signup.status == "reviewed" %}selected{% endif %}>Reviewed</option>
-                <option value="contacted" {% if signup.status == "contacted" %}selected{% endif %}>Contacted</option>
-                <option value="converted" {% if signup.status == "converted" %}selected{% endif %}>Converted</option>
-                <option value="archived" {% if signup.status == "archived" %}selected{% endif %}>Archived</option>
-              </select>
-              <button type="submit" class="btn btn-ghost btn-sm">Save</button>
-            </form>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <form method="post" action="{% url 'operator-waitlist-status' signup.pk %}" style="display:flex;gap:6px;align-items:center;">
+                {% csrf_token %}
+                <select name="status" style="
+                  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+                  border-radius:8px;color:#fff;font-size:0.75rem;padding:5px 8px;cursor:pointer;
+                ">
+                  <option value="new" {% if signup.status == "new" %}selected{% endif %}>New</option>
+                  <option value="reviewed" {% if signup.status == "reviewed" %}selected{% endif %}>Reviewed</option>
+                  <option value="contacted" {% if signup.status == "contacted" %}selected{% endif %}>Contacted</option>
+                  <option value="converted" {% if signup.status == "converted" %}selected{% endif %}>Converted</option>
+                  <option value="archived" {% if signup.status == "archived" %}selected{% endif %}>Archived</option>
+                </select>
+                <button type="submit" class="btn btn-ghost btn-sm">Save</button>
+              </form>
+              {% if signup.research_brief %}
+                <button class="btn btn-ghost btn-sm" style="color:#a78bfa;border-color:rgba(167,139,250,.3);font-size:.72rem;" onclick="document.getElementById('brief-{{ signup.pk }}').style.display=document.getElementById('brief-{{ signup.pk }}').style.display==='none'?'block':'none'">⚡ Brief ▾</button>
+              {% else %}
+                <form method="post" action="{% url 'operator-waitlist-enrich' signup.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-ghost btn-sm" style="color:#a78bfa;border-color:rgba(167,139,250,.3);font-size:.72rem;" title="Enrich with AI research">⚡ Enrich</button>
+                </form>
+              {% endif %}
+            </div>
+            {% if signup.research_brief %}
+            <div id="brief-{{ signup.pk }}" style="display:none;margin-top:8px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:10px 12px;font-size:.76rem;color:rgba(255,255,255,.65);line-height:1.5;">
+              {% with b=signup.research_brief %}
+              {% if b.irs_status %}<div><strong style="color:#a78bfa;">IRS:</strong> {{ b.irs_status }}</div>{% endif %}
+              {% if b.est_budget_range %}<div><strong style="color:#a78bfa;">Budget:</strong> {{ b.est_budget_range }}</div>{% endif %}
+              {% if b.focus_areas %}<div><strong style="color:#a78bfa;">Focus:</strong> {{ b.focus_areas|join:", " }}</div>{% endif %}
+              {% if b.geography %}<div><strong style="color:#a78bfa;">Geo:</strong> {{ b.geography|join:", " }}</div>{% endif %}
+              {% if b.existing_funders %}<div><strong style="color:#a78bfa;">Funders:</strong> {{ b.existing_funders|join:", " }}</div>{% endif %}
+              {% if b.fit_notes %}<div style="margin-top:4px;font-style:italic;">{{ b.fit_notes }}</div>{% endif %}
+              {% if b.researched_at %}<div style="margin-top:4px;opacity:.4;font-size:.7rem;">Researched {{ b.researched_at }}</div>{% endif %}
+              {% endwith %}
+              <form method="post" action="{% url 'operator-waitlist-enrich' signup.pk %}" style="margin-top:6px;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-sm" style="font-size:.7rem;padding:3px 8px;">↺ Re-run</button>
+              </form>
+            </div>
+            {% endif %}
           </td>
         </tr>
         {% endfor %}

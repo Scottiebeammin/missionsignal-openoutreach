@@ -293,6 +293,166 @@ def import_research_data(data: dict, project=None) -> dict:
     return counts
 
 
+_FUNDER_RESEARCH_PROMPT = """You are a nonprofit funding researcher for Anansi Atlas.
+
+Research the funder described below. Return ONLY a valid JSON object — no prose, no markdown.
+
+Fill in as much accurate detail as you can verify. Do not invent data.
+
+FUNDER:
+Name: {name}
+Type: {funder_type}
+Website: {website}
+Current notes: {notes}
+
+Return this exact structure:
+{{
+  "focus_areas": [],
+  "geography": [],
+  "beneficiaries": [],
+  "eligibility_notes": "",
+  "typical_grant_range": "",
+  "deadline_notes": "",
+  "notes": "",
+  "source_urls": []
+}}"""
+
+
+_SIGNUP_RESEARCH_PROMPT = """You are a nonprofit intelligence researcher for Anansi Atlas.
+
+Research the organization below and return a brief intelligence summary. Return ONLY a valid JSON object — no prose, no markdown. Do not invent data; omit fields you cannot verify.
+
+ORGANIZATION:
+Name: {org_name}
+Website: {website}
+Contact role: {role}
+
+Return this exact structure:
+{{
+  "org_type": "",
+  "irs_status": "",
+  "est_budget_range": "",
+  "focus_areas": [],
+  "geography": [],
+  "existing_funders": [],
+  "prior_grants_notes": "",
+  "fit_notes": "",
+  "source_urls": []
+}}"""
+
+
+def research_funder(funder) -> dict:
+    """
+    Run AI-powered research on a single Funder record and update its fields.
+
+    Returns a dict of what was updated.
+    """
+    from pydantic_ai import Agent
+    from openoutreach.core.llm import get_llm_model, run_agent_sync
+
+    prompt = _FUNDER_RESEARCH_PROMPT.format(
+        name=funder.name,
+        funder_type=funder.funder_type,
+        website=funder.website or "unknown",
+        notes=funder.notes or "none",
+    )
+    logger.info("Running funder research for %s (pk=%s)", funder.name, funder.pk)
+    agent = Agent(get_llm_model(), model_settings={"temperature": 0.1, "timeout": 60})
+    raw = run_agent_sync(agent.run(prompt)).output
+
+    cleaned = raw.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.split("\n", 1)[-1]
+        if cleaned.endswith("```"):
+            cleaned = cleaned.rsplit("```", 1)[0]
+        cleaned = cleaned.strip()
+
+    try:
+        data = json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f"LLM returned unparseable JSON for funder {funder.pk}: {e}") from e
+
+    update_fields = []
+    if data.get("focus_areas") and not funder.focus_areas:
+        funder.focus_areas = data["focus_areas"]
+        update_fields.append("focus_areas")
+    if data.get("geography") and not funder.geography:
+        funder.geography = data["geography"]
+        update_fields.append("geography")
+    if data.get("beneficiaries") and not funder.beneficiaries:
+        funder.beneficiaries = data["beneficiaries"]
+        update_fields.append("beneficiaries")
+    if data.get("source_urls"):
+        existing = funder.source_urls or []
+        merged = list({u for u in existing + data["source_urls"]})
+        if merged != existing:
+            funder.source_urls = merged
+            update_fields.append("source_urls")
+
+    notes_parts = [funder.notes or ""]
+    if data.get("eligibility_notes"):
+        notes_parts.append(f"Eligibility: {data['eligibility_notes']}")
+    if data.get("typical_grant_range"):
+        notes_parts.append(f"Typical grant: {data['typical_grant_range']}")
+    if data.get("deadline_notes"):
+        notes_parts.append(f"Deadlines: {data['deadline_notes']}")
+    if data.get("notes"):
+        notes_parts.append(data["notes"])
+    new_notes = "\n\n".join(p for p in notes_parts if p).strip()
+    if new_notes != (funder.notes or ""):
+        funder.notes = new_notes
+        update_fields.append("notes")
+
+    from django.utils import timezone
+    funder.last_reviewed_at = timezone.now()
+    update_fields.append("last_reviewed_at")
+
+    if update_fields:
+        funder.save(update_fields=list(set(update_fields)))
+
+    logger.info("Funder research complete for %s: updated %s", funder.name, update_fields)
+    return {"funder": funder.name, "updated_fields": update_fields, "raw": data}
+
+
+def research_signup(signup) -> dict:
+    """
+    Run AI-powered org intelligence lookup on a waitlist InterestSignup.
+
+    Stores the result in signup.research_brief (JSONField).
+    Returns the brief dict.
+    """
+    from pydantic_ai import Agent
+    from openoutreach.core.llm import get_llm_model, run_agent_sync
+    from datetime import date
+
+    prompt = _SIGNUP_RESEARCH_PROMPT.format(
+        org_name=signup.organization or "Unknown",
+        website=signup.website or "unknown",
+        role=signup.role or "unknown",
+    )
+    logger.info("Running signup research for %s / %s", signup.organization, signup.email)
+    agent = Agent(get_llm_model(), model_settings={"temperature": 0.1, "timeout": 60})
+    raw = run_agent_sync(agent.run(prompt)).output
+
+    cleaned = raw.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.split("\n", 1)[-1]
+        if cleaned.endswith("```"):
+            cleaned = cleaned.rsplit("```", 1)[0]
+        cleaned = cleaned.strip()
+
+    try:
+        brief = json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f"LLM returned unparseable JSON for signup {signup.pk}: {e}") from e
+
+    brief["researched_at"] = date.today().isoformat()
+    signup.research_brief = brief
+    signup.save(update_fields=["research_brief"])
+    logger.info("Signup research complete for %s", signup.email)
+    return brief
+
+
 def _coerce(value, choices_class, default):
     if not value:
         return default

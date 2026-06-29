@@ -91,6 +91,11 @@
               <input type="hidden" name="status_filter" value="{{ status_filter }}">
               <button type="submit" class="btn btn-ghost btn-sm" style="color:#f87171;border-color:rgba(248,113,113,.3);" title="Flag for review">⚑ Flag</button>
             </form>
+            <form method="post" action="{% url 'operator-funder-research' funder.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="status_filter" value="{{ status_filter }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#a78bfa;border-color:rgba(167,139,250,.3);" title="Research with AI">⚡ Research</button>
+            </form>
             <a href="/admin/funding/funder/{{ funder.pk }}/change/" target="_blank" class="btn btn-ghost btn-sm" title="Edit in admin">Edit ↗</a>
           </div>
         </div>
