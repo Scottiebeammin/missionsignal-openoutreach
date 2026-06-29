@@ -19,6 +19,9 @@ urlpatterns = [
     path("sitemap.xml", sitemap, {"sitemaps": _sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
     path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     path("llms.txt", TemplateView.as_view(template_name="llms.txt", content_type="text/plain")),
+    # Google Search Console URL-prefix verification (Domain property uses a DNS TXT record instead).
+    path("googlea6345ee15704b2ab.html", TemplateView.as_view(
+        template_name="googlea6345ee15704b2ab.html", content_type="text/html")),
     path("", include("openoutreach.signals.urls")),
     path("admin/", admin.site.urls),
     # Authentication
