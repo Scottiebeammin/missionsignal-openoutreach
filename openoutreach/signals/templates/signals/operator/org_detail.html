@@ -1,0 +1,134 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}{{ org.name }}{% endblock %}
+{% block page_title %}{{ org.name }}{% endblock %}
+{% block nav_orgs %}active{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:20px;">
+  <a href="{% url 'operator-organizations' %}" style="color:rgba(255,255,255,0.35);font-size:0.82rem;text-decoration:none;">← All Organizations</a>
+</div>
+
+<div class="action-row">
+  <form method="post" action="{% url 'operator-run-research' project.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-gold">🔍 Run AI Research</button>
+  </form>
+  <form method="post" action="{% url 'operator-run-analysis' project.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-ghost">⚡ Run Analysis</button>
+  </form>
+  <a href="{% url 'project-snapshot' project.pk %}" class="btn btn-ghost" target="_blank">📊 View Snapshot</a>
+  <a href="{% url 'project-dashboard' project.pk %}" class="btn btn-ghost" target="_blank">🖥️ Client Dashboard</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+
+  <div class="section-card">
+    <div class="section-card-header"><div class="section-card-title">Organization Profile</div></div>
+    <div style="padding:20px;">
+      <div class="detail-field">
+        <div class="detail-label">Mission</div>
+        <div class="detail-value">{{ org.mission|default:"Not provided" }}</div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-label">Geography</div>
+        <div class="detail-value">
+          {% if org.geography %}{{ org.geography|join:", " }}{% else %}—{% endif %}
+        </div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-label">Focus Areas</div>
+        <div class="detail-value">
+          {% if org.focus_areas %}
+            {% for fa in org.focus_areas %}<span class="badge badge-muted" style="margin:2px;">{{ fa }}</span>{% endfor %}
+          {% else %}—{% endif %}
+        </div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-label">Beneficiaries</div>
+        <div class="detail-value">
+          {% if org.beneficiaries %}
+            {% for b in org.beneficiaries %}<span class="badge badge-muted" style="margin:2px;">{{ b }}</span>{% endfor %}
+          {% else %}—{% endif %}
+        </div>
+      </div>
+      {% if org.website %}
+      <div class="detail-field">
+        <div class="detail-label">Website</div>
+        <div class="detail-value"><a href="{{ org.website }}" target="_blank" style="color:var(--gold-lt);">{{ org.website }}</a></div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-card-header"><div class="section-card-title">Intelligence Status</div></div>
+    <div style="padding:20px;">
+      <div class="detail-field">
+        <div class="detail-label">Opportunities Found</div>
+        <div class="detail-value">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:2rem;color:{% if opp_count %}var(--gold-lt){% else %}rgba(255,255,255,0.25){% endif %};">{{ opp_count }}</span>
+        </div>
+      </div>
+      {% if opp_by_type %}
+      <div class="detail-field">
+        <div class="detail-label">By Type</div>
+        <div class="detail-value">
+          {% for type, count in opp_by_type.items %}
+            <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <span style="color:rgba(255,255,255,0.55);">{{ type }}</span>
+              <span class="badge badge-gold">{{ count }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      <div class="detail-field">
+        <div class="detail-label">Last Analysis</div>
+        <div class="detail-value">
+          {% if last_analysis %}
+            {{ last_analysis.created_at|date:"M j, Y g:i A" }}
+            <span class="badge badge-green" style="margin-left:6px;">{{ last_analysis.status }}</span>
+          {% else %}
+            <span style="color:rgba(255,255,255,0.25);">Never run</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% if opportunities %}
+<div class="section-card">
+  <div class="section-card-header">
+    <div class="section-card-title">Top Opportunities</div>
+    <a href="{% url 'project-opportunities' project.pk %}" class="section-card-link" target="_blank">View in platform →</a>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Type</th><th>Source</th><th>Deadline</th><th>Priority</th></tr></thead>
+    <tbody>
+      {% for opp in opportunities %}
+      <tr>
+        <td>{{ opp.name|truncatechars:50 }}</td>
+        <td><span class="badge badge-muted">{{ opp.get_opportunity_type_display }}</span></td>
+        <td style="color:rgba(255,255,255,0.40);font-size:0.80rem;">{{ opp.source_name|truncatechars:30|default:"—" }}</td>
+        <td style="font-size:0.80rem;">
+          {% if opp.deadline %}
+            {{ opp.deadline|date:"M j, Y" }}
+          {% else %}
+            <span style="color:rgba(255,255,255,0.25);">—</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if opp.priority_level == "high" %}<span class="badge badge-gold">High</span>
+          {% elif opp.priority_level == "medium" %}<span class="badge badge-muted">Medium</span>
+          {% else %}<span class="badge badge-muted">Low</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+  <div class="stat-card gold">
+    <div class="stat-label">Founding Seats</div>
+    <div class="stat-value">19<span style="font-size:1.2rem;color:rgba(229,173,63,0.5)">/20</span></div>
+    <div class="stat-sub">Remaining · $150/mo locked</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Organizations</div>
+    <div class="stat-value">{{ total_projects }}</div>
+    <div class="stat-sub">Active in platform</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Waitlist Signups</div>
+    <div class="stat-value">{{ total_signups }}</div>
+    <div class="stat-sub">Total applications</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Opportunities</div>
+    <div class="stat-value">{{ total_opportunities }}</div>
+    <div class="stat-sub">In database · {{ total_funders }} funders</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title">Needs Research</div>
+      <a href="{% url 'operator-organizations' %}" class="section-card-link">View all →</a>
+    </div>
+    {% if needs_research %}
+      <table class="data-table">
+        <thead><tr><th>Organization</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for project in needs_research %}
+          <tr>
+            <td>
+              <a href="{% url 'operator-org-detail' project.pk %}">{{ project.organization.name }}</a>
+              <div style="font-size:0.74rem;color:rgba(255,255,255,0.30);margin-top:2px;">No opportunities found yet</div>
+            </td>
+            <td>
+              <form method="post" action="{% url 'operator-run-research' project.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-gold btn-sm">Run Research</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">All organizations have research data.</div>
+    {% endif %}
+  </div>
+
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title">Recent Signups</div>
+      <a href="{% url 'operator-waitlist' %}" class="section-card-link">View all →</a>
+    </div>
+    {% if recent_signups %}
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Organization</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for signup in recent_signups %}
+          <tr>
+            <td>{{ signup.name }}</td>
+            <td style="color:rgba(255,255,255,0.45);">{{ signup.organization|default:"—" }}</td>
+            <td style="color:rgba(255,255,255,0.35);font-size:0.78rem;">{{ signup.created_at|date:"M j" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">No signups yet.</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<div class="section-card" style="margin-top:0;">
+  <div class="section-card-header">
+    <div class="section-card-title">Recent Organizations</div>
+    <a href="{% url 'operator-organizations' %}" class="section-card-link">View all →</a>
+  </div>
+  {% if recent_projects %}
+    <table class="data-table">
+      <thead><tr><th>Organization</th><th>Mission</th><th>Opportunities</th><th>Joined</th><th></th></tr></thead>
+      <tbody>
+        {% for project in recent_projects %}
+        <tr>
+          <td><a href="{% url 'operator-org-detail' project.pk %}">{{ project.organization.name }}</a></td>
+          <td style="color:rgba(255,255,255,0.40);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ project.organization.mission|truncatechars:60|default:"—" }}</td>
+          <td>
+            {% with c=project.opportunity_set.count %}
+              {% if c %}<span class="badge badge-green">{{ c }}</span>{% else %}<span class="badge badge-muted">0</span>{% endif %}
+            {% endwith %}
+          </td>
+          <td style="color:rgba(255,255,255,0.35);font-size:0.78rem;">{{ project.created_at|date:"M j, Y" }}</td>
+          <td><a href="{% url 'operator-org-detail' project.pk %}" class="btn btn-ghost btn-sm">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state">No organizations yet. <a href="/admin/" style="color:var(--gold-lt);">Add one in Django admin →</a></div>
+  {% endif %}
+</div>
+{% endblock %}

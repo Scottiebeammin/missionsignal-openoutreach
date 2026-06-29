@@ -1,0 +1,61 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}Organizations{% endblock %}
+{% block page_title %}Organizations{% endblock %}
+{% block nav_orgs %}active{% endblock %}
+
+{% block content %}
+<div class="section-card">
+  <div class="section-card-header">
+    <div class="section-card-title">All Organizations ({{ projects.count }})</div>
+  </div>
+  {% if projects %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Organization</th>
+          <th>Geography</th>
+          <th>Focus Areas</th>
+          <th>Opportunities</th>
+          <th>Joined</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for project in projects %}
+        <tr>
+          <td>
+            <a href="{% url 'operator-org-detail' project.pk %}">{{ project.organization.name }}</a>
+            {% if project.organization.mission %}
+              <div style="font-size:0.74rem;color:rgba(255,255,255,0.30);margin-top:2px;">{{ project.organization.mission|truncatechars:55 }}</div>
+            {% endif %}
+          </td>
+          <td style="color:rgba(255,255,255,0.45);font-size:0.80rem;">
+            {% if project.organization.geography %}
+              {{ project.organization.geography|join:", "|truncatechars:30 }}
+            {% else %}—{% endif %}
+          </td>
+          <td style="font-size:0.78rem;">
+            {% if project.organization.focus_areas %}
+              {% for fa in project.organization.focus_areas|slice:":2" %}
+                <span class="badge badge-muted">{{ fa }}</span>
+              {% endfor %}
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if project.opp_count %}
+              <span class="badge badge-green">{{ project.opp_count }}</span>
+            {% else %}
+              <span class="badge badge-red">None</span>
+            {% endif %}
+          </td>
+          <td style="color:rgba(255,255,255,0.35);font-size:0.78rem;">{{ project.created_at|date:"M j, Y" }}</td>
+          <td><a href="{% url 'operator-org-detail' project.pk %}" class="btn btn-ghost btn-sm">Manage →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state">No organizations yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

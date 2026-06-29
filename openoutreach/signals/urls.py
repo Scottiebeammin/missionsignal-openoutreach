@@ -1,8 +1,15 @@
 from django.urls import path
 
 from openoutreach.signals import views
+from openoutreach.signals import operator_views
 
 urlpatterns = [
+    path("operator/", operator_views.operator_dashboard, name="operator-dashboard"),
+    path("operator/organizations/", operator_views.operator_organizations, name="operator-organizations"),
+    path("operator/organizations/<int:pk>/", operator_views.operator_org_detail, name="operator-org-detail"),
+    path("operator/organizations/<int:pk>/research/", operator_views.operator_run_research, name="operator-run-research"),
+    path("operator/organizations/<int:pk>/analysis/", operator_views.operator_run_analysis, name="operator-run-analysis"),
+    path("operator/waitlist/", operator_views.operator_waitlist, name="operator-waitlist"),
     # Public homepage = the landing page (so the bare domain shows it, not a login wall).
     path("", views.public_landing_page, name="home"),
     path("anansi-atlas/", views.public_landing_page, name="anansi-atlas-landing"),
