@@ -178,6 +178,13 @@ def project_intake(request):
             import threading
             from openoutreach.signals.research import research_project as _research
             threading.Thread(target=_research, args=(project,), daemon=True).start()
+            # Send welcome email to the user and an operator alert, both non-fatal.
+            from openoutreach.signals.notifications import notify_new_intake, send_intake_welcome
+            try:
+                send_intake_welcome(request.user, project)
+                notify_new_intake(request.user, project)
+            except Exception:
+                pass
             return redirect("project-intake-success", pk=project.pk)
     else:
         form = OrganizationIntakeForm()
