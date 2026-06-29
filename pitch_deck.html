@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anansi Atlas — Pitch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+
+<style>
+  /* ─── Reset & Base ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:      #0d1b3d;
+    --gold:      #d4a017;
+    --gold-lt:   #e8b84b;
+    --cream:     #f7f3eb;
+    --white:     #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid:  #3a3a5c;
+    --text-muted:#6b6b8a;
+    --radius:    12px;
+    --slide-w:   1280px;
+    --slide-h:   720px;
+  }
+
+  html { font-family: 'DM Sans', sans-serif; background: #e0dbd2; }
+
+  body {
+    background: #d4cfc6;
+    padding: 40px 20px;
+  }
+
+  /* ─── Screen Layout ─── */
+  .deck { display: flex; flex-direction: column; gap: 48px; align-items: center; }
+
+  .slide-wrapper { width: 100%; max-width: var(--slide-w); }
+
+  .slide {
+    width: var(--slide-w);
+    height: var(--slide-h);
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    box-shadow: 0 8px 48px rgba(13,27,61,0.22), 0 2px 8px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── Wordmark (top-left every slide) ─── */
+  .wordmark {
+    position: absolute;
+    top: 28px;
+    left: 36px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+  .wordmark .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .wordmark .brand-tag {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+  /* Light wordmark (on dark slides) */
+  .wordmark-light .brand-name { color: var(--white); }
+  .wordmark-light .brand-tag  { color: var(--gold-lt); }
+  /* Dark wordmark (on cream/white slides) */
+  .wordmark-dark .brand-name  { color: var(--navy); }
+  .wordmark-dark .brand-tag   { color: var(--gold); }
+
+  /* ─── Slide Number ─── */
+  .slide-num {
+    position: absolute;
+    bottom: 22px;
+    right: 34px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    z-index: 10;
+  }
+  .slide-num-light { color: rgba(255,255,255,0.45); }
+  .slide-num-dark  { color: var(--text-muted); }
+
+  /* ─── Section Pill ─── */
+  .section-pill {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+  }
+  .pill-gold { background: var(--gold); color: var(--navy); }
+  .pill-navy { background: var(--navy); color: var(--gold-lt); }
+  .pill-outline { border: 1.5px solid var(--gold); color: var(--gold); }
+
+  /* ─── Speaker Notes ─── */
+  .speaker-notes {
+    background: #fff8ee;
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    padding: 16px 20px;
+    margin-top: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    max-width: var(--slide-w);
+  }
+  .speaker-notes-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  /* ══════════════════════════════════════════════
+     SLIDE THEMES
+  ══════════════════════════════════════════════ */
+
+  /* ── Theme: Dark (Navy) ── */
+  .slide-dark {
+    background: var(--navy);
+    color: var(--white);
+  }
+  .slide-dark::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 55% at 80% 20%, rgba(212,160,23,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 15% 85%, rgba(212,160,23,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ── Theme: Light (Cream) ── */
+  .slide-light {
+    background: var(--cream);
+    color: var(--text-dark);
+  }
+  .slide-light::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 50% 50% at 95% 5%, rgba(212,160,23,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ── Theme: White Card ── */
+  .slide-card {
+    background: var(--cream);
+    color: var(--text-dark);
+  }
+
+  /* ══════════════════════════════════════════════
+     SLIDE 1 — COVER
+  ══════════════════════════════════════════════ */
+  .s1-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 80px;
+    position: relative;
+    z-index: 1;
+  }
+  .s1-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold-lt);
+    margin-bottom: 18px;
+  }
+  .s1-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 88px;
+    font-weight: 700;
+    line-height: 0.95;
+    color: var(--white);
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  .s1-title span { color: var(--gold); }
+  .s1-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 36px;
+  }
+  .s1-divider {
+    width: 56px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-lt));
+    margin: 0 auto 28px;
+    border-radius: 2px;
+  }
+  .s1-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.8;
+    letter-spacing: 0.03em;
+  }
+  .s1-sub strong { color: rgba(255,255,255,0.82); font-weight: 500; }
+
+  /* Gold geometric accent — cover only */
+  .s1-geo {
+    position: absolute;
+    bottom: -60px;
+    left: -60px;
+    width: 340px;
+    height: 340px;
+    border: 40px solid rgba(212,160,23,0.07);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .s1-geo2 {
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 400px;
+    height: 400px;
+    border: 50px solid rgba(212,160,23,0.05);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* ══════════════════════════════════════════════
+     STANDARD CONTENT SLIDE (white card on cream)
+  ══════════════════════════════════════════════ */
+  .content-header {
+    background: var(--navy);
+    padding: 28px 40px 24px;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+  .content-header-eyebrow {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold-lt);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .content-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.18;
+    max-width: 820px;
+  }
+
+  .content-body {
+    flex: 1;
+    background: var(--cream);
+    padding: 32px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .bullet-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--text-dark);
+  }
+  .bullet-list li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 8px;
+  }
+  .bullet-list li strong { color: var(--navy); font-weight: 600; }
+
+  /* numbered list variant */
+  .num-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .num-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-dark);
+  }
+  .num-badge {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: var(--gold-lt);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .num-list li strong { color: var(--navy); font-weight: 600; }
+
+  /* ══════════════════════════════════════════════
+     DARK CONTENT SLIDE
+  ══════════════════════════════════════════════ */
+  .dark-slide-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 56px 60px 56px;
+    position: relative;
+    z-index: 1;
+  }
+  .dark-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 38px;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 32px;
+    max-width: 820px;
+  }
+  .dark-headline span { color: var(--gold-lt); }
+
+  .dark-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .dark-bullets li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 15.5px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.82);
+  }
+  .dark-bullets li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 8px;
+  }
+  .dark-bullets li strong { color: var(--gold-lt); font-weight: 600; }
+
+  /* ══════════════════════════════════════════════
+     SLIDE 6 — DEMO
+  ══════════════════════════════════════════════ */
+  .demo-inner {
+    flex: 1;
+    display: flex;
+    gap: 40px;
+    padding: 44px 52px 44px;
+    position: relative;
+    z-index: 1;
+  }
+  .demo-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .demo-right {
+    flex: 1.1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .demo-placeholder {
+    width: 100%;
+    height: 360px;
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    background: rgba(0,0,0,0.22);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold-lt);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-align: center;
+    padding: 20px;
+    gap: 10px;
+  }
+  .demo-placeholder-icon {
+    font-size: 28px;
+    opacity: 0.6;
+    margin-bottom: 4px;
+  }
+  .demo-placeholder-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: rgba(232,184,75,0.7);
+    letter-spacing: 0.04em;
+  }
+
+  /* ══════════════════════════════════════════════
+     SLIDE 8 — BUSINESS MODEL (two-column)
+  ══════════════════════════════════════════════ */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .price-card {
+    border-radius: 10px;
+    padding: 24px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .price-card-primary {
+    background: var(--navy);
+    border: 1.5px solid var(--gold);
+  }
+  .price-card-secondary {
+    background: rgba(13,27,61,0.06);
+    border: 1.5px solid rgba(13,27,61,0.15);
+  }
+  .price-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .price-tag-primary { color: var(--gold); }
+  .price-tag-secondary { color: var(--navy); }
+  .price-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .price-label-primary { color: var(--gold-lt); }
+  .price-label-secondary { color: var(--text-muted); }
+  .price-desc { font-size: 13.5px; line-height: 1.55; }
+  .price-desc-primary { color: rgba(255,255,255,0.78); }
+  .price-desc-secondary { color: var(--text-mid); }
+  .badge-locked {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+    width: fit-content;
+    margin-top: 4px;
+  }
+
+  .biz-extras {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(13,27,61,0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .biz-extras li {
+    font-size: 13.5px;
+    color: var(--text-mid);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .biz-extras li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 7px;
+  }
+
+  /* ══════════════════════════════════════════════
+     SLIDE 12 — ASK / CLOSE
+  ══════════════════════════════════════════════ */
+  .ask-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px 80px;
+    position: relative;
+    z-index: 1;
+  }
+  .ask-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold-lt);
+    margin-bottom: 16px;
+  }
+  .ask-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 46px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.15;
+    max-width: 900px;
+    margin-bottom: 36px;
+  }
+  .ask-headline span { color: var(--gold); }
+  .ask-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    text-align: left;
+    margin-bottom: 36px;
+    max-width: 1000px;
+    width: 100%;
+  }
+  .ask-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(212,160,23,0.3);
+    border-radius: 10px;
+    padding: 20px 18px;
+  }
+  .ask-card-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold-lt);
+    margin-bottom: 8px;
+  }
+  .ask-card p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.55;
+  }
+  .ask-card p strong { color: var(--gold-lt); }
+  .ask-cta {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.06em;
+  }
+  .ask-cta strong { color: var(--gold-lt); font-weight: 500; }
+  .ask-seats {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 8px 22px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  /* ══════════════════════════════════════════════
+     ROADMAP SLIDE
+  ══════════════════════════════════════════════ */
+  .roadmap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .roadmap-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 18px 16px;
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 2px 8px rgba(13,27,61,0.07);
+  }
+  .roadmap-month {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .roadmap-card p {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.55;
+  }
+  .roadmap-card p strong { color: var(--navy); }
+
+  .roadmap-horizon {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .roadmap-horizon-card {
+    background: var(--navy);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .horizon-badge {
+    flex-shrink: 0;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 1px;
+  }
+  .roadmap-horizon-card p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+  }
+
+  /* ══════════════════════════════════════════════
+     TEAM SLIDE
+  ══════════════════════════════════════════════ */
+  .team-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 26px 30px;
+    box-shadow: 0 2px 16px rgba(13,27,61,0.08);
+    border-left: 4px solid var(--gold);
+    margin-bottom: 20px;
+  }
+  .team-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .team-role {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .team-desc {
+    font-size: 14.5px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* ══════════════════════════════════════════════
+     PRINT STYLES
+  ══════════════════════════════════════════════ */
+  @media print {
+    html, body {
+      background: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .deck { gap: 0; padding: 0; }
+
+    .slide-wrapper {
+      width: 100%;
+      max-width: 100%;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .slide {
+      width: 100%;
+      height: 100vh;
+      border-radius: 0;
+      box-shadow: none;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .speaker-notes { display: none !important; }
+
+    @page {
+      size: 1280px 720px landscape;
+      margin: 0;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 1 — COVER
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-dark">
+      <div class="s1-geo"></div>
+      <div class="s1-geo2"></div>
+
+      <div class="wordmark wordmark-light">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="s1-body">
+        <p class="s1-eyebrow">Scott Foundry Group LLC</p>
+        <h1 class="s1-title">Anansi<br><span>Atlas</span></h1>
+        <p class="s1-tagline">The Web of Opportunity</p>
+        <div class="s1-divider"></div>
+        <p class="s1-sub">
+          Opportunity intelligence for nonprofits that are ready to grow<br>
+          <strong>anansiatlas.com</strong> &nbsp;·&nbsp; <strong>Marcus Scott</strong> | Scott Foundry Group LLC
+        </p>
+      </div>
+
+      <span class="slide-num slide-num-light">01 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>Anansi Atlas is an opportunity intelligence platform built for nonprofits. Not a grant writer. Not a search engine. A strategic intelligence layer that maps the full web of opportunity around your mission — funders, partners, government pathways, and a clear action plan — in under 10 minutes. Let me show you what that looks like.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 2 — THE PROBLEM
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-card">
+      <div class="wordmark wordmark-dark">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="content-header">
+        <span class="content-header-eyebrow">The Problem</span>
+        <h2>Nonprofits are leaving real money on the table — not because they aren't worthy, but because they can't see the landscape.</h2>
+      </div>
+
+      <div class="content-body">
+        <ul class="bullet-list">
+          <li>1.8 million nonprofits in the US. Most have no dedicated development staff.</li>
+          <li>Grant research is manual, slow, and scattered across dozens of databases and Google searches.</li>
+          <li>Organizations apply to the wrong funders, miss deadlines, and misread their own readiness gaps.</li>
+          <li>The result: underfunded missions, burned-out staff, and opportunities that never get pursued.</li>
+        </ul>
+      </div>
+
+      <span class="slide-num slide-num-dark">02 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>The problem isn't that funding doesn't exist — it does. The problem is visibility and clarity. Most nonprofits are operating blind, making grant decisions based on who they already know or what comes across their inbox. That's not strategy, that's luck. And luck doesn't scale.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 3 — THE SOLUTION
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-card">
+      <div class="wordmark wordmark-dark">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="content-header">
+        <span class="content-header-eyebrow">The Solution</span>
+        <h2>Anansi Atlas gives nonprofits a clear picture of what opportunities exist, which ones fit, and what to do first.</h2>
+      </div>
+
+      <div class="content-body">
+        <ul class="bullet-list">
+          <li>Complete a 10-minute intake form about your mission, geography, and stage</li>
+          <li>Receive your <strong>Opportunity Web Snapshot</strong> — a personalized executive intelligence brief</li>
+          <li>Includes ranked funders, aligned partners, active grants with deadlines, a Readiness Score, and a 30-day action plan</li>
+          <li>Your full strategic workspace stays live — updated as the landscape changes</li>
+          <li>Built for executive directors and program leads, not development specialists</li>
+        </ul>
+      </div>
+
+      <span class="slide-num slide-num-dark">03 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>Think of it as a trusted advisor who knows the funding landscape cold and has already done the research for you. You walk in with your mission, and walk out with a prioritized map of where to go next. That's what Anansi Atlas delivers — not just information, but actionable intelligence.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 4 — HOW IT WORKS
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-card">
+      <div class="wordmark wordmark-dark">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="content-header">
+        <span class="content-header-eyebrow">How It Works</span>
+        <h2>Three steps from mission to momentum.</h2>
+      </div>
+
+      <div class="content-body">
+        <ol class="num-list">
+          <li>
+            <span class="num-badge">1</span>
+            <span><strong>Intake (10 minutes)</strong> — Answer structured questions about your mission, geography, programs, and organizational stage. No jargon. No consultant required.</span>
+          </li>
+          <li>
+            <span class="num-badge">2</span>
+            <span><strong>Analysis</strong> — Anansi Atlas maps your mission against 55+ funders across 6 sectors, active grant opportunities, strategic partners, and your readiness profile.</span>
+          </li>
+          <li>
+            <span class="num-badge">3</span>
+            <span><strong>Snapshot + Workspace</strong> — You receive your Opportunity Web Snapshot immediately. Your workspace stays live, shareable, and printable as your strategy evolves.</span>
+          </li>
+        </ol>
+      </div>
+
+      <span class="slide-num slide-num-dark">04 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>The whole flow is designed around one constraint: executive directors don't have time. The intake is conversational, not a questionnaire. The output is a real document you can take into a board meeting or use to brief your team. And it's not a one-time report — it's a living workspace you return to.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 5 — THE OPPORTUNITY WEB SNAPSHOT
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-card">
+      <div class="wordmark wordmark-dark">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="content-header">
+        <span class="content-header-eyebrow">The Opportunity Web Snapshot</span>
+        <h2>Your complete opportunity picture — delivered as a single, executive-ready brief.</h2>
+      </div>
+
+      <div class="content-body">
+        <ul class="bullet-list">
+          <li><strong>Mission Overview</strong> — Confirms how your mission maps to funding categories and sectors</li>
+          <li><strong>Top Funder Archetypes</strong> — Ranked by mission alignment and geographic fit, with giving patterns and priorities</li>
+          <li><strong>Strategic Partners</strong> — Organizations whose work complements yours and opens doors</li>
+          <li><strong>Active Grant Opportunities</strong> — Real deadlines, real amounts, real fit analysis</li>
+          <li><strong>Readiness Score (0–100)</strong> — Honest assessment of your organizational readiness with specific gaps named</li>
+          <li><strong>30-Day Action Plan</strong> — Prioritized next steps so you know exactly where to start</li>
+        </ul>
+      </div>
+
+      <span class="slide-num slide-num-dark">05 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>This is the core deliverable — the Opportunity Web Snapshot. It's not a list of grants. It's a strategic brief that tells you who funds work like yours, whether you're ready to pursue them, and what to do in the next 30 days. Every section is customized to your answers. No generic templates.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 6 — DEMO / SCREENSHOT
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-dark">
+      <div class="wordmark wordmark-light">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="demo-inner">
+        <div class="demo-left">
+          <span class="section-pill pill-outline" style="width:fit-content;margin-bottom:20px;">See It In Action</span>
+          <h2 class="dark-headline" style="font-size:32px;margin-bottom:22px;">A snapshot that's ready to share, present, or act on.</h2>
+          <ul class="dark-bullets">
+            <li>Clean, executive-ready layout — not a dashboard full of charts</li>
+            <li>Printable and shareable via a unique link — no login required for stakeholders</li>
+            <li>Your workspace persists — return, update, and regenerate as your organization grows</li>
+          </ul>
+        </div>
+        <div class="demo-right">
+          <div class="demo-placeholder">
+            <div class="demo-placeholder-icon">&#9635;</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:rgba(232,184,75,0.85);">Screenshot</div>
+            <div class="demo-placeholder-label">anansiatlas.com/projects/snapshot</div>
+            <div style="font-size:11px;color:rgba(232,184,75,0.45);margin-top:6px;">Opportunity Web Snapshot · Mission Overview + Funder Archetypes + Readiness Score</div>
+          </div>
+        </div>
+      </div>
+
+      <span class="slide-num slide-num-light">06 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>What you're looking at is what a founding partner would see after their first 10 minutes on the platform. This is a real output — not a mockup. The snapshot is designed to be dropped straight into a board packet or a funder meeting prep session. It speaks for itself.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 7 — MARKET
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-card">
+      <div class="wordmark wordmark-dark">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="content-header">
+        <span class="content-header-eyebrow">Market Opportunity</span>
+        <h2>1.8 million nonprofits. Most flying blind on funding strategy.</h2>
+      </div>
+
+      <div class="content-body">
+        <ul class="bullet-list">
+          <li>The US nonprofit sector represents over <strong>$3 trillion in assets</strong> and <strong>$600B+ in annual revenue</strong></li>
+          <li>Only a fraction of organizations have dedicated development directors or grant writers</li>
+          <li>Existing tools skew toward large institutions — foundation databases built for specialists, not leaders</li>
+          <li>The underserved segment: <strong>small-to-mid nonprofits ($250K–$5M budget)</strong> with real programs and no intelligence infrastructure</li>
+          <li>This is a software problem with a software solution — <strong>the category barely exists yet</strong></li>
+        </ul>
+      </div>
+
+      <span class="slide-num slide-num-dark">07 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>The tools that exist today — foundation databases, grant search platforms, CRMs — are built assuming you already have a development team and know what you're looking for. Most nonprofits don't. That's not a people problem, that's a product gap. Anansi Atlas is built for the gap.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 8 — BUSINESS MODEL
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-card">
+      <div class="wordmark wordmark-dark">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="content-header">
+        <span class="content-header-eyebrow">Business Model</span>
+        <h2>Simple pricing. Serious value. Founding partners lock in for life.</h2>
+      </div>
+
+      <div class="content-body" style="padding-top:26px;">
+        <div class="two-col">
+          <div class="price-card price-card-primary">
+            <div class="price-label price-label-primary">Founding Partner Price</div>
+            <div class="price-tag price-tag-primary">$150<span style="font-size:20px;font-weight:400;">/mo</span></div>
+            <span class="badge-locked">&#128274; Locked for Life</span>
+            <p class="price-desc price-desc-primary" style="margin-top:8px;">Full platform access + 45-minute personal founder walkthrough call. Limited to <strong style="color:var(--gold-lt);">20 seats</strong> (19 remaining).</p>
+          </div>
+          <div class="price-card price-card-secondary" style="display:flex;flex-direction:column;justify-content:space-between;">
+            <div>
+              <div class="price-label price-label-secondary">Standard Price</div>
+              <div class="price-tag price-tag-secondary">$299<span style="font-size:20px;font-weight:400;color:var(--text-muted);">/mo</span></div>
+              <p class="price-desc price-desc-secondary" style="margin-top:10px;">After founding cohort fills. Full platform access.</p>
+            </div>
+          </div>
+        </div>
+        <ul class="biz-extras">
+          <li>Self-hosted SaaS — data stays with the organization</li>
+          <li>Recurring monthly subscriptions; no per-report fees, no usage limits</li>
+          <li>Future: team seats, white-label licensing for capacity builders and consultants</li>
+        </ul>
+      </div>
+
+      <span class="slide-num slide-num-dark">08 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>The founding partner offer exists because we want the first cohort to be partners, not just customers. Twenty organizations who get lifetime pricing, direct access to me, and a real seat at the table as the platform evolves. At $150/month, this is less than a single hour of consulting — and it runs in the background doing the work of a full-time researcher.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 9 — TRACTION
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-card">
+      <div class="wordmark wordmark-dark">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="content-header">
+        <span class="content-header-eyebrow">Traction</span>
+        <h2>Live, real, and already working.</h2>
+      </div>
+
+      <div class="content-body">
+        <ul class="bullet-list">
+          <li>Platform is live at <strong>anansiatlas.com</strong> — intake form, snapshot generation, and workspace are fully operational</li>
+          <li>First clients onboarding through the founding partner cohort</li>
+          <li><strong>55 funders</strong> mapped in the database across 6 program sectors</li>
+          <li>Waitlist active and growing</li>
+          <li>Opportunity Web Snapshot generating real outputs for real organizations right now</li>
+          <li>Built by a solo founder with no outside funding — <strong>lean, focused, and default alive</strong></li>
+        </ul>
+      </div>
+
+      <span class="slide-num slide-num-dark">09 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>This isn't a pitch for something we're about to build. It's live. You can go to anansiatlas.com today, complete the intake, and receive your snapshot. The founding cohort is filling now, and every organization that joins is helping shape what the platform becomes next.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 10 — ROADMAP
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-card">
+      <div class="wordmark wordmark-dark">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="content-header">
+        <span class="content-header-eyebrow">Roadmap</span>
+        <h2>The next 90 days are about depth, not breadth.</h2>
+      </div>
+
+      <div class="content-body" style="padding-top:24px;">
+        <div class="roadmap-grid">
+          <div class="roadmap-card">
+            <div class="roadmap-month">Month 1</div>
+            <p>Onboard founding cohort; refine snapshot output based on real sessions; <strong>expand funder database to 150+</strong></p>
+          </div>
+          <div class="roadmap-card">
+            <div class="roadmap-month">Month 2</div>
+            <p>Add <strong>sector-specific grant calendar</strong> with rolling deadlines; launch partner network feature</p>
+          </div>
+          <div class="roadmap-card">
+            <div class="roadmap-month">Month 3</div>
+            <p>Introduce <strong>Readiness Score improvement tracker</strong> — organizations see progress over time, not just a point-in-time score</p>
+          </div>
+        </div>
+        <div class="roadmap-horizon">
+          <div class="roadmap-horizon-card">
+            <span class="horizon-badge">6-Month</span>
+            <p>White-label licensing for capacity builders and nonprofit support organizations; team collaboration workspace</p>
+          </div>
+          <div class="roadmap-horizon-card">
+            <span class="horizon-badge">12-Month</span>
+            <p>Funder relationship tracking; government grants pathway module</p>
+          </div>
+        </div>
+      </div>
+
+      <span class="slide-num slide-num-dark">10 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>The roadmap is driven by what founding partners tell us they need most. We're not guessing. The snapshot is the foundation — everything on top of it adds depth to the intelligence or makes it easier to act on. We're not trying to be everything. We're trying to be the best intelligence layer in this space.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 11 — TEAM
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-card">
+      <div class="wordmark wordmark-dark">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="content-header">
+        <span class="content-header-eyebrow">Team</span>
+        <h2>Built by someone who understands both the mission and the machine.</h2>
+      </div>
+
+      <div class="content-body" style="justify-content:flex-start;padding-top:30px;">
+        <div class="team-card">
+          <div class="team-name">Marcus Scott</div>
+          <div class="team-role">Founder · Scott Foundry Group LLC</div>
+          <p class="team-desc">
+            Builder, strategist, and operator with experience across nonprofit infrastructure, B2B SaaS, and systems design.
+            Designed and built the Anansi Atlas platform end-to-end.
+            Focused on giving mission-driven organizations the tools that were always reserved for well-resourced institutions.
+          </p>
+        </div>
+        <ul class="bullet-list" style="margin-top:4px;">
+          <li>Scott Foundry Group LLC is the parent company — building infrastructure for organizations doing real work in the world</li>
+          <li>Advisors and founding partners actively shaping product direction</li>
+        </ul>
+      </div>
+
+      <span class="slide-num slide-num-dark">11 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>I built this because I kept watching capable organizations get outmaneuvered by less capable ones who simply had better intelligence. That's fixable. It's a software problem. And I've spent the last several months building the fix. This is what I do — and this platform reflects that directly.</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 12 — ASK / CLOSE
+  ══════════════════════════════════════════════ -->
+  <div class="slide-wrapper">
+    <section class="slide slide-dark">
+      <div class="wordmark wordmark-light">
+        <span class="brand-name">Anansi Atlas</span>
+        <span class="brand-tag">The Web of Opportunity</span>
+      </div>
+
+      <div class="ask-inner">
+        <p class="ask-eyebrow">Join the Web</p>
+        <h2 class="ask-headline">We're looking for <span>19 more founding partners</span>,<br>early clients, and mission-aligned investors.</h2>
+        <div class="ask-grid">
+          <div class="ask-card">
+            <p class="ask-card-label">If you lead a nonprofit</p>
+            <p>Become a <strong>founding partner at $150/month</strong> — locked for life. Includes a personal 45-minute walkthrough. Go to anansiatlas.com or reply to this message.</p>
+          </div>
+          <div class="ask-card">
+            <p class="ask-card-label">If you support nonprofits</p>
+            <p>Capacity builders, consultants, funders: ask about <strong>white-label and referral partnerships</strong> — early conversations welcome.</p>
+          </div>
+          <div class="ask-card">
+            <p class="ask-card-label">If you're an impact investor</p>
+            <p>We're building the <strong>intelligence layer for the entire social sector</strong>. Let's talk about what that's worth at scale.</p>
+          </div>
+        </div>
+        <span class="ask-seats">19 founding partner seats remaining — first come, first served</span>
+        <p class="ask-cta">
+          <strong>Marcus Scott</strong> &nbsp;·&nbsp; <strong>anansiatlas.com</strong> &nbsp;·&nbsp; <strong>marcusscott43@gmail.com</strong>
+        </p>
+      </div>
+
+      <span class="slide-num slide-num-light">12 / 12</span>
+    </section>
+    <div class="speaker-notes">
+      <p class="speaker-notes-label">Speaker Notes</p>
+      <p>The ask is simple: if you believe nonprofits deserve better intelligence tools, this is the moment to be part of building that. Founding partners don't just get a good price — they get direct access, real influence on the roadmap, and the satisfaction of being early to something that matters. I'm happy to walk you through your own snapshot right now. What questions do you have?</p>
+    </div>
+  </div>
+
+</div><!-- end .deck -->
+</body>
+</html>
