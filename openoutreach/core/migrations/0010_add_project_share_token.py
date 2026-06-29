@@ -2,6 +2,14 @@ import uuid
 from django.db import migrations, models
 
 
+def populate_share_tokens(apps, schema_editor):
+    """Give each existing row a unique token (DB-agnostic; works on Postgres + SQLite)."""
+    Project = apps.get_model("core", "Project")
+    for project in Project.objects.filter(share_token__isnull=True):
+        project.share_token = uuid.uuid4()
+        project.save(update_fields=["share_token"])
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -16,10 +24,7 @@ class Migration(migrations.Migration):
             field=models.UUIDField(null=True, blank=True),
         ),
         # Step 2: populate each existing row with a unique token
-        migrations.RunSQL(
-            sql="UPDATE core_project SET share_token = lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))) WHERE share_token IS NULL",
-            reverse_sql="UPDATE core_project SET share_token = NULL",
-        ),
+        migrations.RunPython(populate_share_tokens, migrations.RunPython.noop),
         # Step 3: add unique + index constraint, remove nullability
         migrations.AlterField(
             model_name='project',

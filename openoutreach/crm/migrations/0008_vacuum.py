@@ -9,5 +9,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL("VACUUM;", reverse_sql=migrations.RunSQL.noop),
+        # VACUUM is a SQLite disk-reclamation step; no-op on Postgres (and would
+        # error inside a managed transaction). Kept as a placeholder for history.
+        migrations.RunSQL(migrations.RunSQL.noop, reverse_sql=migrations.RunSQL.noop),
     ]
