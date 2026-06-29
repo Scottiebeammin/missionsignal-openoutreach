@@ -1,0 +1,20 @@
+{% extends "signals/emails/base.html" %}
+{% block body %}
+<p class="greeting">What the Opportunity Web looks like for a real nonprofit.</p>
+<p>I promised a real example — here's one.</p>
+<p><strong>Empowered Girls Inc.</strong> is a workforce development nonprofit focused on young women of color in the Southeast. When we ran their Opportunity Web Snapshot, the platform surfaced:</p>
+
+<ol class="step-list">
+  <li><span class="step-num">✦</span><span><strong>8 funder archetypes</strong> — led by community foundations and federal workforce agencies</span></li>
+  <li><span class="step-num">✦</span><span><strong>14 strategic partners</strong> — including community colleges, workforce boards, and corporate partners with internship pipelines</span></li>
+  <li><span class="step-num">✦</span><span><strong>45 grant opportunities</strong> — 12 marked high priority, 6 with deadlines inside 90 days</span></li>
+  <li><span class="step-num">✦</span><span><strong>Readiness Score: 68/100</strong> — strong mission clarity, gap in documented outcomes</span></li>
+  <li><span class="step-num">✦</span><span><strong>30-day action plan</strong> starting with two grant applications and a workforce board meeting</span></li>
+</ol>
+
+<div class="highlight-box">
+  <p>The platform didn't just show them a list. It showed them <em>why</em> each funder aligns, what to prepare before applying, and what risks to watch. Your Snapshot for <strong>{{ org_name }}</strong> would be built the same way — mapped to your specific mission, geography, and focus areas.</p>
+</div>
+
+<p>We have <strong>19 founding partner seats remaining</strong>. If you're ready to move, reply to this email and I'll get you set up.</p>
+{% endblock %}

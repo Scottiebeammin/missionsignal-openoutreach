@@ -63,11 +63,18 @@ def send_due_nurture_emails(now=None, dry_run: bool = False) -> tuple[int, int]:
             continue
 
         try:
+            from openoutreach.signals.email_renderer import render_email
+            first_name = signup.name.split()[0] if signup.name.strip() else "there"
+            html = render_email(f"nurture_{next_step}.html", {
+                "first_name": first_name,
+                "org_name": signup.organization or "your organization",
+            })
             send_mail(
                 subject=subject,
                 message=body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[signup.email],
+                html_message=html,
                 fail_silently=False,
             )
             signup.nurture_step = next_step

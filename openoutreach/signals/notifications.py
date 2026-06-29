@@ -66,12 +66,18 @@ def build_interest_signup_confirmation(signup: InterestSignup) -> str:
 
 
 def send_interest_signup_confirmation(signup: InterestSignup) -> bool:
+    from openoutreach.signals.email_renderer import render_email
+    first_name = signup.name.split()[0] if signup.name.strip() else "there"
     try:
         send_mail(
             subject="You're on the Anansi Atlas waitlist",
             message=build_interest_signup_confirmation(signup),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[signup.email],
+            html_message=render_email("waitlist_confirmation.html", {
+                "first_name": first_name,
+                "org_name": signup.organization or "your organization",
+            }),
             fail_silently=False,
         )
     except Exception:
@@ -117,12 +123,19 @@ def send_intake_welcome(user, project) -> bool:
         "Founder, Anansi Atlas / Scott Foundry Group LLC",
         "info@anansiatlas.com",
     ])
+    from openoutreach.signals.email_renderer import render_email
+    snapshot_url = f"https://app.anansiatlas.com/projects/{project.pk}/snapshot/"
     try:
         send_mail(
             subject=f"Welcome to Anansi Atlas — your Snapshot is ready, {first_name}",
             message=body,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
+            html_message=render_email("intake_welcome.html", {
+                "first_name": first_name,
+                "org_name": org_name,
+                "snapshot_url": snapshot_url,
+            }),
             fail_silently=False,
         )
     except Exception:

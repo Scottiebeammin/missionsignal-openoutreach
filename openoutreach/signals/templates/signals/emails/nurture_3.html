@@ -1,0 +1,16 @@
+{% extends "signals/emails/base.html" %}
+{% block body %}
+<p class="greeting">Your spot is still here, {{ first_name }}.</p>
+<p>I'll keep this short.</p>
+<p>You signed up for the Anansi Atlas waitlist a week ago. Your spot is still open.</p>
+
+<div class="highlight-box">
+  <p><strong>Founding partner pricing: $150/month</strong> — locked for life. Includes your Opportunity Web Snapshot, full platform access as we build, a personal founder walkthrough, and a direct line to me.</p>
+</div>
+
+<p>After the founding cohort fills (<strong>19 seats remaining</strong>), pricing goes up and the walkthrough goes away.</p>
+<p>If now isn't the right time, no pressure — I'll stop sending follow-ups after this. But if you want to talk through whether it's the right fit, just reply.</p>
+{% endblock %}
+{% block footer_extra %}
+<span style="color:rgba(255,255,255,0.25);">Reply "unsubscribe" to stop receiving these emails.</span> &nbsp;·&nbsp;
+{% endblock %}

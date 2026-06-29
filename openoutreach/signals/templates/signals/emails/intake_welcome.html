@@ -1,0 +1,22 @@
+{% extends "signals/emails/base.html" %}
+{% block body %}
+<p class="greeting">Welcome to Anansi Atlas, {{ first_name }}.</p>
+<p><strong>{{ org_name }}</strong> is now part of our founding cohort.</p>
+<p>Your Opportunity Web Snapshot is ready — it maps the funders, partners, and pathways most aligned with your mission, along with a 30-day action plan and readiness score specific to your organization.</p>
+
+<div class="btn-center">
+  <a href="{{ snapshot_url }}" class="btn">View Your Snapshot →</a>
+</div>
+
+<p style="font-size:13px;color:#8a96a8;text-align:center;margin-top:0;">Opens your Opportunity Web Snapshot</p>
+
+<p>Here's what's happening behind the scenes:</p>
+<ol class="step-list">
+  <li><span class="step-num">1</span><span>Your intake has been received and your organization profile is built.</span></li>
+  <li><span class="step-num">2</span><span>Anansi Atlas has run a deterministic analysis of your mission, focus areas, and geography.</span></li>
+  <li><span class="step-num">3</span><span>Our AI research engine is identifying real, verifiable funders and opportunities aligned to your work. This may take a few minutes to complete.</span></li>
+</ol>
+
+<p>I'll reach out personally within 24 hours to schedule your <strong>Founder Walkthrough</strong> — a 45-minute session where we'll walk through your Snapshot together and build your first action plan.</p>
+<p>If you have questions before then, just reply here.</p>
+{% endblock %}

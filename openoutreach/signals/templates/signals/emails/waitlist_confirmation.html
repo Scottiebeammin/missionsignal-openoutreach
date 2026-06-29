@@ -1,0 +1,10 @@
+{% extends "signals/emails/base.html" %}
+{% block body %}
+<p class="greeting">You're on the list, {{ first_name }}.</p>
+<p>Thanks for joining the Anansi Atlas waitlist. We're glad you're here.</p>
+<div class="highlight-box">
+  <p>Anansi Atlas maps the web of opportunity around your mission — aligned funders, strategic partners, government pathways, readiness gaps, and a 30-day action plan — organized into one clear platform.</p>
+</div>
+<p>We'll follow up within 48 hours to learn more about <strong>{{ org_name }}</strong> and, if it's a fit, get you into the founding cohort.</p>
+<p>In the meantime, if you have questions, just reply to this email.</p>
+{% endblock %}

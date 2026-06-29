@@ -1,0 +1,21 @@
+{% extends "signals/emails/base.html" %}
+{% block body %}
+<p class="greeting">Here's what you'll see inside, {{ first_name }}.</p>
+<p>Thanks again for joining the Anansi Atlas waitlist. I wanted to give you a preview of what your Opportunity Web Snapshot actually looks like — because I think it's easier to understand the platform once you see it.</p>
+
+<p><strong>Your Snapshot includes:</strong></p>
+<ol class="step-list">
+  <li><span class="step-num">1</span><span><strong>Mission Overview</strong> — written specifically for your organization, not a template.</span></li>
+  <li><span class="step-num">2</span><span><strong>Top Funder Archetypes</strong> — community foundations, corporate funders, federal agencies — ranked by alignment to your mission and geography.</span></li>
+  <li><span class="step-num">3</span><span><strong>Strategic Partners</strong> — organizations already doing adjacent work you could collaborate with.</span></li>
+  <li><span class="step-num">4</span><span><strong>Active Opportunities</strong> — real grants and contracts with deadlines, eligibility notes, and fit scores.</span></li>
+  <li><span class="step-num">5</span><span><strong>30-Day Action Plan</strong> — prioritized steps written for your mission and stage.</span></li>
+  <li><span class="step-num">6</span><span><strong>Readiness Score</strong> — shows funders where you stand and what to strengthen.</span></li>
+</ol>
+
+<div class="highlight-box">
+  <p>For a workforce development org in the Southeast, this might surface a community foundation with a digital equity focus, a local workforce board partnership, and two federal grants with upcoming deadlines. For a youth arts nonprofit in Chicago, it looks completely different. That specificity is what makes it useful.</p>
+</div>
+
+<p>If you have questions, just reply. I read every email.</p>
+{% endblock %}
