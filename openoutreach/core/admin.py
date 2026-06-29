@@ -43,7 +43,7 @@ class ProjectAdmin(admin.ModelAdmin):
     raw_id_fields = ("organization",)
     filter_horizontal = ("users",)
     readonly_fields = ("created_at", "updated_at")
-    actions = ("run_deterministic_analysis",)
+    actions = ("run_deterministic_analysis", "research_with_ai")
 
     @admin.action(description="Run deterministic organization analysis")
     def run_deterministic_analysis(self, request, queryset):
@@ -56,6 +56,26 @@ class ProjectAdmin(admin.ModelAdmin):
             f"Analyzed {analyzed} project(s).",
             level=messages.SUCCESS,
         )
+
+    @admin.action(description="Research opportunities with AI")
+    def research_with_ai(self, request, queryset):
+        from openoutreach.signals.research import research_project
+
+        totals = {"funders": 0, "partners": 0, "government": 0, "resources": 0, "opportunities": 0}
+        errors = []
+        for project in queryset.select_related("organization"):
+            try:
+                counts = research_project(project)
+                for key in totals:
+                    totals[key] += counts.get(key, 0)
+            except Exception as exc:
+                errors.append(f"{project.organization.name}: {exc}")
+
+        summary = ", ".join(f"{n} {k}" for k, n in totals.items() if n)
+        if summary:
+            self.message_user(request, f"Research complete — {summary}.", level=messages.SUCCESS)
+        for err in errors:
+            self.message_user(request, f"Research error — {err}", level=messages.WARNING)
 
 
 @admin.register(Task)
