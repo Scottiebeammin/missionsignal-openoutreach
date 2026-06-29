@@ -4,7 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Anansi Atlas — The Web of Opportunity</title>
-  <meta name="description" content="Anansi Atlas maps the funders, partners, government pathways, readiness gaps, and strategic routes to capital around your mission — so you can move with confidence.">
+  <meta name="description" content="Anansi Atlas maps the funders, partners, and grant opportunities aligned to your nonprofit's mission — in 10 minutes. Founding partner seats available at $150/month.">
+
+  <!-- OpenGraph (LinkedIn, Facebook, iMessage previews) -->
+  <meta property="og:title" content="Anansi Atlas — The Web of Opportunity">
+  <meta property="og:description" content="Know what funding exists. Know if you're ready. Know what to do first. Anansi Atlas maps the full opportunity landscape around your nonprofit's mission.">
+  <meta property="og:url" content="https://anansiatlas.com">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://anansiatlas.com/static/signals/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Anansi Atlas">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Anansi Atlas — The Web of Opportunity">
+  <meta name="twitter:description" content="Know what funding exists. Know if you're ready. Know what to do first.">
+  <meta name="twitter:image" content="https://anansiatlas.com/static/signals/og-image.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -842,7 +858,29 @@
       .hero-btns .btn { text-align: center; justify-content: center; }
       .form-card { padding: 22px 18px; }
     }
-    /* ── STICKY MOBILE CTA ── */
+    .faq-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 24px 26px;
+  }
+  .faq-card h3 {
+    font-size: 0.96rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+  .faq-card p {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.7;
+  }
+  @media (max-width: 640px) {
+    .faq-card-grid { grid-template-columns: 1fr !important; }
+  }
+
+  /* ── STICKY MOBILE CTA ── */
     .sticky-cta {
       display: none;
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
@@ -1601,6 +1639,49 @@
         </div>
       </div>
     </section>
+  </div>
+</div>
+
+<!-- ═══ FAQ ════════════════════════════════════════════════════════════ -->
+<div style="background: var(--night, #07101d); padding: 80px 0;">
+  <div class="shell">
+    <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Common Questions</p>
+    <h2 class="display reveal reveal-delay-1" style="text-align:center;color:#fff;max-width:540px;margin:0 auto 48px;">
+      Everything you need to know
+    </h2>
+    <div class="faq-card-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:860px;margin:0 auto;">
+
+      <div class="faq-card reveal">
+        <h3>Is this just a grant search tool?</h3>
+        <p>No. Anansi Atlas is a strategic intelligence layer — not a database you search. It maps the full opportunity landscape around your specific mission: funders, partners, government pathways, readiness gaps, and a 30-day action plan. You don't search it. It builds around you.</p>
+      </div>
+
+      <div class="faq-card reveal reveal-delay-1">
+        <h3>What if my organization is small or new?</h3>
+        <p>Anansi Atlas is built for organizations at every stage. The Readiness Score is honest — if you have gaps, it names them and tells you what to address first. Small organizations often benefit most because they don't have research capacity and this replaces what they can't afford to hire.</p>
+      </div>
+
+      <div class="faq-card reveal">
+        <h3>How long does the intake form take?</h3>
+        <p>About 10 minutes. You'll answer questions about your mission, programs, geography, focus areas, and who you serve. No jargon, no consultants required — just plain language about your work.</p>
+      </div>
+
+      <div class="faq-card reveal reveal-delay-1">
+        <h3>When do I get my Opportunity Web Snapshot?</h3>
+        <p>Immediately after you submit the intake form. Your Snapshot is generated automatically — you don't wait for a human to build it. You'll also receive a welcome email with a direct link.</p>
+      </div>
+
+      <div class="faq-card reveal">
+        <h3>What's included in the founding partner price?</h3>
+        <p>$150/month includes full platform access, your Opportunity Web Snapshot, your entire strategic workspace (funding pipeline, readiness tracker, partner map), and a 45-minute personal founder walkthrough call with Marcus. The price is locked for life — it never increases as long as you stay active.</p>
+      </div>
+
+      <div class="faq-card reveal reveal-delay-1">
+        <h3>Can I cancel anytime?</h3>
+        <p>Yes. No contracts, no commitments. Cancel any time. If you lock in the founding partner rate and leave, the rate isn't guaranteed when you return — but there's no penalty for canceling.</p>
+      </div>
+
+    </div>
   </div>
 </div>
 

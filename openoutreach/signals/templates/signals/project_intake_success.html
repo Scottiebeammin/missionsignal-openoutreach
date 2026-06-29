@@ -82,41 +82,81 @@
     .steps { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
 
     .step {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 18px 20px;
+      display: flex; align-items: flex-start; gap: 16px;
+      background: #fff; border: 1px solid var(--line);
+      border-radius: 16px; padding: 18px 20px;
       box-shadow: 0 2px 10px rgba(13,27,61,0.04);
     }
+    .step.done  { border-color: rgba(46,158,107,0.25); background: rgba(46,158,107,0.03); }
+    .step.active{ border-color: rgba(212,160,23,0.35); background: rgba(212,160,23,0.03); }
+
     .step-num {
-      width: 32px; height: 32px; flex-shrink: 0;
-      border-radius: 50%;
+      width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%;
       background: linear-gradient(135deg, #D4A017, #C46A3D);
       display: flex; align-items: center; justify-content: center;
       font-size: 0.80rem; font-weight: 900; color: #18100a;
     }
+    .step.done .step-num { background: var(--green); color: #fff; font-size: 1rem; }
+
+    .step-meta { display: flex; align-items: flex-start; gap: 10px; flex: 1; flex-wrap: wrap; }
+    .step-badge {
+      margin-left: auto; font-size: 0.70rem; font-weight: 800;
+      letter-spacing: .05em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 6px; white-space: nowrap;
+    }
+    .badge-done   { background: rgba(46,158,107,0.12); color: var(--green); }
+    .badge-active { background: rgba(212,160,23,0.15); color: #9a6e00; }
+    .badge-ready  { background: rgba(212,160,23,0.15); color: #7a5400; }
+
+    .step-body { flex: 1; }
     .step-body h3 { font-size: 0.93rem; font-weight: 800; color: var(--ink); margin-bottom: 3px; }
     .step-body p  { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
 
     /* ── CTA ── */
-    .cta-block { text-align: center; }
+    .cta-block { text-align: center; margin-bottom: 24px; }
     .btn-gold {
       display: inline-flex; align-items: center; gap: 7px;
       background: var(--accent); border: none; border-radius: 999px;
       padding: 14px 32px; font: inherit; font-size: 1rem; font-weight: 800;
       color: #18100a; cursor: pointer; text-decoration: none;
-      box-shadow: 0 8px 28px rgba(212,160,23,0.22);
-      transition: box-shadow 140ms;
+      box-shadow: 0 8px 28px rgba(212,160,23,0.22); transition: box-shadow 140ms;
     }
     .btn-gold:hover { box-shadow: 0 14px 38px rgba(212,160,23,0.32); }
+    .cta-note { margin-top: 14px; font-size: 0.84rem; color: var(--muted); }
 
-    .cta-note {
-      margin-top: 14px;
-      font-size: 0.84rem;
-      color: var(--muted);
+    /* ── Walkthrough card ── */
+    .walkthrough-card {
+      background: var(--night); border-radius: 18px;
+      padding: 22px 24px; margin-bottom: 24px;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .walkthrough-icon { font-size: 1.7rem; flex-shrink: 0; margin-top: 2px; }
+    .walkthrough-body h3 { font-size: 0.96rem; font-weight: 800; color: #fff; margin-bottom: 5px; }
+    .walkthrough-body p  { font-size: 0.84rem; color: rgba(255,255,255,0.5); line-height: 1.55; }
+    .btn-ghost-sm {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1.5px solid rgba(212,160,23,0.4); border-radius: 999px;
+      padding: 7px 18px; font: inherit; font-size: 0.82rem; font-weight: 700;
+      color: var(--accent); background: none; text-decoration: none;
+      margin-top: 12px; transition: border-color .15s;
+    }
+    .btn-ghost-sm:hover { border-color: var(--accent); }
+
+    /* ── Share strip ── */
+    .share-strip {
+      display: flex; align-items: center; gap: 10px;
+      background: #fff; border: 1px solid var(--line);
+      border-radius: 12px; padding: 10px 14px; margin-bottom: 32px;
+    }
+    .share-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+    .share-strip input {
+      flex: 1; border: none; background: none; font: inherit;
+      font-size: 0.80rem; color: var(--muted); outline: none;
+    }
+    .share-strip button {
+      font: inherit; font-size: 0.78rem; font-weight: 800;
+      background: var(--accent); border: none; border-radius: 8px;
+      padding: 6px 14px; color: #18100a; cursor: pointer; white-space: nowrap;
     }
 
     /* ── Footer ── */
@@ -146,25 +186,34 @@
   <p class="subtitle">Your intake is complete. Anansi Atlas is now analyzing your mission, programs, and focus areas to map the funders, partners, and pathways aligned to your work.</p>
 
   <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <h3>Intake received</h3>
-        <p>Your organization profile is in. We've captured your mission, focus areas, who you serve, and where you need support.</p>
+    <div class="step done">
+      <div class="step-num">✓</div>
+      <div class="step-meta">
+        <div class="step-body">
+          <h3>Intake received</h3>
+          <p>Your organization profile is in — mission, focus areas, who you serve, and programs captured.</p>
+        </div>
+        <span class="step-badge badge-done">Complete</span>
       </div>
     </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <h3>Analysis underway</h3>
-        <p>Anansi Atlas is mapping your Opportunity Web — aligned funders, strategic partners, government pathways, readiness gaps, and a 30-day action plan.</p>
+    <div class="step done">
+      <div class="step-num">✓</div>
+      <div class="step-meta">
+        <div class="step-body">
+          <h3>Opportunity Web mapped</h3>
+          <p>Anansi Atlas has analyzed your mission and mapped aligned funders, partners, government pathways, readiness gaps, and a 30-day action plan.</p>
+        </div>
+        <span class="step-badge badge-done">Complete</span>
       </div>
     </div>
-    <div class="step">
+    <div class="step active">
       <div class="step-num">3</div>
-      <div class="step-body">
-        <h3>Your Snapshot is ready</h3>
-        <p>View your full Opportunity Web in your workspace. Marcus will reach out to schedule your founder walkthrough.</p>
+      <div class="step-meta">
+        <div class="step-body">
+          <h3>Your Snapshot is ready</h3>
+          <p>Open it now — everything is built. Then book your founder walkthrough to go through it with Marcus personally.</p>
+        </div>
+        <span class="step-badge badge-ready">Ready now</span>
       </div>
     </div>
   </div>
@@ -173,7 +222,26 @@
     <a class="btn-gold" href="{% url 'project-snapshot' project.pk %}">
       Open Your Snapshot →
     </a>
-    <p class="cta-note">Your analysis is ready now. No waiting required.</p>
+    <p class="cta-note">No waiting. Your full Opportunity Web is ready right now.</p>
+  </div>
+
+  <!-- Share strip -->
+  <div class="share-strip">
+    <span class="share-label">Share your Snapshot:</span>
+    <input type="text" id="share-url" readonly value="{{ request.scheme }}://{{ request.get_host }}{% url 'project-snapshot-public' project.share_token %}">
+    <button onclick="copyShare()">Copy link</button>
+  </div>
+
+  <!-- Walkthrough card -->
+  <div class="walkthrough-card">
+    <div class="walkthrough-icon">🗓</div>
+    <div class="walkthrough-body">
+      <h3>Book your Founder Walkthrough</h3>
+      <p>Every founding partner gets a personal 45-minute session with Marcus — we'll walk through your Snapshot together, build your first action plan, and answer every question you have.</p>
+      <a class="btn-ghost-sm" href="mailto:info@anansiatlas.com?subject=Founder Walkthrough — {{ project.organization.name }}&body=Hi Marcus, I just completed my intake for {{ project.organization.name }} and would love to schedule my founder walkthrough. What times work for you?">
+        Request a walkthrough →
+      </a>
+    </div>
   </div>
 
 </div>
@@ -182,5 +250,16 @@
   Anansi Atlas is operated by <strong>Scott Foundry Group LLC</strong>. &nbsp;·&nbsp; <a href="{% url 'anansi-atlas-landing' %}" style="color:inherit;">anansiatlas.com</a>
 </footer>
 
+<script>
+function copyShare() {
+  var input = document.getElementById('share-url');
+  input.select();
+  navigator.clipboard.writeText(input.value).then(function() {
+    var btn = input.nextElementSibling;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy link'; }, 2000);
+  });
+}
+</script>
 </body>
 </html>
