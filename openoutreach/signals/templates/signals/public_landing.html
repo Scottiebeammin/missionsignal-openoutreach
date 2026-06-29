@@ -280,6 +280,13 @@
       color: var(--gold-lt);
       margin-bottom: 16px;
     }
+    .founder-photo {
+      width: 180px; height: 180px; border-radius: 50%;
+      object-fit: cover; object-position: center top;
+      border: 2px solid rgba(201,144,30,0.40);
+      box-shadow: 0 0 0 6px rgba(201,144,30,0.08);
+      display: block; margin: 0 auto 16px;
+    }
     .founder-cred {
       font-size: 0.82rem; line-height: 1.7;
       color: var(--muted);
@@ -1603,7 +1610,7 @@
     <section aria-label="Founder story" style="padding: clamp(60px,8vw,100px) 0;">
       <div class="founder-layout">
         <div class="founder-avatar-block reveal">
-          <div class="founder-monogram" aria-hidden="true">MS</div>
+          <img src="{% static 'signals/founder-headshot.png' %}" alt="Founder of Anansi Atlas" class="founder-photo">
           <div class="founder-cred">
             <strong>The Founder</strong>
             Built from inside the sector<br>
