@@ -116,6 +116,12 @@
       margin-bottom: 20px;
       padding-bottom: 14px;
       border-bottom: 1px solid var(--line);
+      justify-content: space-between;
+    }
+    .section-label-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     .section-num {
       display: grid;
@@ -163,6 +169,10 @@
     .checkbox-grid label:hover {
       background: var(--gold-soft);
       border-color: rgba(212,160,23,.3);
+    }
+    .checkbox-grid label:has(input:checked) {
+      background: #fef6de;
+      border-color: var(--gold);
     }
     .checkbox-grid input[type="checkbox"] {
       width: 16px; height: 16px;
@@ -266,6 +276,65 @@
     .btn-submit:hover {
       transform: translateY(-1px);
       box-shadow: 0 14px 32px rgba(212,160,23,.36);
+    }
+
+    /* ── Key field emphasis ── */
+    .key-field-wrap {
+      position: relative;
+      border-left: 3px solid var(--gold);
+      padding-left: 14px;
+    }
+    .key-field-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .72rem; font-weight: 900;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: #8a6000;
+      background: #fef6de;
+      border: 1px solid rgba(212,160,23,.35);
+      border-radius: 6px;
+      padding: 2px 8px;
+      margin-bottom: 6px;
+    }
+    .key-field-badge::before { content: "★"; font-size: .7em; }
+
+    /* ── Checkbox counter ── */
+    .checkbox-counter {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .76rem; font-weight: 800;
+      color: var(--muted);
+      margin-left: auto;
+      transition: color .15s;
+    }
+    .checkbox-counter.has-selection { color: #8a6000; }
+    .checkbox-counter-num {
+      display: inline-grid;
+      place-items: center;
+      min-width: 22px; height: 22px;
+      border-radius: 11px;
+      background: #f0e8cc;
+      color: #6a4900;
+      font-weight: 900; font-size: .74rem;
+      transition: background .15s;
+    }
+    .checkbox-counter.has-selection .checkbox-counter-num {
+      background: var(--gold);
+      color: #0d1b3d;
+    }
+    .section-label-flex { display: flex; align-items: center; width: 100%; }
+    .section-label-left { display: flex; align-items: center; gap: 10px; }
+
+    /* ── Textarea auto-grow hint ── */
+    textarea { min-height: 80px; }
+
+    /* ── Submit loading ── */
+    .btn-submit[disabled] {
+      opacity: .65; cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     /* ── Non-field errors ── */
@@ -416,12 +485,13 @@
         {% if form.mission.errors %}<div class="field-error">{{ form.mission.errors }}</div>{% endif %}
       </div>
 
-      <div class="field-row">
+      <div class="field-row key-field-wrap">
+        <div class="key-field-badge">Most important field</div>
         <label for="{{ form.programs.id_for_label }}">
-          Programs <span class="req" aria-hidden="true">*</span>
+          Programs &amp; Services <span class="req" aria-hidden="true">*</span>
         </label>
         {{ form.programs }}
-        <p class="field-hint">Describe your key programs, services, or activities. Include outcomes where you can.</p>
+        <p class="field-hint">{{ form.programs.help_text }}</p>
         {% if form.programs.errors %}<div class="field-error">{{ form.programs.errors }}</div>{% endif %}
       </div>
     </div>
@@ -429,12 +499,16 @@
     <!-- Section 4: Focus Areas -->
     <div class="form-section">
       <div class="section-label">
-        <span class="section-num">4</span>
-        <span class="section-name">Focus Areas</span>
-        <span class="section-required-note" style="color: var(--muted);">Select all that apply</span>
+        <div class="section-label-left">
+          <span class="section-num">4</span>
+          <span class="section-name">Focus Areas</span>
+        </div>
+        <span class="checkbox-counter" id="focus-counter" style="margin-left:auto;">
+          <span class="checkbox-counter-num" id="focus-count">0</span> selected
+        </span>
       </div>
       <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px;">These directly shape which funders, grants, and partners appear in your Opportunity Web. The more specific, the better your matches.</p>
-      <div class="checkbox-grid">
+      <div class="checkbox-grid" id="focus-grid">
         {% for widget in form.focus_area_selections %}{{ widget }}{% endfor %}
       </div>
       {% if form.focus_area_selections.errors %}<div class="field-error" style="margin-top:8px;">{{ form.focus_area_selections.errors }}</div>{% endif %}
@@ -443,12 +517,16 @@
     <!-- Section 5: Who You Serve -->
     <div class="form-section">
       <div class="section-label">
-        <span class="section-num">5</span>
-        <span class="section-name">Who You Serve</span>
-        <span class="section-required-note" style="color: var(--muted);">Select all that apply</span>
+        <div class="section-label-left">
+          <span class="section-num">5</span>
+          <span class="section-name">Who You Serve</span>
+        </div>
+        <span class="checkbox-counter" id="bene-counter" style="margin-left:auto;">
+          <span class="checkbox-counter-num" id="bene-count">0</span> selected
+        </span>
       </div>
       <p style="font-size:.88rem;color:var(--muted);margin-bottom:12px;">Identifying your primary populations ensures funders and partners that target the same communities are surfaced for you.</p>
-      <div class="checkbox-grid">
+      <div class="checkbox-grid" id="bene-grid">
         {% for widget in form.beneficiary_selections %}{{ widget }}{% endfor %}
       </div>
       {% if form.beneficiary_selections.errors %}<div class="field-error" style="margin-top:8px;">{{ form.beneficiary_selections.errors }}</div>{% endif %}
@@ -522,8 +600,8 @@
 
     <!-- Submit -->
     <div class="submit-zone">
-      <p class="submit-note">Once submitted, Anansi Atlas will analyze your organization and build your Opportunity Web Snapshot.</p>
-      <button class="btn-submit" type="submit">
+      <p class="submit-note">Once submitted, Anansi Atlas will analyze your organization and build your Opportunity Web Snapshot. This usually takes under 60 seconds.</p>
+      <button class="btn-submit" type="submit" id="submit-btn">
         Build my Opportunity Web →
       </button>
     </div>
@@ -532,27 +610,65 @@
 </div>
 
 <script>
-// Progress bar based on required fields filled
 (function() {
-  var required = document.querySelectorAll('input[required], textarea[required], select[required]');
-  // Also track the key fields manually since Django renders without required attr by default
+  // ── Progress bar ───────────────────────────────────────────────
   var keyFields = ['id_contact_name','id_contact_position','id_contact_email','id_organization_name','id_website','id_mission','id_programs','id_city','id_state'];
   var fill = document.getElementById('progress-fill');
 
-  function update() {
+  function updateProgress() {
     var done = 0;
     keyFields.forEach(function(id) {
       var el = document.getElementById(id);
       if (el && el.value.trim()) done++;
     });
-    fill.style.width = Math.round((done / keyFields.length) * 100) + '%';
+    // Also count if any focus area and beneficiary checked
+    var hasFocus = document.querySelectorAll('#focus-grid input:checked').length > 0;
+    var hasBene  = document.querySelectorAll('#bene-grid input:checked').length > 0;
+    if (hasFocus) done++;
+    if (hasBene) done++;
+    var total = keyFields.length + 2;
+    fill.style.width = Math.round((done / total) * 100) + '%';
   }
 
   keyFields.forEach(function(id) {
     var el = document.getElementById(id);
-    if (el) el.addEventListener('input', update);
+    if (el) el.addEventListener('input', updateProgress);
   });
-  update();
+
+  // ── Checkbox counters ──────────────────────────────────────────
+  function wireCounter(gridId, countId, counterElId) {
+    var grid    = document.getElementById(gridId);
+    var countEl = document.getElementById(countId);
+    var ctrEl   = document.getElementById(counterElId);
+    if (!grid || !countEl) return;
+    function update() {
+      var n = grid.querySelectorAll('input:checked').length;
+      countEl.textContent = n;
+      ctrEl.classList.toggle('has-selection', n > 0);
+      updateProgress();
+    }
+    grid.addEventListener('change', update);
+    update();
+  }
+  wireCounter('focus-grid', 'focus-count', 'focus-counter');
+  wireCounter('bene-grid',  'bene-count',  'bene-counter');
+
+  // ── Auto-resize textareas ──────────────────────────────────────
+  document.querySelectorAll('textarea').forEach(function(ta) {
+    ta.addEventListener('input', function() {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    });
+  });
+
+  // ── Submit loading state ───────────────────────────────────────
+  document.getElementById('intake-form').addEventListener('submit', function() {
+    var btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Building your Opportunity Web…';
+  });
+
+  updateProgress();
 })();
 </script>
 
