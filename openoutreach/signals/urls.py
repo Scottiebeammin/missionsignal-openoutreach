@@ -20,7 +20,8 @@ urlpatterns = [
     path("operator/waitlist/", operator_views.operator_waitlist, name="operator-waitlist"),
     path("operator/waitlist/<int:pk>/status/", operator_views.operator_waitlist_status, name="operator-waitlist-status"),
     path("operator/waitlist/<int:pk>/enrich/", operator_views.operator_enrich_signup, name="operator-waitlist-enrich"),
-    # SEO content pages
+    # Resources hub + SEO content pages
+    path("resources/", views.resources_hub, name="resources-hub"),
     path("nonprofit-grant-research/", views.seo_grant_research, name="nonprofit-grant-research"),
     path("nonprofit-funding-intelligence/", views.seo_funding_intelligence, name="nonprofit-funding-intelligence"),
     path("opportunity-mapping-for-nonprofits/", views.seo_opportunity_mapping, name="opportunity-mapping-nonprofits"),

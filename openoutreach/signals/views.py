@@ -915,3 +915,7 @@ def seo_opportunity_mapping(request):
 
 def seo_readiness_assessment(request):
     return render(request, "signals/seo/readiness_assessment.html")
+
+
+def resources_hub(request):
+    return render(request, "signals/seo/resources.html")
