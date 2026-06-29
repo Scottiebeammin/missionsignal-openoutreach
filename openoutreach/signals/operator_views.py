@@ -244,6 +244,133 @@ def operator_enrich_signup(request, pk):
 
 
 @_operator_required
+def operator_pipeline(request):
+    from openoutreach.signals.models import SalesLead
+    status_filter = request.GET.get("status", "")
+    source_filter = request.GET.get("source", "")
+    qs = SalesLead.objects.all()
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+    if source_filter:
+        qs = qs.filter(source=source_filter)
+
+    status_counts = {s.value: SalesLead.objects.filter(status=s).count() for s in SalesLead.Status}
+    ctx = {
+        "leads": qs,
+        "status_filter": status_filter,
+        "source_filter": source_filter,
+        "status_counts": status_counts,
+        "total": SalesLead.objects.count(),
+        "closed": status_counts.get("closed", 0),
+        "statuses": SalesLead.Status.choices,
+        "sources": SalesLead.Source.choices,
+    }
+    return render(request, "signals/operator/pipeline.html", ctx)
+
+
+@_operator_required
+@require_POST
+def operator_pipeline_add(request):
+    from openoutreach.signals.models import SalesLead
+    name = request.POST.get("name", "").strip()
+    if not name:
+        messages.error(request, "Name is required.")
+        return redirect("operator-pipeline")
+    SalesLead.objects.create(
+        name=name,
+        organization=request.POST.get("organization", "").strip(),
+        email=request.POST.get("email", "").strip(),
+        phone=request.POST.get("phone", "").strip(),
+        role=request.POST.get("role", "").strip(),
+        linkedin_url=request.POST.get("linkedin_url", "").strip(),
+        source=request.POST.get("source", SalesLead.Source.WARM),
+        notes=request.POST.get("notes", "").strip(),
+    )
+    messages.success(request, f"Added {name} to the pipeline.")
+    return redirect("operator-pipeline")
+
+
+@_operator_required
+@require_POST
+def operator_pipeline_update(request, pk):
+    from openoutreach.signals.models import SalesLead
+    lead = get_object_or_404(SalesLead, pk=pk)
+    new_status = request.POST.get("status", "").strip()
+    note = request.POST.get("note", "").strip()
+    follow_up = request.POST.get("next_follow_up", "").strip()
+
+    update_fields = []
+    if new_status in SalesLead.Status.values:
+        lead.status = new_status
+        update_fields.append("status")
+    if note:
+        from django.utils import timezone
+        stamp = timezone.now().strftime("%b %-d")
+        lead.notes = (f"[{stamp}] {note}\n\n" + lead.notes).strip()
+        update_fields.append("notes")
+    if follow_up:
+        from datetime import date
+        try:
+            lead.next_follow_up = date.fromisoformat(follow_up)
+            update_fields.append("next_follow_up")
+        except ValueError:
+            pass
+    if update_fields:
+        update_fields.append("updated_at")
+        lead.save(update_fields=update_fields)
+    messages.success(request, f"Updated {lead.name}.")
+    return redirect("operator-pipeline")
+
+
+@_operator_required
+@require_POST
+def operator_pipeline_draft(request, pk):
+    from openoutreach.signals.models import SalesLead
+    from pydantic_ai import Agent
+    from openoutreach.core.llm import get_llm_model, run_agent_sync
+
+    lead = get_object_or_404(SalesLead, pk=pk)
+    source_label = lead.get_source_display()
+    tone = "warm, personal, reference shared context" if lead.source == SalesLead.Source.WARM else "professional cold outreach, concise"
+
+    prompt = f"""Write a short sales outreach email for Anansi Atlas — a nonprofit opportunity intelligence platform ($150/month founding partner rate).
+
+Lead details:
+- Name: {lead.name}
+- Organization: {lead.organization or 'unknown'}
+- Role: {lead.role or 'unknown'}
+- Source: {source_label}
+- Notes: {lead.notes or 'none'}
+
+Tone: {tone}
+Length: 5-8 sentences max. No subject line. No sign-off needed (we'll add it).
+Goal: get them on a 45-minute founder walkthrough call.
+Do not mention pricing unless they asked. End with a soft CTA — "would love to show you what it looks like for [org name]" style.
+Return only the email body text."""
+
+    try:
+        agent = Agent(get_llm_model(), model_settings={"temperature": 0.7, "timeout": 60})
+        draft = run_agent_sync(agent.run(prompt)).output.strip()
+        lead.outreach_draft = draft
+        lead.save(update_fields=["outreach_draft", "updated_at"])
+        messages.success(request, f"Draft generated for {lead.name}.")
+    except Exception as e:
+        messages.error(request, f"Draft failed: {e}")
+    return redirect("operator-pipeline")
+
+
+@_operator_required
+@require_POST
+def operator_pipeline_delete(request, pk):
+    from openoutreach.signals.models import SalesLead
+    lead = get_object_or_404(SalesLead, pk=pk)
+    name = lead.name
+    lead.delete()
+    messages.success(request, f"Removed {name} from pipeline.")
+    return redirect("operator-pipeline")
+
+
+@_operator_required
 def operator_waitlist(request):
     try:
         from openoutreach.signals.models import InterestSignup

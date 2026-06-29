@@ -113,6 +113,43 @@ class InterestSignup(models.Model):
         return f"{self.organization} — {self.email}"
 
 
+class SalesLead(models.Model):
+    class Source(models.TextChoices):
+        WARM = "warm", "Warm"
+        COLD = "cold", "Cold"
+        REFERRAL = "referral", "Referral"
+        INBOUND = "inbound", "Inbound (Waitlist)"
+
+    class Status(models.TextChoices):
+        NEW = "new", "New"
+        REACHED_OUT = "reached_out", "Reached Out"
+        CALL_SCHEDULED = "call_scheduled", "Call Scheduled"
+        CALL_DONE = "call_done", "Call Done"
+        CLOSED = "closed", "Closed — Won"
+        NURTURING = "nurturing", "Nurturing"
+        PASSED = "passed", "Passed"
+
+    name = models.CharField(max_length=300)
+    organization = models.CharField(max_length=300, blank=True, default="")
+    email = models.EmailField(blank=True, default="")
+    phone = models.CharField(max_length=50, blank=True, default="")
+    role = models.CharField(max_length=200, blank=True, default="")
+    linkedin_url = models.URLField(max_length=500, blank=True, default="")
+    source = models.CharField(max_length=20, choices=Source.choices, default=Source.WARM)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
+    notes = models.TextField(blank=True, default="")
+    outreach_draft = models.TextField(blank=True, default="")
+    next_follow_up = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("status", "-updated_at")
+
+    def __str__(self):
+        return f"{self.name} — {self.organization}"
+
+
 class PilotProfile(models.Model):
     class LifecycleStatus(models.TextChoices):
         WAITLIST = "waitlist", "Waitlist"

@@ -1,0 +1,220 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}Sales Pipeline{% endblock %}
+{% block page_title %}Sales Pipeline{% endblock %}
+{% block nav_pipeline %}active{% endblock %}
+
+{% block content %}
+
+<!-- Stats row -->
+<div class="stat-grid" style="margin-bottom:20px;">
+  <div class="stat-card">
+    <div class="stat-label">Total Leads</div>
+    <div class="stat-value">{{ total }}</div>
+  </div>
+  <div class="stat-card gold">
+    <div class="stat-label">Closed — Won</div>
+    <div class="stat-value">{{ closed }}</div>
+    <div class="stat-sub">Founding partners</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Call Scheduled</div>
+    <div class="stat-value">{{ status_counts.call_scheduled|default:0 }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Reached Out</div>
+    <div class="stat-value">{{ status_counts.reached_out|default:0 }}</div>
+  </div>
+</div>
+
+<!-- Filters + Add button -->
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+  <a href="{% url 'operator-pipeline' %}" class="btn btn-ghost btn-sm {% if not status_filter and not source_filter %}btn-active{% endif %}" style="{% if not status_filter and not source_filter %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">All ({{ total }})</a>
+  <a href="?status=new" class="btn btn-ghost btn-sm {% if status_filter == 'new' %}btn-active{% endif %}" style="{% if status_filter == 'new' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">New ({{ status_counts.new|default:0 }})</a>
+  <a href="?status=reached_out" class="btn btn-ghost btn-sm {% if status_filter == 'reached_out' %}btn-active{% endif %}" style="{% if status_filter == 'reached_out' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Reached Out ({{ status_counts.reached_out|default:0 }})</a>
+  <a href="?status=call_scheduled" class="btn btn-ghost btn-sm {% if status_filter == 'call_scheduled' %}btn-active{% endif %}" style="{% if status_filter == 'call_scheduled' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Call Scheduled ({{ status_counts.call_scheduled|default:0 }})</a>
+  <a href="?status=call_done" class="btn btn-ghost btn-sm {% if status_filter == 'call_done' %}btn-active{% endif %}" style="{% if status_filter == 'call_done' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Call Done ({{ status_counts.call_done|default:0 }})</a>
+  <a href="?status=closed" class="btn btn-ghost btn-sm {% if status_filter == 'closed' %}btn-active{% endif %}" style="{% if status_filter == 'closed' %}background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.4);{% endif %}">✓ Won ({{ status_counts.closed|default:0 }})</a>
+  <a href="?status=nurturing" class="btn btn-ghost btn-sm {% if status_filter == 'nurturing' %}btn-active{% endif %}" style="{% if status_filter == 'nurturing' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Nurturing ({{ status_counts.nurturing|default:0 }})</a>
+  <a href="?status=passed" class="btn btn-ghost btn-sm {% if status_filter == 'passed' %}btn-active{% endif %}" style="{% if status_filter == 'passed' %}background:rgba(255,255,255,.08);{% endif %}">Passed ({{ status_counts.passed|default:0 }})</a>
+  <div style="margin-left:auto;">
+    <button class="btn btn-gold btn-sm" onclick="document.getElementById('add-form').style.display=document.getElementById('add-form').style.display==='none'?'block':'none'">+ Add Lead</button>
+  </div>
+</div>
+
+<!-- Add lead form -->
+<div id="add-form" style="display:none;margin-bottom:20px;">
+  <div class="section-card" style="padding:20px;">
+    <div class="section-card-title" style="margin-bottom:16px;">Add Lead</div>
+    <form method="post" action="{% url 'operator-pipeline-add' %}">
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label style="font-size:.76rem;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Name *</label>
+          <input name="name" required placeholder="Full name" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font:inherit;font-size:.85rem;padding:8px 10px;">
+        </div>
+        <div>
+          <label style="font-size:.76rem;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Organization</label>
+          <input name="organization" placeholder="Org name" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font:inherit;font-size:.85rem;padding:8px 10px;">
+        </div>
+        <div>
+          <label style="font-size:.76rem;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Email</label>
+          <input name="email" type="email" placeholder="email@org.org" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font:inherit;font-size:.85rem;padding:8px 10px;">
+        </div>
+        <div>
+          <label style="font-size:.76rem;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Role</label>
+          <input name="role" placeholder="Executive Director" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font:inherit;font-size:.85rem;padding:8px 10px;">
+        </div>
+        <div>
+          <label style="font-size:.76rem;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">LinkedIn URL</label>
+          <input name="linkedin_url" type="url" placeholder="https://linkedin.com/in/..." style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font:inherit;font-size:.85rem;padding:8px 10px;">
+        </div>
+        <div>
+          <label style="font-size:.76rem;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Source</label>
+          <select name="source" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font:inherit;font-size:.85rem;padding:8px 10px;">
+            {% for val, label in sources %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:.76rem;color:rgba(255,255,255,.5);display:block;margin-bottom:4px;">Notes / context</label>
+        <textarea name="notes" rows="2" placeholder="How you know them, what they mentioned, any context..." style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font:inherit;font-size:.85rem;padding:8px 10px;resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button type="submit" class="btn btn-gold btn-sm">Add to Pipeline</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('add-form').style.display='none'">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Lead cards -->
+<div style="display:flex;flex-direction:column;gap:12px;">
+  {% for lead in leads %}
+  <div class="lead-card {% if lead.status == 'closed' %}lead-won{% elif lead.status == 'passed' %}lead-passed{% endif %}" id="lead-{{ lead.pk }}">
+
+    <!-- Top row -->
+    <div style="display:flex;align-items:flex-start;gap:16px;justify-content:space-between;">
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;flex-wrap:wrap;">
+          <span class="lead-name">{{ lead.name }}</span>
+          {% if lead.source == "warm" %}<span class="source-badge source-warm">🔥 Warm</span>
+          {% elif lead.source == "referral" %}<span class="source-badge source-referral">🤝 Referral</span>
+          {% elif lead.source == "inbound" %}<span class="source-badge source-inbound">📥 Inbound</span>
+          {% else %}<span class="source-badge source-cold">❄️ Cold</span>{% endif %}
+          {% if lead.status == "closed" %}<span class="badge badge-green">✓ Won</span>
+          {% elif lead.status == "call_scheduled" %}<span class="badge badge-gold">📅 Call Scheduled</span>
+          {% elif lead.status == "call_done" %}<span class="badge badge-gold">Call Done</span>
+          {% elif lead.status == "reached_out" %}<span class="badge badge-muted">Reached Out</span>
+          {% elif lead.status == "nurturing" %}<span class="badge badge-muted">Nurturing</span>
+          {% elif lead.status == "passed" %}<span class="badge" style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.35);">Passed</span>
+          {% else %}<span class="badge badge-muted">New</span>{% endif %}
+        </div>
+        <div style="font-size:.80rem;color:rgba(255,255,255,.45);">
+          {{ lead.organization|default:"No org" }}{% if lead.role %} · {{ lead.role }}{% endif %}
+          {% if lead.email %} · <a href="mailto:{{ lead.email }}" style="color:var(--gold-lt);">{{ lead.email }}</a>{% endif %}
+          {% if lead.linkedin_url %} · <a href="{{ lead.linkedin_url }}" target="_blank" rel="noopener" style="color:rgba(167,139,250,.8);">LinkedIn ↗</a>{% endif %}
+        </div>
+        {% if lead.next_follow_up %}
+        <div style="font-size:.75rem;margin-top:4px;color:#fb923c;">📅 Follow up: {{ lead.next_follow_up|date:"M j, Y" }}</div>
+        {% endif %}
+        {% if lead.notes %}
+        <div style="font-size:.80rem;color:rgba(255,255,255,.5);margin-top:6px;line-height:1.5;white-space:pre-line;">{{ lead.notes|truncatechars:300 }}</div>
+        {% endif %}
+      </div>
+      <!-- Quick actions -->
+      <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">
+        <form method="post" action="{% url 'operator-pipeline-draft' lead.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-ghost btn-sm" style="color:#a78bfa;border-color:rgba(167,139,250,.3);" title="Draft outreach email">⚡ Draft</button>
+        </form>
+        <button class="btn btn-ghost btn-sm" onclick="toggleSection('update-{{ lead.pk }}')" title="Update status / add note">✏️ Update</button>
+        <form method="post" action="{% url 'operator-pipeline-delete' lead.pk %}" onsubmit="return confirm('Remove {{ lead.name }} from pipeline?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-ghost btn-sm" style="color:#f87171;border-color:rgba(248,113,113,.2);" title="Remove">✕</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Outreach draft (if exists) -->
+    {% if lead.outreach_draft %}
+    <div style="margin-top:12px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.2);border-radius:10px;padding:12px 14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:.72rem;font-weight:800;color:#a78bfa;text-transform:uppercase;letter-spacing:.05em;">⚡ AI Draft</span>
+        <button onclick="copyDraft('draft-{{ lead.pk }}')" class="btn btn-ghost btn-sm" style="font-size:.7rem;padding:3px 10px;color:#a78bfa;border-color:rgba(167,139,250,.3);">Copy</button>
+      </div>
+      <div id="draft-{{ lead.pk }}" style="font-size:.82rem;color:rgba(255,255,255,.7);line-height:1.65;white-space:pre-line;">{{ lead.outreach_draft }}</div>
+      <div style="margin-top:8px;font-size:.74rem;color:rgba(255,255,255,.3);">
+        — The Anansi Atlas Team &nbsp;·&nbsp; info@anansiatlas.com
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Update panel (collapsed) -->
+    <div id="update-{{ lead.pk }}" style="display:none;margin-top:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;">
+      <form method="post" action="{% url 'operator-pipeline-update' lead.pk %}">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:.72rem;color:rgba(255,255,255,.4);display:block;margin-bottom:3px;">Status</label>
+            <select name="status" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:7px;color:#fff;font:inherit;font-size:.82rem;padding:6px 8px;">
+              {% for val, label in statuses %}<option value="{{ val }}" {% if lead.status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:.72rem;color:rgba(255,255,255,.4);display:block;margin-bottom:3px;">Follow-up date</label>
+            <input type="date" name="next_follow_up" value="{{ lead.next_follow_up|date:'Y-m-d'|default:'' }}" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:7px;color:#fff;font:inherit;font-size:.82rem;padding:6px 8px;">
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button type="submit" class="btn btn-gold btn-sm" style="width:100%;">Save</button>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:.72rem;color:rgba(255,255,255,.4);display:block;margin-bottom:3px;">Add note (prepended with date)</label>
+          <input name="note" placeholder="What happened, what's next..." style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:7px;color:#fff;font:inherit;font-size:.82rem;padding:6px 8px;">
+        </div>
+      </form>
+    </div>
+
+  </div>
+  {% empty %}
+  <div class="empty-state">No leads match this filter. Add your first lead above.</div>
+  {% endfor %}
+</div>
+
+<style>
+  .lead-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 14px;
+    padding: 16px 18px;
+    transition: border-color .15s;
+  }
+  .lead-card:hover { border-color: rgba(212,160,23,.2); }
+  .lead-card.lead-won { border-color: rgba(74,222,128,.25); background: rgba(74,222,128,.03); }
+  .lead-card.lead-passed { opacity: .5; }
+  .lead-name { font-size: .96rem; font-weight: 800; color: #fff; }
+  .source-badge {
+    font-size: .68rem; font-weight: 800; letter-spacing: .04em;
+    padding: 2px 8px; border-radius: 6px;
+  }
+  .source-warm     { background: rgba(251,146,60,.15); color: #fb923c; border: 1px solid rgba(251,146,60,.25); }
+  .source-cold     { background: rgba(96,165,250,.12); color: #60a5fa; border: 1px solid rgba(96,165,250,.2); }
+  .source-referral { background: rgba(74,222,128,.12); color: #4ade80; border: 1px solid rgba(74,222,128,.2); }
+  .source-inbound  { background: rgba(212,160,23,.12); color: var(--gold-lt); border: 1px solid rgba(212,160,23,.2); }
+</style>
+
+<script>
+function toggleSection(id) {
+  var el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function copyDraft(id) {
+  var text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    event.target.textContent = 'Copied!';
+    setTimeout(function() { event.target.textContent = 'Copy'; }, 2000);
+  });
+}
+</script>
+
+{% endblock %}
