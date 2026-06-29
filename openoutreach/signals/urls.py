@@ -10,6 +10,7 @@ urlpatterns = [
     path("operator/organizations/<int:pk>/research/", operator_views.operator_run_research, name="operator-run-research"),
     path("operator/organizations/<int:pk>/analysis/", operator_views.operator_run_analysis, name="operator-run-analysis"),
     path("operator/waitlist/", operator_views.operator_waitlist, name="operator-waitlist"),
+    path("operator/waitlist/<int:pk>/status/", operator_views.operator_waitlist_status, name="operator-waitlist-status"),
     # Public homepage = the landing page (so the bare domain shows it, not a login wall).
     path("", views.public_landing_page, name="home"),
     path("anansi-atlas/", views.public_landing_page, name="anansi-atlas-landing"),

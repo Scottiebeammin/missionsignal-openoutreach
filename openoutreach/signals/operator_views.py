@@ -127,6 +127,22 @@ def operator_run_analysis(request, pk):
 
 
 @_operator_required
+@_operator_required
+@require_POST
+def operator_waitlist_status(request, pk):
+    from openoutreach.signals.models import InterestSignup
+    signup = get_object_or_404(InterestSignup, pk=pk)
+    new_status = request.POST.get("status", "").strip()
+    if new_status in InterestSignup.Status.values:
+        signup.status = new_status
+        signup.save(update_fields=["status"])
+        messages.success(request, f"Updated {signup.name} → {signup.get_status_display()}")
+    else:
+        messages.error(request, f"Invalid status: {new_status}")
+    return redirect("operator-waitlist")
+
+
+@_operator_required
 def operator_waitlist(request):
     try:
         from openoutreach.signals.models import InterestSignup
