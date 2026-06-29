@@ -496,11 +496,8 @@ def project_opportunity_web(request, pk):
     )
 
 
-@login_required
-def project_snapshot(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+def _build_snapshot_ctx(project):
+    """Shared snapshot data builder used by both authenticated and public views."""
     funding_criteria = getattr(project, "funding_criteria", None)
     funding_readiness = build_funding_readiness(project, funding_criteria)
     government_readiness = build_government_readiness(project, funding_criteria)
@@ -513,22 +510,23 @@ def project_snapshot(request, pk):
     )
     web = build_opportunity_web(project, discovery)
     snapshot = build_opportunity_web_snapshot(
-        project,
-        web,
-        readiness,
-        funding_readiness,
-        partnership_readiness,
-        discovery,
-        build_document_evidence_health(project),
-        match_overview,
+        project, web, readiness, funding_readiness, partnership_readiness,
+        discovery, build_document_evidence_health(project), match_overview,
     )
-
-    # Enhance narrative fields with LLM-generated copy (cached 24h, fails silently)
     try:
         from openoutreach.signals.narratives import enhance_snapshot
         enhance_snapshot(project, snapshot)
     except Exception:
         pass
+    return snapshot, web
+
+
+@login_required
+def project_snapshot(request, pk):
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), pk=pk, users=request.user,
+    )
+    snapshot, web = _build_snapshot_ctx(project)
 
     from openoutreach.core.models import OrganizationMember
     member = OrganizationMember.objects.filter(user=request.user, project=project).first()
@@ -544,6 +542,26 @@ def project_snapshot(request, pk):
             "web": web,
             "first_visit": first_visit,
             **_workflow_context(project, "understand", snapshot.recommended_next_actions[:2]),
+        },
+    )
+
+
+def project_snapshot_public(request, token):
+    """Public read-only snapshot view — accessible via share token, no login required."""
+    project = get_object_or_404(
+        Project.objects.select_related("organization"), share_token=token,
+    )
+    snapshot, web = _build_snapshot_ctx(project)
+    return render(
+        request,
+        "signals/project_snapshot.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "snapshot": snapshot,
+            "web": web,
+            "first_visit": False,
+            "is_public_view": True,
         },
     )
 

@@ -80,6 +80,61 @@
     @media (max-width: 900px) {
       .snapshot-command, .pathways-grid, .funder-grid, .partner-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Share / Print toolbar ── */
+    .snapshot-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1.5px solid var(--line, #dde3ec);
+      background: #fff;
+      color: var(--ink, #1a2540);
+      font: inherit; font-size: .84rem; font-weight: 700;
+      cursor: pointer;
+      transition: border-color .12s, background .12s;
+    }
+    .toolbar-btn:hover { border-color: var(--gold, #d4a017); background: #fef9ee; }
+    .toolbar-btn.copied { border-color: #2a9d5c; color: #2a9d5c; }
+    .share-link-reveal {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f7f8fa;
+      border: 1.5px solid var(--line, #dde3ec);
+      border-radius: 999px;
+      padding: 4px 4px 4px 16px;
+      max-width: 480px;
+      flex: 1;
+    }
+    .share-link-reveal input {
+      border: none; background: transparent; font-size: .82rem;
+      color: var(--ink, #1a2540); flex: 1; outline: none;
+      font-family: monospace;
+    }
+    .share-link-reveal button {
+      padding: 6px 14px; border-radius: 999px;
+      background: var(--navy, #0d1b3d); color: #fff;
+      border: none; font: inherit; font-size: .8rem; font-weight: 800;
+      cursor: pointer;
+    }
+
+    @media print {
+      .snapshot-toolbar, #welcome-banner, #walkthrough-prompt { display: none !important; }
+      body { background: #fff !important; }
+      .sidebar, nav, header.site-header { display: none !important; }
+      main { margin: 0 !important; padding: 0 !important; }
+      .panel, .funder-card, .partner-card { break-inside: avoid; }
+      a { color: inherit !important; text-decoration: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -153,6 +208,26 @@
         <span>{{ snapshot.readiness_level }}</span>
       </section>
     </header>
+
+    <!-- Share / Print toolbar -->
+    <div class="snapshot-toolbar" id="snapshot-toolbar">
+      {% if not is_public_view %}
+      <button class="toolbar-btn" id="share-btn" onclick="copyShareLink(event)" title="Copy shareable link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span id="share-label">Share Snapshot</span>
+      </button>
+      {% endif %}
+      <button class="toolbar-btn" onclick="window.print()" title="Save as PDF">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Save as PDF
+      </button>
+      {% if not is_public_view %}
+      <div class="share-link-reveal" id="share-link-reveal" style="display:none;">
+        <input type="text" id="share-link-input" readonly value="{{ request.scheme }}://{{ request.get_host }}{% url 'project-snapshot-public' project.share_token %}">
+        <button onclick="copyShareLink(event)">Copy</button>
+      </div>
+      {% endif %}
+    </div>
 
     <!-- ═══ SUMMARY + 30-DAY PLAN ════════════════════════════════════════ -->
     <section class="snapshot-command">
@@ -472,6 +547,33 @@
           }
         });
       })();
+    </script>
+
+    <script>
+    function copyShareLink(e) {
+      var reveal = document.getElementById('share-link-reveal');
+      var input  = document.getElementById('share-link-input');
+      var btn    = document.getElementById('share-btn');
+      var label  = document.getElementById('share-label');
+
+      if (reveal.style.display === 'none') {
+        reveal.style.display = 'flex';
+      }
+
+      if (navigator.clipboard && input) {
+        navigator.clipboard.writeText(input.value).then(function() {
+          if (label) label.textContent = 'Link Copied!';
+          if (btn) btn.classList.add('copied');
+          setTimeout(function() {
+            if (label) label.textContent = 'Share Snapshot';
+            if (btn) btn.classList.remove('copied');
+          }, 2500);
+        });
+      } else if (input) {
+        input.select();
+        document.execCommand('copy');
+      }
+    }
     </script>
   </main>
 </body>
