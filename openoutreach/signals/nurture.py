@@ -129,8 +129,7 @@ def _step_1(first_name: str, org: str) -> tuple[str, str]:
         "",
         "If you have questions, just reply. I read every email.",
         "",
-        "— Marcus Scott",
-        "Founder, Anansi Atlas",
+        "— The Anansi Atlas Team",
         "info@anansiatlas.com",
     ])
     return subject, body
@@ -161,9 +160,9 @@ def _step_2(first_name: str, org: str) -> tuple[str, str]:
         "mission, geography, and focus areas.",
         "",
         "We have 19 founding partner seats remaining. If you're ready to move, reply to this "
-        "email and I'll get you set up.",
+        "email and we'll get you set up.",
         "",
-        "— Marcus",
+        "— The Anansi Atlas Team",
         "info@anansiatlas.com",
     ])
     return subject, body
@@ -188,7 +187,7 @@ def _step_3(first_name: str, org: str) -> tuple[str, str]:
         "If now isn't the right time, no pressure — I'll stop sending follow-ups after this. "
         "But if you want to talk through whether it's the right fit, just reply.",
         "",
-        "— Marcus",
+        "— The Anansi Atlas Team",
         "info@anansiatlas.com",
         "",
         "P.S. If you've already signed up or decided it's not for you, just reply "

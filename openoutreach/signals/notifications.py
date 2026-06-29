@@ -119,8 +119,7 @@ def send_intake_welcome(user, project) -> bool:
         "",
         "If you have questions before then, just reply here.",
         "",
-        "— Marcus Scott",
-        "Founder, Anansi Atlas / Scott Foundry Group LLC",
+        "— The Anansi Atlas Team",
         "info@anansiatlas.com",
     ])
     from openoutreach.signals.email_renderer import render_email
@@ -146,7 +145,7 @@ def send_intake_welcome(user, project) -> bool:
 
 def notify_new_intake(user, project) -> bool:
     """
-    Notify the operator (Marcus) that a new org has completed intake.
+    Notify the operator that a new org has completed intake.
     """
     org = project.organization
     body = "\n".join([
