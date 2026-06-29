@@ -762,5 +762,17 @@
     .workflow-stage-row { grid-template-columns: 1fr; }
     .hero, .panel { padding: 16px !important; }
     .premium-table { min-width: 680px; }
+    /* Snapshot + opportunity web grids */
+    .metric-row { grid-template-columns: 1fr 1fr !important; }
+    .insight-grid { grid-template-columns: 1fr !important; }
+    /* Table overflow on small screens */
+    .table-wrap, table { overflow-x: auto; display: block; }
+  }
+  @media (max-width: 480px) {
+    body > main { padding: 10px !important; }
+    .hero { padding: 14px !important; }
+    .metric-row { grid-template-columns: 1fr !important; }
+    .hero h1 { font-size: clamp(1.3rem, 6vw, 1.8rem); }
+    .workspace-tabs a { font-size: 0.78rem; padding: 7px 10px; }
   }
 </style>
