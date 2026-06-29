@@ -56,3 +56,40 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false
+
+  # ── Nurture email cron — runs daily at 9 AM UTC ──────────────────────────
+  - type: cron
+    name: anansi-atlas-nurture
+    runtime: python
+    region: virginia
+    plan: starter
+    branch: main
+    buildCommand: "pip install -r requirements/production.txt"
+    schedule: "0 9 * * *"   # 9:00 AM UTC daily
+    startCommand: "python manage.py send_nurture_emails"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        fromService:
+          type: web
+          name: anansi-atlas
+          envVarKey: SECRET_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: anansi-atlas-db
+          property: connectionString
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_USE_TLS
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
