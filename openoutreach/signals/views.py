@@ -510,6 +510,14 @@ def project_snapshot(request, pk):
         build_document_evidence_health(project),
         match_overview,
     )
+
+    # Enhance narrative fields with LLM-generated copy (cached 24h, fails silently)
+    try:
+        from openoutreach.signals.narratives import enhance_snapshot
+        enhance_snapshot(project, snapshot)
+    except Exception:
+        pass
+
     return render(
         request,
         "signals/project_snapshot.html",

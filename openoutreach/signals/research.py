@@ -130,6 +130,14 @@ def research_project(project) -> dict:
         raise RuntimeError(f"LLM returned unparseable JSON: {e}") from e
 
     summary = import_research_data(data, project=project)
+
+    # Invalidate cached snapshot narratives so they regenerate with new data
+    try:
+        from openoutreach.signals.narratives import invalidate_cache
+        invalidate_cache(project)
+    except Exception:
+        pass
+
     logger.info("Research complete for project %s: %s", project.pk, summary)
     return summary
 
