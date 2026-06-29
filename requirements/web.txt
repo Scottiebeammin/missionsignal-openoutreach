@@ -1,0 +1,14 @@
+pydantic
+pydantic-ai-slim[openai,anthropic,google,groq,mistral,cohere]
+griffe>=1,<2
+jsonpath-ng
+pandas
+jinja2
+termcolor
+Django>=5.2,<7.0
+pyyaml
+stripe
+django-unfold
+gunicorn
+psycopg[binary]
+whitenoise

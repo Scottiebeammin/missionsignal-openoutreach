@@ -22,7 +22,7 @@ services:
     region: virginia         # MUST match the database region (they talk constantly)
     plan: starter            # avoids the free tier's cold-start sleep; bump to standard if needed
     branch: main
-    buildCommand: "pip install -r requirements/production.txt && python manage.py collectstatic --noinput"
+    buildCommand: "pip install -r requirements/web.txt && python manage.py collectstatic --noinput"
     preDeployCommand: "python manage.py migrate"   # runs once per deploy, before traffic switches
     startCommand: "gunicorn openoutreach.wsgi:application --workers 3 --timeout 120"
     healthCheckPath: /anansi-atlas/
