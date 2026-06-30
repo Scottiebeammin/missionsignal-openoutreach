@@ -72,9 +72,12 @@ def _build_org_profile(project) -> str:
         f"Mission: {org.mission or 'Not provided'}",
     ]
     geographies = list(org.service_geographies or [])
-    city_state = ", ".join(p for p in [org.city, org.state] if p)
-    if city_state:
-        geographies.insert(0, city_state)
+    # Lead with the full local locator (city, county, state) so the researcher can
+    # find county/city-level programs — the whole point of asking for county.
+    county = f"{org.county} County" if org.county and "county" not in org.county.lower() else org.county
+    home = ", ".join(p for p in [org.city, county, org.state] if p)
+    if home:
+        geographies.insert(0, home)
     if geographies:
         lines.append(f"Geography: {', '.join(geographies)}")
     if org.focus_areas:
