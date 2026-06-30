@@ -323,6 +323,37 @@ def operator_pipeline_update(request, pk):
 
 
 @_operator_required
+def operator_ads(request):
+    """AI ad-copy generator for Anansi Atlas marketing (LinkedIn/IG/FB/X/Google)."""
+    result = None
+    form = {"platform": "LinkedIn", "focus": "the founding cohort offer", "angle": "", "count": "3"}
+    if request.method == "POST":
+        from pydantic_ai import Agent
+        from openoutreach.core.llm import get_llm_model, run_agent_sync
+
+        form = {
+            "platform": request.POST.get("platform", "LinkedIn"),
+            "focus": request.POST.get("focus", "").strip(),
+            "angle": request.POST.get("angle", "").strip(),
+            "count": request.POST.get("count", "3"),
+        }
+        prompt = f"""You are a performance marketer for Anansi Atlas — a nonprofit opportunity intelligence platform that maps aligned funders, partners, government pathways, and readiness gaps for nonprofit Executive Directors. Founding partner rate is $150/month, locked for life.
+
+Write {form['count']} distinct {form['platform']} ad variations promoting: {form['focus'] or 'Anansi Atlas'}.
+{f"Angle / tone: {form['angle']}" if form['angle'] else ''}
+
+Audience: nonprofit Executive Directors and development directors who struggle to find funding aligned to their mission.
+Each variation: a scroll-stopping hook (1 line), 2-3 sentences of body that name a real pain and the payoff, and a clear CTA pointing to anansiatlas.com. Match {form['platform']} length and conventions. Number each variation clearly. Use hashtags only for Instagram or X.
+Return only the ad copy."""
+        try:
+            agent = Agent(get_llm_model(), model_settings={"temperature": 0.8, "timeout": 60})
+            result = run_agent_sync(agent.run(prompt)).output.strip()
+        except Exception as e:
+            messages.error(request, f"Generation failed: {e}")
+    return render(request, "signals/operator/ads.html", {"result": result, "form": form})
+
+
+@_operator_required
 @require_POST
 def operator_pipeline_draft(request, pk):
     from openoutreach.signals.models import SalesLead

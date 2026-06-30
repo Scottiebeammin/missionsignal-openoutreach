@@ -322,6 +322,12 @@
       </a>
     </div>
     <div class="nav-section">
+      <div class="nav-label">Marketing</div>
+      <a href="{% url 'operator-ads' %}" class="nav-link {% block nav_ads %}{% endblock %}">
+        <span class="nav-icon">📣</span> Ad Generator
+      </a>
+    </div>
+    <div class="nav-section">
       <div class="nav-label">Data</div>
       <a href="{% url 'operator-funders' %}" class="nav-link {% block nav_funders %}{% endblock %}">
         <span class="nav-icon">◈</span> Funder Database

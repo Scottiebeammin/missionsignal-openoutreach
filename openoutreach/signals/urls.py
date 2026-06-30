@@ -9,6 +9,7 @@ urlpatterns = [
     path("operator/organizations/<int:pk>/", operator_views.operator_org_detail, name="operator-org-detail"),
     path("operator/organizations/<int:pk>/research/", operator_views.operator_run_research, name="operator-run-research"),
     path("operator/organizations/<int:pk>/analysis/", operator_views.operator_run_analysis, name="operator-run-analysis"),
+    path("operator/ads/", operator_views.operator_ads, name="operator-ads"),
     path("operator/pipeline/", operator_views.operator_pipeline, name="operator-pipeline"),
     path("operator/pipeline/add/", operator_views.operator_pipeline_add, name="operator-pipeline-add"),
     path("operator/pipeline/<int:pk>/update/", operator_views.operator_pipeline_update, name="operator-pipeline-update"),

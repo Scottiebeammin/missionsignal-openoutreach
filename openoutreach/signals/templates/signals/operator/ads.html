@@ -1,0 +1,56 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}Ad Generator{% endblock %}
+{% block page_title %}Ad Generator{% endblock %}
+{% block nav_ads %}active{% endblock %}
+
+{% block content %}
+<p style="color:var(--muted);margin-bottom:20px;">Generate on-brand ad copy for Anansi Atlas. Pick a platform and what to promote — the AI drafts scroll-stopping variations you can copy straight into your campaigns.</p>
+
+<div style="display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start;">
+
+  <form method="post" style="background:#fff;border:1px solid var(--line,#e5e0d5);border-radius:14px;padding:20px;">
+    {% csrf_token %}
+    <label style="display:block;font-weight:700;font-size:.82rem;margin-bottom:6px;">Platform</label>
+    <select name="platform" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;margin-bottom:14px;">
+      <option {% if form.platform == "LinkedIn" %}selected{% endif %}>LinkedIn</option>
+      <option {% if form.platform == "Instagram" %}selected{% endif %}>Instagram</option>
+      <option {% if form.platform == "Facebook" %}selected{% endif %}>Facebook</option>
+      <option {% if form.platform == "X (Twitter)" %}selected{% endif %}>X (Twitter)</option>
+      <option {% if form.platform == "Google Search" %}selected{% endif %}>Google Search</option>
+      <option {% if form.platform == "Email subject lines" %}selected{% endif %}>Email subject lines</option>
+    </select>
+
+    <label style="display:block;font-weight:700;font-size:.82rem;margin-bottom:6px;">What to promote</label>
+    <input name="focus" value="{{ form.focus }}" placeholder="e.g. the founding cohort offer" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;margin-bottom:14px;">
+
+    <label style="display:block;font-weight:700;font-size:.82rem;margin-bottom:6px;">Angle / tone <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+    <input name="angle" value="{{ form.angle }}" placeholder="e.g. urgent, founder voice, data-driven" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;margin-bottom:14px;">
+
+    <label style="display:block;font-weight:700;font-size:.82rem;margin-bottom:6px;">Number of variations</label>
+    <select name="count" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:8px;margin-bottom:18px;">
+      <option {% if form.count == "3" %}selected{% endif %}>3</option>
+      <option {% if form.count == "5" %}selected{% endif %}>5</option>
+      <option {% if form.count == "1" %}selected{% endif %}>1</option>
+    </select>
+
+    <button type="submit" style="width:100%;background:#0b8a4b;color:#fff;font-weight:800;border:none;border-radius:999px;padding:12px;cursor:pointer;">⚡ Generate Ads</button>
+  </form>
+
+  <div>
+    {% if result %}
+      <div style="background:#fff;border:1px solid var(--line,#e5e0d5);border-radius:14px;padding:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <strong>{{ form.platform }} ads — {{ form.focus|default:"Anansi Atlas" }}</strong>
+          <button onclick="navigator.clipboard.writeText(document.getElementById('ad-output').innerText);this.textContent='Copied!'" style="background:#f3efe6;border:1px solid #ccc;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.8rem;">Copy all</button>
+        </div>
+        <pre id="ad-output" style="white-space:pre-wrap;font-family:inherit;font-size:.92rem;line-height:1.6;margin:0;">{{ result }}</pre>
+      </div>
+    {% else %}
+      <div style="background:#faf8f3;border:1px dashed #d8d2c4;border-radius:14px;padding:40px;text-align:center;color:var(--muted);">
+        Your generated ads will appear here. Fill out the form and hit <strong>Generate Ads</strong>.
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
