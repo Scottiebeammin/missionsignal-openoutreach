@@ -1,8 +1,6 @@
 # openoutreach/core/models.py
 from __future__ import annotations
 
-import uuid
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -133,7 +131,6 @@ class Project(models.Model):
     )
     active = models.BooleanField(default=True)
     intake_notes = models.TextField(blank=True, default="")
-    share_token = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

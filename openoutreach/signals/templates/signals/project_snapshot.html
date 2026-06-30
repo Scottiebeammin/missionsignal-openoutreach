@@ -209,24 +209,12 @@
       </section>
     </header>
 
-    <!-- Share / Print toolbar -->
+    <!-- Print toolbar (snapshot is login-only; no public sharing) -->
     <div class="snapshot-toolbar" id="snapshot-toolbar">
-      {% if not is_public_view %}
-      <button class="toolbar-btn" id="share-btn" onclick="copyShareLink(event)" title="Copy shareable link">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        <span id="share-label">Share Snapshot</span>
-      </button>
-      {% endif %}
       <button class="toolbar-btn" onclick="window.print()" title="Save as PDF">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Save as PDF
       </button>
-      {% if not is_public_view %}
-      <div class="share-link-reveal" id="share-link-reveal" style="display:none;">
-        <input type="text" id="share-link-input" readonly value="{{ request.scheme }}://{{ request.get_host }}{% url 'project-snapshot-public' project.share_token %}">
-        <button onclick="copyShareLink(event)">Copy</button>
-      </div>
-      {% endif %}
     </div>
 
     <!-- ═══ SUMMARY + 30-DAY PLAN ════════════════════════════════════════ -->
@@ -547,33 +535,6 @@
           }
         });
       })();
-    </script>
-
-    <script>
-    function copyShareLink(e) {
-      var reveal = document.getElementById('share-link-reveal');
-      var input  = document.getElementById('share-link-input');
-      var btn    = document.getElementById('share-btn');
-      var label  = document.getElementById('share-label');
-
-      if (reveal.style.display === 'none') {
-        reveal.style.display = 'flex';
-      }
-
-      if (navigator.clipboard && input) {
-        navigator.clipboard.writeText(input.value).then(function() {
-          if (label) label.textContent = 'Link Copied!';
-          if (btn) btn.classList.add('copied');
-          setTimeout(function() {
-            if (label) label.textContent = 'Share Snapshot';
-            if (btn) btn.classList.remove('copied');
-          }, 2500);
-        });
-      } else if (input) {
-        input.select();
-        document.execCommand('copy');
-      }
-    }
     </script>
   </main>
 </body>

@@ -546,26 +546,6 @@ def project_snapshot(request, pk):
     )
 
 
-def project_snapshot_public(request, token):
-    """Public read-only snapshot view — accessible via share token, no login required."""
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), share_token=token,
-    )
-    snapshot, web = _build_snapshot_ctx(project)
-    return render(
-        request,
-        "signals/project_snapshot.html",
-        {
-            "project": project,
-            "organization": project.organization,
-            "snapshot": snapshot,
-            "web": web,
-            "first_visit": False,
-            "is_public_view": True,
-        },
-    )
-
-
 @login_required
 def project_documents_dashboard(request, pk):
     project = get_object_or_404(

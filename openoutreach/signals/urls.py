@@ -84,11 +84,6 @@ urlpatterns = [
         name="project-snapshot",
     ),
     path(
-        "s/<uuid:token>/",
-        views.project_snapshot_public,
-        name="project-snapshot-public",
-    ),
-    path(
         "projects/<int:pk>/matches/",
         views.project_match_dashboard,
         name="project-matches",
