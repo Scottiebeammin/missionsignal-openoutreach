@@ -100,6 +100,18 @@ WAITLIST_ROLES = (
 )
 
 
+def client_project(request, pk):
+    """Return the project the user owns — or, for staff, ANY project (view-as-client).
+
+    Operators can open any client's portal to see exactly what the client sees; the
+    view_as_client context processor shows a banner so the mode is always obvious.
+    """
+    qs = Project.objects.select_related("organization")
+    if request.user.is_staff:
+        return get_object_or_404(qs, pk=pk)
+    return get_object_or_404(qs, pk=pk, users=request.user)
+
+
 def public_landing_page(request):
     signup_failed = False
     if request.method == "POST":
@@ -232,17 +244,13 @@ def project_intake(request):
 
 @login_required
 def project_intake_success(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     return render(request, "signals/project_intake_success.html", {"project": project})
 
 
 @login_required
 def project_analysis_detail(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     return render(
         request,
         "signals/project_analysis_detail.html",
@@ -257,18 +265,14 @@ def project_analysis_detail(request, pk):
 @login_required
 @require_POST
 def run_project_analysis(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     analyze_project(project, mode="deterministic")
     return redirect("project-analysis-detail", pk=project.pk)
 
 
 @login_required
 def project_mission_brief(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     return render(
         request,
@@ -286,9 +290,7 @@ def project_mission_brief(request, pk):
 
 @login_required
 def project_organization_workspace(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     next_steps = recommended_next_steps(project.organization, funding_criteria)
     return render(
@@ -305,9 +307,7 @@ def project_organization_workspace(request, pk):
 
 @login_required
 def project_pilot_workspace(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     profile = get_or_create_project_pilot_profile(project)
     return render(
         request,
@@ -322,9 +322,7 @@ def project_pilot_workspace(request, pk):
 
 @login_required
 def project_pilot_questionnaire(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     profile = get_or_create_project_pilot_profile(project)
     if request.method == "POST":
         form = PilotDiscoveryQuestionnaireForm(request.POST, request.FILES, instance=profile)
@@ -350,9 +348,7 @@ def project_pilot_questionnaire(request, pk):
 
 @login_required
 def project_pilot_feedback(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     profile = get_or_create_project_pilot_profile(project)
     feedback = getattr(profile, "feedback", None)
     if request.method == "POST":
@@ -380,9 +376,7 @@ def project_pilot_feedback(request, pk):
 
 @login_required
 def project_funding_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     readiness = build_funding_readiness(project, funding_criteria)
     return render(
@@ -399,9 +393,7 @@ def project_funding_dashboard(request, pk):
 
 @login_required
 def project_government_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     readiness = build_government_readiness(project, funding_criteria)
     return render(
@@ -418,9 +410,7 @@ def project_government_dashboard(request, pk):
 
 @login_required
 def project_executive_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     funding_readiness = build_funding_readiness(project, funding_criteria)
     government_readiness = build_government_readiness(project, funding_criteria)
@@ -466,9 +456,7 @@ def project_executive_dashboard(request, pk):
 
 @login_required
 def project_readiness_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     funding_readiness = build_funding_readiness(project, funding_criteria)
     government_readiness = build_government_readiness(project, funding_criteria)
@@ -497,9 +485,7 @@ def project_readiness_dashboard(request, pk):
 
 @login_required
 def project_relationships_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     relationships = build_relationship_overview(project)
     return render(
         request,
@@ -518,9 +504,7 @@ def project_relationships_dashboard(request, pk):
 
 @login_required
 def project_opportunity_web(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     discovery = build_discovery_overview(project, funding_criteria)
     return render(
@@ -562,9 +546,7 @@ def _build_snapshot_ctx(project):
 
 @login_required
 def project_snapshot(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     snapshot, web = _build_snapshot_ctx(project)
 
     from openoutreach.core.models import OrganizationMember
@@ -587,9 +569,7 @@ def project_snapshot(request, pk):
 
 @login_required
 def project_documents_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     return render(
         request,
         "signals/project_documents_dashboard.html",
@@ -604,9 +584,7 @@ def project_documents_dashboard(request, pk):
 
 @login_required
 def project_evidence_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     return render(
         request,
         "signals/project_evidence_dashboard.html",
@@ -621,9 +599,7 @@ def project_evidence_dashboard(request, pk):
 
 @login_required
 def project_celebrations_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     return render(
         request,
         "signals/project_celebrations_dashboard.html",
@@ -637,9 +613,7 @@ def project_celebrations_dashboard(request, pk):
 
 @login_required
 def project_ecosystem_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     funding_readiness = build_funding_readiness(project, funding_criteria)
     government_readiness = build_government_readiness(project, funding_criteria)
@@ -685,9 +659,7 @@ def project_ecosystem_dashboard(request, pk):
 
 @login_required
 def project_match_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     match_overview = build_opportunity_matches(project, funding_criteria)
     discovery = build_discovery_overview(project, funding_criteria)
@@ -719,9 +691,7 @@ def project_match_dashboard(request, pk):
 
 @login_required
 def project_discovery_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     discovery = build_discovery_overview(project, funding_criteria)
     return render(
@@ -739,9 +709,7 @@ def project_discovery_dashboard(request, pk):
 
 @login_required
 def project_opportunities_workspace(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     discovery = build_discovery_overview(project, funding_criteria)
     match_overview = build_opportunity_matches(project, funding_criteria)
@@ -799,9 +767,7 @@ def project_opportunities_workspace(request, pk):
 
 @login_required
 def project_pipeline_workspace(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     # Sweep any past-deadline opportunities the org never applied to into EXPIRED
     # before building the view, so the pipeline always reflects current deadlines.
     expire_past_deadline_opportunities(project)
@@ -834,9 +800,7 @@ def project_pipeline_workspace(request, pk):
 
 @login_required
 def project_opportunity_workspace(request, pk, opportunity_id):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     opportunity = get_object_or_404(
         Opportunity.objects.select_related("source_organization", "assigned_owner"),
         pk=opportunity_id,
@@ -868,7 +832,7 @@ def project_opportunity_workspace(request, pk, opportunity_id):
 @login_required
 @require_POST
 def update_opportunity_lifecycle(request, pk, opportunity_id):
-    get_object_or_404(Project.objects.select_related("organization"), pk=pk, users=request.user)
+    client_project(request, pk)
     opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
     target_status = request.POST.get("target_status", "")
     transition_opportunity_lifecycle(opportunity, target_status, actor=request.user)
@@ -879,7 +843,7 @@ def update_opportunity_lifecycle(request, pk, opportunity_id):
 @login_required
 @require_POST
 def assign_opportunity_owner_view(request, pk, opportunity_id):
-    get_object_or_404(Project.objects.select_related("organization"), pk=pk, users=request.user)
+    client_project(request, pk)
     opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
     owner_action = request.POST.get("owner_action", "")
     if owner_action == "assign_me":
@@ -892,7 +856,7 @@ def assign_opportunity_owner_view(request, pk, opportunity_id):
 @login_required
 @require_POST
 def update_opportunity_task_status(request, pk, opportunity_id, task_id):
-    get_object_or_404(Project.objects.select_related("organization"), pk=pk, users=request.user)
+    client_project(request, pk)
     opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
     task = get_object_or_404(OpportunityTask, pk=task_id, opportunity=opportunity)
     target_status = request.POST.get("target_status", "")
@@ -905,9 +869,7 @@ def update_opportunity_task_status(request, pk, opportunity_id, task_id):
 
 @login_required
 def project_resource_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     readiness = build_resource_readiness(project, funding_criteria)
     # Surface the actual free/low-cost resource directory (TechSoup, AmeriCorps, etc.),
@@ -931,9 +893,7 @@ def project_resource_dashboard(request, pk):
 
 @login_required
 def project_partnership_dashboard(request, pk):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     readiness = build_partnership_readiness(project, funding_criteria)
     return render(
@@ -950,9 +910,7 @@ def project_partnership_dashboard(request, pk):
 
 @login_required
 def project_module_placeholder(request, pk, module):
-    project = get_object_or_404(
-        Project.objects.select_related("organization"), pk=pk, users=request.user,
-    )
+    project = client_project(request, pk)
     module_config = MODULE_PLACEHOLDERS[module]
     return render(
         request,

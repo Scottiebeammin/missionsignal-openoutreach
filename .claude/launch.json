@@ -6,6 +6,12 @@
       "runtimeExecutable": "env",
       "runtimeArgs": ["DEBUG=true", ".venv/bin/python", "manage.py", "runserver", "8001"],
       "port": 8001
+    },
+    {
+      "name": "deck",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8042", "--directory", "/private/tmp/claude-501/-Users-scottiebeammin-Documents-GitHub-missionsignal-openoutreach/809fcc4c-3f97-4618-ad79-9addd5639d1a/scratchpad"],
+      "port": 8042
     }
   ]
 }

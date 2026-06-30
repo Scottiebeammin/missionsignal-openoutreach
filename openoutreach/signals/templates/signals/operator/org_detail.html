@@ -17,8 +17,8 @@
     {% csrf_token %}
     <button type="submit" class="btn btn-ghost">⚡ Run Analysis</button>
   </form>
-  <a href="{% url 'project-snapshot' project.pk %}" class="btn btn-ghost" target="_blank">📊 View Snapshot</a>
-  <a href="{% url 'project-dashboard' project.pk %}" class="btn btn-ghost" target="_blank">🖥️ Client Dashboard</a>
+  <a href="{% url 'project-dashboard' project.pk %}" class="btn btn-gold" target="_blank">👁 View as Client</a>
+  <a href="{% url 'project-snapshot' project.pk %}" class="btn btn-ghost" target="_blank">📊 Snapshot</a>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
