@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "unfold",
     "unfold.contrib.filters",
     "django.contrib.sites",
+    "django.contrib.sitemaps",
     "openoutreach.admin_config.AnansiAdminConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
