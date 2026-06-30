@@ -40,6 +40,11 @@
     .opportunity-card a { color: var(--accent); font-weight: 700; font-size: .85rem; text-decoration: none; }
     .opportunity-card a:hover { text-decoration: underline; }
     .grid { gap: 14px !important; }
+    .opp-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 4px; }
+    .track-btn { cursor: pointer; font: inherit; font-size: .8rem; font-weight: 700; padding: 6px 12px; border-radius: 999px;
+      border: 1px solid var(--line); background: #fff; color: var(--muted); transition: .15s; }
+    .track-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .track-btn.tracking { background: rgba(212,160,23,.12); border-color: var(--accent); color: #8a5b00; }
   </style>
   {% include "signals/_app_shell_styles.html" %}
 </head>
@@ -95,7 +100,15 @@
               {% if o.deadline %}<span class="score-badge">Due {{ o.deadline }}</span>{% endif %}
             </p>
             <p class="muted">{{ o.source_name|default:"Source not listed" }}</p>
-            {% if o.source_urls %}<p><a href="{{ o.source_urls.0 }}" target="_blank" rel="noopener">View opportunity →</a></p>{% endif %}
+            <div class="opp-actions">
+              {% if o.source_urls %}<a href="{{ o.source_urls.0 }}" target="_blank" rel="noopener">View opportunity →</a>{% endif %}
+              <form method="post" action="{% url 'project-opportunity-interest' project.pk o.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <button type="submit" class="track-btn {% if o.is_interested %}tracking{% endif %}" title="{% if o.is_interested %}Stop tracking{% else %}Track this — get weekly reminders until you apply{% endif %}">
+                  {% if o.is_interested %}★ Tracking{% else %}☆ Track{% endif %}
+                </button>
+              </form>
+            </div>
           </article>
         {% empty %}
           <div class="empty-state">

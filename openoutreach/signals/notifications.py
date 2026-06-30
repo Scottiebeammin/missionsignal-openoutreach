@@ -176,6 +176,51 @@ def send_opportunity_alert(user, project, new_matches, deadline_items) -> bool:
     return True
 
 
+def send_interest_reminder(user, project, tracked_items) -> bool:
+    """Weekly reminder of the opportunities the org is TRACKING (interested, not yet
+    applied). `tracked_items` = list of (opportunity, days_until_deadline_or_None)."""
+    first = user.first_name or (user.email.split("@")[0] if user.email else "there")
+    org = project.organization.name
+    n = len(tracked_items)
+    lines = [
+        f"Hi {first},",
+        "",
+        f"You're tracking {n} opportunit" + ("y" if n == 1 else "ies") + f" for {org}. "
+        "Here's your weekly reminder — apply, or un-track any you've decided to skip:",
+        "",
+    ]
+    for opp, days in tracked_items:
+        if opp.deadline and days is not None:
+            when = "today" if days == 0 else (
+                f"{days} day" + ("" if days == 1 else "s") + " left" if days > 0 else "deadline passed"
+            )
+            lines.append(f"  - {opp.name} - due {opp.deadline} ({when})")
+        else:
+            lines.append(f"  - {opp.name} - rolling / no fixed deadline")
+        if opp.source_urls:
+            lines.append(f"      {opp.source_urls[0]}")
+    lines += [
+        "",
+        f"Manage them in your pipeline: https://anansiatlas.com/projects/{project.pk}/opportunities/",
+        "(Reminders stop automatically once you mark one applied or un-track it.)",
+        "",
+        "— The Anansi Atlas Team",
+        "info@anansiatlas.com",
+    ]
+    try:
+        send_mail(
+            subject=f"{org}: {n} tracked opportunit" + ("y" if n == 1 else "ies") + " — weekly reminder",
+            message="\n".join(lines),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+    except Exception:
+        logger.exception("Interest reminder failed for user=%s project=%s", user.pk, project.pk)
+        return False
+    return True
+
+
 # ── Intake welcome emails ─────────────────────────────────────────────────────
 
 def send_intake_welcome(user, project) -> bool:

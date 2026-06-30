@@ -357,11 +357,26 @@ class Opportunity(models.Model):
         max_length=20, choices=VerificationStatus.choices, default=VerificationStatus.UNVERIFIED,
     )
     last_reviewed_at = models.DateTimeField(null=True, blank=True)
+    # "Interested" = the org is actively tracking this opportunity. While interested
+    # (and not yet applied), they get a WEEKLY reminder until they apply or un-track it.
+    is_interested = models.BooleanField(default=False)
+    interest_marked_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+
+    @property
+    def is_applied(self):
+        """True once the org has applied/submitted/won (or the opp is terminal)."""
+        return (
+            self.status in {self.Status.APPLIED, self.Status.WON, self.Status.EXPIRED, self.Status.ARCHIVED}
+            or self.lifecycle_status in {
+                self.LifecycleStatus.SUBMITTED, self.LifecycleStatus.AWARDED,
+                self.LifecycleStatus.DECLINED, self.LifecycleStatus.CLOSED,
+            }
+        )
 
 
 class OpportunityTask(models.Model):

@@ -57,20 +57,25 @@ services:
       - key: DEFAULT_FROM_EMAIL
         sync: false
 
-  # ── Daily data refresh + opportunity alerts ──
-  # Runs once a day: re-pulls live federal grants for every project, then emails each
-  # project owner their upcoming deadlines + new matches. Same web.txt build (no daemon
-  # deps). Set the EMAIL_* vars on THIS service too (same values as the web service) so
-  # alert emails can send. Cron jobs are a paid Render feature.
+  # ── Weekly "tracked opportunities" reminder ──
+  # Once a week, emails each project owner the opportunities they've marked Interested
+  # (★ Track) and haven't applied to yet — until they apply or un-track. Same web.txt
+  # build (no daemon deps). Set the EMAIL_* vars on THIS service (same as the web
+  # service) so reminders can send. Cron jobs are a paid Render feature.
+  #
+  # Data refresh + new-match alerts are MANUAL for now (run from the Render shell when
+  # you want fresh data, or schedule monthly later):
+  #     python manage.py pull_grants_gov --all && python manage.py send_opportunity_alerts
+  # To automate monthly, add a second cron with schedule "0 12 1 * *" and that command.
   - type: cron
-    name: anansi-daily
+    name: anansi-weekly-reminders
     runtime: python
     region: virginia
     plan: starter
     branch: main
-    schedule: "0 9 * * *"   # 09:00 UTC daily
+    schedule: "0 13 * * 1"   # Mondays 13:00 UTC (weekly)
     buildCommand: "pip install -r requirements/web.txt"
-    startCommand: "python manage.py pull_grants_gov --all && python manage.py send_opportunity_alerts"
+    startCommand: "python manage.py send_interest_reminders"
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.7"

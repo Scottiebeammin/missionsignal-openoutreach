@@ -855,6 +855,24 @@ def assign_opportunity_owner_view(request, pk, opportunity_id):
 
 @login_required
 @require_POST
+def toggle_opportunity_interest(request, pk, opportunity_id):
+    """Mark/unmark an opportunity as 'interested' (tracked). While interested and not
+    yet applied, the org gets a weekly reminder until they apply or un-track it."""
+    from django.utils import timezone
+    project = client_project(request, pk)
+    opportunity = get_object_or_404(Opportunity, pk=opportunity_id, project=project)
+    if opportunity.is_interested:
+        opportunity.is_interested = False
+        opportunity.interest_marked_at = None
+    else:
+        opportunity.is_interested = True
+        opportunity.interest_marked_at = timezone.now()
+    opportunity.save(update_fields=["is_interested", "interest_marked_at", "updated_at"])
+    return redirect(request.META.get("HTTP_REFERER") or "/projects/%s/opportunities/" % pk)
+
+
+@login_required
+@require_POST
 def update_opportunity_task_status(request, pk, opportunity_id, task_id):
     client_project(request, pk)
     opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
