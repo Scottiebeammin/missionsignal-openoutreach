@@ -98,19 +98,28 @@
         <stop offset="0%" stop-color="#1a2c52"/><stop offset="100%" stop-color="#0a1428"/>
       </radialGradient>
     </defs>
-    <!-- aura + concentric guides -->
+    <!-- aura -->
     <circle cx="300" cy="300" r="215" fill="url(#hubAura)"/>
-    <circle cx="300" cy="300" r="172" stroke="#D4A017" stroke-opacity=".13" stroke-width="1"/>
-    <circle cx="300" cy="300" r="172" stroke-dasharray="2 7" stroke="#e5ad3f" stroke-opacity=".22" stroke-width="1.5"/>
+    <circle cx="300" cy="300" r="200" stroke-dasharray="1.5 9" stroke="#e5ad3f" stroke-opacity=".22" stroke-width="1.5"/>
+    <!-- woven web: concentric capture-spiral rings through the 6 spokes -->
+    <g stroke="#D4A017" fill="none">
+      <polygon points="362,300 331,353.7 269,353.7 238,300 269,246.3 331,246.3" stroke-opacity=".16" stroke-width="1"/>
+      <polygon points="413,300 356.5,397.9 243.5,397.9 187,300 243.5,202.1 356.5,202.1" stroke-opacity=".20" stroke-width="1"/>
+      <polygon points="465,300 382.5,442.9 217.5,442.9 135,300 217.5,157.1 382.5,157.1" stroke-opacity=".26" stroke-width="1.1"/>
+    </g>
     <!-- spokes (bright at hub, fading outward) -->
     <g stroke="url(#spoke)" stroke-width="1.6">
-      <line x1="300" y1="300" x2="465" y2="300"/><line x1="300" y1="300" x2="382" y2="443"/>
-      <line x1="300" y1="300" x2="218" y2="443"/><line x1="300" y1="300" x2="135" y2="300"/>
-      <line x1="300" y1="300" x2="218" y2="157"/><line x1="300" y1="300" x2="382" y2="157"/>
+      <line x1="300" y1="300" x2="465" y2="300"/><line x1="300" y1="300" x2="382.5" y2="442.9"/>
+      <line x1="300" y1="300" x2="217.5" y2="442.9"/><line x1="300" y1="300" x2="135" y2="300"/>
+      <line x1="300" y1="300" x2="217.5" y2="157.1"/><line x1="300" y1="300" x2="382.5" y2="157.1"/>
     </g>
-    <!-- connecting hexagon ring -->
-    <polygon points="465,300 382,443 218,443 135,300 218,157 382,157"
-      stroke="#D4A017" stroke-opacity=".22" stroke-width="1" fill="none"/>
+    <!-- tiny crossing-point dots on the inner web -->
+    <g fill="#e5ad3f" fill-opacity=".55">
+      <circle cx="362" cy="300" r="2"/><circle cx="331" cy="353.7" r="2"/><circle cx="269" cy="353.7" r="2"/>
+      <circle cx="238" cy="300" r="2"/><circle cx="269" cy="246.3" r="2"/><circle cx="331" cy="246.3" r="2"/>
+      <circle cx="413" cy="300" r="2.3"/><circle cx="356.5" cy="397.9" r="2.3"/><circle cx="243.5" cy="397.9" r="2.3"/>
+      <circle cx="187" cy="300" r="2.3"/><circle cx="243.5" cy="202.1" r="2.3"/><circle cx="356.5" cy="202.1" r="2.3"/>
+    </g>
     <!-- node glows -->
     <g>
       <circle cx="465" cy="300" r="46" fill="url(#pillGlow)"/><circle cx="382" cy="443" r="46" fill="url(#pillGlow)"/>
