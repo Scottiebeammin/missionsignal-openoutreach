@@ -41,39 +41,48 @@
     .insight-card h3 { margin-bottom: 8px; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
     .insight-card p { margin: 0; font-size: .92rem; color: var(--ink); font-weight: 600; }
     .web-node {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fff;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      margin-bottom: 10px;
+      border: 1px solid rgba(13,27,61,.07);
+      border-radius: 16px;
+      background: #fffefb;
+      padding: 24px 26px;
+      box-shadow: 0 1px 2px rgba(16,30,44,.03), 0 10px 26px rgba(16,30,44,.04);
+      margin-bottom: 14px;
+      transition: box-shadow .18s ease, border-color .18s ease;
     }
+    .web-node:hover { border-color: rgba(212,160,23,.32); box-shadow: 0 6px 22px rgba(16,30,44,.07); }
     .web-node-header {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
     }
-    .web-node-header h2 { margin: 0; }
-    .web-metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin: 12px 0;
+    .web-node-header h2 {
+      margin: 0 !important;
+      font-family: var(--serif) !important;
+      font-size: 1.28rem !important;
+      font-weight: 600 !important;
+      text-transform: none !important;
+      letter-spacing: -.01em !important;
+      color: var(--deep) !important;
     }
-    .web-metric {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px;
-      background: var(--soft);
+    .web-metrics { display: flex; flex-wrap: wrap; gap: 14px 32px; margin: 0 0 18px; }
+    .web-metric { border: 0; padding: 0; background: transparent; }
+    .web-metric .muted, .web-metric span {
+      display: block; font-size: .64rem; font-weight: 800; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 2px;
     }
-    .web-metric strong { display: block; font-size: 1rem; color: var(--ink); }
-    .web-lists {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-    }
+    .web-metric strong { display: block; font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+    .web-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .web-lists section h3 { font-size: .66rem !important; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 11px; color: var(--muted); }
+    .web-lists section.hl h3 { color: #0f766e; }
+    .web-lists section.gp h3 { color: #b07a12; }
+    .web-lists ul { list-style: none; margin: 0; padding: 0; }
+    .web-lists li { position: relative; padding-left: 23px; margin-bottom: 9px; font-size: .9rem; line-height: 1.5; color: var(--body); }
+    .web-lists section.hl li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #0f766e; font-weight: 800; }
+    .web-lists section.gp li::before { content: ""; position: absolute; left: 4px; top: 7px; width: 7px; height: 7px; border-radius: 50%; border: 1.6px solid #d4a017; }
     .gap-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -213,14 +222,14 @@
           {% endif %}
           <div class="web-lists">
             {% if node.highlights %}
-              <section>
-                <h3>Highlights</h3>
+              <section class="hl">
+                <h3>Strengths</h3>
                 <ul>{% for h in node.highlights %}<li>{{ h }}</li>{% endfor %}</ul>
               </section>
             {% endif %}
             {% if node.gaps %}
-              <section>
-                <h3>Gaps</h3>
+              <section class="gp">
+                <h3>Gaps to close</h3>
                 <ul>{% for g in node.gaps %}<li>{{ g }}</li>{% endfor %}</ul>
               </section>
             {% endif %}
