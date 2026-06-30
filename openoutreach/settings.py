@@ -59,6 +59,24 @@ if not DEBUG and SECRET_KEY == _DEFAULT_SECRET:
     )
 CSRF_TRUSTED_ORIGINS = _env_list("CSRF_TRUSTED_ORIGINS", [])
 
+# ── Production security hardening (only active when DEBUG is off, so local HTTP dev
+# is unaffected). Render terminates TLS at its proxy, so SECURE_PROXY_SSL_HEADER lets
+# Django recognize forwarded HTTPS requests and avoids an SSL-redirect loop. ──
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    # HSTS on the apex only — NOT include_subdomains/preload, so mail.anansiatlas.com
+    # (the email subdomain) is never forced onto HTTPS it may not serve.
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+    SECURE_REFERRER_POLICY = "same-origin"
+
 INSTALLED_APPS = [
     "unfold",
     "unfold.contrib.filters",
