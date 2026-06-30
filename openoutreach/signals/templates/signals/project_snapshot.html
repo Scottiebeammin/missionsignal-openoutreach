@@ -127,6 +127,27 @@
       cursor: pointer;
     }
 
+    /* tighten the list-heavy sections — air, hierarchy, dividers */
+    .advisor-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+    .advisor-list > li {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line, #e8e2d4);
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+    .advisor-list > li:last-child { border-bottom: none; }
+    .advisor-list > li > strong,
+    .advisor-list > li b:first-child {
+      display: inline-block;
+      color: var(--deep, #0d1b3d);
+      font-weight: 750;
+      letter-spacing: -.005em;
+      margin-bottom: 2px;
+    }
+    .advisor-list .muted { line-height: 1.6; }
+    /* generic snapshot prose lists get more leading + spacing */
+    .panel ul:not(.advisor-list):not(.nav) > li { margin-bottom: 7px; line-height: 1.6; }
+
     @media print {
       .snapshot-toolbar, #welcome-banner, #walkthrough-prompt { display: none !important; }
       body { background: #fff !important; }
