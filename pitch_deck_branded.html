@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
+
+  :root{
+    --night:#07101d; --night2:#0d1c35; --ink:#0D1B3D;
+    --gold:#D4A017; --gold-lt:#e5ad3f; --cream:#F7F3EB; --paper:#fffdf8;
+    --muted:#5e6d85; --muted-d:rgba(255,255,255,.62); --line:rgba(13,27,61,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  @page{size:1280px 720px;margin:0;}
+  html,body{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:var(--ink);}
+  .slide{
+    width:1280px; height:720px; position:relative; overflow:hidden;
+    page-break-after:always; display:flex; flex-direction:column;
+    padding:72px 84px;
+  }
+  .slide:last-child{page-break-after:auto;}
+  .dark{background:radial-gradient(120% 130% at 78% 12%, #16294e 0%, var(--night2) 38%, var(--night) 100%); color:#fff;}
+  .light{background:var(--cream);}
+  .paper{background:var(--paper);}
+
+  .kicker{font-size:15px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:22px;}
+  .dark .kicker{color:var(--gold-lt);}
+  h1{font-family:Fraunces,serif;font-weight:600;font-size:62px;line-height:1.04;letter-spacing:-.02em;}
+  h2{font-family:Fraunces,serif;font-weight:600;font-size:44px;line-height:1.08;letter-spacing:-.015em;margin-bottom:14px;}
+  .lead{font-size:23px;line-height:1.5;color:var(--muted);max-width:880px;}
+  .dark .lead{color:var(--muted-d);}
+  .snum{position:absolute;bottom:40px;right:60px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.04em;}
+  .dark .snum{color:rgba(255,255,255,.35);}
+  .wordmark{position:absolute;bottom:38px;left:84px;font-size:13px;font-weight:800;letter-spacing:.04em;color:var(--muted);}
+  .dark .wordmark{color:rgba(255,255,255,.4);}
+  .wordmark b{color:var(--gold);} .light .wordmark b,.paper .wordmark b{color:var(--gold);}
+
+  ul.points{list-style:none;margin-top:26px;display:flex;flex-direction:column;gap:16px;max-width:960px;}
+  ul.points li{position:relative;padding-left:34px;font-size:21px;line-height:1.45;}
+  ul.points li::before{content:"";position:absolute;left:0;top:11px;width:13px;height:13px;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 0 4px rgba(212,160,23,.18);}
+  ul.points li b{font-weight:800;}
+  .dark ul.points li{color:#eef2f8;}
+
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:34px;}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:30px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 26px;}
+  .dark .card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);}
+  .card .n{font-family:Fraunces,serif;font-size:30px;color:var(--gold);font-weight:600;}
+  .card h3{font-size:21px;font-weight:800;margin:8px 0 8px;}
+  .dark .card h3{color:#fff;}
+  .card p{font-size:16.5px;line-height:1.5;color:var(--muted);}
+  .dark .card p{color:var(--muted-d);}
+
+  .stat-row{display:flex;gap:46px;margin-top:40px;}
+  .stat .big{font-family:Fraunces,serif;font-size:58px;font-weight:600;color:var(--gold);line-height:1;}
+  .dark .stat .big{color:var(--gold-lt);}
+  .stat .lab{font-size:16px;color:var(--muted);margin-top:8px;max-width:230px;line-height:1.4;}
+  .dark .stat .lab{color:var(--muted-d);}
+
+  .price-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;margin-top:34px;}
+  .price{border:1.5px solid var(--line);border-radius:20px;padding:30px;}
+  .price.feat{border-color:var(--gold);background:rgba(212,160,23,.06);}
+  .price .tag{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);}
+  .price .amt{font-family:Fraunces,serif;font-size:46px;font-weight:600;margin:6px 0;}
+  .price .amt span{font-size:20px;color:var(--muted);font-family:Inter;font-weight:600;}
+  .price p{font-size:16.5px;color:var(--muted);line-height:1.5;margin-top:8px;}
+
+  /* cover */
+  .cover-web{position:absolute;right:-80px;top:-60px;width:760px;height:760px;opacity:.9;}
+  .cover-foot{display:flex;gap:30px;align-items:center;margin-top:42px;font-size:17px;color:rgba(255,255,255,.7);}
+  .cover-foot .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);}
+  .badge{display:inline-block;background:rgba(212,160,23,.14);border:1px solid rgba(212,160,23,.4);
+    color:var(--gold-lt);font-size:15px;font-weight:700;padding:8px 16px;border-radius:999px;margin-bottom:26px;}
+  .mute2{color:var(--muted);} .dark .mute2{color:var(--muted-d);}
+  .tk{font-size:17px;font-weight:700;color:var(--gold);margin-top:6px;}
+  .center{justify-content:center;}
+  .quote{font-family:Fraunces,serif;font-size:30px;line-height:1.4;font-weight:500;max-width:980px;margin-top:10px;}
+  .dark .quote{color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<section class="slide dark center">
+  <svg class="cover-web" viewBox="0 0 600 600" fill="none">
+    <defs>
+      <radialGradient id="hub" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#e5ad3f" stop-opacity=".5"/><stop offset="70%" stop-color="#e5ad3f" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <circle cx="300" cy="300" r="150" fill="url(#hub)"/>
+    <g stroke="#D4A017" stroke-opacity=".5" stroke-width="1.5">
+      <line x1="300" y1="300" x2="470" y2="200"/><line x1="300" y1="300" x2="490" y2="360"/>
+      <line x1="300" y1="300" x2="380" y2="470"/><line x1="300" y1="300" x2="180" y2="450"/>
+      <line x1="300" y1="300" x2="130" y2="300"/><line x1="300" y1="300" x2="200" y2="150"/>
+      <line x1="470" y1="200" x2="490" y2="360"/><line x1="180" y1="450" x2="380" y2="470"/>
+      <line x1="130" y1="300" x2="200" y2="150"/>
+    </g>
+    <g fill="#e5ad3f">
+      <circle cx="470" cy="200" r="8"/><circle cx="490" cy="360" r="7"/><circle cx="380" cy="470" r="9"/>
+      <circle cx="180" cy="450" r="7"/><circle cx="130" cy="300" r="8"/><circle cx="200" cy="150" r="7"/>
+    </g>
+    <circle cx="300" cy="300" r="20" fill="#fff"/><circle cx="300" cy="300" r="11" fill="#D4A017"/>
+  </svg>
+  <div class="badge">Opportunity Intelligence for Nonprofits</div>
+  <h1 style="font-size:84px;">Anansi&nbsp;Atlas</h1>
+  <div class="tk" style="font-size:26px;margin-top:14px;">The Web of Opportunity</div>
+  <p class="lead" style="margin-top:26px;max-width:640px;">The intelligence layer that maps every funder, partner, and pathway aligned to a nonprofit's mission — pulled live, ranked by fit, ready to act on.</p>
+  <div class="cover-foot">
+    <span>anansiatlas.com</span><span class="dot"></span>
+    <span>Marcus Scott · Scott Foundry Group LLC</span><span class="dot"></span>
+    <span>Investor Brief 2026</span>
+  </div>
+  <div class="snum">01</div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="slide dark">
+  <div class="kicker">The Problem</div>
+  <h2 style="max-width:1000px;">Nonprofits leave real money on the table — not for lack of merit, but because they can't see the landscape.</h2>
+  <ul class="points">
+    <li><b>1.8 million US nonprofits</b> — most with no dedicated development staff or grant researcher.</li>
+    <li>Grant research is <b>manual, slow, and scattered</b> across dozens of databases and Google searches.</li>
+    <li>Organizations apply to the wrong funders, miss deadlines, and misread their own readiness gaps.</li>
+    <li>The result: <b>underfunded missions, burned-out staff, and opportunities that never get pursued.</b></li>
+  </ul>
+  <p class="lead" style="margin-top:36px;max-width:1000px;color:var(--gold-lt);font-weight:600;">Funding exists. Visibility doesn't. Most nonprofits make grant decisions on luck — and luck doesn't scale.</p>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">02</div>
+</section>
+
+<!-- 3 SOLUTION -->
+<section class="slide light">
+  <div class="kicker">The Solution</div>
+  <h2 style="max-width:1040px;">A clear picture of what exists, what fits, and what to do first — in under 10 minutes.</h2>
+  <ul class="points">
+    <li>Complete a <b>10-minute intake</b> about mission, geography, programs, and stage — no jargon, no consultant.</li>
+    <li>Receive the <b>Opportunity Web Snapshot</b> — a personalized executive intelligence brief.</li>
+    <li>Ranked funders, aligned partners, active grants with real deadlines, a <b>Readiness Score</b>, and a <b>30-day action plan</b>.</li>
+    <li>A living workspace that stays current as the funding landscape — and the organization — changes.</li>
+  </ul>
+  <p class="lead" style="margin-top:32px;">Built for executive directors and program leads — not development specialists.</p>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">03</div>
+</section>
+
+<!-- 4 HOW IT WORKS -->
+<section class="slide paper">
+  <div class="kicker">How It Works</div>
+  <h2>Three steps from mission to momentum.</h2>
+  <div class="grid3">
+    <div class="card"><div class="n">01</div><h3>Intake — 10 minutes</h3><p>Structured questions about mission, geography, programs, and stage. Conversational, not a questionnaire.</p></div>
+    <div class="card"><div class="n">02</div><h3>Analysis</h3><p>Your mission is mapped against live federal, state, local, and national funders — plus partners and your readiness profile.</p></div>
+    <div class="card"><div class="n">03</div><h3>Snapshot + Workspace</h3><p>Your Opportunity Web Snapshot is delivered immediately. The workspace stays live, shareable, and printable.</p></div>
+  </div>
+  <p class="lead" style="margin-top:34px;">One constraint drives the whole design: executive directors don't have time.</p>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">04</div>
+</section>
+
+<!-- 5 SNAPSHOT -->
+<section class="slide light">
+  <div class="kicker">The Core Deliverable</div>
+  <h2>The Opportunity Web Snapshot</h2>
+  <p class="lead">Your complete opportunity picture — one executive-ready brief, customized to your answers.</p>
+  <div class="grid3" style="margin-top:28px;">
+    <div class="card"><h3>Top Funder Matches</h3><p>Ranked by mission alignment and geographic fit, with giving patterns and priorities.</p></div>
+    <div class="card"><h3>Strategic Partners</h3><p>Organizations whose work complements yours and opens doors.</p></div>
+    <div class="card"><h3>Active Grants</h3><p>Real deadlines, real amounts, real fit analysis — ranked, not dumped.</p></div>
+    <div class="card"><h3>Readiness Score (0–100)</h3><p>An honest assessment of organizational readiness with specific gaps named.</p></div>
+    <div class="card"><h3>30-Day Action Plan</h3><p>Prioritized next steps, so leaders know exactly where to start.</p></div>
+    <div class="card"><h3>Government Pathways</h3><p>Federal, state, and local funding lanes most organizations never see.</p></div>
+  </div>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">05</div>
+</section>
+
+<!-- 6 THE MOAT / DATA ENGINE -->
+<section class="slide dark">
+  <div class="kicker">The Moat</div>
+  <h2 style="max-width:1040px;">We don't resell a database. We <span style="color:var(--gold-lt);">own the pipeline.</span></h2>
+  <p class="lead" style="max-width:1000px;">Competitors license the same aggregated lists. Anansi Atlas builds its data live from primary sources — every opportunity traceable to a real URL, zero hallucination.</p>
+  <div class="grid2" style="margin-top:26px;">
+    <div class="card"><h3 style="color:var(--gold-lt);">Live, owned ingestion</h3><p>Federal grants (Grants.gov API), plus local, county, state, national, corporate &amp; bank funders — pulled fresh, not bought.</p></div>
+    <div class="card"><h3 style="color:var(--gold-lt);">Grounding gate</h3><p>Every researched opportunity must trace to a real, verifiable source URL or it's rejected. No fake funders, ever.</p></div>
+    <div class="card"><h3 style="color:var(--gold-lt);">Ranked by fit + geography</h3><p>Scored against what each org does and who it serves — US-eligible, on-mission matches surface first.</p></div>
+    <div class="card"><h3 style="color:var(--gold-lt);">Cost structure that scales</h3><p>Primary-source pulls cost cents per org — not the $2k–$4k/yr per-seat data licenses incumbents resell.</p></div>
+  </div>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">06</div>
+</section>
+
+<!-- 7 MARKET -->
+<section class="slide paper">
+  <div class="kicker">Market Opportunity</div>
+  <h2 style="max-width:1000px;">1.8 million nonprofits. Most flying blind on funding strategy.</h2>
+  <div class="stat-row">
+    <div class="stat"><div class="big">$3T+</div><div class="lab">in US nonprofit sector assets</div></div>
+    <div class="stat"><div class="big">$600B+</div><div class="lab">in annual sector revenue</div></div>
+    <div class="stat"><div class="big">$250K–$5M</div><div class="lab">budget band: the underserved core — real programs, no intelligence infrastructure</div></div>
+  </div>
+  <ul class="points" style="margin-top:36px;">
+    <li>Existing tools skew to <b>large institutions</b> — built for specialists who already know what they're looking for.</li>
+    <li>This is a <b>product gap, not a people problem</b> — and the category for mission-led organizations barely exists yet.</li>
+  </ul>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">07</div>
+</section>
+
+<!-- 8 BUSINESS MODEL -->
+<section class="slide light">
+  <div class="kicker">Business Model</div>
+  <h2>Simple pricing. Recurring revenue. Founding partners lock in for life.</h2>
+  <div class="price-grid">
+    <div class="price feat">
+      <div class="tag">Founding Partner · 19 seats left</div>
+      <div class="amt">$150<span>/month — locked for life</span></div>
+      <p>Full platform access + a 45-minute personal founder walkthrough. The first cohort are partners, not just customers.</p>
+    </div>
+    <div class="price">
+      <div class="tag">Standard</div>
+      <div class="amt">$299<span>/month</span></div>
+      <p>After the founding cohort fills. No per-report fees, no usage limits.</p>
+    </div>
+  </div>
+  <ul class="points" style="margin-top:28px;">
+    <li>Recurring monthly subscriptions; data stays with the organization.</li>
+    <li><b>Future:</b> team seats, and white-label licensing for capacity builders, consultants, and funders.</li>
+  </ul>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">08</div>
+</section>
+
+<!-- 9 TRACTION -->
+<section class="slide dark">
+  <div class="kicker">Traction</div>
+  <h2>Live, real, and already working.</h2>
+  <div class="stat-row">
+    <div class="stat"><div class="big">Live</div><div class="lab">platform shipping at anansiatlas.com — intake, snapshot &amp; workspace fully operational</div></div>
+    <div class="stat"><div class="big">60+</div><div class="lab">funders mapped; data engine pulling verified opportunities per org</div></div>
+    <div class="stat"><div class="big">$0</div><div class="lab">outside funding — lean, focused, default-alive</div></div>
+  </div>
+  <ul class="points" style="margin-top:34px;">
+    <li>Live ingestion proven end-to-end: a single org's snapshot populated with <b>60+ verified, ranked opportunities</b> from federal + local + national + corporate sources.</li>
+    <li>Founding partner cohort onboarding now; waitlist active and growing.</li>
+  </ul>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">09</div>
+</section>
+
+<!-- 10 ROADMAP -->
+<section class="slide paper">
+  <div class="kicker">Roadmap</div>
+  <h2>The next 90 days are about depth, not breadth.</h2>
+  <div class="grid3">
+    <div class="card"><div class="n">M1</div><h3>Deepen the cohort</h3><p>Onboard founding partners, refine the snapshot from real sessions, expand verified funder coverage.</p></div>
+    <div class="card"><div class="n">M2</div><h3>Grant calendar + partners</h3><p>Sector-specific rolling-deadline calendar and the strategic partner network feature.</p></div>
+    <div class="card"><div class="n">M3</div><h3>Readiness tracker</h3><p>Organizations see readiness progress over time — not just a point-in-time score.</p></div>
+  </div>
+  <ul class="points" style="margin-top:30px;">
+    <li><b>6-month:</b> white-label licensing for capacity builders; team collaboration workspace.</li>
+    <li><b>12-month:</b> funder relationship tracking; expanded government grants pathway module.</li>
+  </ul>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">10</div>
+</section>
+
+<!-- 11 TEAM -->
+<section class="slide light">
+  <div class="kicker">Team</div>
+  <h2>Built by someone who understands both the mission and the machine.</h2>
+  <div class="grid2" style="margin-top:30px;">
+    <div class="card">
+      <h3>Marcus Scott — Founder</h3>
+      <p>Builder, strategist, and operator across nonprofit infrastructure, B2B SaaS, and systems design. Designed and built the Anansi Atlas platform end-to-end — brand, product, and the live data engine.</p>
+    </div>
+    <div class="card">
+      <h3>Scott Foundry Group LLC</h3>
+      <p>The parent company — building infrastructure for organizations doing real work in the world. Advisors and founding partners actively shaping product direction.</p>
+    </div>
+  </div>
+  <p class="quote" style="font-family:Fraunces,serif;color:var(--ink);margin-top:34px;">"Capable organizations get outmaneuvered by less capable ones who simply had better intelligence. That's fixable. It's a software problem."</p>
+  <div class="wordmark"><b>✦</b> Anansi Atlas</div><div class="snum">11</div>
+</section>
+
+<!-- 12 ASK -->
+<section class="slide dark center">
+  <div class="kicker">The Ask</div>
+  <h1 style="font-size:58px;max-width:1040px;">We're building the intelligence layer for the entire social sector.</h1>
+  <p class="lead" style="margin-top:24px;max-width:980px;color:#fff;">For impact investors: let's talk about what that's worth at scale. The platform is live, the data engine is owned, and the category is wide open.</p>
+  <div class="grid3" style="margin-top:38px;width:100%;">
+    <div class="card"><h3 style="color:var(--gold-lt);">Live product</h3><p>Shipping today at anansiatlas.com — not a concept.</p></div>
+    <div class="card"><h3 style="color:var(--gold-lt);">Owned data moat</h3><p>Primary-source pipeline competitors can't cheaply replicate.</p></div>
+    <div class="card"><h3 style="color:var(--gold-lt);">Recurring model</h3><p>Subscription SaaS with white-label upside.</p></div>
+  </div>
+  <div class="cover-foot" style="margin-top:42px;">
+    <span>Marcus Scott</span><span class="dot"></span>
+    <span>anansiatlas.com</span><span class="dot"></span>
+    <span>marcusscott43@gmail.com</span>
+  </div>
+  <div class="snum">12</div>
+</section>
+
+</body>
+</html>
