@@ -280,6 +280,7 @@ class Opportunity(models.Model):
         MONITORING = "monitoring", "Monitoring"
         APPLIED = "applied", "Applied"
         WON = "won", "Won"
+        EXPIRED = "expired", "Expired"
         ARCHIVED = "archived", "Archived"
 
     class PriorityLevel(models.TextChoices):

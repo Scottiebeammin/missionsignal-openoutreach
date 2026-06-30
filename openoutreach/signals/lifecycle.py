@@ -381,3 +381,35 @@ def build_lifecycle_summary(project=None, limit_per_stage: int | None = None) ->
         highest_priority_active_opportunity=_highest_priority_active_opportunity(opportunities),
         health=_pipeline_health(opportunities),
     )
+
+
+def expire_past_deadline_opportunities(project) -> int:
+    """Move past-deadline opportunities the org never applied to into EXPIRED.
+
+    Runs on pipeline page load (cheap, idempotent bulk update). Opportunities the
+    org has applied to — or that are already terminal — are left in their own spot
+    untouched, so only genuinely-missed deadlines get swept. Returns the count moved.
+    """
+    today = timezone.localdate()
+    applied_or_terminal_status = {
+        Opportunity.Status.APPLIED,
+        Opportunity.Status.WON,
+        Opportunity.Status.ARCHIVED,
+        Opportunity.Status.EXPIRED,
+    }
+    applied_or_terminal_lifecycle = {
+        Opportunity.LifecycleStatus.SUBMITTED,
+        Opportunity.LifecycleStatus.AWARDED,
+        Opportunity.LifecycleStatus.DECLINED,
+        Opportunity.LifecycleStatus.CLOSED,
+    }
+    return (
+        Opportunity.objects.filter(
+            project=project,
+            deadline__isnull=False,
+            deadline__lt=today,
+        )
+        .exclude(status__in=applied_or_terminal_status)
+        .exclude(lifecycle_status__in=applied_or_terminal_lifecycle)
+        .update(status=Opportunity.Status.EXPIRED, updated_at=timezone.now())
+    )

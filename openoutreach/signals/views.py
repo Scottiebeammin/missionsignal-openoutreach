@@ -35,7 +35,11 @@ from openoutreach.signals.notifications import (
 )
 from openoutreach.signals.forecasting import build_pipeline_forecast
 from openoutreach.signals.government import build_government_readiness
-from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_opportunity_lifecycle
+from openoutreach.signals.lifecycle import (
+    assign_opportunity_owner,
+    expire_past_deadline_opportunities,
+    transition_opportunity_lifecycle,
+)
 from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
 from openoutreach.signals.models import InterestSignup, PilotProfile
@@ -763,6 +767,9 @@ def project_pipeline_workspace(request, pk):
     project = get_object_or_404(
         Project.objects.select_related("organization"), pk=pk, users=request.user,
     )
+    # Sweep any past-deadline opportunities the org never applied to into EXPIRED
+    # before building the view, so the pipeline always reflects current deadlines.
+    expire_past_deadline_opportunities(project)
     funding_criteria = getattr(project, "funding_criteria", None)
     discovery = build_discovery_overview(project, funding_criteria)
     forecast = build_pipeline_forecast(project)
