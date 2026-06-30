@@ -33,8 +33,8 @@
     .ecosystem-summary-grid .text-card p {
       margin: 0; font-size: .92rem; line-height: 1.5; font-weight: 400; color: var(--ink);
     }
-    .ecosystem-summary-grid .text-card.strength { border-left: 3px solid #0f766e; }
-    .ecosystem-summary-grid .text-card.strength span { color: #0f766e; }
+    .ecosystem-summary-grid .text-card.strength { border-left: 3px solid #0d1b3d; }
+    .ecosystem-summary-grid .text-card.strength span { color: #0d1b3d; }
     .ecosystem-summary-grid .text-card.gap { border-left: 3px solid #d4a017; }
     .ecosystem-summary-grid .text-card.gap span { color: #b07a12; }
     .insights-grid {
@@ -90,11 +90,11 @@
     .web-metric strong { display: block; font-size: 1.05rem; font-weight: 700; color: var(--ink); }
     .web-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
     .web-lists section h3 { font-size: .66rem !important; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 11px; color: var(--muted); }
-    .web-lists section.hl h3 { color: #0f766e; }
+    .web-lists section.hl h3 { color: #0d1b3d; }
     .web-lists section.gp h3 { color: #b07a12; }
     .web-lists ul { list-style: none; margin: 0; padding: 0; }
     .web-lists li { position: relative; padding-left: 23px; margin-bottom: 9px; font-size: .9rem; line-height: 1.5; color: var(--body); }
-    .web-lists section.hl li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #0f766e; font-weight: 800; }
+    .web-lists section.hl li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #0d1b3d; font-weight: 800; }
     .web-lists section.gp li::before { content: ""; position: absolute; left: 4px; top: 7px; width: 7px; height: 7px; border-radius: 50%; border: 1.6px solid #d4a017; }
     .gap-grid {
       display: grid;
@@ -166,8 +166,8 @@
         <h2>Ecosystem Summary</h2>
         <div class="ecosystem-summary-grid" style="margin-top: 12px;">
           <div class="metric-card"><strong>{{ web.ecosystem_health }}</strong><span>Ecosystem Health</span><p class="muted">{{ web.ecosystem_health_level }}</p></div>
-          <div class="metric-card text-card strength"><span>Strongest Asset</span><p>{{ web.strongest_asset }}</p></div>
-          <div class="metric-card text-card gap"><span>Biggest Constraint</span><p>{{ web.biggest_constraint }}</p></div>
+          <div class="metric-card text-card strength"><span>Strongest Asset</span><p>{{ web.strongest_asset|truncatechars:90 }}</p></div>
+          <div class="metric-card text-card gap"><span>Biggest Constraint</span><p>{{ web.biggest_constraint|truncatechars:90 }}</p></div>
         </div>
       </article>
       <article class="panel" style="background: linear-gradient(145deg, #0d1b3d 0%, #17284f 100%); color: #fff; border-color: rgba(212,160,23,.32);">
