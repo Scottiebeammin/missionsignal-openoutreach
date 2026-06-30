@@ -86,50 +86,58 @@
   <svg class="cover-web" viewBox="0 0 600 600" fill="none">
     <defs>
       <radialGradient id="hubAura" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#e5ad3f" stop-opacity=".40"/><stop offset="66%" stop-color="#e5ad3f" stop-opacity="0"/>
+        <stop offset="0%" stop-color="#e5ad3f" stop-opacity=".42"/><stop offset="64%" stop-color="#e5ad3f" stop-opacity="0"/>
       </radialGradient>
-      <radialGradient id="nGlow" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#e5ad3f" stop-opacity=".75"/><stop offset="100%" stop-color="#e5ad3f" stop-opacity="0"/>
+      <radialGradient id="pillGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#e5ad3f" stop-opacity=".55"/><stop offset="100%" stop-color="#e5ad3f" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="spoke" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#f5d878" stop-opacity=".85"/><stop offset="100%" stop-color="#D4A017" stop-opacity=".18"/>
+      </linearGradient>
+      <radialGradient id="hubFill" cx="50%" cy="42%" r="60%">
+        <stop offset="0%" stop-color="#1a2c52"/><stop offset="100%" stop-color="#0a1428"/>
       </radialGradient>
     </defs>
     <!-- aura + concentric guides -->
-    <circle cx="300" cy="300" r="210" fill="url(#hubAura)"/>
-    <circle cx="300" cy="300" r="175" stroke="#D4A017" stroke-opacity=".14" stroke-width="1"/>
-    <circle cx="300" cy="300" r="96" stroke="#D4A017" stroke-opacity=".10" stroke-width="1"/>
-    <!-- spokes to 6 nodes (hexagon) -->
-    <g stroke="#D4A017" stroke-opacity=".40" stroke-width="1.4">
-      <line x1="300" y1="300" x2="475" y2="300"/><line x1="300" y1="300" x2="387" y2="452"/>
-      <line x1="300" y1="300" x2="213" y2="452"/><line x1="300" y1="300" x2="125" y2="300"/>
-      <line x1="300" y1="300" x2="213" y2="148"/><line x1="300" y1="300" x2="387" y2="148"/>
+    <circle cx="300" cy="300" r="215" fill="url(#hubAura)"/>
+    <circle cx="300" cy="300" r="172" stroke="#D4A017" stroke-opacity=".13" stroke-width="1"/>
+    <circle cx="300" cy="300" r="172" stroke-dasharray="2 7" stroke="#e5ad3f" stroke-opacity=".22" stroke-width="1.5"/>
+    <!-- spokes (bright at hub, fading outward) -->
+    <g stroke="url(#spoke)" stroke-width="1.6">
+      <line x1="300" y1="300" x2="465" y2="300"/><line x1="300" y1="300" x2="382" y2="443"/>
+      <line x1="300" y1="300" x2="218" y2="443"/><line x1="300" y1="300" x2="135" y2="300"/>
+      <line x1="300" y1="300" x2="218" y2="157"/><line x1="300" y1="300" x2="382" y2="157"/>
     </g>
     <!-- connecting hexagon ring -->
-    <polygon points="475,300 387,452 213,452 125,300 213,148 387,148"
-      stroke="#D4A017" stroke-opacity=".28" stroke-width="1.2" fill="none"/>
+    <polygon points="465,300 382,443 218,443 135,300 218,157 382,157"
+      stroke="#D4A017" stroke-opacity=".22" stroke-width="1" fill="none"/>
     <!-- node glows -->
     <g>
-      <circle cx="475" cy="300" r="24" fill="url(#nGlow)"/><circle cx="387" cy="452" r="24" fill="url(#nGlow)"/>
-      <circle cx="213" cy="452" r="24" fill="url(#nGlow)"/><circle cx="125" cy="300" r="24" fill="url(#nGlow)"/>
-      <circle cx="213" cy="148" r="24" fill="url(#nGlow)"/><circle cx="387" cy="148" r="24" fill="url(#nGlow)"/>
+      <circle cx="465" cy="300" r="46" fill="url(#pillGlow)"/><circle cx="382" cy="443" r="46" fill="url(#pillGlow)"/>
+      <circle cx="218" cy="443" r="46" fill="url(#pillGlow)"/><circle cx="135" cy="300" r="46" fill="url(#pillGlow)"/>
+      <circle cx="218" cy="157" r="46" fill="url(#pillGlow)"/><circle cx="382" cy="157" r="46" fill="url(#pillGlow)"/>
     </g>
-    <!-- node dots -->
-    <g fill="#0d1c35" stroke="#e5ad3f" stroke-width="2.5">
-      <circle cx="475" cy="300" r="8"/><circle cx="387" cy="452" r="8"/><circle cx="213" cy="452" r="8"/>
-      <circle cx="125" cy="300" r="8"/><circle cx="213" cy="148" r="8"/><circle cx="387" cy="148" r="8"/>
-    </g>
-    <!-- node labels -->
-    <g fill="#f0d878" font-family="Inter,sans-serif" font-size="14" font-weight="800" letter-spacing="1.4">
-      <text x="475" y="338" text-anchor="middle">FUNDERS</text>
-      <text x="387" y="490" text-anchor="middle">PARTNERS</text>
-      <text x="213" y="490" text-anchor="middle">GOVERNMENT</text>
-      <text x="125" y="338" text-anchor="middle">RESOURCES</text>
-      <text x="213" y="122" text-anchor="middle">READINESS</text>
-      <text x="387" y="122" text-anchor="middle">PATHWAYS</text>
+    <!-- pill nodes -->
+    <g font-family="Inter,sans-serif" font-size="13" font-weight="800" letter-spacing="1.3" text-anchor="middle">
+      <rect x="421" y="285" width="88" height="30" rx="15" fill="#0c1a36" stroke="#e5ad3f" stroke-opacity=".55"/>
+      <text x="465" y="304.5" fill="#f3dd8c">FUNDERS</text>
+      <rect x="335" y="428" width="94" height="30" rx="15" fill="#0c1a36" stroke="#e5ad3f" stroke-opacity=".55"/>
+      <text x="382" y="447.5" fill="#f3dd8c">PARTNERS</text>
+      <rect x="156" y="428" width="124" height="30" rx="15" fill="#0c1a36" stroke="#e5ad3f" stroke-opacity=".55"/>
+      <text x="218" y="447.5" fill="#f3dd8c">GOVERNMENT</text>
+      <rect x="86" y="285" width="98" height="30" rx="15" fill="#0c1a36" stroke="#e5ad3f" stroke-opacity=".55"/>
+      <text x="135" y="304.5" fill="#f3dd8c">RESOURCES</text>
+      <rect x="170" y="142" width="96" height="30" rx="15" fill="#0c1a36" stroke="#e5ad3f" stroke-opacity=".55"/>
+      <text x="218" y="161.5" fill="#f3dd8c">READINESS</text>
+      <rect x="336" y="142" width="92" height="30" rx="15" fill="#0c1a36" stroke="#e5ad3f" stroke-opacity=".55"/>
+      <text x="382" y="161.5" fill="#f3dd8c">PATHWAYS</text>
     </g>
     <!-- central hub -->
-    <circle cx="300" cy="300" r="46" fill="#0b1730" stroke="#D4A017" stroke-width="1.5" stroke-opacity=".55"/>
-    <circle cx="300" cy="300" r="46" fill="url(#nGlow)" opacity=".5"/>
-    <text x="300" y="295" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-size="13" font-weight="900" letter-spacing="1.5">YOUR</text>
-    <text x="300" y="312" text-anchor="middle" fill="#f0e8d0" font-family="Inter,sans-serif" font-size="13" font-weight="900" letter-spacing="1.5">MISSION</text>
+    <circle cx="300" cy="300" r="54" fill="url(#pillGlow)" opacity=".7"/>
+    <circle cx="300" cy="300" r="48" fill="url(#hubFill)" stroke="#e5ad3f" stroke-width="2"/>
+    <circle cx="300" cy="300" r="48" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="1"/>
+    <text x="300" y="295" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif" font-size="13" font-weight="900" letter-spacing="1.6">YOUR</text>
+    <text x="300" y="313" text-anchor="middle" fill="#f3dd8c" font-family="Inter,sans-serif" font-size="13" font-weight="900" letter-spacing="1.6">MISSION</text>
   </svg>
   <div class="badge">Opportunity Intelligence for Nonprofits</div>
   <h1 style="font-size:84px;">Anansi&nbsp;Atlas</h1>
