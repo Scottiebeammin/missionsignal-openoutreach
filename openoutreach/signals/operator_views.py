@@ -55,7 +55,7 @@ def operator_organizations(request):
     projects = (
         Project.objects.select_related("organization")
         .annotate(
-            opp_count=Count("opportunity", distinct=True),
+            opp_count=Count("opportunities", distinct=True),
         )
         .order_by("-created_at")
     )
