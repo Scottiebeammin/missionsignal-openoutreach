@@ -4,7 +4,7 @@
 
 - **Python env**: Always use `.venv/bin/python` (not system `python3`).
 - **Commits**: No `Co-Authored-By` lines. Single-line messages (no body).
-- **Dependencies**: Managed in `requirements/*.txt` (used by local dev and Docker).
+- **Dependencies**: Managed in `requirements/*.txt`. `base.txt` = full stack (daemon + web, used by local dev and Docker). **`web.txt` = slim web-only set** (Django, pydantic-ai, stripe, gunicorn, psycopg, whitenoise — NO playwright/fastembed/scikit-learn/huggingface_hub/linkedin-agent-cli). **The Render web service builds from `web.txt`** (see `render.yaml`) because the marketing/CRM site doesn't need the LinkedIn-daemon/ML packages and they bloat/break the build. Consequence: **migrations must not import daemon-only packages** (linkedin_cli, joblib, sklearn) and must be **Postgres-safe** (no SQLite-only SQL like `randomblob`/`hex`/`VACUUM`) — Render runs Postgres, local dev runs SQLite.
 - **Docs sync**: When modifying code, update CLAUDE.md and ARCHITECTURE.md to reflect changes.
 - **No memory**: Never use the auto-memory system (no MEMORY.md, no memory files). All persistent context belongs in CLAUDE.md or ARCHITECTURE.md.
 - **Error handling**: App should crash on unexpected errors. `try/except` only for expected, recoverable errors. Custom exceptions in `exceptions.py`.
