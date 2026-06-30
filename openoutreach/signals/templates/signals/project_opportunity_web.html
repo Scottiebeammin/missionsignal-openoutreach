@@ -33,6 +33,15 @@
     .ecosystem-summary-grid .text-card p {
       margin: 0; font-size: .92rem; line-height: 1.5; font-weight: 400; color: var(--ink);
     }
+    .ecosystem-summary-grid .text-card p.clamp {
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .ecosystem-summary-grid .text-card p.expanded { -webkit-line-clamp: unset; overflow: visible; }
+    .ecosystem-summary-grid .text-card .read-more {
+      align-self: flex-start; margin-top: 4px; padding: 0; border: 0; background: none;
+      font: inherit; font-size: .78rem; font-weight: 700; color: var(--accent); cursor: pointer;
+    }
+    .ecosystem-summary-grid .text-card .read-more:hover { text-decoration: underline; }
     .ecosystem-summary-grid .text-card.strength { border-left: 3px solid #0d1b3d; }
     .ecosystem-summary-grid .text-card.strength span { color: #0d1b3d; }
     .ecosystem-summary-grid .text-card.gap { border-left: 3px solid #d4a017; }
@@ -166,8 +175,8 @@
         <h2>Ecosystem Summary</h2>
         <div class="ecosystem-summary-grid" style="margin-top: 12px;">
           <div class="metric-card"><strong>{{ web.ecosystem_health }}</strong><span>Ecosystem Health</span><p class="muted">{{ web.ecosystem_health_level }}</p></div>
-          <div class="metric-card text-card strength"><span>Strongest Asset</span><p>{{ web.strongest_asset|truncatechars:90 }}</p></div>
-          <div class="metric-card text-card gap"><span>Biggest Constraint</span><p>{{ web.biggest_constraint|truncatechars:90 }}</p></div>
+          <div class="metric-card text-card strength"><span>Strongest Asset</span><p class="clamp">{{ web.strongest_asset }}</p><button type="button" class="read-more" hidden>Read more</button></div>
+          <div class="metric-card text-card gap"><span>Biggest Constraint</span><p class="clamp">{{ web.biggest_constraint }}</p><button type="button" class="read-more" hidden>Read more</button></div>
         </div>
       </article>
       <article class="panel" style="background: linear-gradient(145deg, #0d1b3d 0%, #17284f 100%); color: #fff; border-color: rgba(212,160,23,.32);">
@@ -268,5 +277,18 @@
 
     {% include "signals/_app_shell_footer.html" %}
   </main>
+  <script>
+    // Show "Read more" only on text cards whose value is actually clamped (overflows 2 lines).
+    document.querySelectorAll('.ecosystem-summary-grid .text-card').forEach(function (card) {
+      var p = card.querySelector('p.clamp');
+      var btn = card.querySelector('.read-more');
+      if (!p || !btn) return;
+      if (p.scrollHeight - p.clientHeight > 2) { btn.hidden = false; }
+      btn.addEventListener('click', function () {
+        var open = p.classList.toggle('expanded');
+        btn.textContent = open ? 'Show less' : 'Read more';
+      });
+    });
+  </script>
 </body>
 </html>
