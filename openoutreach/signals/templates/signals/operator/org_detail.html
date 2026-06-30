@@ -33,7 +33,7 @@
       <div class="detail-field">
         <div class="detail-label">Geography</div>
         <div class="detail-value">
-          {% if org.geography %}{{ org.geography|join:", " }}{% else %}—{% endif %}
+          {% if org.city or org.county or org.state %}{{ org.city }}{% if org.county %}{% if org.city %}, {% endif %}{{ org.county }} County{% endif %}{% if org.state %}, {{ org.state }}{% endif %}{% else %}—{% endif %}
         </div>
       </div>
       <div class="detail-field">

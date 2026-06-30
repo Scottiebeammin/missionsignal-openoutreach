@@ -28,12 +28,16 @@ def operator_dashboard(request):
         recent_signups = []
         total_signups = 0
 
-    projects = Project.objects.select_related("organization").order_by("-created_at")
+    from django.db.models import Count
+    projects = (
+        Project.objects.select_related("organization")
+        .annotate(opp_count=Count("opportunities", distinct=True))
+        .order_by("-created_at")
+    )
     total_projects = projects.count()
 
     # Projects with no opportunities (need research)
-    from django.db.models import Count
-    needs_research = projects.annotate(opp_count=Count("opportunities")).filter(opp_count=0)
+    needs_research = projects.filter(opp_count=0)
 
     ctx = {
         "total_projects": total_projects,
@@ -78,6 +82,15 @@ def operator_org_detail(request, pk):
         t = opp.get_opportunity_type_display()
         opp_by_type[t] = opp_by_type.get(t, 0) + 1
 
+    # For the displayed "Top Opportunities", show relevant, US-eligible ones (matches
+    # what the client sees) — not raw off-topic/foreign grants.
+    from openoutreach.funding.relevance import org_keywords, opportunity_relevance, is_off_geography
+    _kw = org_keywords(project.organization)
+    top_opportunities = [
+        o for o in opportunities
+        if not is_off_geography(o, project.organization) and opportunity_relevance(o, _kw) > 0
+    ][:10] or list(opportunities[:10])
+
     try:
         from openoutreach.signals.models import OrganizationAnalysisRun
         last_analysis = OrganizationAnalysisRun.objects.filter(project=project).order_by("-created_at").first()
@@ -87,7 +100,7 @@ def operator_org_detail(request, pk):
     ctx = {
         "project": project,
         "org": project.organization,
-        "opportunities": opportunities[:10],
+        "opportunities": top_opportunities,
         "opp_by_type": opp_by_type,
         "opp_count": opportunities.count(),
         "last_analysis": last_analysis,

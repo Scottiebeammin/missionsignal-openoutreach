@@ -87,6 +87,10 @@ class Command(BaseCommand):
                 analyze_project(project, mode="deterministic")
             except Exception:
                 pass
+            # Keep geography clean for the demo (analyzer can infer messy values).
+            org = project.organization
+            org.service_geographies = ["Orlando", "Orange County", "Central Florida"]
+            org.save(update_fields=["service_geographies"])
             self.stdout.write(self.style.SUCCESS(f"Created demo org '{DEMO_ORG_NAME}' (project {project.pk})."))
 
         # Pull real federal grants so the opportunity dashboard looks authentic.

@@ -98,7 +98,7 @@
           <td><a href="{% url 'operator-org-detail' project.pk %}">{{ project.organization.name }}</a></td>
           <td style="color:rgba(255,255,255,0.40);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ project.organization.mission|truncatechars:60|default:"—" }}</td>
           <td>
-            {% with c=project.opportunity_set.count %}
+            {% with c=project.opp_count %}
               {% if c %}<span class="badge badge-green">{{ c }}</span>{% else %}<span class="badge badge-muted">0</span>{% endif %}
             {% endwith %}
           </td>
