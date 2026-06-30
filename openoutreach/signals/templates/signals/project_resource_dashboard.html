@@ -115,6 +115,29 @@
     </header>
 
     <section class="panel">
+      <h2>Free &amp; Low-Cost Resources</h2>
+      <p class="muted">Verified supports your organization can use right now — software donations, volunteers, technical assistance, and capacity-building help. Every one links to its real source.</p>
+      {% if resources %}
+        <div class="resource-grid">
+          {% for resource in resources %}
+            <article class="resource-card">
+              <header>
+                <h3>{{ resource.name }}</h3>
+                <span class="impact-label" style="white-space:nowrap;">Free / Low-cost</span>
+              </header>
+              <p class="muted" style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em;margin:2px 0 6px;">{{ resource.get_resource_type_display }}</p>
+              {% if resource.notes %}<p>{{ resource.notes }}</p>{% endif %}
+              {% if resource.eligibility_notes %}<p class="muted"><strong>Eligibility:</strong> {{ resource.eligibility_notes }}</p>{% endif %}
+              {% if resource.website %}<p><a href="{{ resource.website }}" target="_blank" rel="noopener">Visit resource →</a></p>{% endif %}
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted">No resources surfaced yet — these populate as research runs for your organization.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel">
       <h2>Resource Summary</h2>
       <div class="summary-grid">
         <div class="summary-card"><strong>{{ readiness.readiness_score }}</strong><span class="muted">Resource Score</span><p class="muted">{{ readiness.readiness_level }}</p></div>

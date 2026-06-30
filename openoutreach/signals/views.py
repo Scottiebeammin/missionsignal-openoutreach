@@ -746,6 +746,24 @@ def project_opportunities_workspace(request, pk):
     discovery = build_discovery_overview(project, funding_criteria)
     match_overview = build_opportunity_matches(project, funding_criteria)
     actions = list(match_overview.highest_leverage_actions)
+
+    # Ranked opportunity list: top 10 recommended + the full set behind "see all".
+    # Rank by priority (high→low), then soonest real deadline, then name. Expired/
+    # archived are excluded from the active recommendations.
+    from datetime import date as _date
+    from openoutreach.funding.models import Opportunity
+    _prio = {
+        Opportunity.PriorityLevel.HIGH: 0,
+        Opportunity.PriorityLevel.MEDIUM: 1,
+        Opportunity.PriorityLevel.LOW: 2,
+    }
+    ranked = list(
+        Opportunity.objects.filter(project=project).exclude(
+            status__in=[Opportunity.Status.EXPIRED, Opportunity.Status.ARCHIVED]
+        )
+    )
+    ranked.sort(key=lambda o: (_prio.get(o.priority_level, 3), o.deadline or _date.max, o.name))
+
     return render(
         request,
         "signals/project_opportunities_workspace.html",
@@ -757,6 +775,9 @@ def project_opportunities_workspace(request, pk):
             "match_overview": match_overview,
             "recommended_actions": actions[:5],
             "lifecycle": discovery.lifecycle_summary,
+            "top_opportunities": ranked[:10],
+            "all_opportunities": ranked,
+            "opportunity_total": len(ranked),
             **_workflow_context(project, "prioritize", actions[:2]),
         },
     )
@@ -875,6 +896,12 @@ def project_resource_dashboard(request, pk):
     )
     funding_criteria = getattr(project, "funding_criteria", None)
     readiness = build_resource_readiness(project, funding_criteria)
+    # Surface the actual free/low-cost resource directory (TechSoup, AmeriCorps, etc.),
+    # grouped by type — these are the real, verified supports for the org to act on.
+    from openoutreach.funding.models import ResourceProvider
+    resources = list(
+        ResourceProvider.objects.filter(active=True).order_by("resource_type", "name")
+    )
     return render(
         request,
         "signals/project_resource_dashboard.html",
@@ -883,6 +910,7 @@ def project_resource_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "readiness": readiness,
+            "resources": resources,
         },
     )
 

@@ -70,32 +70,50 @@
     </header>
 
     <section class="panel">
-      <h2>Top Opportunities</h2>
+      <h2>Top 10 Recommended Opportunities</h2>
       <div class="section-toolbar">
-        <p class="muted">What requires action now: strongest matches and highest-value records.</p>
-        <div class="section-actions">
-          <a class="compact-link" href="{% url 'project-discovery' project.pk %}">View All Opportunities</a>
-          <a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
-        </div>
+        <p class="muted">Your strongest matches right now — ranked by priority and deadline. {{ opportunity_total }} total found.</p>
+        <a class="compact-link" href="{% url 'project-pipeline' project.pk %}">Open Pipeline</a>
       </div>
       <div class="grid">
-        {% for item in discovery.top_opportunities %}
+        {% for o in top_opportunities %}
           <article class="opportunity-card">
-            <h3>{{ item.opportunity.name }}</h3>
+            <h3>{{ o.name }}</h3>
             <p>
-              <span class="pill status-{{ item.opportunity.status }}">{{ item.opportunity.get_status_display }}</span>
-              <span class="pill priority-{{ item.opportunity.priority_level }}">{{ item.opportunity.get_priority_level_display }}</span>
-              <span class="score-badge">Match {{ item.match.score }}</span>
+              <span class="pill status-{{ o.status }}">{{ o.get_status_display }}</span>
+              <span class="pill priority-{{ o.priority_level }}">{{ o.get_priority_level_display }}</span>
+              {% if o.deadline %}<span class="score-badge">Due {{ o.deadline }}</span>{% endif %}
             </p>
-            <p class="muted">{{ item.opportunity.source_organization|default:item.opportunity.source_name|default:"No source organization" }}</p>
+            <p class="muted">{{ o.source_name|default:"Source not listed" }}</p>
+            {% if o.source_urls %}<p><a href="{{ o.source_urls.0 }}" target="_blank" rel="noopener">View opportunity →</a></p>{% endif %}
           </article>
         {% empty %}
           <div class="empty-state">
-            <strong>No top opportunities yet</strong>
-            Add opportunity inventory records to surface the strongest matches here.
+            <strong>No opportunities yet</strong>
+            These populate as federal (Grants.gov) and research pulls run for your organization.
           </div>
         {% endfor %}
       </div>
+
+      {% if opportunity_total > 10 %}
+        <details style="margin-top:16px;">
+          <summary style="cursor:pointer;font-weight:700;color:var(--accent,#0b5);">See all {{ opportunity_total }} opportunities</summary>
+          <div class="grid" style="margin-top:12px;">
+            {% for o in all_opportunities %}
+              <article class="opportunity-card">
+                <h3>{{ o.name }}</h3>
+                <p>
+                  <span class="pill status-{{ o.status }}">{{ o.get_status_display }}</span>
+                  <span class="pill priority-{{ o.priority_level }}">{{ o.get_priority_level_display }}</span>
+                  {% if o.deadline %}<span class="score-badge">Due {{ o.deadline }}</span>{% endif %}
+                </p>
+                <p class="muted">{{ o.source_name|default:"Source not listed" }}</p>
+                {% if o.source_urls %}<p><a href="{{ o.source_urls.0 }}" target="_blank" rel="noopener">View opportunity →</a></p>{% endif %}
+              </article>
+            {% endfor %}
+          </div>
+        </details>
+      {% endif %}
     </section>
 
     <section class="panel">
