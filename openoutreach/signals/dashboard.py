@@ -86,6 +86,30 @@ class ExecutiveDashboard:
     relationships: RelationshipOverview
 
 
+def _relevant_upcoming_deadlines(project, limit=5):
+    """Upcoming deadlines a client should actually act on — relevant to the org and
+    US-eligible (same filters as the Opportunities page, so the dashboard matches)."""
+    from openoutreach.funding.relevance import org_keywords, opportunity_relevance, is_off_geography
+
+    keywords = org_keywords(project.organization)
+    out = []
+    qs = (
+        Opportunity.objects.filter(project=project)
+        .exclude(deadline__isnull=True)
+        .exclude(status__in=[Opportunity.Status.EXPIRED, Opportunity.Status.ARCHIVED])
+        .order_by("deadline", "name")
+    )
+    for opp in qs:
+        if is_off_geography(opp, project.organization):
+            continue
+        if opportunity_relevance(opp, keywords) <= 0:
+            continue
+        out.append(opp)
+        if len(out) >= limit:
+            break
+    return out
+
+
 def _top_insight(readiness) -> str:
     strengths = getattr(readiness, "strengths", None) or []
     gaps = getattr(readiness, "gaps", None) or []
@@ -237,11 +261,7 @@ def build_executive_dashboard(
             total_source_organizations=SourceOrganization.objects.filter(active=True).count(),
             opportunity_categories=len(discovery_overview.opportunity_types),
             active_opportunities=discovery_overview.active_opportunities,
-            upcoming_deadlines=list(
-                Opportunity.objects.filter(project=project)
-                .exclude(deadline__isnull=True)
-                .order_by("deadline", "name")[:5]
-            ),
+            upcoming_deadlines=_relevant_upcoming_deadlines(project),
         ),
         executive_actions=actions[:5],
         score_chart=[
