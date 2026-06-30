@@ -33,7 +33,7 @@ def operator_dashboard(request):
 
     # Projects with no opportunities (need research)
     from django.db.models import Count
-    needs_research = projects.annotate(opp_count=Count("opportunity")).filter(opp_count=0)
+    needs_research = projects.annotate(opp_count=Count("opportunities")).filter(opp_count=0)
 
     ctx = {
         "total_projects": total_projects,
