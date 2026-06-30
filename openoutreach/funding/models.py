@@ -314,6 +314,9 @@ class Opportunity(models.Model):
     project = models.ForeignKey(
         Project, null=True, blank=True, on_delete=models.CASCADE, related_name="opportunities",
     )
+    # Stable source-namespaced id for API-ingested opportunities (e.g. "grants.gov:362373").
+    # Blank for manually-created rows. Used to dedup on re-pull.
+    external_id = models.CharField(max_length=120, blank=True, default="", db_index=True)
     opportunity_type = models.CharField(
         max_length=40, choices=OpportunityType.choices, default=OpportunityType.GRANT,
     )
