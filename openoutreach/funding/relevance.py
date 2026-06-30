@@ -36,11 +36,27 @@ _FOREIGN_COUNTRIES = {
 }
 _FOREIGN_PHRASES = ("u.s. mission to", "u.s. embassy", "overseas", " abroad", "foreign assistance")
 
+# If the grant explicitly supports US-based orgs/communities, KEEP it even when a
+# foreign country is mentioned (e.g. a multinational corp's US giving program, or a
+# program serving the US among other countries). US-only focus, but not at the cost
+# of dropping grants that fund US nonprofits.
+_US_SUPPORT_PHRASES = (
+    "u.s.-based", "us-based", "u.s. based", "domestic nonprofit", "u.s. nonprofit",
+    "us nonprofit", "u.s. nonprofits", "nationwide", "all 50 states",
+    "across the united states", "u.s. communities", "american nonprofit",
+    "501(c)(3)", "united states-based",
+)
+
 
 def is_off_geography(opportunity, organization=None) -> bool:
     """True if the opportunity is tied to a foreign country / overseas post — disqualified
-    for a domestic nonprofit regardless of topic overlap."""
-    text = f"{opportunity.name} {opportunity.source_name or ''}".lower()
+    for a US-domestic nonprofit. Override: kept if it explicitly supports US-based orgs."""
+    text = (
+        f"{opportunity.name} {opportunity.source_name or ''} "
+        f"{opportunity.eligibility_notes or ''} {opportunity.notes or ''}"
+    ).lower()
+    if any(p in text for p in _US_SUPPORT_PHRASES):
+        return False
     if any(phrase in text for phrase in _FOREIGN_PHRASES):
         return True
     return bool(set(re.findall(r"[a-z]+", text)) & _FOREIGN_COUNTRIES)
