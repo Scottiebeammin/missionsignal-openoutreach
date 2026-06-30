@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
+:root{
+  --night:#07101d; --night2:#0d1c35; --ink:#0D1B3D; --body:#26324a;
+  --gold:#C28A12; --gold-lt:#D4A017; --cream:#F7F3EB; --muted:#5e6d85; --line:#e3ddcf; --line2:rgba(13,27,61,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+@page{size:8.5in 11in;margin:0;}
+html,body{font-family:Inter,system-ui,sans-serif;color:var(--body);font-size:11.2px;line-height:1.62;}
+.page{width:8.5in;height:11in;position:relative;overflow:hidden;page-break-after:always;padding:0.85in 0.9in 0.8in;background:#fff;}
+.page:last-child{page-break-after:auto;}
+.cover{background:radial-gradient(120% 120% at 80% 8%,#16294e 0%,var(--night2) 40%,var(--night) 100%);color:#fff;padding:0;}
+
+h1{font-family:Fraunces,serif;font-weight:600;font-size:30px;line-height:1.1;letter-spacing:-.015em;color:var(--ink);}
+h2{font-family:Fraunces,serif;font-weight:600;font-size:19px;color:var(--ink);margin:0 0 9px;letter-spacing:-.01em;
+   padding-bottom:7px;border-bottom:2px solid var(--gold);}
+h2 .num{color:var(--gold);font-size:15px;margin-right:8px;}
+h3{font-size:12.5px;font-weight:800;color:var(--ink);margin:15px 0 5px;}
+p{margin:0 0 9px;}
+.lead{font-size:12.5px;color:var(--muted);line-height:1.6;}
+ul{margin:4px 0 11px 16px;} li{margin-bottom:5px;}
+b,strong{color:var(--ink);font-weight:700;}
+.eyebrow{font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.foot{position:absolute;bottom:0.45in;left:0.9in;right:0.9in;display:flex;justify-content:space-between;
+  font-size:8.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:6px;letter-spacing:.02em;}
+.foot b{color:var(--gold);font-weight:800;}
+
+table{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:10.4px;}
+th{background:var(--ink);color:#fff;text-align:left;padding:7px 9px;font-weight:700;font-size:9.6px;letter-spacing:.03em;}
+td{padding:6px 9px;border-bottom:1px solid var(--line);}
+tr:nth-child(even) td{background:#faf8f3;}
+.r{text-align:right;} .gold-td{color:var(--gold);font-weight:800;}
+
+.callout{background:#faf7ef;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:11px 14px;margin:10px 0;font-size:10.8px;}
+.callout .k{font-weight:800;color:var(--ink);text-transform:uppercase;letter-spacing:.08em;font-size:9px;margin-bottom:3px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.statbar{display:flex;gap:22px;margin:12px 0;}
+.statbar .s .v{font-family:Fraunces,serif;font-size:24px;color:var(--gold);font-weight:600;}
+.statbar .s .l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.tag{display:inline-block;background:rgba(212,160,23,.12);border:1px solid rgba(212,160,23,.4);color:var(--gold);
+  font-size:8.5px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.04em;}
+.toc-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dotted var(--line);font-size:11.5px;}
+.toc-row b{color:var(--ink);}
+.toc-row .n{color:var(--gold);font-weight:800;width:24px;}
+</style></head><body>
+
+<!-- COVER -->
+<div class="page cover">
+  <div style="position:absolute;inset:0;padding:0.9in 0.9in;display:flex;flex-direction:column;height:100%;">
+    <svg width="190" height="190" viewBox="0 0 600 600" style="position:absolute;right:0.55in;top:0.7in;opacity:.92">
+      <defs>
+        <radialGradient id="ha" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#e5ad3f" stop-opacity=".4"/><stop offset="66%" stop-color="#e5ad3f" stop-opacity="0"/></radialGradient>
+        <linearGradient id="sp" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#f5d878" stop-opacity=".85"/><stop offset="100%" stop-color="#D4A017" stop-opacity=".18"/></linearGradient>
+      </defs>
+      <circle cx="300" cy="300" r="215" fill="url(#ha)"/>
+      <g stroke="url(#sp)" stroke-width="2"><line x1="300" y1="300" x2="468" y2="300"/><line x1="300" y1="300" x2="384" y2="445.5"/><line x1="300" y1="300" x2="216" y2="445.5"/><line x1="300" y1="300" x2="132" y2="300"/><line x1="300" y1="300" x2="216" y2="154.5"/><line x1="300" y1="300" x2="384" y2="154.5"/></g>
+      <polyline fill="none" stroke="#D4A017" stroke-opacity=".5" stroke-width="1.6" stroke-linejoin="round" points="330,300 317.2,329.9 280.5,333.8 256.5,300 276,258.4 326.2,254.5 357,300 330.8,353.3 267,357.2 229.5,300 262.5,235 339.8,231.2 384,300 344.2,376.6 253.5,380.5 202.5,300 249,211.7 353.2,207.8 411,300 357.8,400 240,403.9 175.5,300 235.5,188.3 366.8,184.4 438,300 371.2,423.4 226.5,427.3 148.5,300 222,164.9 380.2,161 465,300"/>
+      <g fill="#0c1a36" stroke="#e5ad3f" stroke-width="3"><circle cx="468" cy="300" r="9"/><circle cx="384" cy="445.5" r="9"/><circle cx="216" cy="445.5" r="9"/><circle cx="132" cy="300" r="9"/><circle cx="216" cy="154.5" r="9"/><circle cx="384" cy="154.5" r="9"/></g>
+      <circle cx="300" cy="300" r="30" fill="#0c1a36" stroke="#e5ad3f" stroke-width="2.5"/><circle cx="300" cy="300" r="13" fill="#D4A017"/>
+    </svg>
+    <div class="tag" style="color:#e5ad3f;">Confidential Business Plan · 2026</div>
+    <div style="margin-top:auto;">
+      <div style="font-family:Fraunces,serif;font-weight:600;font-size:58px;line-height:1;color:#fff;letter-spacing:-.02em;">Anansi Atlas</div>
+      <div style="font-size:18px;color:#e5ad3f;font-weight:600;margin-top:14px;">The Web of Opportunity</div>
+      <p style="color:rgba(255,255,255,.66);font-size:13px;max-width:62%;margin-top:18px;line-height:1.6;">
+        Opportunity intelligence for nonprofits — the platform that maps every aligned funder, partner, and pathway around a mission, pulled live and ranked by fit.</p>
+      <div style="margin-top:34px;height:1px;background:rgba(255,255,255,.18);"></div>
+      <div style="display:flex;gap:26px;margin-top:16px;font-size:11px;color:rgba(255,255,255,.7);">
+        <span>Scott Foundry Group LLC</span><span>·</span><span>anansiatlas.com</span><span>·</span><span>info@anansiatlas.com</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOC + EXEC SUMMARY -->
+<div class="page">
+  <div class="eyebrow">Contents</div>
+  <h1 style="margin-bottom:14px;">Business Plan</h1>
+  <div style="margin-bottom:24px;">
+    <div class="toc-row"><span><span class="n">01</span><b>Executive Summary</b></span></div>
+    <div class="toc-row"><span><span class="n">02</span><b>Company &amp; Vision</b></span></div>
+    <div class="toc-row"><span><span class="n">03</span><b>The Problem</b></span></div>
+    <div class="toc-row"><span><span class="n">04</span><b>The Solution &amp; Product</b></span></div>
+    <div class="toc-row"><span><span class="n">05</span><b>Technology &amp; Competitive Moat</b></span></div>
+    <div class="toc-row"><span><span class="n">06</span><b>Market Opportunity</b></span></div>
+    <div class="toc-row"><span><span class="n">07</span><b>Competitive Landscape</b></span></div>
+    <div class="toc-row"><span><span class="n">08</span><b>Business Model &amp; Pricing</b></span></div>
+    <div class="toc-row"><span><span class="n">09</span><b>Go-to-Market Strategy</b></span></div>
+    <div class="toc-row"><span><span class="n">10</span><b>Financial Projections</b></span></div>
+    <div class="toc-row"><span><span class="n">11</span><b>Roadmap &amp; Milestones</b></span></div>
+    <div class="toc-row"><span><span class="n">12</span><b>Team, Risks &amp; The Ask</b></span></div>
+  </div>
+  <h2><span class="num">01</span>Executive Summary</h2>
+  <p>Anansi Atlas is an <b>opportunity intelligence platform for nonprofits</b>. It maps the full web of opportunity around an organization's mission — aligned funders, strategic partners, active grants with real deadlines, government pathways, and a readiness assessment — and delivers it as an executive-ready <b>Opportunity Web Snapshot</b> plus a living workspace.</p>
+  <p>The category gap is clear: the 1.8 million US nonprofits are served by tools built for specialists — foundation databases and grant-search platforms that assume a development team and reselling the same licensed lists. Most organizations have neither. Anansi Atlas is built for the executive director, not the grant writer.</p>
+  <p>Critically, Anansi Atlas does not resell a third-party database. It operates an <b>owned, live data pipeline</b> that ingests verified opportunities from primary sources — the federal Grants.gov API plus grounded web research across local, county, state, national, corporate, and bank funders — with a verification gate that rejects any record without a real source URL. This produces proprietary, defensible data at a fraction of incumbents' cost structure.</p>
+  <div class="callout"><div class="k">Status</div>The platform is <b>live in production at anansiatlas.com</b>. The data engine, snapshot generation, relevance ranking, and client workspace are operational. The founding-partner cohort is onboarding at $150/month (locked for life, 20 seats).</div>
+  <div class="statbar">
+    <div class="s"><div class="v">$150</div><div class="l">/mo founding price</div></div>
+    <div class="s"><div class="v">~$1</div><div class="l">data cost / org</div></div>
+    <div class="s"><div class="v">85%+</div><div class="l">target gross margin</div></div>
+    <div class="s"><div class="v">$3T+</div><div class="l">sector served</div></div>
+  </div>
+  <div class="foot"><span><b>✦</b> Anansi Atlas — Confidential</span><span>Page 1</span></div>
+</div>
+
+<!-- COMPANY + PROBLEM -->
+<div class="page">
+  <h2><span class="num">02</span>Company &amp; Vision</h2>
+  <p>Anansi Atlas is a product of <b>Scott Foundry Group LLC</b>, founded by Marcus Scott. The name draws on the West African storytelling tradition of Anansi — the clever weaver who sees the hidden connections in the web. That is the company's thesis: the funding landscape is a web, and organizations that can see it move with clarity instead of luck.</p>
+  <p><b>Mission:</b> give mission-driven organizations the opportunity intelligence that was always reserved for well-resourced institutions.</p>
+  <p><b>Vision:</b> become the intelligence layer for the entire social sector — the system of record for where a nonprofit's next funding, partnership, and pathway will come from.</p>
+  <h3>Why now</h3>
+  <ul>
+    <li><b>Primary-source data is finally accessible.</b> Government APIs (Grants.gov, USAspending) and IRS 990 data are open and free — the raw material incumbents aggregate and resell.</li>
+    <li><b>Grounded AI research</b> can now navigate, extract, and verify funder information at cents-per-organization cost, with a verification gate that eliminates hallucination.</li>
+    <li><b>The incumbent tools left a gap</b> — built for specialists at large institutions, priced and designed away from the executive directors who need them most.</li>
+  </ul>
+
+  <h2 style="margin-top:22px;"><span class="num">03</span>The Problem</h2>
+  <p>Nonprofits leave real money on the table — not for lack of merit, but because they cannot see the landscape.</p>
+  <ul>
+    <li><b>No development infrastructure.</b> Most of the 1.8M US nonprofits have no dedicated grant researcher or development director.</li>
+    <li><b>Research is manual and scattered.</b> Funding intelligence lives across dozens of databases, agency sites, and Google searches — hours of work most leaders cannot spare.</li>
+    <li><b>Decisions made on luck.</b> Organizations apply to the wrong funders, miss deadlines, and misread their own readiness gaps.</li>
+    <li><b>Existing tools don't fit.</b> Foundation databases are built for specialists and priced for institutions; they hand over a list, not a strategy.</li>
+  </ul>
+  <div class="callout"><div class="k">The core insight</div>Funding exists; visibility doesn't. The problem is not a people problem — it's a product gap. That makes it a software problem with a software solution.</div>
+  <div class="foot"><span><b>✦</b> Anansi Atlas — Confidential</span><span>Page 2</span></div>
+</div>
+
+<!-- SOLUTION + PRODUCT -->
+<div class="page">
+  <h2><span class="num">04</span>The Solution &amp; Product</h2>
+  <p>Anansi Atlas turns a 10-minute intake into a clear, prioritized picture of where an organization should go next — and keeps it live.</p>
+  <h3>The Opportunity Web Snapshot — the core deliverable</h3>
+  <p>A personalized executive intelligence brief, customized to the organization's mission, geography, programs, and stage:</p>
+  <ul>
+    <li><b>Top funder matches</b> — ranked by mission alignment and geographic fit.</li>
+    <li><b>Active grant opportunities</b> — real deadlines and amounts, ranked by relevance, not dumped as a list.</li>
+    <li><b>Strategic partners</b> — organizations whose work complements and strengthens applications.</li>
+    <li><b>Government pathways</b> — federal, state, and local lanes most organizations never see.</li>
+    <li><b>Readiness Score (0–100)</b> — an honest assessment with specific, named gaps.</li>
+    <li><b>30-day action plan</b> — prioritized next steps so leaders know exactly where to start.</li>
+  </ul>
+  <h3>The living workspace</h3>
+  <p>Beyond the one-time brief, each organization gets a persistent workspace — snapshot, opportunity pipeline, readiness tracking, and partner intelligence — that stays current as the funding landscape and the organization evolve. Built for executive directors: clean, executive-ready, printable, and shareable.</p>
+  <div class="callout"><div class="k">Built &amp; live today</div>Intake, deterministic analysis, the Opportunity Web Snapshot, relevance-ranked opportunities (top-10 with full list), the free/low-cost resource directory, readiness scoring, and the operator/CRM back office are all operational in production.</div>
+  <h3>How it works</h3>
+  <table>
+    <tr><th style="width:22%;">Step</th><th>What happens</th></tr>
+    <tr><td><b>1 · Intake</b> (10 min)</td><td>Structured questions about mission, geography, county/state, programs, and stage — conversational, no consultant required.</td></tr>
+    <tr><td><b>2 · Analysis</b></td><td>The mission is mapped against live federal, state, local, and national funders, scored for fit and geography.</td></tr>
+    <tr><td><b>3 · Snapshot + Workspace</b></td><td>The Opportunity Web Snapshot is delivered; the workspace stays live, shareable, and printable.</td></tr>
+  </table>
+  <div class="foot"><span><b>✦</b> Anansi Atlas — Confidential</span><span>Page 3</span></div>
+</div>
+
+<!-- MOAT -->
+<div class="page">
+  <h2><span class="num">05</span>Technology &amp; Competitive Moat</h2>
+  <p>The defensible advantage is not the interface — it's the <b>owned data pipeline</b>. Competitors license the same aggregated lists; Anansi Atlas builds its data live from primary sources, with every opportunity traceable to a real URL.</p>
+  <div class="grid2">
+    <div>
+      <h3>Live, owned ingestion</h3>
+      <p>Federal grants pulled directly from the <b>Grants.gov API</b> (free, structured, authoritative). Local, county, state, national, corporate, and bank funders surfaced via <b>grounded web research</b> across government sites, foundation pages, corporate giving programs, and announcements.</p>
+      <h3>The grounding gate</h3>
+      <p>Every researched record must trace to a real, reachable source URL or it is <b>rejected at import</b>. Placeholder and fabricated URLs are blocked. The result: zero hallucinated funders.</p>
+    </div>
+    <div>
+      <h3>Relevance &amp; geography ranking</h3>
+      <p>Each opportunity is scored against what the organization does and who it serves; foreign and out-of-area grants are filtered out unless they fund US-based nonprofits. Leaders see on-mission, eligible matches first.</p>
+      <h3>Cost structure that scales</h3>
+      <p>Primary-source pulls cost <b>cents to ~$1 per organization</b> per refresh — versus the <b>$2,000–$4,300/year per-seat</b> data licenses incumbents resell. Margin compounds as coverage deepens.</p>
+    </div>
+  </div>
+  <div class="callout"><div class="k">Why it compounds</div>Every research pass improves coverage and the verified funder graph — proprietary data that competitors reselling third-party lists cannot cheaply replicate, and that a nonprofit cannot assemble alone.</div>
+  <h3>Architecture</h3>
+  <p>Self-hosted SaaS (Django, Python) with the data engine modularized into ingestion (<i>grants_gov</i>), grounded research with verification (<i>grounding</i> gate), and relevance scoring (<i>relevance</i>). New orgs are auto-enriched with verified federal grants on intake. Data stays with the organization.</p>
+  <div class="foot"><span><b>✦</b> Anansi Atlas — Confidential</span><span>Page 4</span></div>
+</div>
+
+<!-- MARKET + COMPETITION -->
+<div class="page">
+  <h2><span class="num">06</span>Market Opportunity</h2>
+  <p>The US nonprofit sector represents <b>over $3 trillion in assets and $600B+ in annual revenue</b>, across roughly <b>1.8 million registered organizations</b>.</p>
+  <table>
+    <tr><th>Segment</th><th>Definition</th><th class="r">Scale</th></tr>
+    <tr><td><b>TAM</b> — Total</td><td>US registered nonprofits</td><td class="r">~1.8M orgs</td></tr>
+    <tr><td><b>SAM</b> — Serviceable</td><td>Small-to-mid orgs, $250K–$5M budget, real programs, no development team</td><td class="r gold-td">~300–400K orgs</td></tr>
+    <tr><td><b>SOM</b> — Obtainable (5 yr)</td><td>Early reachable via direct + capacity-builder channels</td><td class="r">5,000–15,000 orgs</td></tr>
+  </table>
+  <p>At a blended ~$250/month, a 10,000-organization base represents <b>~$30M ARR</b> — before white-label and team-seat expansion. The underserved core ($250K–$5M budgets) is large, identifiable, and currently unserved by tools designed for them.</p>
+
+  <h2 style="margin-top:20px;"><span class="num">07</span>Competitive Landscape</h2>
+  <table>
+    <tr><th>Player</th><th>Model</th><th>Built for</th><th class="r">Price</th></tr>
+    <tr><td><b>Candid / Foundation Directory</b></td><td>Aggregated database</td><td>Researchers / institutions</td><td class="r">~$1.5–2.5K/yr</td></tr>
+    <tr><td><b>Instrumentl</b></td><td>Curated grant matching</td><td>Grant professionals</td><td class="r">~$2.2–4.3K/yr</td></tr>
+    <tr><td><b>GrantStation</b></td><td>Lighter database</td><td>Generalists</td><td class="r">~$100–180/yr</td></tr>
+    <tr><td class="gold-td"><b>Anansi Atlas</b></td><td><b>Owned-pipeline intelligence + strategy</b></td><td><b>Executive directors</b></td><td class="r gold-td">$150–299/mo</td></tr>
+  </table>
+  <p><b>Differentiation:</b> incumbents hand over a searchable list and assume expertise. Anansi Atlas delivers the <i>whole web</i> — funders, partners, government, readiness, and a prioritized action plan — for the non-specialist, on an owned data engine rather than a reseller agreement (which, notably, would prohibit redistributing their data through a product like this).</p>
+  <div class="foot"><span><b>✦</b> Anansi Atlas — Confidential</span><span>Page 5</span></div>
+</div>
+
+<!-- BUSINESS MODEL + GTM -->
+<div class="page">
+  <h2><span class="num">08</span>Business Model &amp; Pricing</h2>
+  <p>Recurring monthly SaaS subscriptions. No per-report fees, no usage limits. High gross margin driven by a low-cost primary-source data pipeline.</p>
+  <table>
+    <tr><th>Tier</th><th>Price</th><th>Includes</th></tr>
+    <tr><td><b>Founding Partner</b> <span class="tag">19 seats left</span></td><td class="gold-td"><b>$150/mo</b> — locked for life</td><td>Full platform + 45-min founder walkthrough. Limited to 20.</td></tr>
+    <tr><td><b>Standard</b></td><td><b>$299/mo</b></td><td>Full platform access after the founding cohort fills.</td></tr>
+    <tr><td><b>Team / Multi-seat</b> <span class="tag">future</span></td><td>Tiered</td><td>Collaboration for larger organizations.</td></tr>
+    <tr><td><b>White-label license</b> <span class="tag">future</span></td><td>Annual</td><td>Capacity builders &amp; consultants serve their own portfolios.</td></tr>
+  </table>
+  <p><b>Unit economics.</b> At $150–299/mo with ~$1/org data cost per refresh plus modest LLM and hosting overhead, contribution margin exceeds 85%. The founding-partner offer trades early lifetime pricing for partnership, feedback, and reference customers.</p>
+
+  <h2 style="margin-top:20px;"><span class="num">09</span>Go-to-Market Strategy</h2>
+  <ul>
+    <li><b>Phase 1 — Founding cohort (now).</b> Direct outreach to warm nonprofit relationships; 20 founding partners at $150/mo, each onboarded with a personal walkthrough. Proof, testimonials, and product feedback.</li>
+    <li><b>Phase 2 — Direct + content.</b> SEO content targeting funding-research intent (live), founder-led LinkedIn outreach, and an automated cold-outreach engine to nonprofit executive directors.</li>
+    <li><b>Phase 3 — Channel.</b> White-label and referral partnerships with capacity builders, nonprofit support centers, and consultants who serve dozens of organizations each — a force multiplier on distribution.</li>
+  </ul>
+  <div class="callout"><div class="k">Built-in growth infrastructure</div>The platform already includes a waitlist + nurture sequence, an operator CRM with AI outreach drafting, an AI ad-copy generator, and a seeded LinkedIn cold-outreach campaign targeting nonprofit EDs.</div>
+  <div class="foot"><span><b>✦</b> Anansi Atlas — Confidential</span><span>Page 6</span></div>
+</div>
+
+<!-- FINANCIALS -->
+<div class="page">
+  <h2><span class="num">10</span>Financial Projections</h2>
+  <p>Illustrative, conservative model. Lean cost base (solo founder Year 1; primary-source data keeps COGS minimal). Figures are directional, not guarantees.</p>
+  <table>
+    <tr><th>Metric</th><th class="r">Year 1 (2026)</th><th class="r">Year 2 (2027)</th><th class="r">Year 3 (2028)</th></tr>
+    <tr><td>Active subscribers (end of year)</td><td class="r">60</td><td class="r">280</td><td class="r">750</td></tr>
+    <tr><td>Blended ARPU / month</td><td class="r">$180</td><td class="r">$230</td><td class="r">$255</td></tr>
+    <tr><td class="gold-td"><b>Recurring revenue (ARR, exit)</b></td><td class="r gold-td"><b>~$130K</b></td><td class="r gold-td"><b>~$770K</b></td><td class="r gold-td"><b>~$2.3M</b></td></tr>
+    <tr><td>+ White-label / channel revenue</td><td class="r">—</td><td class="r">~$60K</td><td class="r">~$350K</td></tr>
+    <tr><td>Gross margin</td><td class="r">~86%</td><td class="r">~87%</td><td class="r">~88%</td></tr>
+    <tr><td>Headcount (FTE)</td><td class="r">1</td><td class="r">3–4</td><td class="r">8–10</td></tr>
+  </table>
+  <p><b>Cost drivers.</b> Data ingestion (cents–$1/org per refresh), LLM/research credits, cloud hosting, and — from Year 2 — engineering, customer success, and growth hires funded from recurring revenue.</p>
+  <div class="grid2">
+    <div class="callout"><div class="k">Key assumptions</div>Founding cohort fills in Year 1; standard pricing thereafter; monthly churn held in the low single digits via the living-workspace stickiness and annual relationships.</div>
+    <div class="callout"><div class="k">Capital efficiency</div>Built to date with no outside funding. The model is default-alive at modest scale; investment accelerates coverage, channel, and team — not survival.</div>
+  </div>
+  <div class="foot"><span><b>✦</b> Anansi Atlas — Confidential</span><span>Page 7</span></div>
+</div>
+
+<!-- ROADMAP -->
+<div class="page">
+  <h2><span class="num">11</span>Roadmap &amp; Milestones</h2>
+  <p>The next 90 days are about depth, not breadth — converting a live platform into a habit founding partners rely on weekly. <span style="color:var(--muted);font-style:italic;">(Roadmap finalized against the current build state.)</span></p>
+  <table>
+    <tr><th style="width:20%;">Phase</th><th>Goals (grounded in the current build)</th></tr>
+    <tr><td><b>Days 1–30</b><br>Keep it live</td><td><b>Scheduled auto-refresh</b> of federal + researched grants (today the pull runs once at intake); wire the stricter reachability-verified grounding gate into the live path — so opportunities stay fresh and trustworthy, not stale.</td></tr>
+    <tr><td><b>Days 31–60</b><br>Drive action</td><td><b>Deadline &amp; new-match email alerts</b> (the single highest-value missing feature); a real <b>document/evidence vault</b> with client upload; operator <b>"view-as-client"</b> for support and demos; client-editable deadlines.</td></tr>
+    <tr><td><b>Days 61–90</b><br>Make it shared</td><td><b>Self-serve team invites</b> &amp; seat management on existing member roles; saved/shortlisted matches; build out the program portfolio and a celebrations/milestone log.</td></tr>
+  </table>
+  <h3>Beyond 90 days</h3>
+  <ul>
+    <li><b>6 months —</b> white-label licensing for capacity builders &amp; consultants; team collaboration workspace.</li>
+    <li><b>12 months —</b> funder relationship tracking; expanded government-pathway module; deeper national + corporate data coverage.</li>
+  </ul>
+  <div class="callout"><div class="k">Note</div>This roadmap is derived from a direct audit of the production codebase: it lists features adjacent to what already ships, not speculative leaps.</div>
+  <div class="foot"><span><b>✦</b> Anansi Atlas — Confidential</span><span>Page 8</span></div>
+</div>
+
+<!-- TEAM + RISK + ASK -->
+<div class="page">
+  <h2><span class="num">12</span>Team, Risks &amp; The Ask</h2>
+  <h3>Team</h3>
+  <p><b>Marcus Scott — Founder, Scott Foundry Group LLC.</b> Builder, strategist, and operator across nonprofit infrastructure, B2B SaaS, and systems design. Designed and built the Anansi Atlas platform end-to-end — brand, product, and the live data engine. Advisors and founding partners actively shape product direction.</p>
+  <h3>Risks &amp; Mitigations</h3>
+  <table>
+    <tr><th style="width:38%;">Risk</th><th>Mitigation</th></tr>
+    <tr><td>Data quality / hallucination</td><td>Grounding gate rejects any record without a verified source URL; primary-source ingestion (Grants.gov) is authoritative.</td></tr>
+    <tr><td>Incumbent response</td><td>Moat is the owned pipeline + whole-web positioning; incumbents' reseller licenses legally constrain replicating this model.</td></tr>
+    <tr><td>Adoption / churn</td><td>Living workspace + founder onboarding + alerts create weekly habit and switching cost.</td></tr>
+    <tr><td>Single-founder concentration</td><td>Capital and early hires (CS, engineering) de-risk; lean default-alive base buys time.</td></tr>
+  </table>
+  <h3>The Ask</h3>
+  <p>Anansi Atlas is building the intelligence layer for the entire social sector. The platform is live, the data engine is owned, and the category is wide open. We welcome conversations with <b>mission-aligned investors</b> to accelerate data coverage, channel partnerships, and team — and with <b>capacity builders</b> on white-label and referral partnerships.</p>
+  <div class="callout"><div class="k">Contact</div>Marcus Scott · Scott Foundry Group LLC · <b>anansiatlas.com</b> · info@anansiatlas.com</div>
+  <div class="foot"><span><b>✦</b> Anansi Atlas — Confidential</span><span>Page 9</span></div>
+</div>
+
+</body></html>
