@@ -178,6 +178,28 @@ class InterestSignupForm(forms.ModelForm):
         }
 
 
+class QuestionForm(forms.ModelForm):
+    """Lightweight 'ask a question / request info' form — no org required."""
+
+    class Meta:
+        model = InterestSignup
+        fields = [
+            "name",
+            "email",
+            "organization",
+            "message",
+        ]
+        widgets = {
+            "message": forms.Textarea(attrs={"rows": 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Organization is optional for a quick question; everything else stays required.
+        self.fields["organization"].required = False
+        self.fields["message"].required = True
+
+
 class PilotDiscoveryQuestionnaireForm(forms.ModelForm):
     class Meta:
         model = PilotProfile

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Question Received - Anansi Atlas</title>
+  <style>
+    :root {
+      --night: #08111f;
+      --navy: #101a32;
+      --paper: #fffaf0;
+      --ink: #142033;
+      --muted: #667085;
+      --gold: #e5ad3f;
+      --line: rgba(20, 32, 51, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 75% 16%, rgba(229, 173, 63, 0.22), transparent 26rem),
+        linear-gradient(145deg, var(--night), var(--navy));
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main {
+      width: min(760px, 100%);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 32px;
+      padding: clamp(30px, 6vw, 56px);
+      background: rgba(255, 250, 240, 0.96);
+      box-shadow: 0 30px 100px rgba(0,0,0,0.28);
+    }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #c96d3c;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 0.76rem;
+      font-weight: 900;
+    }
+    h1 {
+      color: var(--navy);
+      margin: 0 0 14px;
+      font-size: clamp(2.8rem, 7vw, 5.1rem);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+    }
+    p { color: var(--muted); font-size: 1.1rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border-radius: 999px;
+      padding: 12px 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--navy);
+      text-decoration: none;
+      font-weight: 850;
+    }
+    a.primary {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #171007;
+    }
+    @media (max-width: 560px) {
+      .actions a { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Question received</p>
+    <h1>Thanks for reaching out.</h1>
+    <p>We've got your question and a team member will get back to you within 48 hours. We've also sent a confirmation to your email — feel free to reply there with anything else.</p>
+    <div class="actions">
+      <a class="primary" href="{% url 'anansi-atlas-landing' %}">Return to Anansi Atlas</a>
+      <a href="mailto:info@anansiatlas.com">Email us directly</a>
+    </div>
+  </main>
+</body>
+</html>

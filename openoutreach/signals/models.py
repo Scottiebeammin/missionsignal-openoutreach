@@ -82,6 +82,7 @@ class InterestSignup(models.Model):
         FOUNDING_ATLAS_PARTNERS = "founding_atlas_partners", "Join Founding Atlas Partners"
         NEWSLETTER_UPDATES = "newsletter_updates", "Newsletter / Updates"
         PARTNERSHIP_INQUIRY = "partnership_inquiry", "Partnership Inquiry"
+        QUESTION = "question", "Question / Request Info"
 
     class Status(models.TextChoices):
         NEW = "new", "New"

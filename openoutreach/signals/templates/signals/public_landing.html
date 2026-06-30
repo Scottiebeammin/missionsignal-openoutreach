@@ -1017,7 +1017,7 @@
 <!-- ── Sticky mobile CTA bar ── -->
 <div class="sticky-cta" id="sticky-cta" aria-hidden="true">
   <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="justify-content:center;">Apply for a Founding Seat · $150/mo →</a>
-  <a class="btn btn-ghost" href="#get-started" style="justify-content:center;font-size:0.88rem;">Have Questions? Get More Info</a>
+  <a class="btn btn-ghost" href="#ask" style="justify-content:center;font-size:0.88rem;">Have Questions? Get More Info</a>
 </div>
 
 <!-- ═══ NAV ════════════════════════════════════════════════════════ -->
@@ -1320,7 +1320,7 @@
       </div>
       <div style="text-align:center; margin-top:40px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;" class="reveal">
         <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
-        <a class="btn btn-ghost btn-lg" href="#get-started">Get More Information</a>
+        <a class="btn btn-ghost btn-lg" href="#ask">Get More Information</a>
       </div>
     </section>
   </div>
@@ -1743,7 +1743,7 @@
         </p>
         <div style="margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;" class="reveal reveal-delay-2">
           <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
-          <a class="btn btn-ghost btn-lg" href="#get-started">Get More Information</a>
+          <a class="btn btn-ghost btn-lg" href="#ask">Get More Information</a>
         </div>
       </div>
     </section>
@@ -1871,6 +1871,64 @@
           <summary class="faq-q">What happens after the founding cohort closes?</summary>
           <p class="faq-a">Founding Atlas Partners keep their $150/month rate locked for life — even as public pricing increases. The next cohort (Early Atlas Partners) opens at $200/month. Public Pro launches at $497/month.</p>
         </details>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══ ASK A QUESTION ═══════════════════════════════════════════════ -->
+<div class="form-zone" id="ask">
+  <div class="shell">
+    <section aria-label="Ask a question">
+      <div class="form-layout">
+
+        <div class="form-left">
+          <p class="section-label eyebrow-gold reveal" style="margin-bottom:12px;">Still Curious?</p>
+          <h2 class="display reveal reveal-delay-1">
+            Have a question?<br><em>Ask us anything.</em>
+          </h2>
+          <p class="reveal reveal-delay-2" style="margin-top:18px;font-size:0.95rem;color:var(--muted);line-height:1.7;max-width:420px;">
+            Not ready to apply yet? Send us your question and a real person on the team will
+            get back to you within 48 hours — no pressure, no sales pitch.
+          </p>
+          <p style="margin-top:20px;font-size:0.84rem;color:var(--muted);" class="reveal reveal-delay-3">
+            Prefer email? <a href="mailto:info@anansiatlas.com" style="color:var(--gold-lt);font-weight:600;">info@anansiatlas.com</a>
+          </p>
+        </div>
+
+        <div class="reveal reveal-delay-2">
+          <div class="form-card">
+            {% if question_failed %}
+              <p style="background:rgba(248,113,113,0.10);border:1px solid rgba(248,113,113,0.25);color:#fca5a5;padding:10px 14px;border-radius:10px;font-size:0.84rem;margin-bottom:16px;">
+                Please check the highlighted fields and try again.
+              </p>
+            {% endif %}
+            <form action="{% url 'ask-question' %}" method="post">
+              {% csrf_token %}
+              <div>
+                <label for="q-name">Your name</label>
+                <input id="q-name" name="name" type="text" placeholder="Jane Smith" value="{{ question_form.name.value|default:'' }}" required autocomplete="name">
+                {% if question_form.name.errors %}<span class="field-errors">{{ question_form.name.errors.0 }}</span>{% endif %}
+              </div>
+              <div>
+                <label for="q-email">Email</label>
+                <input id="q-email" name="email" type="email" placeholder="jane@yourorg.org" value="{{ question_form.email.value|default:'' }}" required autocomplete="email">
+                {% if question_form.email.errors %}<span class="field-errors">{{ question_form.email.errors.0 }}</span>{% endif %}
+              </div>
+              <div>
+                <label for="q-org">Organization <span style="color:var(--muted);font-weight:500;">(optional)</span></label>
+                <input id="q-org" name="organization" type="text" placeholder="Your organization name" value="{{ question_form.organization.value|default:'' }}" autocomplete="organization">
+              </div>
+              <div>
+                <label for="q-message">Your question</label>
+                <textarea id="q-message" name="message" rows="4" placeholder="What would you like to know about Anansi Atlas?" required>{{ question_form.message.value|default:'' }}</textarea>
+                {% if question_form.message.errors %}<span class="field-errors">{{ question_form.message.errors.0 }}</span>{% endif %}
+              </div>
+              <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:6px;">Send Question →</button>
+            </form>
+          </div>
+        </div>
+
       </div>
     </section>
   </div>

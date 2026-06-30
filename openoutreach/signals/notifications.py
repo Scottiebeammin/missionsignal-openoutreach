@@ -30,9 +30,15 @@ def build_interest_signup_notification(signup: InterestSignup) -> str:
 
 
 def notify_interest_signup(signup: InterestSignup) -> bool:
+    is_question = signup.interest_type == InterestSignup.InterestType.QUESTION
+    subject = (
+        f"New question from {signup.name}"
+        if is_question
+        else "New Anansi Atlas interest signup"
+    )
     try:
         send_mail(
-            subject="New Anansi Atlas interest signup",
+            subject=subject,
             message=build_interest_signup_notification(signup),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[ANANSI_ATLAS_SIGNUP_NOTIFICATION_RECIPIENT],
@@ -82,6 +88,37 @@ def send_interest_signup_confirmation(signup: InterestSignup) -> bool:
         )
     except Exception:
         logger.exception("Interest signup confirmation failed for signup_id=%s", signup.pk)
+        return False
+    return True
+
+
+def send_question_received_confirmation(signup: InterestSignup) -> bool:
+    """Short confirmation to someone who submitted a question / info request."""
+    first_name = signup.name.split()[0] if signup.name.strip() else "there"
+    body = "\n".join(
+        [
+            f"Hi {first_name},",
+            "",
+            "Thanks for reaching out to Anansi Atlas — we've received your question "
+            "and a team member will get back to you within 48 hours.",
+            "",
+            "In the meantime, you can reply directly to this email or reach us anytime "
+            "at info@anansiatlas.com.",
+            "",
+            "— The Anansi Atlas Team",
+            "Scott Foundry Group LLC",
+        ]
+    )
+    try:
+        send_mail(
+            subject="We got your question — Anansi Atlas",
+            message=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[signup.email],
+            fail_silently=False,
+        )
+    except Exception:
+        logger.exception("Question confirmation failed for signup_id=%s", signup.pk)
         return False
     return True
 

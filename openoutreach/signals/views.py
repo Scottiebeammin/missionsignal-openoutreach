@@ -26,17 +26,19 @@ from openoutreach.signals.forms import (
     OrganizationIntakeForm,
     PilotDiscoveryQuestionnaireForm,
     PilotFeedbackForm,
+    QuestionForm,
 )
 from openoutreach.signals.notifications import (
     notify_interest_signup,
     send_interest_signup_confirmation,
+    send_question_received_confirmation,
 )
 from openoutreach.signals.forecasting import build_pipeline_forecast
 from openoutreach.signals.government import build_government_readiness
 from openoutreach.signals.lifecycle import assign_opportunity_owner, transition_opportunity_lifecycle
 from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
-from openoutreach.signals.models import PilotProfile
+from openoutreach.signals.models import InterestSignup, PilotProfile
 from openoutreach.signals.opportunity_work import build_opportunity_workspace, ensure_default_tasks
 from openoutreach.signals.opportunity_web import build_opportunity_web
 from openoutreach.signals.partnerships import build_partnership_readiness
@@ -120,6 +122,39 @@ def public_landing_page(request):
 
 def public_landing_thanks(request):
     return render(request, "signals/public_landing_thanks.html")
+
+
+def ask_question(request):
+    """Handle the public 'Ask a Question / Request Info' form.
+
+    Saves an InterestSignup tagged as a QUESTION, alerts info@anansiatlas.com,
+    and sends the asker a short confirmation. GET just bounces to the form anchor.
+    """
+    if request.method != "POST":
+        return redirect("/#ask")
+    form = QuestionForm(request.POST)
+    if form.is_valid():
+        signup = form.save(commit=False)
+        signup.interest_type = InterestSignup.InterestType.QUESTION
+        signup.save()
+        notify_interest_signup(signup)
+        send_question_received_confirmation(signup)
+        return redirect("anansi-atlas-question-thanks")
+    # Re-render the landing page with the question form errors surfaced.
+    return render(
+        request,
+        "signals/public_landing.html",
+        {
+            "form": InterestSignupForm(),
+            "question_form": form,
+            "question_failed": True,
+            "waitlist_roles": WAITLIST_ROLES,
+        },
+    )
+
+
+def question_thanks(request):
+    return render(request, "signals/question_thanks.html")
 
 
 # Simple in-process cache: (count, timestamp)
