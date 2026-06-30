@@ -156,12 +156,26 @@ def import_research_data(data: dict, project=None) -> dict:
         PartnerOrganization,
         ResourceProvider,
     )
+    from openoutreach.funding.grounding import is_reserved_domain
 
-    counts = {"funders": 0, "partners": 0, "government": 0, "resources": 0, "opportunities": 0}
+    def _candidate_url(item):
+        urls = item.get("source_urls") or []
+        return (item.get("website") or (urls[0] if urls else "")).strip()
+
+    def _passes_gate(item):
+        """Grounding gate: reject anything with no source URL or a reserved/fake
+        domain (the `.example.com` hallucination signature). Fast, no network."""
+        url = _candidate_url(item)
+        return bool(url) and not is_reserved_domain(url)
+
+    counts = {"funders": 0, "partners": 0, "government": 0, "resources": 0, "opportunities": 0, "rejected": 0}
 
     for item in data.get("funders", []):
         name = item.get("name", "").strip()
         if not name:
+            continue
+        if not _passes_gate(item):
+            counts["rejected"] += 1
             continue
         Funder.objects.update_or_create(
             name=name,
@@ -186,6 +200,9 @@ def import_research_data(data: dict, project=None) -> dict:
     for item in data.get("partners", []):
         name = item.get("name", "").strip()
         if not name:
+            continue
+        if not _passes_gate(item):
+            counts["rejected"] += 1
             continue
         PartnerOrganization.objects.update_or_create(
             name=name,
@@ -212,6 +229,9 @@ def import_research_data(data: dict, project=None) -> dict:
         name = item.get("name", "").strip()
         if not name:
             continue
+        if not _passes_gate(item):
+            counts["rejected"] += 1
+            continue
         GovernmentEntity.objects.update_or_create(
             name=name,
             defaults={
@@ -231,6 +251,9 @@ def import_research_data(data: dict, project=None) -> dict:
         name = item.get("name", "").strip()
         if not name:
             continue
+        if not _passes_gate(item):
+            counts["rejected"] += 1
+            continue
         ResourceProvider.objects.update_or_create(
             name=name,
             defaults={
@@ -249,6 +272,9 @@ def import_research_data(data: dict, project=None) -> dict:
     for item in data.get("opportunities", []):
         name = item.get("name", "").strip()
         if not name:
+            continue
+        if not _passes_gate(item):
+            counts["rejected"] += 1
             continue
         deadline = None
         if item.get("deadline"):
