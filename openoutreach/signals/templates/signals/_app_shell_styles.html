@@ -1,5 +1,8 @@
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
   :root {
+    --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
     --ink: #0b1730;
     --muted: #647184;
     --line: #dce5eb;
@@ -26,10 +29,12 @@
   body {
     padding-left: 262px;
     background:
-      radial-gradient(circle at top right, rgba(212, 160, 23, .14), transparent 30rem),
-      linear-gradient(180deg, #fbf8f1 0%, #f7f3eb 48%, #eef2f7 100%);
+      radial-gradient(circle at top right, rgba(212, 160, 23, .12), transparent 32rem),
+      linear-gradient(180deg, #fcfaf4 0%, #f7f3eb 48%, #eef2f7 100%);
     color: var(--ink, #0d1b3d);
+    font-family: var(--sans);
     font-size: 14px;
+    -webkit-font-smoothing: antialiased;
   }
   body > main {
     width: auto !important;
@@ -193,27 +198,30 @@
   .resource-card, .partner-card, .ecosystem-card, .match-card, .inventory-card,
   .tag-card, .priority-card, .chart-card, .setting-card, .profile-card, .pipeline-card,
   .opportunity-card, .metric, .advisor-panel, .score-box, .compact-card {
-    border: 1px solid rgba(13, 27, 61, .08) !important;
+    border: 1px solid rgba(13, 27, 61, .07) !important;
     border-radius: var(--radius, 16px) !important;
-    background: white;
-    box-shadow: 0 1px 2px rgba(16, 30, 44, .025);
-    transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+    background: #fffefb;
+    box-shadow: 0 1px 2px rgba(16, 30, 44, .03), 0 12px 30px rgba(16, 30, 44, .045) !important;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
   }
   .module-card:hover, .metric-card:hover, .summary-card:hover, .scorecard:hover, .kpi-card:hover,
   .match-card:hover, .inventory-card:hover, .tag-card:hover, .priority-card:hover,
   .opportunity-card:hover, .pipeline-card:hover {
-    border-color: #c9d7df !important;
-    box-shadow: 0 4px 14px rgba(16, 30, 44, .045);
-    transform: translateY(-1px);
+    border-color: rgba(212,160,23,.4) !important;
+    box-shadow: 0 6px 22px rgba(16, 30, 44, .08) !important;
+    transform: translateY(-2px);
   }
   .hero {
-    margin-bottom: 22px !important;
-    padding: 30px !important;
+    margin-bottom: 26px !important;
+    padding: 38px 40px !important;
     border-radius: var(--radius-lg, 22px) !important;
+    background:
+      radial-gradient(120% 140% at 92% -10%, rgba(212,160,23,.07), transparent 60%),
+      #fffefb !important;
   }
   .panel {
-    margin-bottom: 18px !important;
-    padding: 18px 20px !important;
+    margin-bottom: 20px !important;
+    padding: 24px 26px !important;
   }
   .score-box {
     padding: 18px !important;
@@ -239,10 +247,20 @@
     font-weight: 900;
     box-shadow: inset 0 0 0 1px var(--line, #d9e2e8);
   }
-  h1 { font-size: clamp(2rem, 4vw, 3.1rem) !important; line-height: 1 !important; letter-spacing: -.035em; }
-  h2 { font-size: .78rem !important; letter-spacing: .09em !important; text-transform: uppercase !important; color: var(--muted, #687789); }
-  h3 { color: var(--ink, #172334); }
-  .eyebrow { letter-spacing: .08em !important; }
+  h1 {
+    font-family: var(--serif) !important;
+    font-weight: 600 !important;
+    font-size: clamp(2.1rem, 4vw, 3.2rem) !important;
+    line-height: 1.04 !important;
+    letter-spacing: -.02em !important;
+    color: var(--deep, #0d1b3d) !important;
+  }
+  h2 { font-size: .74rem !important; font-weight: 800 !important; letter-spacing: .14em !important; text-transform: uppercase !important; color: var(--accent, #d4a017) !important; }
+  h3 { color: var(--ink, #172334); font-weight: 750; letter-spacing: -.005em; }
+  .eyebrow { letter-spacing: .14em !important; font-weight: 800 !important; color: var(--accent, #d4a017) !important; }
+  /* premium section heading inside panels */
+  .panel > h2, .panel > h3 { position: relative; }
+  .deliverable-cover h2, .snapshot-action h2 { font-family: var(--serif) !important; font-size: 1.5rem !important; font-weight: 600 !important; text-transform: none !important; letter-spacing: -.01em !important; color: var(--deep) !important; }
   .page-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
