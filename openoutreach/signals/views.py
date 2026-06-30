@@ -212,11 +212,11 @@ def project_intake(request):
                 analyze_project(project, mode="deterministic")
             except Exception:
                 pass  # analysis failure must never block onboarding
-            # Fire AI research in the background — LLM call can take 30-120s,
-            # so we don't make the user wait.
+            # Fire the full data treatment in the background — live federal grants
+            # (Grants.gov) + grounded AI research — so we don't make the user wait.
             import threading
-            from openoutreach.signals.research import research_project as _research
-            threading.Thread(target=_research, args=(project,), daemon=True).start()
+            from openoutreach.signals.research import auto_ingest_for_new_project as _auto
+            threading.Thread(target=_auto, args=(project,), daemon=True).start()
             # Send welcome email to the user and an operator alert, both non-fatal.
             from openoutreach.signals.notifications import notify_new_intake, send_intake_welcome
             try:

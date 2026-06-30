@@ -71,8 +71,12 @@ def _build_org_profile(project) -> str:
         f"Organization: {org.name}",
         f"Mission: {org.mission or 'Not provided'}",
     ]
-    if org.geography:
-        lines.append(f"Geography: {', '.join(org.geography) if isinstance(org.geography, list) else org.geography}")
+    geographies = list(org.service_geographies or [])
+    city_state = ", ".join(p for p in [org.city, org.state] if p)
+    if city_state:
+        geographies.insert(0, city_state)
+    if geographies:
+        lines.append(f"Geography: {', '.join(geographies)}")
     if org.focus_areas:
         lines.append(f"Focus areas: {', '.join(org.focus_areas) if isinstance(org.focus_areas, list) else org.focus_areas}")
     if org.beneficiaries:
@@ -86,6 +90,28 @@ def _build_org_profile(project) -> str:
     if project.intake_notes:
         lines.append(f"Additional context: {project.intake_notes}")
     return "\n".join(lines)
+
+
+def auto_ingest_for_new_project(project) -> None:
+    """Full data treatment for a newly created org — runs in a background thread on intake.
+
+    Two independent passes so a failure in one never blocks the other:
+      1. Live federal grants from Grants.gov — free, no key, verified, runs in prod.
+      2. Grounded AI research (gated) — adds local/state/national funders where the
+         configured model can browse. (Deep Hermes research is an operator step;
+         this is the best-effort server-side pass.)
+    """
+    try:
+        from openoutreach.funding.grants_gov import ingest_grants_for_project
+        result = ingest_grants_for_project(project)
+        logger.info("Auto Grants.gov ingest for project %s: %s", project.pk, result)
+    except Exception:
+        logger.exception("Grants.gov auto-ingest failed for project %s", project.pk)
+
+    try:
+        research_project(project)
+    except Exception:
+        logger.exception("research_project auto-ingest failed for project %s", project.pk)
 
 
 def research_project(project) -> dict:
