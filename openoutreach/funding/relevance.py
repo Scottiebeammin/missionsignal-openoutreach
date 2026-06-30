@@ -22,6 +22,30 @@ _STOPWORDS = {
 }
 
 
+# Foreign-country / overseas markers — a US-domestic nonprofit can't use these grants
+# even if the topic overlaps (e.g. "English Teaching for STEM in Brazil"). State Dept
+# / embassy / mission grants are the usual culprits in a Grants.gov pull.
+_FOREIGN_COUNTRIES = {
+    "brazil", "algeria", "albania", "mexico", "india", "china", "kenya", "nigeria",
+    "egypt", "ukraine", "pakistan", "afghanistan", "iraq", "jordan", "lebanon",
+    "morocco", "tunisia", "colombia", "peru", "ecuador", "ghana", "ethiopia",
+    "tanzania", "uganda", "vietnam", "indonesia", "philippines", "bangladesh",
+    "nepal", "cambodia", "armenia", "azerbaijan", "kazakhstan", "moldova",
+    "serbia", "kosovo", "bosnia", "macedonia", "turkmenistan", "uzbekistan", "mongolia",
+    "rwanda", "senegal", "zambia", "zimbabwe", "malawi", "mozambique", "angola",
+}
+_FOREIGN_PHRASES = ("u.s. mission to", "u.s. embassy", "overseas", " abroad", "foreign assistance")
+
+
+def is_off_geography(opportunity, organization=None) -> bool:
+    """True if the opportunity is tied to a foreign country / overseas post — disqualified
+    for a domestic nonprofit regardless of topic overlap."""
+    text = f"{opportunity.name} {opportunity.source_name or ''}".lower()
+    if any(phrase in text for phrase in _FOREIGN_PHRASES):
+        return True
+    return bool(set(re.findall(r"[a-z]+", text)) & _FOREIGN_COUNTRIES)
+
+
 def _tokens(text: str) -> set[str]:
     words = re.findall(r"[a-z]+", (text or "").lower())
     return {w for w in words if len(w) >= 3 and w not in _STOPWORDS}

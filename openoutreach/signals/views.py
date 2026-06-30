@@ -752,7 +752,7 @@ def project_opportunities_workspace(request, pk):
     # archived are excluded from the active recommendations.
     from datetime import date as _date
     from openoutreach.funding.models import Opportunity
-    from openoutreach.funding.relevance import org_keywords, opportunity_relevance
+    from openoutreach.funding.relevance import org_keywords, opportunity_relevance, is_off_geography
     _prio = {
         Opportunity.PriorityLevel.HIGH: 0,
         Opportunity.PriorityLevel.MEDIUM: 1,
@@ -767,7 +767,9 @@ def project_opportunities_workspace(request, pk):
     # relevant ones rise to the top (off-topic grants score 0 and drop out).
     keywords = org_keywords(project.organization)
     for o in ranked:
-        o.relevance = opportunity_relevance(o, keywords)
+        # Foreign/overseas grants are disqualified outright (relevance 0), even if the
+        # topic overlaps — a Central Florida nonprofit can't use a "...in Brazil" grant.
+        o.relevance = 0 if is_off_geography(o, project.organization) else opportunity_relevance(o, keywords)
     ranked.sort(key=lambda o: (-o.relevance, _prio.get(o.priority_level, 3), o.deadline or _date.max, o.name))
 
     # Top 10 = most relevant matches only (relevance > 0). Off-topic ones still live
