@@ -18,41 +18,12 @@ Usage:
   python manage.py audit_funder_links --flag         # FAKE/DEAD/NO_LINK -> needs_review
   python manage.py audit_funder_links --status unverified  # limit to one status
 """
-import re
-import urllib.request
-import urllib.error
-
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-# RFC 2606 / 6761 reserved domains — can never be real funder sites.
-_RESERVED_RE = re.compile(
-    r"(^|\.)(example\.(com|org|net)|example|test|invalid|localhost)(\.|/|$)", re.I
-)
-_UA = "Mozilla/5.0 (compatible; AnansiAtlasFunderAudit/1.0)"
-
-
-def _is_reserved(url: str) -> bool:
-    return bool(url) and bool(_RESERVED_RE.search(url))
-
-
-def _is_reachable(url: str, timeout: int = 8) -> bool:
-    """True if the URL responds with a non-error status. HEAD, then GET fallback."""
-    for method in ("HEAD", "GET"):
-        try:
-            req = urllib.request.Request(url, method=method, headers={"User-Agent": _UA})
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                return resp.status < 400
-        except urllib.error.HTTPError as e:
-            # Some sites block HEAD with 405/403 but serve GET fine — let GET decide.
-            if method == "HEAD":
-                continue
-            return e.code < 400
-        except Exception:
-            if method == "HEAD":
-                continue
-            return False
-    return False
+# Canonical link-check logic lives in the grounding gate — reuse it here.
+from openoutreach.funding.grounding import is_reserved_domain as _is_reserved
+from openoutreach.funding.grounding import is_reachable as _is_reachable
 
 
 class Command(BaseCommand):
