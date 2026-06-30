@@ -89,7 +89,9 @@ class ExecutiveDashboard:
 def _relevant_upcoming_deadlines(project, limit=5):
     """Upcoming deadlines a client should actually act on — relevant to the org and
     US-eligible (same filters as the Opportunities page, so the dashboard matches)."""
-    from openoutreach.funding.relevance import org_keywords, opportunity_relevance, is_off_geography
+    from openoutreach.funding.relevance import (
+        org_keywords, opportunity_relevance, is_off_geography, is_research_grant,
+    )
 
     keywords = org_keywords(project.organization)
     out, seen_names = [], set()
@@ -100,7 +102,7 @@ def _relevant_upcoming_deadlines(project, limit=5):
         .order_by("deadline", "name")
     )
     for opp in qs:
-        if is_off_geography(opp, project.organization):
+        if is_off_geography(opp, project.organization) or is_research_grant(opp):
             continue
         if opportunity_relevance(opp, keywords) <= 0:
             continue

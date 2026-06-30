@@ -48,6 +48,26 @@ _US_SUPPORT_PHRASES = (
 )
 
 
+# Academic / research-grant markers — NIH/NSF studies, fellowships, scholarships,
+# and university-research mechanisms a community nonprofit can't realistically pursue.
+# These often match on a topic keyword ("adolescent", "youth") but are the wrong fit.
+_RESEARCH_MARKERS = (
+    "limited competition for the", "cognitive neuroscience", "clinical trial",
+    "principal investigator", "investigator-initiated", "research project grant",
+    "graduate education", "undergraduate", "postdoctoral", "doctoral",
+    "fellowship", "scholarship", "abcd study", "formation of engineers",
+    "biomedical research", "scientific research", "r01", "u01", "sbir", "sttr",
+    "dissertation", "laboratory", "neuroimaging",
+)
+
+
+def is_research_grant(opportunity) -> bool:
+    """True if the opportunity is an academic / research grant (NIH/NSF study,
+    fellowship, scholarship, university mechanism) — wrong fit for a community nonprofit."""
+    text = f"{opportunity.name} {opportunity.source_name or ''}".lower()
+    return any(m in text for m in _RESEARCH_MARKERS)
+
+
 def is_off_geography(opportunity, organization=None) -> bool:
     """True if the opportunity is tied to a foreign country / overseas post — disqualified
     for a US-domestic nonprofit. Override: kept if it explicitly supports US-based orgs."""

@@ -84,11 +84,13 @@ def operator_org_detail(request, pk):
 
     # For the displayed "Top Opportunities", show relevant, US-eligible ones (matches
     # what the client sees) — not raw off-topic/foreign grants.
-    from openoutreach.funding.relevance import org_keywords, opportunity_relevance, is_off_geography
+    from openoutreach.funding.relevance import org_keywords, opportunity_relevance, is_off_geography, is_research_grant
     _kw = org_keywords(project.organization)
     top_opportunities = [
         o for o in opportunities
-        if not is_off_geography(o, project.organization) and opportunity_relevance(o, _kw) > 0
+        if not is_off_geography(o, project.organization)
+        and not is_research_grant(o)
+        and opportunity_relevance(o, _kw) > 0
     ][:10] or list(opportunities[:10])
 
     try:
