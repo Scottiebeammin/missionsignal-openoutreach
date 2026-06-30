@@ -261,27 +261,8 @@
   /* premium section heading inside panels */
   .panel > h2, .panel > h3 { position: relative; }
   .deliverable-cover h2, .snapshot-action h2 { font-family: var(--serif) !important; font-size: 1.5rem !important; font-weight: 600 !important; text-transform: none !important; letter-spacing: -.01em !important; color: var(--deep) !important; }
-  /* premium stat / metric tiles */
-  .metric-card { padding: 22px 22px !important; }
-  .metric-card strong, .summary-card strong, .kpi-card strong {
-    font-family: var(--serif) !important;
-    font-size: 2.5rem !important;
-    font-weight: 600 !important;
-    line-height: 1 !important;
-    color: var(--accent, #d4a017) !important;
-    display: block;
-  }
-  .metric-card span, .summary-card span, .kpi-card span {
-    display: block;
-    font-size: .68rem !important;
-    font-weight: 800 !important;
-    letter-spacing: .1em !important;
-    text-transform: uppercase !important;
-    color: var(--muted, #647184) !important;
-    margin-top: 9px !important;
-  }
-  .metric-card p, .summary-card p { font-size: .82rem !important; color: var(--muted) !important; margin-top: 4px !important; }
-  .metric-card.advisor-panel { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 180px; }
+  /* metric tile layout (number styling is scoped per-page so it never hits text labels) */
+  .metric-card.advisor-panel { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 180px; padding: 22px !important; }
   .page-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
