@@ -453,8 +453,10 @@
           {% if form.state.errors %}<div class="field-error">{{ form.state.errors }}</div>{% endif %}
         </div>
         <div>
-          <label for="{{ form.county.id_for_label }}">County <span class="opt">(optional)</span></label>
+          <label for="{{ form.county.id_for_label }}">County</label>
           {{ form.county }}
+          {% if form.county.help_text %}<small class="help">{{ form.county.help_text }}</small>{% endif %}
+          {% if form.county.errors %}<span class="field-errors">{{ form.county.errors.0 }}</span>{% endif %}
         </div>
       </div>
 

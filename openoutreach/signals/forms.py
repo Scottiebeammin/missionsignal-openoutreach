@@ -90,7 +90,11 @@ class OrganizationIntakeForm(forms.Form):
         help_text="Examples: nonprofit, fiscally sponsored project, school, coalition.",
     )
     city = forms.CharField(label="City", max_length=255)
-    county = forms.CharField(label="County (optional)", max_length=255, required=False)
+    county = forms.CharField(
+        label="County",
+        max_length=255,
+        help_text="We use your county to find local and county-level grant programs you're eligible for.",
+    )
     state = forms.ChoiceField(label="State", choices=US_STATES)
     service_area_notes = forms.CharField(
         label="Service Area Notes (optional)",
