@@ -123,6 +123,59 @@ def send_question_received_confirmation(signup: InterestSignup) -> bool:
     return True
 
 
+def send_opportunity_alert(user, project, new_matches, deadline_items) -> bool:
+    """Email a project owner: upcoming deadlines + newly-matched grants.
+
+    `deadline_items` = list of (opportunity, days_until). `new_matches` = list of
+    opportunities. Caller guarantees at least one is non-empty.
+    """
+    first = user.first_name or (user.email.split("@")[0] if user.email else "there")
+    org = project.organization.name
+    lines = [f"Hi {first},", "", f"Your Anansi Atlas update for {org}:", ""]
+
+    if deadline_items:
+        lines.append("UPCOMING DEADLINES")
+        for opp, days in deadline_items:
+            when = "today" if days == 0 else (f"in {days} day" + ("" if days == 1 else "s"))
+            lines.append(f"  - {opp.name} - due {opp.deadline} ({when})")
+            if opp.source_urls:
+                lines.append(f"      {opp.source_urls[0]}")
+        lines.append("")
+
+    if new_matches:
+        lines.append("NEW MATCHES FOUND")
+        for opp in new_matches:
+            due = f" - due {opp.deadline}" if opp.deadline else ""
+            lines.append(f"  - {opp.name}{due}")
+            if opp.source_urls:
+                lines.append(f"      {opp.source_urls[0]}")
+        lines.append("")
+
+    lines += [
+        f"See everything in your pipeline: https://anansiatlas.com/projects/{project.pk}/opportunities/",
+        "",
+        "— The Anansi Atlas Team",
+        "info@anansiatlas.com",
+    ]
+    subject_bits = []
+    if deadline_items:
+        subject_bits.append(f"{len(deadline_items)} deadline" + ("" if len(deadline_items) == 1 else "s"))
+    if new_matches:
+        subject_bits.append(f"{len(new_matches)} new match" + ("" if len(new_matches) == 1 else "es"))
+    try:
+        send_mail(
+            subject=f"{org}: {', '.join(subject_bits)}",
+            message="\n".join(lines),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+    except Exception:
+        logger.exception("Opportunity alert failed for user=%s project=%s", user.pk, project.pk)
+        return False
+    return True
+
+
 # ── Intake welcome emails ─────────────────────────────────────────────────────
 
 def send_intake_welcome(user, project) -> bool:

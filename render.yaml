@@ -56,3 +56,45 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false
+
+  # ── Daily data refresh + opportunity alerts ──
+  # Runs once a day: re-pulls live federal grants for every project, then emails each
+  # project owner their upcoming deadlines + new matches. Same web.txt build (no daemon
+  # deps). Set the EMAIL_* vars on THIS service too (same values as the web service) so
+  # alert emails can send. Cron jobs are a paid Render feature.
+  - type: cron
+    name: anansi-daily
+    runtime: python
+    region: virginia
+    plan: starter
+    branch: main
+    schedule: "0 9 * * *"   # 09:00 UTC daily
+    buildCommand: "pip install -r requirements/web.txt"
+    startCommand: "python manage.py pull_grants_gov --all && python manage.py send_opportunity_alerts"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: anansi-atlas-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_USE_TLS
+        sync: false
+      - key: EMAIL_USE_SSL
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
