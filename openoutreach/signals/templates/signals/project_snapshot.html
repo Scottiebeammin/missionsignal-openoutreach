@@ -145,6 +145,15 @@
     /* ecosystem gap cards: clean heading + readable rationale (not giant) */
     .summary-card > strong { display: block; font-size: 1.02rem; font-weight: 700; color: var(--ink); line-height: 1.3; }
     .summary-card .muted { display: block; font-size: .85rem; font-weight: 400; letter-spacing: normal; text-transform: none; color: var(--muted); margin-top: 4px; line-height: 1.55; }
+    /* color-coded accents — consistent with the Opportunity Web (green = strength, amber = gap) */
+    .summary-card.gap { border-left: 3px solid #d4a017 !important; }
+    .summary-card.strength { border-left: 3px solid #0f766e !important; }
+    .summary-card.gap .muted { color: #b07a12; font-weight: 600; }
+    .summary-card.strength .muted { color: #0f766e; font-weight: 600; }
+    /* section headings inside Risks & Gaps get the color language too */
+    #risks-gaps section:nth-child(1) > h3 { color: #b07a12; }
+    #risks-gaps section:nth-child(2) > h3 { color: #b07a12; }
+    #risks-gaps section:nth-child(3) > h3 { color: #0f766e; }
 
     @media print {
       .snapshot-toolbar, #welcome-banner, #walkthrough-prompt { display: none !important; }
@@ -193,7 +202,7 @@
         <strong style="color:#d4a017;">Explore Funder &amp; Partner Pathways</strong> — scroll down to see aligned funders, strategic partners, and active opportunities.
       </li>
       <li style="font-size:0.9rem; color:rgba(255,255,255,0.88); line-height:1.5;">
-        <strong style="color:#d4a017;">Book your Founder Walkthrough</strong> — reply to your welcome email and Marcus will schedule a personal 45-minute session to walk through this with you.
+        <strong style="color:#d4a017;">Book your Founder Walkthrough</strong> — reply to your welcome email and the Anansi Atlas team will schedule a personal 45-minute session to walk through this with you.
       </li>
     </ol>
     <p style="margin:16px 0 0; font-size:0.82rem; color:rgba(255,255,255,0.45);">This message only shows once.</p>
@@ -366,10 +375,10 @@
       {% endif %}
       {% if snapshot.ecosystem_gap_insights %}
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);">
-          <h3 style="margin-bottom:10px;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Ecosystem Gaps to Close</h3>
+          <h3 style="margin-bottom:10px;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:#b07a12;">Ecosystem Gaps to Close</h3>
           <div class="summary-grid">
             {% for gap in snapshot.ecosystem_gap_insights %}
-              <article class="summary-card">
+              <article class="summary-card gap">
                 <strong>{{ gap.label }}</strong>
                 <span class="muted">{{ gap.rationale }}</span>
               </article>
@@ -472,20 +481,20 @@
         <section>
           <h3>Top Risks</h3>
           {% for gap in snapshot.top_risks_gaps|slice:":3" %}
-            <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Snapshot risk</span></article>
+            <article class="summary-card gap"><strong>{{ gap }}</strong><span class="muted">Snapshot risk</span></article>
           {% endfor %}
         </section>
         <section>
           <h3>Top Resource Gaps</h3>
           {% for gap in snapshot.top_resource_gaps|slice:":3" %}
-            <article class="summary-card"><strong>{{ gap }}</strong><span class="muted">Resource gap</span></article>
+            <article class="summary-card gap"><strong>{{ gap }}</strong><span class="muted">Resource gap</span></article>
           {% endfor %}
         </section>
         <section>
           <h3>Organization Intelligence</h3>
           <div class="insight-grid" style="grid-template-columns:1fr;gap:8px;">
             {% for theme in snapshot.organization_intelligence.mission_themes|slice:":3" %}
-              <article class="summary-card"><strong>{{ theme }}</strong><span class="muted">Mission theme</span></article>
+              <article class="summary-card strength"><strong>{{ theme }}</strong><span class="muted">Mission theme</span></article>
             {% endfor %}
           </div>
         </section>
@@ -532,8 +541,8 @@
       ">×</button>
       <p style="margin:0 0 4px;font-size:0.72rem;color:rgba(212,160,23,0.8);font-weight:800;letter-spacing:.08em;text-transform:uppercase;">Ready to go deeper?</p>
       <p style="margin:0 0 14px;font-size:0.9rem;font-weight:700;line-height:1.3;">Book your Founder Walkthrough</p>
-      <p style="margin:0 0 16px;font-size:0.8rem;color:rgba(255,255,255,0.6);line-height:1.5;">45 minutes with Marcus to walk through your Snapshot and build your first action plan together.</p>
-      <a href="mailto:info@anansiatlas.com?subject=Walkthrough Request — {{ organization.name }}&body=Hi Marcus,%0A%0AI've reviewed my Opportunity Web Snapshot and would love to schedule the Founder Walkthrough.%0A%0AOrganization: {{ organization.name }}%0A%0AThanks" style="
+      <p style="margin:0 0 16px;font-size:0.8rem;color:rgba(255,255,255,0.6);line-height:1.5;">45 minutes with the Anansi Atlas team to walk through your Snapshot and build your first action plan together.</p>
+      <a href="mailto:info@anansiatlas.com?subject=Walkthrough Request — {{ organization.name }}&body=Hi Anansi Atlas team,%0A%0AI've reviewed my Opportunity Web Snapshot and would love to schedule the Founder Walkthrough.%0A%0AOrganization: {{ organization.name }}%0A%0AThanks" style="
         display:block;text-align:center;
         background:var(--accent,#d4a017);color:#18100a;
         border-radius:999px;padding:10px 20px;
