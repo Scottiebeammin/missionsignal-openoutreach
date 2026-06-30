@@ -24,6 +24,19 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
     }
+    /* text cards: label is the small heading, value is regular running text (not a giant number) */
+    .ecosystem-summary-grid .text-card { display: flex; flex-direction: column; gap: 6px; }
+    .ecosystem-summary-grid .text-card span {
+      order: -1; font-size: .68rem; font-weight: 800; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .ecosystem-summary-grid .text-card p {
+      margin: 0; font-size: .92rem; line-height: 1.5; font-weight: 400; color: var(--ink);
+    }
+    .ecosystem-summary-grid .text-card.strength { border-left: 3px solid #0f766e; }
+    .ecosystem-summary-grid .text-card.strength span { color: #0f766e; }
+    .ecosystem-summary-grid .text-card.gap { border-left: 3px solid #d4a017; }
+    .ecosystem-summary-grid .text-card.gap span { color: #b07a12; }
     .insights-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -153,8 +166,8 @@
         <h2>Ecosystem Summary</h2>
         <div class="ecosystem-summary-grid" style="margin-top: 12px;">
           <div class="metric-card"><strong>{{ web.ecosystem_health }}</strong><span>Ecosystem Health</span><p class="muted">{{ web.ecosystem_health_level }}</p></div>
-          <div class="metric-card"><strong>{{ web.strongest_asset }}</strong><span>Strongest Asset</span></div>
-          <div class="metric-card"><strong>{{ web.biggest_constraint }}</strong><span>Biggest Constraint</span></div>
+          <div class="metric-card text-card strength"><span>Strongest Asset</span><p>{{ web.strongest_asset }}</p></div>
+          <div class="metric-card text-card gap"><span>Biggest Constraint</span><p>{{ web.biggest_constraint }}</p></div>
         </div>
       </article>
       <article class="panel" style="background: linear-gradient(145deg, #0d1b3d 0%, #17284f 100%); color: #fff; border-color: rgba(212,160,23,.32);">
