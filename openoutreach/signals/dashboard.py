@@ -92,7 +92,7 @@ def _relevant_upcoming_deadlines(project, limit=5):
     from openoutreach.funding.relevance import org_keywords, opportunity_relevance, is_off_geography
 
     keywords = org_keywords(project.organization)
-    out = []
+    out, seen_names = [], set()
     qs = (
         Opportunity.objects.filter(project=project)
         .exclude(deadline__isnull=True)
@@ -104,6 +104,10 @@ def _relevant_upcoming_deadlines(project, limit=5):
             continue
         if opportunity_relevance(opp, keywords) <= 0:
             continue
+        key = opp.name.strip().lower()
+        if key in seen_names:  # same grant posted under multiple IDs — show once
+            continue
+        seen_names.add(key)
         out.append(opp)
         if len(out) >= limit:
             break
