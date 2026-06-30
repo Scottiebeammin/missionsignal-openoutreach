@@ -31,7 +31,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from openoutreach.core.models import Project
         from openoutreach.funding.models import Opportunity
-        from openoutreach.funding.relevance import org_keywords, opportunity_relevance, is_off_geography
+        from openoutreach.funding.relevance import (
+            org_keywords, opportunity_relevance, is_off_geography, is_research_grant,
+        )
         from openoutreach.signals.notifications import send_opportunity_alert
 
         applied_status = {
@@ -56,7 +58,7 @@ class Command(BaseCommand):
 
             deadline_items, new_matches = [], []
             for o in opps:
-                if is_off_geography(o, project.organization):
+                if is_off_geography(o, project.organization) or is_research_grant(o):
                     continue
                 if opportunity_relevance(o, keywords) <= 0:
                     continue

@@ -58,6 +58,11 @@ _RESEARCH_MARKERS = (
     "fellowship", "scholarship", "abcd study", "formation of engineers",
     "biomedical research", "scientific research", "r01", "u01", "sbir", "sttr",
     "dissertation", "laboratory", "neuroimaging",
+    # broadened: research/clinical centers, NIH/NSF mechanisms, defense-research pipelines
+    "research center", "research institute", "post-traumatic", "epilepsy",
+    "national defense education", "u24", "u54", "r21", "p20", "p30", "k23",
+    "phase ii clinical", "phase iii clinical", "data coordinating center",
+    "informatics and resource", "translational research", "basic research",
 )
 
 
