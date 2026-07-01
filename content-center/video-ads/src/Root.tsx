@@ -113,7 +113,13 @@ export const RemotionRoot: React.FC = () => {
         height={SIZE}
         // VO wired so Remotion Studio plays it WITH SOUND (localhost:3000).
         // (Requires public/product-walkthrough-vo.mp3 — generated via `npm run vo ProductWalkthrough`.)
-        defaultProps={{ audioSrc: "product-walkthrough-vo.mp3" as string | null }}
+        // broll1/broll2: optional cold-open clips (public/broll/*.mp4) — see ELEVENLABS-ASSETS.md.
+        // Leave null until you've generated + dropped them in; falls back to a plain brand moment.
+        defaultProps={{
+          audioSrc: "product-walkthrough-vo.mp3" as string | null,
+          broll1Src: null as string | null,
+          broll2Src: null as string | null,
+        }}
       />
     </>
   );
