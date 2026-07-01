@@ -53,7 +53,18 @@ Dark navy + charcoal + **gold accents**. Clean product UI shots, dashboard-style
   - **Voice-choice logic (from sales/VO research):** gender does NOT reliably "sell more" — *lower pitch* (male or female) reads as more competent/trustworthy, and *fit with brand + audience* beats gender. Our audience (nonprofit leaders) skews ~2/3 female, and our tone is warm + credible. So a **warm, lower-pitched, middle-aged American voice** is the target; a warm female voice is an especially on-audience choice, a calm authoritative male is equally defensible. Choose on trust + fit, not gender.
   - **Voice Library filter recipe:** Use case = Narration/Informative/Advertising · Gender = try Female first, compare a male · Age = Middle-aged · Accent = American · search tone words "warm / confident / professional / trustworthy / documentary" · AVOID "casual / hype / energetic / soft / ASMR / sleepy."
   - **Audition line** (test 3–4 voices on this, not the vendor demo): *"Applications are open for the Founding Atlas Partners Pilot. Nineteen seats remain."*
-  - Once chosen, reuse ONE voice across all videos; dial Stability/Style for an awake, confident business read; keep settings consistent. **Final pick (record here when locked): _TBD — selecting from Voice Library_.**
+  - **Audition shortlist (10 real Voice Library voices, pulled June 2026 — verify availability):**
+    1. Bryan – Polished, Measured and Engaging (US male, warm+confident) — 🥇 house-voice frontrunner
+    2. Hale – Smooth, Confident and Persuasive (US male) — pilot/feature ads
+    3. David – American Narrator (US male, middle-aged)
+    4. David Castlemore – Newsreader (US male, crisp broadcast)
+    5. Jessica Anne Bogart (female, confident+conversational, real VO pro) — 🥇 female frontrunner
+    6. Juniper – Grounded and Professional (female, warm all-rounder)
+    7. Frederick Surrey – Science Storyteller (British male, documentary) — Emotional Brand film
+    8. Jonathan – Sophisticated, Calm Narrator (UK male) — cinematic alt
+    9. Felicity – Young and Well-Spoken (British female) — cinematic alt
+    10. Allison (US female, brighter/millennial — test, may be too energetic)
+  - Once chosen, reuse ONE voice across all videos; dial Stability/Style for an awake, confident business read; keep settings consistent. **Final pick (record here when locked): _TBD — auditioning shortlist_.**
 
 ## Hard "avoid" list
 generic SaaS language · guaranteed funding promises · exaggerated AI claims · cartoon spider imagery · mystical/gimmicky folklore language · over-explaining Anansi · making it sound like only a grant-search tool · founder-led storytelling as the main angle right now · sounding desperate · sounding like a charity instead of a serious business-support platform.
