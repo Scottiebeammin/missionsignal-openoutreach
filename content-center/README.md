@@ -21,6 +21,9 @@ An **automated content creation center** for Anansi Atlas: a repeatable engine t
 | [04-linkedin-and-lead-conversion.md](04-linkedin-and-lead-conversion.md) | LinkedIn growth strategy (personal vs business page) + lead-conversion-from-content playbook. |
 | [05-automation-and-measurement.md](05-automation-and-measurement.md) | No-code automation workflow + automation-ready master content table + measurement dashboard. |
 | [06-templates.md](06-templates.md) | Template library: 10 each of personal posts, business posts, DMs, IG captions, TikTok scripts, graphic concepts, carousels, CTAs, hooks. |
+| [07-content-calendar-july-2026.md](07-content-calendar-july-2026.md) | **Dated** July 2026 calendar (Jul 1–31) — every post written; Platform Walkthrough drops Jul 8; pilot CTAs escalate to a Jul 30–31 last call. |
+| [08-creative-ad-concepts.md](08-creative-ad-concepts.md) | 12 bold creative ad concepts (pattern-interrupt, visual metaphor, product-in-motion, kinetic type, silent/captions, scarcity, carousel…) each with script, visuals, VO voice, AI prompt, cost tier + a "shoot first 3" pick. |
+| [09-paid-ad-variations.md](09-paid-ad-variations.md) | Paid pack: LinkedIn + Meta targeting, 8 LinkedIn ads + 3 carousels + 6 Meta ads, an 8-test A/B matrix, budget guidance, UTM convention, compliance sign-off. |
 
 ## How to use it
 1. Start with **02** (launch sequence) — it tells you exactly what to post in the next 7 days.
