@@ -2,10 +2,11 @@
 // - Auto-pulls the voice ID by NAME from your ElevenLabs account (no hardcoded IDs).
 // - Writes MP3s into public/ for Remotion to use.
 //
-// Requires: ELEVENLABS_API_KEY in the environment (never commit it).
-//   export ELEVENLABS_API_KEY=sk_...        # then:
+// The key is read from a local .env file (gitignored) or the environment:
+//   put  ELEVENLABS_API_KEY=sk_...  in content-center/video-ads/.env   then:
 //   node scripts/generate-vo.mjs            # all ads
 //   node scripts/generate-vo.mjs PilotSignup   # one ad
+import "./_env.mjs"; // loads .env → process.env before we read the key
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,7 +17,7 @@ const ROOT = path.resolve(__dir, "..");
 const KEY = process.env.ELEVENLABS_API_KEY;
 
 if (!KEY) {
-  console.error("✗ Set ELEVENLABS_API_KEY first:  export ELEVENLABS_API_KEY=sk_...");
+  console.error("✗ No ELEVENLABS_API_KEY found. Put it in content-center/video-ads/.env  (ELEVENLABS_API_KEY=sk_...)");
   process.exit(1);
 }
 
