@@ -123,6 +123,9 @@ To schedule a **new** dated post: add an entry to both the calendar's Voice Need
 
 All scripts also live as data in `ads.config.mjs` — that's the source of truth; this section is for quick copy/paste into ElevenLabs.
 
+## Premium one-off commercials (separate from the pipeline)
+Two flagship videos — **PremiumShowcase** (~85s brand commercial, "join the family") and **FullExplainer** (~5-min deep walkthrough → "Register Now") — live in `src/oneoffs/`, with their own README and full VO scripts. They aren't dated/scheduled like the ads above; render and post them whenever. See `src/oneoffs/README.md`.
+
 ## LinkedIn / Instagram / TikTok upload specs
 - Format: MP4 (H.264) — what these render as. ✅
 - Aspect: 1:1 square for LinkedIn feed ads; **Jul25-SnapshotScroll renders 9:16 vertical** (1080×1920) for Instagram Reels / TikTok. ✅

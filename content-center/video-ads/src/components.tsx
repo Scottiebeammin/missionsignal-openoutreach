@@ -1,6 +1,7 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Img,
   interpolate,
   spring,
   useCurrentFrame,
@@ -319,3 +320,256 @@ export const CTAButton: React.FC<{ children: React.ReactNode; delay?: number }> 
     </div>
   </Rise>
 );
+
+/** Section eyebrow bar used to orient a long walkthrough ("02 / 07 — Opportunity Web"). */
+export const SectionMarker: React.FC<{ index: string; total: string; title: string; delay?: number }> = ({
+  index,
+  total,
+  title,
+  delay = 0,
+}) => (
+  <Rise delay={delay} style={{ position: "absolute", top: 60, left: 0, right: 0, textAlign: "center" }}>
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 14,
+        fontFamily: SANS,
+        fontWeight: 800,
+        fontSize: 22,
+        letterSpacing: "0.12em",
+        color: BRAND.goldLight,
+        textTransform: "uppercase",
+        border: "1px solid rgba(212,160,23,0.4)",
+        borderRadius: 999,
+        padding: "8px 20px",
+      }}
+    >
+      <span style={{ opacity: 0.7 }}>
+        {index} / {total}
+      </span>
+      <span style={{ width: 1, height: 16, background: "rgba(212,160,23,0.4)" }} />
+      {title}
+    </div>
+  </Rise>
+);
+
+/** A single feature highlight card — icon glyph, title, one-line benefit. Used in fast-cut reels. */
+export const FeatureCard: React.FC<{
+  glyph: string;
+  title: string;
+  benefit: string;
+  delay?: number;
+}> = ({ glyph, title, benefit, delay = 0 }) => (
+  <Rise delay={delay}>
+    <div
+      style={{
+        width: 780,
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(212,160,23,0.3)",
+        borderRadius: 20,
+        padding: "28px 34px",
+        display: "flex",
+        alignItems: "center",
+        gap: 26,
+      }}
+    >
+      <div
+        style={{
+          width: 64,
+          height: 64,
+          flexShrink: 0,
+          borderRadius: 16,
+          background: BRAND.gold,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 32,
+        }}
+      >
+        {glyph}
+      </div>
+      <div>
+        <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 36, color: BRAND.white, marginBottom: 4 }}>
+          {title}
+        </div>
+        <div style={{ fontFamily: SANS, fontSize: 24, fontWeight: 500, color: BRAND.muted }}>{benefit}</div>
+      </div>
+    </div>
+  </Rise>
+);
+
+/** A checked benefit line — used for "join the family" / what-you-get lists. */
+export const CheckLine: React.FC<{ text: string; delay?: number; big?: boolean }> = ({
+  text,
+  delay = 0,
+  big = false,
+}) => (
+  <Rise delay={delay}>
+    <div style={{ display: "flex", alignItems: "center", gap: 18, width: 820 }}>
+      <div style={{ color: BRAND.gold, fontSize: big ? 44 : 34, fontWeight: 900 }}>✓</div>
+      <div
+        style={{
+          fontFamily: SANS,
+          fontSize: big ? 38 : 30,
+          fontWeight: 600,
+          color: BRAND.white,
+          lineHeight: 1.3,
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  </Rise>
+);
+
+/** Thin progress rail across the very top — orients a viewer during a long-form (5-min) walkthrough. */
+export const ProgressRail: React.FC<{ totalFrames: number }> = ({ totalFrames }) => {
+  const frame = useCurrentFrame();
+  const pct = Math.min(100, (frame / totalFrames) * 100);
+  return (
+    <AbsoluteFill style={{ justifyContent: "flex-start" }}>
+      <div style={{ height: 5, width: "100%", background: "rgba(255,255,255,0.08)" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: BRAND.gold }} />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/** Browser-chrome frame around a real product screenshot, with cinematic Ken-Burns pan/zoom. */
+export const ScreenshotPanel: React.FC<{
+  src: string;
+  label?: string;
+  zoomFrom?: number;
+  zoomTo?: number;
+  panX?: [number, number];
+  panY?: [number, number];
+  durationInFrames: number;
+  width?: number;
+}> = ({ src, label, zoomFrom = 1, zoomTo = 1.12, panX = [0, 0], panY = [0, -4], durationInFrames, width = 940 }) => {
+  const frame = useCurrentFrame();
+  const scale = interpolate(frame, [0, durationInFrames], [zoomFrom, zoomTo], { extrapolateRight: "clamp" });
+  const tx = interpolate(frame, [0, durationInFrames], panX, { extrapolateRight: "clamp" });
+  const ty = interpolate(frame, [0, durationInFrames], panY, { extrapolateRight: "clamp" });
+  const entrance = spring({ frame, fps: 30, config: { damping: 200 } });
+  const opacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
+  const riseY = interpolate(entrance, [0, 1], [30, 0]);
+
+  return (
+    <div
+      style={{
+        width,
+        opacity,
+        transform: `translateY(${riseY}px)`,
+        borderRadius: 18,
+        overflow: "hidden",
+        background: "#1b2a4a",
+        boxShadow: "0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,160,23,0.25)",
+      }}
+    >
+      {/* browser chrome bar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", background: "#16233f" }}>
+        <div style={{ display: "flex", gap: 7 }}>
+          <div style={{ width: 11, height: 11, borderRadius: 999, background: "#e5695b" }} />
+          <div style={{ width: 11, height: 11, borderRadius: 999, background: "#e5b93f" }} />
+          <div style={{ width: 11, height: 11, borderRadius: 999, background: "#57b76b" }} />
+        </div>
+        <div
+          style={{
+            marginLeft: 10,
+            padding: "4px 14px",
+            borderRadius: 999,
+            background: "rgba(255,255,255,0.06)",
+            color: BRAND.muted,
+            fontFamily: SANS,
+            fontSize: 13,
+            fontWeight: 700,
+          }}
+        >
+          {label || "anansiatlas.com"}
+        </div>
+      </div>
+      {/* screenshot with Ken Burns motion */}
+      <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 10", overflow: "hidden" }}>
+        <Img
+          src={src}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "top",
+            transform: `scale(${scale}) translate(${tx}px, ${ty}px)`,
+            transformOrigin: "top center",
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
+/** Genuine motion-graphics logo reveal: gold threads converge from the edges into the wordmark. */
+export const AnimatedLogoReveal: React.FC<{ delay?: number }> = ({ delay = 0 }) => {
+  const frame = useCurrentFrame();
+  const local = Math.max(0, frame - delay);
+  const converge = interpolate(local, [0, 40], [0, 1], { extrapolateRight: "clamp" });
+  const textIn = interpolate(local, [30, 55], [0, 1], { extrapolateRight: "clamp" });
+  const textY = interpolate(textIn, [0, 1], [20, 0]);
+  const shimmerX = interpolate(local, [50, 100], [-300, 900], { extrapolateRight: "clamp" });
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+
+  // 8 threads converging from off-screen points toward the center.
+  const threads = Array.from({ length: 8 }, (_, i) => {
+    const a = (i / 8) * Math.PI * 2;
+    const startR = 620;
+    const sx = cx + Math.cos(a) * startR;
+    const sy = cy + Math.sin(a) * startR;
+    return { sx, sy };
+  });
+
+  return (
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={{ position: "absolute" }}>
+        {threads.map((t, i) => {
+          const x = interpolate(converge, [0, 1], [t.sx, cx]);
+          const y = interpolate(converge, [0, 1], [t.sy, cy]);
+          const op = interpolate(converge, [0, 0.9, 1], [0, 0.9, 0]);
+          return <line key={i} x1={t.sx} y1={t.sy} x2={x} y2={y} stroke={BRAND.gold} strokeWidth={2} opacity={op} />;
+        })}
+        <circle cx={cx} cy={cy} r={interpolate(converge, [0.8, 1], [0, 40])} fill={BRAND.gold} opacity={interpolate(converge, [0.8, 1], [0, 0.25])} />
+      </svg>
+      <div style={{ position: "relative", overflow: "hidden", textAlign: "center", opacity: textIn, transform: `translateY(${textY}px)` }}>
+        <div style={{ position: "relative", fontFamily: SERIF, fontWeight: 600, fontSize: 92, color: BRAND.white }}>
+          Anansi Atlas
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: shimmerX,
+              width: 120,
+              height: "100%",
+              background: "linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent)",
+              transform: "skewX(-20deg)",
+            }}
+          />
+        </div>
+        <div
+          style={{
+            fontFamily: SANS,
+            fontWeight: 800,
+            fontSize: 30,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: BRAND.goldLight,
+            marginTop: 10,
+          }}
+        >
+          The Web of Opportunity
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};

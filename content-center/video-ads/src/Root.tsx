@@ -8,6 +8,8 @@ import { Jul17EndorsementOutro } from "./ads/Jul17EndorsementOutro";
 import { Jul24ListVsMap } from "./ads/Jul24ListVsMap";
 import { Jul25SnapshotScroll } from "./ads/Jul25SnapshotScroll";
 import { Jul31ClosingOutro } from "./ads/Jul31ClosingOutro";
+import { PremiumShowcase } from "./oneoffs/PremiumShowcase";
+import { FullExplainer } from "./oneoffs/FullExplainer";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -76,6 +78,26 @@ export const RemotionRoot: React.FC = () => {
         id="Jul31-ClosingOutro"
         component={Jul31ClosingOutro}
         durationInFrames={240}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ audioSrc: null as string | null }}
+      />
+
+      {/* ONE-OFFS — separate from the automated ads pipeline (see oneoffs/README.md) */}
+      <Composition
+        id="PremiumShowcase"
+        component={PremiumShowcase}
+        durationInFrames={2550}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ audioSrc: null as string | null }}
+      />
+      <Composition
+        id="FullExplainer"
+        component={FullExplainer}
+        durationInFrames={9150}
         fps={FPS}
         width={SIZE}
         height={SIZE}
