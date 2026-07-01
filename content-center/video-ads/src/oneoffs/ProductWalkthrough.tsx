@@ -24,8 +24,8 @@ export type Props = {
   audioSrc?: string | null;
   // Optional B-roll (public/broll/*). Everything falls back gracefully if not provided
   // yet — see ELEVENLABS-ASSETS.md for what to generate + exact filenames.
-  broll1Src?: string | null; // cold-open, first half
-  broll2Src?: string | null; // cold-open, second half
+  broll1Src?: string | null; // cold-open — one continuous 6s clip (hands-typing dolly shot)
+  broll2Src?: string | null; // reserved for a future alternate cutaway; not used in the cold-open (that's a single unbroken shot)
   problemBrollSrc?: string | null; // Act 1 "the problem" background (hands typing, no screen text)
   officeEnvSrc?: string | null; // Act 2 laptop-in-office environment shot
 };
@@ -40,7 +40,7 @@ const bySectionId = (id: string) => WALK_SECTIONS.find((s) => s.id === id)!;
  * Voice: Christopher.
  */
 const FPS = 30;
-const BROLL_LEAD = 90; // 3s silent cold-open before narration starts
+const BROLL_LEAD = 180; // 6s silent cold-open — matches the hands-typing dolly-shot's full 4-beat progression
 
 // ── Timing, derived from the ~90s VO's 10 sentences (proportional to word count) ──
 // L1  0.0–9.8s   "Every nonprofit is surrounded by opportunities…"
@@ -138,11 +138,14 @@ export const ProductWalkthrough: React.FC<Props> = ({
       ) : null}
       <ProgressRail totalFrames={WALK_TOTAL} />
 
-      {/* ACT 0 — COLD OPEN (B-roll if provided, else a plain brand moment) */}
+      {/* ACT 0 — COLD OPEN: the 6s continuous hands-typing dolly shot (single unbroken
+          clip — do not cut a second clip in mid-move). Falls back to a plain brand
+          moment if not generated yet. Brand text overlay is OUR layer, added after —
+          the generated clip itself must have zero text/UI (see ELEVENLABS-ASSETS.md). */}
       <Sequence from={0} durationInFrames={BROLL_LEAD}>
         {broll1Src ? (
-          <BRoll src={staticFile(broll1Src)} durationInFrames={BROLL_LEAD}>
-            <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+          <BRoll src={staticFile(broll1Src)} durationInFrames={BROLL_LEAD} overlay={0.35}>
+            <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-end", paddingBottom: 90 }}>
               <Eyebrow>The Web of Opportunity</Eyebrow>
             </AbsoluteFill>
           </BRoll>
@@ -152,11 +155,6 @@ export const ProductWalkthrough: React.FC<Props> = ({
           </Center>
         )}
       </Sequence>
-      {broll2Src ? (
-        <Sequence from={Math.floor(BROLL_LEAD / 2)} durationInFrames={Math.ceil(BROLL_LEAD / 2)}>
-          <BRoll src={staticFile(broll2Src)} durationInFrames={Math.ceil(BROLL_LEAD / 2)} />
-        </Sequence>
-      ) : null}
 
       {/* ACT 1 — THE PROBLEM (L1–L2): mix of B-roll + kinetic text, falls back to the
           scattered-word field if problemBrollSrc hasn't been generated yet. */}
