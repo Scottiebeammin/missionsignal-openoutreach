@@ -20,10 +20,20 @@ For cinematic shots our screen-recordings can't do — a nonprofit leader at a l
 - ✅ "a focused nonprofit director at a laptop in a bright community office, over-the-shoulder, blurred background, warm, documentary"
 - ❌ anything showing a website, dashboard, or words on a monitor (that's what our real `ScreenshotPanel` shots are for — the product UI must always be the *real* thing).
 
-Recommended B-roll clips to generate (for the walkthrough cold-open + cutaways):
-1. Hands typing / laptop, dark, no screen text — the "scattered work" open.
-2. Nonprofit leader looking thoughtfully at a laptop, bright office — the human stakes.
-3. Abstract gold light threads / particles on dark — brand connective tissue.
+### Exactly what to generate for ProductWalkthrough (4 clips, wired and waiting)
+The composition already has the slots open — drop these in `public/broll/` with these **exact filenames** and it just works, no code changes needed:
+
+| Filename | Used for | Prompt (paste as-is) |
+|---|---|---|
+| `hands-typing.mp4` | cold-open (first half, `broll1Src`) | `close-up of hands typing on a backlit keyboard, dark room, shallow depth of field, no text or UI visible on any screen, cinematic, warm key light` |
+| `gold-threads.mp4` | cold-open (second half, `broll2Src`) | `abstract glowing gold light threads connecting on a dark navy background, slow motion, elegant, no text` |
+| `problem.mp4` | Act 1 "the problem" background, under the headline text (`problemBrollSrc`) | `overhead shot of a cluttered desk — sticky notes, an open laptop with blank dark screen, coffee cup, papers, someone's hands sorting through them, muted natural light, documentary style, no readable text anywhere` |
+| `laptop-office.mp4` (or `.jpg` — a still photo works fine too) | Act 2 "website reveal" — a real screenshot composites onto this laptop's screen (`officeEnvSrc`) | `a modern laptop open on a wooden desk in a bright, minimal nonprofit office, camera facing the laptop straight-on and slightly above, screen angled toward camera, completely blank matte dark screen, soft window light, shallow depth of field, no text, no logos, photorealistic, static shot` |
+
+**Once you drop these 4 files in**, tell me "broll is in" — I'll set them in `Root.tsx` and re-render. For `laptop-office`, the screenshot gets composited into a percentage-based screen region that assumes a roughly front-facing, flat laptop (per the prompt above) — if it looks off after the first render, tell me and I'll nudge the `screenRect` coordinates in `LaptopFrame` (in `src/components.tsx`) to match your exact shot.
+
+### Other recommended clips (for the other flagship videos, later)
+5. Nonprofit leader looking thoughtfully at a laptop, bright office — the human stakes (PremiumShowcase/FullExplainer).
 
 ## 3. Music
 - Generate a soft cinematic bed in ElevenLabs (Music) — calm pulse + minimal percussion, ~90s, no big drops. Export MP3.
