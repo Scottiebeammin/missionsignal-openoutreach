@@ -1,6 +1,8 @@
 import React from "react";
 import {
   AbsoluteFill,
+  continueRender,
+  delayRender,
   Img,
   interpolate,
   OffthreadVideo,
@@ -8,6 +10,8 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { Lottie, LottieAnimationData } from "@remotion/lottie";
+import { gsap } from "gsap";
 import { BRAND, NODES, SIZE } from "./brand";
 import { fontFamily as serif } from "@remotion/google-fonts/Fraunces";
 import { fontFamily as sans } from "@remotion/google-fonts/Inter";
@@ -682,5 +686,91 @@ export const LaptopFrame: React.FC<{
         <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
       </div>
     </AbsoluteFill>
+  );
+};
+
+/**
+ * LottieAsset — drop-in wrapper for a Lottie JSON (public/lottie/*.json) at a fixed
+ * position/size. Use for payoff-moment accents: a shine sweep, checkmark pop, or
+ * particle burst on a CTA. Renders nothing if the file hasn't been generated/added
+ * yet (graceful, same optional-asset pattern as BRoll/ScreenshotPanel).
+ *
+ *   <LottieAsset src={staticFile("lottie/shine-sweep.json")} width={400} loop={false} />
+ */
+export const LottieAsset: React.FC<{
+  src: string;
+  width?: number;
+  height?: number;
+  loop?: boolean;
+  style?: React.CSSProperties;
+}> = ({ src, width = 400, height = 400, loop = false, style }) => {
+  const [animationData, setAnimationData] = React.useState<LottieAnimationData | null>(null);
+  const [handle] = React.useState(() => delayRender(`loading Lottie asset ${src}`));
+
+  React.useEffect(() => {
+    fetch(src)
+      .then((res) => res.json())
+      .then((data) => {
+        setAnimationData(data);
+        continueRender(handle);
+      })
+      .catch(() => {
+        // Asset not present yet (not generated/dropped in) — fail gracefully, don't block render.
+        continueRender(handle);
+      });
+  }, [src, handle]);
+
+  if (!animationData) return null;
+  return (
+    <div style={{ width, height, ...style }}>
+      <Lottie animationData={animationData} loop={loop} style={{ width: "100%", height: "100%" }} />
+    </div>
+  );
+};
+
+/**
+ * GsapRise — same job as `Rise`, but driven by a GSAP timeline instead of Remotion's
+ * spring(). Demonstrates the REQUIRED integration pattern for GSAP inside Remotion:
+ * the timeline is created `paused: true` and manually seeked via `tl.progress()` on
+ * every frame — GSAP's own ticker (real wall-clock autoplay) must NEVER run here, or
+ * rendering becomes non-deterministic. See BRAND-TEMPLATE.md "GSAP in Remotion" note.
+ * Gives access to GSAP's richer eases (back/elastic) for the anticipation+overshoot+
+ * settle feel the Pro Prompts guide recommends over plain linear/spring motion.
+ */
+export const GsapRise: React.FC<{
+  children: React.ReactNode;
+  delay?: number;
+  durationInFrames?: number;
+  ease?: string;
+  style?: React.CSSProperties;
+}> = ({ children, delay = 0, durationInFrames = 24, ease = "back.out(1.7)", style }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const ref = React.useRef<HTMLDivElement>(null);
+  const tlRef = React.useRef<import("gsap").core.Timeline | null>(null);
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+    // paused: true — we drive it manually below; GSAP's ticker never runs.
+    const tl = gsap.timeline({ paused: true });
+    tl.from(ref.current, { y: 44, opacity: 0, duration: durationInFrames / fps, ease });
+    tlRef.current = tl;
+    return () => {
+      tl.kill();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useLayoutEffect(() => {
+    if (!tlRef.current) return;
+    const localFrame = Math.max(0, frame - delay);
+    const seconds = localFrame / fps;
+    tlRef.current.time(seconds); // seek mode — deterministic, frame-exact
+  }, [frame, delay, fps]);
+
+  return (
+    <div ref={ref} style={style}>
+      {children}
+    </div>
   );
 };

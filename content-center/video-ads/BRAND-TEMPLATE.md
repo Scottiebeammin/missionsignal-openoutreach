@@ -23,6 +23,49 @@ Not every ad gets the same budget of time. Two tiers, on purpose:
 
 ---
 
+## 0b. The build workflow — every new video, every time (added 2026-07-01)
+**Skeleton → Timing → Motion → Polish.** Don't jump straight to polish — build in this order:
+
+1. **Basic skeleton** — get every beat/scene on screen with placeholder timing (round numbers). Confirm the *structure* and *story* are right before touching motion. Render a **still frame** at a few key points (`npx remotion still <id> out/check.png --frame=N`) to sanity-check layout/colors — don't wait on a full render to catch a layout bug.
+2. **Add timing** — derive real durations from the actual VO (word-count-proportional split — see `scripts/generate-vo.mjs` output + the retiming math in `ProductWalkthrough.tsx`/`PremiumShowcase.tsx` for the pattern). Get the cuts landing on the right words before touching motion polish.
+3. **Refine motion** — apply the Pro-Prompts rules (§0c below): full enter *and* exit on everything, stagger multi-element reveals, anticipation/overshoot/settle instead of linear/robotic motion, subtle idle life on anything holding on screen.
+4. **Polish** — sound design (whoosh/click/chime/swish, trimmed silence, balanced levels), one tasteful animated accent (border light-travel, shine sweep — good use for `LottieAsset`), payoff moment on the key CTA/number.
+
+**Once a workflow produces a good result, save it as a template** for next time — either extend `_TEMPLATE.tsx` or add a named preset/snippet here. Don't rebuild a pattern from scratch twice.
+
+## 0c. Motion polish rules (adapted from the Rangy AI "Motion-Graphics Starter Kit," 2026-07-01)
+- **The #1 rule: every element animates in AND fully out before the clip ends.** Nothing pops in abruptly or gets cut off mid-motion. Audit every `<Sequence>` boundary against this.
+- Avoid robotic linear motion — anticipation (tiny wind-up) → slight overshoot → settle. Use `spring()` or GSAP's `back`/`elastic` eases (see §0d).
+- Stagger multi-element reveals (a few frames apart, not all at once) — `CheckLine`/`FeatureCard` lists already do this via `delay`; keep doing it on anything new.
+- While something holds on screen, give it subtle life (gentle float, soft glow pulse, slow shine sweep) rather than a static freeze.
+- Keep key text inside a ~10% title-safe margin; auto-fit/shrink long text rather than letting it overflow.
+- Effects: prefer clean geometric light (flash, expanding ring, glow/bloom) over emoji/clip-art. One tasteful animated accent per scene, not clutter.
+- Sound: soft whoosh on entrance, click/pop on key actions, chime on success, swish on exit — trim leading silence so hits land exactly on the beat, keep levels balanced.
+- Workflow discipline: render a still at a key frame before the full clip; for a new flagship idea, sketch 2–3 style variations before polishing one.
+
+## 0d. Animation library map — what to reach for, and when (added 2026-07-01)
+Installed: `gsap`, `d3`, `three`, `@remotion/lottie` (already had it). Claude Code skills installed via `npx skills add` → `.agents/skills/` (gsap-core, gsap-timeline, gsap-plugins, gsap-utils, gsap-react, gsap-performance, gsap-frameworks, gsap-scrolltrigger, d3-viz, remotion-best-practices).
+
+| Need | Reach for | Component |
+|---|---|---|
+| Basic fade/rise/scale, spring easing | Remotion's own `interpolate()` + `spring()` | `Rise`, `Headline`, `Eyebrow` — **default choice, covers 90% of cases** |
+| Richer easing (back/elastic bounce, overshoot+settle) or multi-step sequencing with relative offsets (`"-=0.2"`) | **GSAP** (`gsap-core`, `gsap-timeline` skills) | `GsapRise` (new) |
+| Kinetic typography (character/word-by-word reveal) | GSAP `SplitText` (`gsap-plugins` skill) | not yet wrapped — ask when needed |
+| SVG line-draw (e.g. a cleaner `OrbWeb` thread-draw) | GSAP `DrawSVGPlugin` (`gsap-plugins` skill) | not yet wrapped — ask when needed |
+| Pre-made polish accents (shine sweep, particle burst, checkmark pop) | **Lottie** JSON from LottieFiles → `public/lottie/` | `LottieAsset` (new) |
+| Data-driven chart/stat visualization | **D3** (`d3-viz` skill) | not yet needed — no chart content today; use when we add a stat/chart video |
+| 3D/WebGL | `three` | **parked** — doesn't fit our flat 2D brand look; only reach for it with a specific, deliberate 3D idea |
+| Scroll-driven / drag interactions (ScrollTrigger, Draggable, Observer) | — | **not applicable** — we render headless video, not an interactive web page |
+
+### ⚠️ The GSAP + Remotion rule — read this every time you reach for GSAP
+GSAP has two fundamentally different modes. **Only one of them works in Remotion:**
+1. **Live/ticker mode** (GSAP's default) — the animation runs on GSAP's own `requestAnimationFrame` ticker, tied to real wall-clock time. This is how GSAP works on a normal website. **Do not use this in Remotion** — Remotion renders frames out of real-time order (it can render frame 400 before frame 12), so a ticker-driven animation is non-deterministic and will render wrong/blank.
+2. **Seek mode** (required in Remotion) — create the timeline with **`gsap.timeline({ paused: true })`**, then on every render call **`tl.time(frame / fps)`** or **`tl.progress(p)`** to set its state deterministically from Remotion's `useCurrentFrame()`. GSAP becomes a pure function of frame number, exactly like `interpolate()`/`spring()`.
+
+`GsapRise` in `src/components.tsx` is the reference implementation — copy its pattern (`useEffect` builds the paused timeline once; `useLayoutEffect` seeks it every frame) for any new GSAP-powered component.
+
+---
+
 ## 1. Brand essence (the one thing every ad must land)
 - **Name / tagline:** Anansi Atlas — *The Web of Opportunity.*
 - **Category:** nonprofit opportunity intelligence platform.

@@ -8,3 +8,5 @@ public/broll/*
 !public/broll/.gitkeep
 public/music/*
 !public/music/.gitkeep
+public/lottie/*
+!public/lottie/.gitkeep

@@ -22,18 +22,20 @@ export type Props = { audioSrc?: string | null };
 // ONE-OFF — not part of the automated ads pipeline (see ads.config.mjs). Premium brand
 // commercial built from REAL product screenshots (public/screenshots/*.png, captured live
 // off the Creative Display demo profile — anonymized, ad-safe). Voice: Christopher.
+// Timing below is derived from the actual VO's word count per line (~34.4s total) —
+// re-run the proportional-split math in scripts if the script in ads.config.mjs changes.
+const L = [0, 76, 176, 227, 327, 440, 541, 805, 919, 1032];
+
 const CAPTIONS: Caption[] = [
-  { text: "Every mission is surrounded by opportunity.", from: 0, duration: 150 },
-  { text: "The problem was never opportunity. It was visibility.", from: 150, duration: 180 },
-  { text: "This is Anansi Atlas.", from: 330, duration: 180 },
-  { text: "Your Dashboard opens with one clear next move.", from: 510, duration: 360 },
-  { text: "Your Opportunity Web maps your mission at the center.", from: 870, duration: 360 },
-  { text: "Your Snapshot opens with a 30-day action plan.", from: 1230, duration: 360 },
-  { text: "Founding Atlas Partners aren't just customers.", from: 1590, duration: 180 },
-  { text: "They're the first twenty organizations shaping this platform.", from: 1770, duration: 210 },
-  { text: "A rate locked in for life.", from: 1980, duration: 210 },
-  { text: "If you're ready to stop guessing — join the family.", from: 2190, duration: 180 },
-  { text: "Apply at anansiatlas.com/anansi-atlas", from: 2370, duration: 180 },
+  { text: "Every mission is surrounded by opportunity.", from: L[0], duration: L[1] - L[0] },
+  { text: "The problem was never opportunity. It was visibility.", from: L[1], duration: L[2] - L[1] },
+  { text: "This is Anansi Atlas.", from: L[2], duration: L[3] - L[2] },
+  { text: "Your Dashboard opens with one clear next move.", from: L[3], duration: L[4] - L[3] },
+  { text: "Your Opportunity Web maps your mission at the center.", from: L[4], duration: L[5] - L[4] },
+  { text: "Your Snapshot opens with a 30-day action plan.", from: L[5], duration: L[6] - L[5] },
+  { text: "Founding Atlas Partners aren't just customers — they're the first 20 shaping this platform, locked in for life.", from: L[6], duration: L[7] - L[6] },
+  { text: "If you're ready to stop guessing, join the family.", from: L[7], duration: L[8] - L[7] },
+  { text: "Apply at anansiatlas.com/anansi-atlas", from: L[8], duration: L[9] - L[8] },
 ];
 
 const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 26 }) => (
@@ -43,11 +45,10 @@ const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ childre
 );
 
 const SCREENS = [
-  { at: 510, src: "screenshots/dashboard.png", label: "anansiatlas.com/dashboard", title: "One Clear Next Move", panX: [0, 30] as [number, number] },
-  { at: 870, src: "screenshots/web.png", label: "anansiatlas.com/web", title: "Your Mission at the Center", panX: [0, -30] as [number, number] },
-  { at: 1230, src: "screenshots/snapshot.png", label: "anansiatlas.com/snapshot", title: "A 30-Day Action Plan", panX: [0, 30] as [number, number] },
+  { from: L[3], src: "screenshots/dashboard.png", label: "anansiatlas.com/dashboard", title: "One Clear Next Move", panX: [0, 20] as [number, number] },
+  { from: L[4], src: "screenshots/web.png", label: "anansiatlas.com/web", title: "Your Mission at the Center", panX: [0, -20] as [number, number] },
+  { from: L[5], src: "screenshots/snapshot.png", label: "anansiatlas.com/snapshot", title: "A 30-Day Action Plan", panX: [0, 20] as [number, number] },
 ];
-const SCREEN_DUR = 360;
 
 export const PremiumShowcase: React.FC<Props> = ({ audioSrc }) => {
   return (
@@ -55,66 +56,65 @@ export const PremiumShowcase: React.FC<Props> = ({ audioSrc }) => {
       {audioSrc ? <Audio src={staticFile(audioSrc)} /> : null}
 
       {/* S1 — hook */}
-      <Sequence from={0} durationInFrames={150}>
+      <Sequence from={L[0]} durationInFrames={L[1] - L[0]}>
         <Center>
-          <Headline delay={6}>Every mission is surrounded by opportunity.</Headline>
+          <Headline delay={6} size={56}>Every mission is surrounded by opportunity.</Headline>
         </Center>
       </Sequence>
 
       {/* S2 — problem */}
-      <Sequence from={150} durationInFrames={180}>
-        <Center gap={16}>
+      <Sequence from={L[1]} durationInFrames={L[2] - L[1]}>
+        <Center gap={14}>
           <Rise>
-            <div style={{ fontFamily: SANS, fontSize: 26, fontWeight: 800, color: BRAND.muted, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            <div style={{ fontFamily: SANS, fontSize: 22, fontWeight: 800, color: BRAND.muted, letterSpacing: "0.1em", textTransform: "uppercase" }}>
               The problem was never opportunity.
             </div>
           </Rise>
-          <Headline delay={12} color={BRAND.goldLight} size={72}>It was visibility.</Headline>
+          <Headline delay={10} color={BRAND.goldLight} size={60}>It was visibility.</Headline>
         </Center>
       </Sequence>
 
       {/* S3 — motion-graphics brand reveal (converging threads + shimmer, not a static fade) */}
-      <Sequence from={330} durationInFrames={180}>
-        <AnimatedLogoReveal delay={4} />
+      <Sequence from={L[2]} durationInFrames={L[3] - L[2]}>
+        <AnimatedLogoReveal delay={2} />
       </Sequence>
 
       {/* S4 — real product reel: Dashboard, Opportunity Web, Snapshot */}
-      {SCREENS.map((s) => (
-        <Sequence key={s.src} from={s.at} durationInFrames={SCREEN_DUR}>
-          <Center gap={22}>
+      {SCREENS.map((s, i) => (
+        <Sequence key={s.src} from={s.from} durationInFrames={L[4 + i] - s.from}>
+          <Center gap={16}>
             <Eyebrow>{s.title}</Eyebrow>
-            <ScreenshotPanel src={staticFile(s.src)} label={s.label} durationInFrames={SCREEN_DUR} panX={s.panX} />
+            <ScreenshotPanel src={staticFile(s.src)} label={s.label} durationInFrames={L[4 + i] - s.from} panX={s.panX} width={640} />
           </Center>
         </Sequence>
       ))}
 
       {/* S5 — join the family */}
-      <Sequence from={1590} durationInFrames={600}>
-        <Center gap={22}>
+      <Sequence from={L[6]} durationInFrames={L[7] - L[6]}>
+        <Center gap={16}>
           <Eyebrow>Founding Atlas Partners</Eyebrow>
-          <Headline delay={10} size={62}>You're not just a customer.</Headline>
-          <Headline delay={22} size={62} color={BRAND.goldLight}>You're a founding partner.</Headline>
-          <div style={{ height: 12 }} />
-          <CheckLine delay={40} text="$150 / month, locked for life" />
-          <CheckLine delay={54} text="Your Snapshot + a 45-minute walkthrough" />
-          <CheckLine delay={68} text="Direct input shaping the platform" />
+          <Headline delay={8} size={46}>You're not just a customer.</Headline>
+          <Headline delay={18} size={46} color={BRAND.goldLight}>You're a founding partner.</Headline>
+          <div style={{ height: 6 }} />
+          <CheckLine delay={30} text="$150 / month, locked for life" />
+          <CheckLine delay={40} text="Your Snapshot + a 45-minute walkthrough" />
         </Center>
       </Sequence>
 
       {/* S6 — CTA */}
-      <Sequence from={2190} durationInFrames={360}>
-        <Center gap={34}>
+      <Sequence from={L[8]} durationInFrames={L[9] - L[8]}>
+        <Center gap={26}>
           <LogoLockup />
-          <CTAButton delay={16}>Join the Family — Apply Now</CTAButton>
-          <Rise delay={26}>
-            <div style={{ fontFamily: SANS, fontSize: 30, fontWeight: 700, color: BRAND.goldLight, letterSpacing: "0.04em" }}>
+          <CTAButton delay={12}>Join the Family — Apply Now</CTAButton>
+          <Rise delay={20}>
+            <div style={{ fontFamily: SANS, fontSize: 24, fontWeight: 700, color: BRAND.goldLight, letterSpacing: "0.04em" }}>
               {SIGNUP_URL}
             </div>
           </Rise>
         </Center>
       </Sequence>
 
-      <SceneDissolve boundaries={[150, 330, 510, 870, 1230, 1590, 2190]} />
+      <SceneDissolve boundaries={L.slice(1, -1)} />
       <Subtitles captions={CAPTIONS} />
     </NavyBG>
   );

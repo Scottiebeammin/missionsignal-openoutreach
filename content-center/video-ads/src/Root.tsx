@@ -89,11 +89,11 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="PremiumShowcase"
         component={PremiumShowcase}
-        durationInFrames={2550}
+        durationInFrames={1032} // retimed to the actual ~34.4s Christopher VO
         fps={FPS}
         width={SIZE}
         height={SIZE}
-        defaultProps={{ audioSrc: null as string | null }}
+        defaultProps={{ audioSrc: "premium-showcase-vo.mp3" as string | null }}
       />
       <Composition
         id="FullExplainer"
