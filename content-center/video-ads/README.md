@@ -31,17 +31,40 @@ npm run render:all
 ```
 Renders are silent by default (no VO). See below to add narration.
 
-## Add the ElevenLabs voiceover
-1. In ElevenLabs, generate each script below with its assigned voice (warm, credible, calm-confident — see brand brief). Export as MP3.
-2. Save them here:
-   - `public/showcase-vo.mp3`  (Christopher)
-   - `public/pilot-vo.mp3`     (Jackson)
-3. Render **with** audio by passing the prop:
+## Subtitles
+Both ads have a **baked-in bottom caption bar** synced to the VO (defined as `CAPTIONS` in each ad file). LinkedIn autoplays muted, so viewers read the message even with sound off. Edit the caption text/timing in `src/ads/*.tsx`; keep it matching the VO script in `ads.config.mjs`.
+
+## Adding the voiceover — two ways
+
+### Option A — Manual (no API key)
+1. In ElevenLabs, generate each script (see `ads.config.mjs`) with its assigned voice. Export MP3.
+2. Save as `public/showcase-vo.mp3` (Christopher) and `public/pilot-vo.mp3` (Jackson).
+3. Render with audio: `npm run build`  (auto-detects the VO files and wires them in).
+
+### Option B — Automated (ElevenLabs API — recommended)
+The pipeline **auto-pulls the voice by name** from your ElevenLabs account (no voice IDs to manage) and generates the MP3s for you.
 ```bash
-npx remotion render PlatformShowcase out/platform-showcase.mp4 --props='{"audioSrc":"showcase-vo.mp3"}'
-npx remotion render PilotSignup      out/pilot-signup.mp4      --props='{"audioSrc":"pilot-vo.mp3"}'
+export ELEVENLABS_API_KEY=sk_...     # your key — NEVER commit it (see security note)
+npm run vo                            # generates public/*.mp3 for every ad (auto-resolves Christopher/Jackson/…)
+npm run build                         # renders both MP4s with VO + subtitles
 ```
-(Or set `audioSrc` in `src/Root.tsx` defaultProps, or in Studio's props panel.)
+`npm run vo PilotSignup` does just one ad. Voice names, scripts, and settings all live in `ads.config.mjs`.
+
+> **Security:** the ElevenLabs key is a secret. Keep it in your shell env (or a local `.env` you never commit — `.env` is gitignored). Don't paste it into any tracked file. I can't enter or store the key for you — you set it yourself.
+
+## Automation — auto-generate on the dates in your calendar
+`ads.config.mjs` carries a `scheduledDate` per ad (pulled from `07-content-calendar-july-2026.md` — Showcase drops **Jul 8**, Pilot **Jul 16**). `scripts/build-scheduled.mjs` builds any ad **due today** (generate VO → render final MP4 stamped with the date into `out/`).
+
+Test it against a date:
+```bash
+ADS_DATE=2026-07-08 npm run build:scheduled     # dry-run that day's build
+```
+Run it automatically once a day with **cron** (machine must be on, key available):
+```bash
+# crontab -e  — every day at 6am, build anything due that day
+0 6 * * * cd /Users/scottiebeammin/Documents/GitHub/missionsignal-openoutreach/content-center/video-ads && ELEVENLABS_API_KEY=sk_... /usr/local/bin/node scripts/build-scheduled.mjs >> out/scheduled.log 2>&1
+```
+To schedule a **new** ad: add an entry to `ADS` in `ads.config.mjs` with its `voice`, `script`, `audioOut`, and `scheduledDate` — the cron picks it up on that date. (For a fully hands-off server pipeline, this same script can run in any CI/cron with Node + ffmpeg + Chrome.)
 
 **Timing note:** both timelines are 30s (900 frames @ 30fps). If your VO runs longer/shorter, either trim the read or adjust `durationInFrames` in `src/Root.tsx` and the `<Sequence>` offsets in the ad file. Check your VO length: `ffprobe -i public/showcase-vo.mp3 -show_entries format=duration -v quiet -of csv="p=0"`.
 

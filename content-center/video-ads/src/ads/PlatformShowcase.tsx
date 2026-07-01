@@ -10,6 +10,7 @@ import {
 import { BRAND } from "../brand";
 import {
   BubbleCard,
+  Caption,
   CTAButton,
   Eyebrow,
   Headline,
@@ -18,10 +19,21 @@ import {
   OrbWeb,
   Rise,
   SANS,
+  Subtitles,
 } from "../components";
 import { SIGNUP_URL } from "../brand";
 
 export type ShowcaseProps = { audioSrc?: string | null };
+
+// Bottom subtitles — kept in sync with the Christopher VO script (see README).
+const CAPTIONS: Caption[] = [
+  { text: "Your next opportunity is already out there.", from: 0, duration: 120 },
+  { text: "It's just scattered — funder portals, emails, spreadsheets, relationships.", from: 120, duration: 150 },
+  { text: "Anansi Atlas maps the web of opportunity around your mission.", from: 270, duration: 180 },
+  { text: "Your Snapshot: your strongest asset, your biggest gap…", from: 450, duration: 180 },
+  { text: "…and the single highest-leverage move to make next.", from: 630, duration: 150 },
+  { text: "Apply for a founding seat · anansiatlas.com/anansi-atlas", from: 780, duration: 120 },
+];
 
 const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 28 }) => (
   <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap }}>
@@ -135,6 +147,8 @@ export const PlatformShowcase: React.FC<ShowcaseProps> = ({ audioSrc }) => {
           </Rise>
         </Center>
       </Sequence>
+
+      <Subtitles captions={CAPTIONS} />
     </NavyBG>
   );
 };

@@ -5,6 +5,9 @@
   "private": true,
   "scripts": {
     "start": "remotion studio",
+    "vo": "node scripts/generate-vo.mjs",
+    "build": "node scripts/build.mjs",
+    "build:scheduled": "node scripts/build-scheduled.mjs",
     "render:showcase": "remotion render PlatformShowcase out/platform-showcase.mp4",
     "render:pilot": "remotion render PilotSignup out/pilot-signup.mp4",
     "render:all": "npm run render:showcase && npm run render:pilot",

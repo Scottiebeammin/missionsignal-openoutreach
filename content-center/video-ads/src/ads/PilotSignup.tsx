@@ -10,9 +10,19 @@ import {
   useVideoConfig,
 } from "remotion";
 import { BRAND, SIGNUP_URL } from "../brand";
-import { CTAButton, Eyebrow, Headline, LogoLockup, NavyBG, Rise, SANS, SERIF } from "../components";
+import { Caption, CTAButton, Eyebrow, Headline, LogoLockup, NavyBG, Rise, SANS, SERIF, Subtitles } from "../components";
 
 export type PilotProps = { audioSrc?: string | null };
+
+// Bottom subtitles — kept in sync with the Jackson VO script (see README).
+const CAPTIONS: Caption[] = [
+  { text: "Applications are open for the Founding Atlas Partners Pilot.", from: 0, duration: 90 },
+  { text: "We're selecting 19 nonprofit & mission-driven organizations.", from: 90, duration: 150 },
+  { text: "Included: the Snapshot, a 45-minute walkthrough, the living platform.", from: 240, duration: 210 },
+  { text: "$150 / month — locked for life — first 20 organizations.", from: 450, duration: 150 },
+  { text: "19 seats remain.", from: 600, duration: 150 },
+  { text: "Apply now · anansiatlas.com/anansi-atlas", from: 750, duration: 150 },
+];
 
 const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 28 }) => (
   <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap }}>
@@ -154,6 +164,8 @@ export const PilotSignup: React.FC<PilotProps> = ({ audioSrc }) => {
           </Rise>
         </Center>
       </Sequence>
+
+      <Subtitles captions={CAPTIONS} />
     </NavyBG>
   );
 };

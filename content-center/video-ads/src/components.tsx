@@ -256,6 +256,43 @@ export const LogoLockup: React.FC<{ delay?: number }> = ({ delay = 0 }) => (
   </Rise>
 );
 
+/** A timed subtitle segment (global composition frames). */
+export type Caption = { text: string; from: number; duration: number };
+
+/** Bottom caption bar — synced to the VO, readable on autoplay-muted LinkedIn. */
+export const Subtitles: React.FC<{ captions: Caption[] }> = ({ captions }) => {
+  const frame = useCurrentFrame();
+  const active = captions.find((c) => frame >= c.from && frame < c.from + c.duration);
+  if (!active) return null;
+  const local = frame - active.from;
+  const opacity = interpolate(local, [0, 8], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  return (
+    <AbsoluteFill style={{ justifyContent: "flex-end", alignItems: "center", paddingBottom: 54 }}>
+      <div
+        style={{
+          maxWidth: 900,
+          opacity,
+          background: "rgba(6,12,26,0.74)",
+          border: "1px solid rgba(212,160,23,0.35)",
+          borderRadius: 14,
+          padding: "16px 28px",
+          fontFamily: SANS,
+          fontSize: 34,
+          fontWeight: 600,
+          color: BRAND.white,
+          textAlign: "center",
+          lineHeight: 1.25,
+        }}
+      >
+        {active.text}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 /** Gold pill CTA button. */
 export const CTAButton: React.FC<{ children: React.ReactNode; delay?: number }> = ({
   children,
