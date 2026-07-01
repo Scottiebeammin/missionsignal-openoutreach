@@ -105,7 +105,7 @@ LENGTH: Each field should be 1-3 sentences. Concise and useful.
 ORGANIZATION:
 - Name: {org.name}
 - Mission: {org.mission or "Not provided"}
-- Geography: {', '.join(org.geography) if isinstance(org.geography, list) else org.geography or "Not provided"}
+- Geography: {', '.join(org.service_geographies) if isinstance(org.service_geographies, list) else org.service_geographies or "Not provided"}
 - Focus Areas: {', '.join(org.focus_areas) if isinstance(org.focus_areas, list) else org.focus_areas or "Not provided"}
 - Beneficiaries: {', '.join(org.beneficiaries) if isinstance(org.beneficiaries, list) else org.beneficiaries or "Not provided"}
 - Readiness Score: {snapshot.readiness_score}/100 ({snapshot.readiness_level})
