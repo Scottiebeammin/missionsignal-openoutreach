@@ -105,7 +105,8 @@
     .deadline-list li { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
     .deadline-list li:last-child { border-bottom: 0; }
     .deadline-list strong { display: block; font-size: .9rem; }
-    .deadline-date { white-space: nowrap; color: var(--rose); font-weight: 900; }
+    /* deadline date in a rose "bubble" pill — urgency pops */
+    .deadline-date { white-space: nowrap; align-self: center; padding: 4px 10px; border-radius: 999px; background: #fdf0e8; border: 1px solid rgba(196,106,61,.42); color: #a4471f; font-weight: 800; font-size: .82rem; }
 
     /* ── Pilot panel ── */
     .advisor-panel { margin-bottom: 16px; padding: 18px; border-left: 5px solid var(--accent); background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 180%); }
@@ -115,7 +116,8 @@
     .pipeline-card { min-height: 140px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); box-shadow: none; }
     .pipeline-card header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-weight: 900; font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
     .pipeline-card header strong { color: var(--ink); font-size: 1.2rem; font-weight: 950; letter-spacing: 0; text-transform: none; }
-    .mini-opportunity { margin-top: 6px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: white; font-size: .84rem; font-weight: 800; }
+    /* opportunity in a teal "bubble" — tinted fill + outline so pursuits pop */
+    .mini-opportunity { margin-top: 6px; padding: 8px 10px; border: 1px solid rgba(15,118,110,.42); border-radius: 10px; background: #e9f6f3; color: #0c5a54; font-size: .84rem; font-weight: 700; }
 
     /* ── Wins ── */
     .celebration-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
