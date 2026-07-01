@@ -27,9 +27,18 @@ async function listVoices() {
   const r = await fetch("https://api.elevenlabs.io/v1/voices", { headers: { "xi-api-key": KEY } });
   if (!r.ok) throw new Error(`voices list failed: ${r.status} ${await r.text()}`);
   const data = await r.json();
-  const map = new Map();
-  for (const v of data.voices) map.set(v.name.trim().toLowerCase(), v.voice_id);
-  return map;
+  return data.voices.map((v) => ({ id: v.voice_id, name: v.name.trim() }));
+}
+
+// Match a config voice ("Christopher") against full ElevenLabs names
+// ("Christopher - optimistic storyteller") by exact match, then name-prefix, then first-word.
+function resolveVoiceId(voices, wanted) {
+  const w = wanted.trim().toLowerCase();
+  return (
+    voices.find((v) => v.name.toLowerCase() === w) ||
+    voices.find((v) => v.name.toLowerCase().startsWith(w)) ||
+    voices.find((v) => v.name.toLowerCase().split(/[\s\-–]+/)[0] === w)
+  )?.id;
 }
 
 async function tts(voiceId, text, outPath) {
@@ -43,7 +52,7 @@ async function tts(voiceId, text, outPath) {
 }
 
 const voices = await listVoices();
-console.log(`Found ${voices.size} voices in your account.`);
+console.log(`Found ${voices.length} voices in your account.`);
 fs.mkdirSync(path.join(ROOT, "public"), { recursive: true });
 
 for (const ad of ADS) {
@@ -52,7 +61,7 @@ for (const ad of ADS) {
     console.log(`… ${ad.id} reuses ${ad.reuseAudioFrom}'s VO — nothing to generate.`);
     continue;
   }
-  const voiceId = voices.get(ad.voice.trim().toLowerCase());
+  const voiceId = resolveVoiceId(voices, ad.voice);
   if (!voiceId) {
     console.error(`✗ ${ad.id}: voice "${ad.voice}" not found in your ElevenLabs account (check My Voices / spelling).`);
     continue;

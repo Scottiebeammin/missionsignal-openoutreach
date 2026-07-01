@@ -27,11 +27,12 @@ export type Props = { audioSrc?: string | null };
  * baked-in subtitles. Voice: Christopher.
  */
 const FPS = 30;
-const SEC_DUR = 180; // 6s per Act-3 section
-const ACT3_START = 1050;
-const ACT4_START = ACT3_START + WALK_SECTIONS.length * SEC_DUR; // 2850
-const ACT5_START = ACT4_START + 210; // 3060
-export const WALK_TOTAL = ACT5_START + 240; // 3300 = 110s
+// Timed to the ~87s Christopher VO so narration tracks the visuals (no silent tail).
+const SEC_DUR = 150; // 5s per Act-3 section
+const ACT3_START = 690;
+const ACT4_START = ACT3_START + WALK_SECTIONS.length * SEC_DUR; // 2190
+const ACT5_START = ACT4_START + 180; // 2370
+export const WALK_TOTAL = ACT5_START + 330; // 2700 = 90s
 
 const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 22 }) => (
   <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap }}>
@@ -41,14 +42,14 @@ const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ childre
 
 // ── Captions (derived from the section data so VO + subtitles + visuals stay in sync) ──
 const CAPTIONS: Caption[] = [
-  { text: "Nonprofits are surrounded by opportunity.", from: 0, duration: 210 },
-  { text: "But too often, that opportunity is scattered.", from: 210, duration: 240 },
-  { text: "Anansi Atlas maps the web of opportunity around your mission.", from: 450, duration: 300 },
-  { text: "Apply for the Founding Atlas Partners Pilot, tell us about your mission…", from: 750, duration: 300 },
-  ...WALK_SECTIONS.map((s, i) => ({ text: s.vo, from: ACT3_START + i * SEC_DUR + 8, duration: SEC_DUR - 10 })),
-  { text: "Instead of chasing scattered leads, you see exactly where to focus next.", from: ACT4_START, duration: 210 },
-  { text: "We're selecting 19–20 nonprofit organizations for the pilot.", from: ACT5_START, duration: 130 },
-  { text: "Apply at anansiatlas.com/anansi-atlas", from: ACT5_START + 130, duration: 110 },
+  { text: "Nonprofits are surrounded by opportunity.", from: 0, duration: 165 },
+  { text: "But too often, that opportunity is scattered.", from: 165, duration: 165 },
+  { text: "Anansi Atlas maps the web of opportunity around your mission.", from: 330, duration: 180 },
+  { text: "Apply for the Founding Atlas Partners Pilot, and tell us about your mission…", from: 510, duration: 180 },
+  ...WALK_SECTIONS.map((s, i) => ({ text: s.vo, from: ACT3_START + i * SEC_DUR + 6, duration: SEC_DUR - 8 })),
+  { text: "Instead of chasing scattered leads, you see exactly where to focus next.", from: ACT4_START, duration: 180 },
+  { text: "We're selecting 19–20 nonprofit organizations for the pilot.", from: ACT5_START, duration: 170 },
+  { text: "Apply at anansiatlas.com/anansi-atlas", from: ACT5_START + 170, duration: 160 },
 ];
 
 // Scattered-signal field for Act 1.
@@ -85,13 +86,13 @@ export const ProductWalkthrough: React.FC<Props> = ({ audioSrc }) => {
       <ProgressRail totalFrames={WALK_TOTAL} />
 
       {/* ACT 1 — THE PROBLEM */}
-      <Sequence from={0} durationInFrames={210}>
+      <Sequence from={0} durationInFrames={165}>
         <ScatterField />
         <Center>
           <Headline delay={10} size={64}>Nonprofits are surrounded by opportunity.</Headline>
         </Center>
       </Sequence>
-      <Sequence from={210} durationInFrames={240}>
+      <Sequence from={165} durationInFrames={165}>
         <ScatterField />
         <Center>
           <Headline delay={6} size={70} color={BRAND.goldLight}>But it's scattered.</Headline>
@@ -99,16 +100,16 @@ export const ProductWalkthrough: React.FC<Props> = ({ audioSrc }) => {
       </Sequence>
 
       {/* ACT 2 — THE REVEAL (landing → apply → intake) */}
-      <Sequence from={450} durationInFrames={300}>
+      <Sequence from={330} durationInFrames={180}>
         <Center gap={20}>
           <Eyebrow>anansiatlas.com</Eyebrow>
-          <ScreenshotPanel src={staticFile("screenshots/landing.png")} label="anansiatlas.com/anansi-atlas" durationInFrames={300} width={880} panY={[0, -24]} />
+          <ScreenshotPanel src={staticFile("screenshots/landing.png")} label="anansiatlas.com/anansi-atlas" durationInFrames={180} width={880} panY={[0, -24]} />
         </Center>
       </Sequence>
-      <Sequence from={750} durationInFrames={300}>
+      <Sequence from={510} durationInFrames={180}>
         <Center gap={20}>
           <Eyebrow>Start with your mission</Eyebrow>
-          <ScreenshotPanel src={staticFile("screenshots/organization.png")} label="anansiatlas.com/organization" durationInFrames={300} width={880} panY={[0, -18]} />
+          <ScreenshotPanel src={staticFile("screenshots/organization.png")} label="anansiatlas.com/organization" durationInFrames={180} width={880} panY={[0, -18]} />
         </Center>
       </Sequence>
 
@@ -135,7 +136,7 @@ export const ProductWalkthrough: React.FC<Props> = ({ audioSrc }) => {
       ))}
 
       {/* ACT 4 — TRANSFORMATION */}
-      <Sequence from={ACT4_START} durationInFrames={210}>
+      <Sequence from={ACT4_START} durationInFrames={180}>
         <Transform />
         <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-end", paddingBottom: 60 }}>
           <Rise delay={150}>
@@ -164,7 +165,7 @@ export const ProductWalkthrough: React.FC<Props> = ({ audioSrc }) => {
 
       <SceneDissolve
         boundaries={[
-          210, 450, 750, // acts 1–2
+          165, 330, 510, // acts 1–2
           ...WALK_SECTIONS.map((_, i) => ACT3_START + i * SEC_DUR), // each section
           ACT4_START, ACT5_START,
         ]}

@@ -3,3 +3,4 @@ out/
 .remotion/
 *.log
 .env
+public/*.mp3
