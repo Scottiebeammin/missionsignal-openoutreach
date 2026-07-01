@@ -119,6 +119,8 @@ export const RemotionRoot: React.FC = () => {
           audioSrc: "product-walkthrough-vo.mp3" as string | null,
           broll1Src: null as string | null,
           broll2Src: null as string | null,
+          problemBrollSrc: null as string | null, // e.g. "broll/hands-typing.mp4"
+          officeEnvSrc: null as string | null, // e.g. "broll/laptop-office.mp4" or ".jpg"
         }}
       />
     </>

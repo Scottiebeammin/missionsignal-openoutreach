@@ -632,3 +632,55 @@ export const BRoll: React.FC<{
     </AbsoluteFill>
   );
 };
+
+/**
+ * LaptopFrame — a real product screenshot composited onto a laptop screen sitting in a
+ * real environment (office B-roll), instead of a "floating" browser-chrome card. If no
+ * environment clip/photo is provided yet, falls back to ScreenshotPanel so nothing breaks
+ * while you're still generating B-roll.
+ *
+ * screenRect is in PERCENT of the frame (0-100) — the four corners of the laptop's screen
+ * in your specific B-roll shot. Defaults assume a front-facing, mostly-flat laptop centered
+ * in frame (matches the prompt in ELEVENLABS-ASSETS.md). Once you generate the real clip,
+ * tell me and I'll nudge these numbers to match exactly.
+ */
+export const LaptopFrame: React.FC<{
+  src: string; // the screenshot to show ON the laptop screen
+  envSrc?: string | null; // public/broll/*.mp4 or .jpg — the laptop-in-office shot
+  screenRect?: { top: number; left: number; width: number; height: number };
+  durationInFrames: number;
+  fallbackLabel?: string;
+}> = ({ src, envSrc, screenRect = { top: 21, left: 30, width: 40, height: 30 }, durationInFrames, fallbackLabel }) => {
+  const frame = useCurrentFrame();
+  if (!envSrc) {
+    return <ScreenshotPanel src={src} label={fallbackLabel} durationInFrames={durationInFrames} />;
+  }
+  const isVideo = /\.(mp4|mov|webm)$/i.test(envSrc);
+  const scale = interpolate(frame, [0, durationInFrames], [1, 1.05], { extrapolateRight: "clamp" });
+  const opacity = interpolate(frame, [0, 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <AbsoluteFill style={{ opacity }}>
+      {isVideo ? (
+        <OffthreadVideo src={envSrc} muted style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale})` }} />
+      ) : (
+        <Img src={envSrc} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale})` }} />
+      )}
+      {/* screenshot composited into the laptop's screen region, slight perspective tilt */}
+      <div
+        style={{
+          position: "absolute",
+          top: `${screenRect.top}%`,
+          left: `${screenRect.left}%`,
+          width: `${screenRect.width}%`,
+          height: `${screenRect.height}%`,
+          overflow: "hidden",
+          borderRadius: 4,
+          transform: "perspective(900px) rotateX(2deg)",
+          boxShadow: "0 0 40px rgba(0,0,0,0.35) inset",
+        }}
+      >
+        <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+      </div>
+    </AbsoluteFill>
+  );
+};

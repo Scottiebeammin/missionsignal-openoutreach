@@ -132,7 +132,7 @@ export const ADS = [
     voice: "Christopher",
     audioOut: "product-walkthrough-vo.mp3", // "From Scattered Opportunity to Focused Action" (~90s, flowing narration)
     script: [
-      "Every nonprofit is surrounded by opportunity — funders who'd say yes, partners who'd open doors, public dollars already earmarked for work like yours.",
+      "Every nonprofit is surrounded by opportunities — funders who'd say yes, partners who'd open doors, public dollars already earmarked for work like yours.",
       "The hard part was never that opportunity didn't exist. It's that it was scattered — across browser tabs, spreadsheets, and inboxes, with no one quite sure what to chase first.",
       "Anansi Atlas changes that. You start by telling us about your mission — who you serve, and what you're building. From there, the platform maps the entire web of opportunity around it.",
       "Your Opportunity Web Snapshot opens with a clear, thirty-day action plan, ranked specifically for your mission.",

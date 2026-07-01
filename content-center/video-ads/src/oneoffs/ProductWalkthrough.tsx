@@ -7,6 +7,7 @@ import {
   CTAButton,
   Eyebrow,
   Headline,
+  LaptopFrame,
   LogoLockup,
   NavyBG,
   OrbWeb,
@@ -21,10 +22,12 @@ import { WALK_SECTIONS } from "../data/walkthroughSections";
 
 export type Props = {
   audioSrc?: string | null;
-  // Optional B-roll cold-open (public/broll/*.mp4). Falls back to a plain brand moment
-  // if not provided — see ELEVENLABS-ASSETS.md for what to generate + exact filenames.
-  broll1Src?: string | null;
-  broll2Src?: string | null;
+  // Optional B-roll (public/broll/*). Everything falls back gracefully if not provided
+  // yet — see ELEVENLABS-ASSETS.md for what to generate + exact filenames.
+  broll1Src?: string | null; // cold-open, first half
+  broll2Src?: string | null; // cold-open, second half
+  problemBrollSrc?: string | null; // Act 1 "the problem" background (hands typing, no screen text)
+  officeEnvSrc?: string | null; // Act 2 laptop-in-office environment shot
 };
 
 const bySectionId = (id: string) => WALK_SECTIONS.find((s) => s.id === id)!;
@@ -40,7 +43,7 @@ const FPS = 30;
 const BROLL_LEAD = 90; // 3s silent cold-open before narration starts
 
 // ── Timing, derived from the ~90s VO's 10 sentences (proportional to word count) ──
-// L1  0.0–9.8s   "Every nonprofit is surrounded by opportunity…"
+// L1  0.0–9.8s   "Every nonprofit is surrounded by opportunities…"
 // L2  9.8–21.1s  "The hard part was never that opportunity didn't exist…"
 // L3  21.1–33.1s "Anansi Atlas changes that…"
 // L4  33.1–39.5s "Your Opportunity Web Snapshot opens with a…30-day action plan…"
@@ -61,7 +64,7 @@ const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ childre
 );
 
 const CAPTIONS: Caption[] = [
-  { text: "Every nonprofit is surrounded by opportunity.", from: L[0], duration: L[1] - L[0] },
+  { text: "Every nonprofit is surrounded by opportunities.", from: L[0], duration: L[1] - L[0] },
   { text: "But it was scattered — tabs, spreadsheets, inboxes.", from: L[1], duration: L[2] - L[1] },
   { text: "Anansi Atlas maps the web of opportunity around your mission.", from: L[2], duration: L[3] - L[2] },
   { text: "Your Snapshot opens with a 30-day action plan, ranked for your mission.", from: L[3], duration: L[4] - L[3] },
@@ -119,7 +122,13 @@ const Section: React.FC<{ id: string; from: number; dur: number }> = ({ id, from
   );
 };
 
-export const ProductWalkthrough: React.FC<Props> = ({ audioSrc, broll1Src, broll2Src }) => {
+export const ProductWalkthrough: React.FC<Props> = ({
+  audioSrc,
+  broll1Src,
+  broll2Src,
+  problemBrollSrc,
+  officeEnvSrc,
+}) => {
   return (
     <NavyBG>
       {audioSrc ? (
@@ -149,32 +158,68 @@ export const ProductWalkthrough: React.FC<Props> = ({ audioSrc, broll1Src, broll
         </Sequence>
       ) : null}
 
-      {/* ACT 1 — THE PROBLEM (L1–L2) */}
+      {/* ACT 1 — THE PROBLEM (L1–L2): mix of B-roll + kinetic text, falls back to the
+          scattered-word field if problemBrollSrc hasn't been generated yet. */}
       <Sequence from={L[0]} durationInFrames={L[1] - L[0]}>
-        <ScatterField />
-        <Center>
-          <Headline delay={10} size={62}>Every nonprofit is surrounded by opportunity.</Headline>
-        </Center>
+        {problemBrollSrc ? (
+          <BRoll src={staticFile(problemBrollSrc)} durationInFrames={L[1] - L[0]} overlay={0.55}>
+            <Center>
+              <Headline delay={10} size={62}>Every nonprofit is surrounded by opportunities.</Headline>
+            </Center>
+          </BRoll>
+        ) : (
+          <>
+            <ScatterField />
+            <Center>
+              <Headline delay={10} size={62}>Every nonprofit is surrounded by opportunities.</Headline>
+            </Center>
+          </>
+        )}
       </Sequence>
       <Sequence from={L[1]} durationInFrames={L[2] - L[1]}>
-        <ScatterField />
-        <Center>
-          <Headline delay={6} size={68} color={BRAND.goldLight}>But it was scattered.</Headline>
-        </Center>
+        {problemBrollSrc ? (
+          <BRoll src={staticFile(problemBrollSrc)} durationInFrames={L[2] - L[1]} overlay={0.55}>
+            <Center>
+              <Headline delay={6} size={68} color={BRAND.goldLight}>But it was scattered.</Headline>
+            </Center>
+          </BRoll>
+        ) : (
+          <>
+            <ScatterField />
+            <Center>
+              <Headline delay={6} size={68} color={BRAND.goldLight}>But it was scattered.</Headline>
+            </Center>
+          </>
+        )}
       </Sequence>
 
-      {/* ACT 2 — THE REVEAL: mission intake (L3) */}
+      {/* ACT 2 — THE REVEAL: mission intake (L3), composited onto a laptop in an office
+          instead of a floating card (falls back to ScreenshotPanel if no env shot yet). */}
       <Sequence from={L[2]} durationInFrames={(L[3] - L[2]) / 2}>
-        <Center gap={20}>
-          <Eyebrow>anansiatlas.com</Eyebrow>
-          <ScreenshotPanel src={staticFile("screenshots/landing.png")} label="anansiatlas.com/anansi-atlas" durationInFrames={(L[3] - L[2]) / 2} width={860} panY={[0, -22]} />
-        </Center>
+        <AbsoluteFill>
+          <LaptopFrame
+            src={staticFile("screenshots/landing.png")}
+            envSrc={officeEnvSrc ? staticFile(officeEnvSrc) : null}
+            durationInFrames={(L[3] - L[2]) / 2}
+            fallbackLabel="anansiatlas.com/anansi-atlas"
+          />
+          <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 60 }}>
+            <Eyebrow>anansiatlas.com</Eyebrow>
+          </AbsoluteFill>
+        </AbsoluteFill>
       </Sequence>
       <Sequence from={L[2] + (L[3] - L[2]) / 2} durationInFrames={(L[3] - L[2]) / 2}>
-        <Center gap={20}>
-          <Eyebrow>Start with your mission</Eyebrow>
-          <ScreenshotPanel src={staticFile("screenshots/organization.png")} label="anansiatlas.com/organization" durationInFrames={(L[3] - L[2]) / 2} width={860} panY={[0, -18]} />
-        </Center>
+        <AbsoluteFill>
+          <LaptopFrame
+            src={staticFile("screenshots/organization.png")}
+            envSrc={officeEnvSrc ? staticFile(officeEnvSrc) : null}
+            durationInFrames={(L[3] - L[2]) / 2}
+            fallbackLabel="anansiatlas.com/organization"
+          />
+          <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 60 }}>
+            <Eyebrow>Start with your mission</Eyebrow>
+          </AbsoluteFill>
+        </AbsoluteFill>
       </Sequence>
 
       {/* ACT 3 — THE WALKTHROUGH (L4–L7), each beat sized to its VO clause */}
