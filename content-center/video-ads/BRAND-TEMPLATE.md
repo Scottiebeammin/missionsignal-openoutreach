@@ -8,6 +8,21 @@
 
 ---
 
+## 0. Production tiers (decided 2026-07-01)
+Not every ad gets the same budget of time. Two tiers, on purpose:
+
+**🌟 FLAGSHIP — pin these, invest deeply.** Custom B-roll, laptop-in-office compositing, cinematic VO, longer runtime. These are the evergreen "hero" assets (website, pinned post, outreach, YouTube) — worth polishing until they're genuinely great.
+- `oneoffs/ProductWalkthrough.tsx` — the full journey, B-roll cold-open + laptop compositing
+- `oneoffs/PremiumShowcase.tsx` — the ~85s brand commercial
+- `oneoffs/FullExplainer.tsx` — the 5-min deep walkthrough
+
+**⚡ LIGHTER PRODUCTIONS — fast, template-only, no custom B-roll.** These are the day-to-day July-calendar posts. Build them straight from `_TEMPLATE.tsx` and the existing component library (`ScreenshotPanel`, `BubbleCard`, `CTAButton`…) — real product screenshots, no bespoke shoots. Quick to produce, still on-brand, no bottleneck waiting on B-roll generation.
+- `ads/PlatformShowcase.tsx`, `ads/PilotSignup.tsx`, and every dated `Jul##-*.tsx` clip
+
+**Rule of thumb:** if it needs a new B-roll clip or laptop compositing, it's flagship-tier — budget the time. If it's built from existing screenshots + components, it's a lighter production — knock it out fast. Revisit this list as budget/time opens up; a lighter production can always graduate to flagship treatment later.
+
+---
+
 ## 1. Brand essence (the one thing every ad must land)
 - **Name / tagline:** Anansi Atlas — *The Web of Opportunity.*
 - **Category:** nonprofit opportunity intelligence platform.
