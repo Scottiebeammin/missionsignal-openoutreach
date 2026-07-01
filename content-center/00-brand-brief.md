@@ -49,8 +49,9 @@ Dark navy + charcoal + **gold accents**. Clean product UI shots, dashboard-style
 
 ## Production standards
 - **Voiceover / narration: use ElevenLabs** for all video VO. Pick one consistent, credible, warm-but-serious voice and reuse it across every video so the brand has a recognizable sound. Match the pacing in each script's timestamps; keep delivery calm and confident (not hype-y announcer). Export narration, then cut picture to it.
-- **House voice (LOCKED): ElevenLabs "Joey Patel"** — the same voice used for the Myths & Midnight channel. Reuse it across all Anansi Atlas videos for a consistent brand sound.
-  - ⚠️ Tone tuning: Myths & Midnight uses Joey Patel for *calm sleep narration*. For Anansi Atlas we want the same voice but a more **awake, credible, confident business read** — raise energy/pace slightly vs. the sleep settings, keep it warm but not drowsy. Tune Stability/Style in ElevenLabs per video and keep those settings consistent once dialed in.
+- **House voice (PROVISIONAL): ElevenLabs "Brian"** — deep, mature, professional American male; trustworthy and warm-but-serious. Distinct from the Myths & Midnight voice (Joey Patel) so the two brands sound separate. Audition + confirm, then mark LOCKED.
+  - **Shortlist to audition:** Brian (rec — credible US narrator) · George (warm British, cinematic — good for the Emotional Brand film) · Adam (deep authoritative US — good for the punchy pilot ad) · Matilda / Charlotte (warm credible female alternates).
+  - Once chosen, reuse ONE voice across all videos. Dial in Stability/Style for an awake, confident business read (not drowsy), and keep those settings consistent. Record final pick here: _Brian (provisional)_.
 
 ## Hard "avoid" list
 generic SaaS language · guaranteed funding promises · exaggerated AI claims · cartoon spider imagery · mystical/gimmicky folklore language · over-explaining Anansi · making it sound like only a grant-search tool · founder-led storytelling as the main angle right now · sounding desperate · sounding like a charity instead of a serious business-support platform.
