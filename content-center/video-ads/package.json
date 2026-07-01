@@ -8,6 +8,7 @@
     "vo": "node scripts/generate-vo.mjs",
     "build": "node scripts/build.mjs",
     "build:scheduled": "node scripts/build-scheduled.mjs",
+    "watch:broll": "node scripts/watch-broll.mjs",
     "render:showcase": "remotion render PlatformShowcase out/platform-showcase.mp4",
     "render:pilot": "remotion render PilotSignup out/pilot-signup.mp4",
     "render:all": "npm run render:showcase && npm run render:pilot",
@@ -19,6 +20,7 @@
     "@remotion/lottie": "^4.0.484",
     "@remotion/media-utils": "^4.0.484",
     "@remotion/transitions": "^4.0.484",
+    "chokidar": "^5.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remotion": "^4.0.0"
