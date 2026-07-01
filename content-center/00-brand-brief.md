@@ -64,7 +64,11 @@ Dark navy + charcoal + **gold accents**. Clean product UI shots, dashboard-style
     8. Jonathan – Sophisticated, Calm Narrator (UK male) — cinematic alt
     9. Felicity – Young and Well-Spoken (British female) — cinematic alt
     10. Allison (US female, brighter/millennial — test, may be too energetic)
-  - Once chosen, reuse ONE voice across all videos; dial Stability/Style for an awake, confident business read; keep settings consistent. **Final pick (record here when locked): _TBD — auditioning shortlist_.**
+  - Dial Stability/Style for an awake, confident business read; keep settings consistent per voice.
+- **✅ VOICES CHOSEN (saved in Scott's ElevenLabs "My Voices"): `Christopher` + `Siren`.** Two-voice setup for now.
+  - **Suggested role split (confirm after a listen):** use the warmer/more conversational of the two as the **Brand / Platform Walkthrough / Emotional Brand** voice; use the more assertive/persuasive one for the **Pilot Signup + Feature ad CTAs** ("act now" reads). Alternate them so content doesn't sound monotonous.
+  - Test both on the two audition lines before committing the split: *"Applications are open for the Founding Atlas Partners Pilot. Nineteen seats remain."* / *"Anansi Atlas maps the web of opportunity around your mission."*
+  - Final per-video assignment (fill in once decided): Walkthrough → _____ · Snapshot Feature → _____ · Pilot Signup → _____ · Problem/Solution → _____ · Emotional Brand → _____.
 
 ## Hard "avoid" list
 generic SaaS language · guaranteed funding promises · exaggerated AI claims · cartoon spider imagery · mystical/gimmicky folklore language · over-explaining Anansi · making it sound like only a grant-search tool · founder-led storytelling as the main angle right now · sounding desperate · sounding like a charity instead of a serious business-support platform.
