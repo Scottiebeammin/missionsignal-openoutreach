@@ -13,6 +13,10 @@ fs.mkdirSync(path.join(ROOT, "out"), { recursive: true });
 
 for (const ad of ADS) {
   if (only.length && !only.includes(ad.id)) continue;
+  if (ad.kind !== "remotion") {
+    console.log(`Skipping ${ad.id} — no Remotion composition (voiceover-only; drop its MP3 into your editor).`);
+    continue;
+  }
   const hasVO = fs.existsSync(path.join(ROOT, "public", ad.audioOut));
   const out = path.join("out", `${ad.id}.mp4`);
   const args = ["remotion", "render", ad.id, out];

@@ -47,6 +47,10 @@ fs.mkdirSync(path.join(ROOT, "public"), { recursive: true });
 
 for (const ad of ADS) {
   if (only.length && !only.includes(ad.id)) continue;
+  if (ad.reuseAudioFrom) {
+    console.log(`… ${ad.id} reuses ${ad.reuseAudioFrom}'s VO — nothing to generate.`);
+    continue;
+  }
   const voiceId = voices.get(ad.voice.trim().toLowerCase());
   if (!voiceId) {
     console.error(`✗ ${ad.id}: voice "${ad.voice}" not found in your ElevenLabs account (check My Voices / spelling).`);
@@ -58,4 +62,5 @@ for (const ad of ADS) {
   await tts(voiceId, text, out);
   console.log(`✓ ${(fs.statSync(out).size / 1024).toFixed(0)} KB`);
 }
-console.log("Done. Re-render with:  node scripts/build.mjs");
+console.log("Done. Full ads (kind: remotion) can now render with:  node scripts/build.mjs");
+console.log("voiceover-only ads: drop the generated MP3 into your editor for that day's talking-head/b-roll clip.");

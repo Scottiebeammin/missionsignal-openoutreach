@@ -53,18 +53,27 @@ npm run build                         # renders both MP4s with VO + subtitles
 > **Security:** the ElevenLabs key is a secret. Keep it in your shell env (or a local `.env` you never commit — `.env` is gitignored). Don't paste it into any tracked file. I can't enter or store the key for you — you set it yourself.
 
 ## Automation — auto-generate on the dates in your calendar
-`ads.config.mjs` carries a `scheduledDate` per ad (pulled from `07-content-calendar-july-2026.md` — Showcase drops **Jul 8**, Pilot **Jul 16**). `scripts/build-scheduled.mjs` builds any ad **due today** (generate VO → render final MP4 stamped with the date into `out/`).
+The July calendar (`../07-content-calendar-july-2026.md`) now has a **"Voice Needed" column** on every dated post — at a glance, whoever's producing that day's content knows exactly which ElevenLabs voice (if any) the clip needs. `ads.config.mjs` is the machine-readable mirror of that column: every entry carries a `scheduledDate`, the `voice`, and either a `script` to generate or a `reuseAudioFrom` pointer (for re-cuts that reuse an earlier day's narration, like the Jul 11 repurpose of the Jul 8 walkthrough).
 
-Test it against a date:
+Two kinds of entries:
+- **`kind: "remotion"`** (PlatformShowcase, PilotSignup) — a full ad composition exists; the scheduler generates the VO **and** renders the final MP4.
+- **`kind: "voiceover-only"`** (Jul 10, 17, 24, 25, 31) — no Remotion composition yet for that day's talking-head/b-roll clip; the scheduler still **auto-generates the narration MP3** (voice auto-pulled by name) so it's ready to drop into whatever tool cuts that day's video. Build a Remotion comp later to fully automate the video too.
+
+`scripts/build-scheduled.mjs` builds/generates whatever's **due today**:
 ```bash
-ADS_DATE=2026-07-08 npm run build:scheduled     # dry-run that day's build
+ADS_DATE=2026-07-08 npm run build:scheduled     # dry-run a specific date
+ADS_DATE=2026-07-10 npm run build:scheduled     # voiceover-only example
+ADS_DATE=2026-07-11 npm run build:scheduled     # reuse example — no API key needed if the source VO already exists
+npm run build:scheduled                          # builds whatever's due TODAY
 ```
-Run it automatically once a day with **cron** (machine must be on, key available):
+Run it automatically once a day with **cron** (machine must be on, key available) — same pattern as the n8n pipeline in `automation/`:
 ```bash
-# crontab -e  — every day at 6am, build anything due that day
+# crontab -e  — every day at 6am, build/generate anything due that day
 0 6 * * * cd /Users/scottiebeammin/Documents/GitHub/missionsignal-openoutreach/content-center/video-ads && ELEVENLABS_API_KEY=sk_... /usr/local/bin/node scripts/build-scheduled.mjs >> out/scheduled.log 2>&1
 ```
-To schedule a **new** ad: add an entry to `ADS` in `ads.config.mjs` with its `voice`, `script`, `audioOut`, and `scheduledDate` — the cron picks it up on that date. (For a fully hands-off server pipeline, this same script can run in any CI/cron with Node + ffmpeg + Chrome.)
+Or import `automation/anansi-ads.n8n.json` into the same n8n instance that runs the Myths & Midnight pipeline — it does the identical schedule→auto-pull-voice→TTS flow (see `automation/README.md`).
+
+To schedule a **new** dated post: add an entry to both the calendar's Voice Needed column *and* `ADS` in `ads.config.mjs` (`voice`, `script` or `reuseAudioFrom`, `audioOut`, `scheduledDate`, `kind`) — the scheduler picks it up on that date. (For a fully hands-off server pipeline, this same script can run in any CI/cron with Node + ffmpeg + Chrome.)
 
 **Timing note:** both timelines are 30s (900 frames @ 30fps). If your VO runs longer/shorter, either trim the read or adjust `durationInFrames` in `src/Root.tsx` and the `<Sequence>` offsets in the ad file. Check your VO length: `ffprobe -i public/showcase-vo.mp3 -show_entries format=duration -v quiet -of csv="p=0"`.
 

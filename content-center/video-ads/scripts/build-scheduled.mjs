@@ -15,21 +15,40 @@ const today = process.env.ADS_DATE || new Date().toISOString().slice(0, 10);
 
 const due = ADS.filter((a) => a.scheduledDate === today);
 if (due.length === 0) {
-  console.log(`[${today}] No ads scheduled. Nothing to build.`);
+  console.log(`[${today}] Nothing on the calendar for today. Nothing to build.`);
   process.exit(0);
 }
 
-if (!process.env.ELEVENLABS_API_KEY) {
-  console.error(`[${today}] ${due.length} ad(s) due but ELEVENLABS_API_KEY is not set — cannot generate VO.`);
+const needsGeneration = due.some((a) => !a.reuseAudioFrom);
+if (needsGeneration && !process.env.ELEVENLABS_API_KEY) {
+  console.error(`[${today}] ${due.length} item(s) due but ELEVENLABS_API_KEY is not set — cannot generate VO.`);
   process.exit(1);
 }
 
 fs.mkdirSync(path.join(ROOT, "out"), { recursive: true });
 
 for (const ad of due) {
+  if (ad.reuseAudioFrom) {
+    // Re-cut of an earlier date's VO — nothing new to generate; just confirm the source exists.
+    const src = ADS.find((a) => a.id === ad.reuseAudioFrom);
+    const srcPath = path.join(ROOT, "public", src?.audioOut || "");
+    if (src && fs.existsSync(srcPath)) {
+      console.log(`[${today}] ${ad.id} reuses ${ad.reuseAudioFrom}'s VO (${src.audioOut}) — ready to re-cut in your editor.`);
+    } else {
+      console.warn(`[${today}] ${ad.id} wants to reuse ${ad.reuseAudioFrom}'s VO, but ${src?.audioOut} doesn't exist yet — generate that ad first.`);
+    }
+    continue;
+  }
+
   console.log(`[${today}] Building ${ad.id} (voice: ${ad.voice})`);
   // 1) auto-pull voice + generate VO
   execFileSync("node", ["scripts/generate-vo.mjs", ad.id], { cwd: ROOT, stdio: "inherit" });
+
+  if (ad.kind !== "remotion") {
+    console.log(`[${today}] ✓ VO ready at public/${ad.audioOut} — no Remotion composition for this post yet; drop it into your editor for that day's clip.`);
+    continue;
+  }
+
   // 2) render final MP4 with VO + subtitles, stamped with the date
   const out = path.join("out", `${today}-${ad.id}.mp4`);
   execFileSync("npx", ["remotion", "render", ad.id, out, `--props=${JSON.stringify({ audioSrc: ad.audioOut })}`], {
@@ -38,4 +57,4 @@ for (const ad of due) {
   });
   console.log(`[${today}] ✓ ${out}`);
 }
-console.log(`[${today}] Done — ${due.length} ad(s) built.`);
+console.log(`[${today}] Done — ${due.length} item(s) processed.`);

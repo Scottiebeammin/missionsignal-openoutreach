@@ -8,8 +8,10 @@ Daily 6am  →  Due ads today  →  List ElevenLabs Voices  →  Pick voice id  
 (schedule)   (filter by date)   (auto-pull by name)        (name → id)       (audio)            (public/)     (out/<id>.mp4)
 ```
 - **Auto-pulls the voice by name** — same ElevenLabs account/credential you use for Joey Patel on Myths; here it resolves Christopher / Jackson / Siren / Giselle.
-- **Date-driven** — each ad has a `scheduledDate` (from the July calendar: Showcase **Jul 8**, Pilot **Jul 16**). Only ads due *today* build.
+- **Date-driven** — each ad has a `scheduledDate` (from the July calendar's **Voice Needed** column: Showcase **Jul 8**, Pilot **Jul 18**). Only ads due *today* build.
 - The first six nodes are identical in spirit to the Myths pipeline; the last node adds the video assembly Myths hasn't built yet.
+
+**Scope note:** this n8n workflow currently automates the **two full Remotion ads** (PlatformShowcase, PilotSignup). The July calendar has 8 more dated posts that need a voice pulled but have no Remotion composition yet (Jul 3/4/10/11/17/24/25/31 — see the calendar's Voice Needed column). Those are already covered by the **Node scheduler** (`scripts/build-scheduled.mjs` in the parent folder, run via cron or by hand) — it auto-generates just the narration MP3 for those days, ready to drop into whatever tool cuts that day's talking-head/b-roll clip. Extend this n8n workflow's `ADS` array the same way once you want those on the n8n side too.
 
 ## One-time setup
 1. **Import:** n8n → Workflows → Import from File → `anansi-ads.n8n.json`.
@@ -26,4 +28,4 @@ Daily 6am  →  Due ads today  →  List ElevenLabs Voices  →  Pick voice id  
 Edit the `ADS` array in the **Due ads today** node (and keep `ads.config.mjs` in sync for the host-side scripts): add `{ id, voice, audioOut, scheduledDate, text }`. The workflow picks it up on that date.
 
 ## Relationship to the host scripts
-This n8n workflow and the Node scripts (`scripts/generate-vo.mjs`, `scripts/build-scheduled.mjs`) do the same job two ways — use whichever fits: **n8n** for the always-on scheduled pipeline (like Myths), the **Node scripts** for manual/local runs. Both auto-pull the voice by name and read the same ad definitions.
+This n8n workflow and the Node scripts (`scripts/generate-vo.mjs`, `scripts/build-scheduled.mjs`) do the same job two ways — use whichever fits: **n8n** for the always-on scheduled pipeline (like Myths), the **Node scripts** for manual/local runs. Both auto-pull the voice by name; the Node side reads `ads.config.mjs` (the full month, including voiceover-only posts), while this n8n workflow currently mirrors just the two full-video entries from it.

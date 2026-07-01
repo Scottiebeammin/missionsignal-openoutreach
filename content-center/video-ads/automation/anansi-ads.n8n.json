@@ -1,29 +1,42 @@
 {
   "name": "Anansi Atlas — Scheduled Ad Builder",
   "meta": {
-    "description": "Mirrors the Myths & Midnight n8n pipeline (Schedule -> ElevenLabs -> MP3), extended to render the Remotion ad. Auto-pulls the voice by name; builds any ad whose scheduledDate == today.",
+    "description": "Mirrors the Myths & Midnight n8n pipeline (Schedule -> ElevenLabs -> MP3). Auto-pulls the voice by name for every dated post in the July calendar (Voice Needed column) -- full ads render via Remotion, voiceover-only posts just get their narration MP3 generated for manual editing.",
     "notes": "Set env ANANSI_ADS_DIR to the video-ads folder path (mounted into the n8n container). Create an n8n 'Header Auth' credential named 'ElevenLabs API' with header name 'xi-api-key' and your key as the value."
   },
   "nodes": [
     {
       "parameters": {
-        "rule": { "interval": [ { "field": "days", "triggerAtHour": 6 } ] }
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 6
+            }
+          ]
+        }
       },
       "id": "sched",
       "name": "Daily 6am",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
-      "position": [ -120, 300 ]
+      "position": [
+        -120,
+        300
+      ]
     },
     {
       "parameters": {
-        "jsCode": "// Ads and their scheduled dates — keep in sync with ads.config.mjs / the July calendar.\nconst ADS = [\n  { id: 'PlatformShowcase', voice: 'Christopher', audioOut: 'showcase-vo.mp3', scheduledDate: '2026-07-08',\n    text: \"Your next opportunity is already out there. It's just scattered — across funder portals, emails, spreadsheets, and relationships. Anansi Atlas maps the web of opportunity around your mission: funders, partners, government pathways, resources, and readiness. Your Opportunity Web Snapshot shows your strongest asset, your biggest gap, and the single highest-leverage move to make next. Anansi Atlas. Apply for a founding seat at anansi atlas dot com, slash anansi atlas.\" },\n  { id: 'PilotSignup', voice: 'Jackson', audioOut: 'pilot-vo.mp3', scheduledDate: '2026-07-16',\n    text: \"Applications are open for the Founding Atlas Partners Pilot. We're selecting nineteen nonprofit and mission-driven organizations. Each partner receives a guided Opportunity Web Snapshot, a forty-five minute walkthrough, and the living platform. A hundred and fifty dollars a month, locked for life, for the first twenty organizations. Nineteen seats remain. Apply now at anansi atlas dot com, slash anansi atlas.\" }\n];\nconst today = ($env.ADS_DATE_OVERRIDE || new Date().toISOString().slice(0,10));\nconst due = ADS.filter(a => a.scheduledDate === today);\nreturn due.map(a => ({ json: { ...a, today } }));"
+        "jsCode": "// Ads and their scheduled dates — keep in sync with ads.config.mjs / the July calendar.\nconst ADS = [\n  { id: 'PlatformShowcase', voice: 'Christopher', audioOut: 'showcase-vo.mp3', scheduledDate: '2026-07-08',\n    text: \"Your next opportunity is already out there. It's just scattered — across funder portals, emails, spreadsheets, and relationships. Anansi Atlas maps the web of opportunity around your mission: funders, partners, government pathways, resources, and readiness. Your Opportunity Web Snapshot shows your strongest asset, your biggest gap, and the single highest-leverage move to make next. Anansi Atlas. Apply for a founding seat at anansi atlas dot com, slash anansi atlas.\" },\n  { id: 'PilotSignup', voice: 'Jackson', audioOut: 'pilot-vo.mp3', scheduledDate: '2026-07-18',\n    text: \"Applications are open for the Founding Atlas Partners Pilot. We're selecting nineteen nonprofit and mission-driven organizations. Each partner receives a guided Opportunity Web Snapshot, a forty-five minute walkthrough, and the living platform. A hundred and fifty dollars a month, locked for life, for the first twenty organizations. Nineteen seats remain. Apply now at anansi atlas dot com, slash anansi atlas.\" }\n];\nconst today = ($env.ADS_DATE_OVERRIDE || new Date().toISOString().slice(0,10));\nconst due = ADS.filter(a => a.scheduledDate === today);\nreturn due.map(a => ({ json: { ...a, today } }));"
       },
       "id": "due",
       "name": "Due ads today",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [ 120, 300 ]
+      "position": [
+        120,
+        300
+      ]
     },
     {
       "parameters": {
@@ -36,8 +49,16 @@
       "name": "List ElevenLabs Voices",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [ 360, 300 ],
-      "credentials": { "httpHeaderAuth": { "id": "REPLACE_WITH_CREDENTIAL_ID", "name": "ElevenLabs API" } }
+      "position": [
+        360,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "ElevenLabs API"
+        }
+      }
     },
     {
       "parameters": {
@@ -47,7 +68,10 @@
       "name": "Pick voice id",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [ 600, 300 ]
+      "position": [
+        600,
+        300
+      ]
     },
     {
       "parameters": {
@@ -58,14 +82,29 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"text\": {{ JSON.stringify($json.text) }},\n  \"model_id\": \"eleven_multilingual_v2\",\n  \"voice_settings\": { \"stability\": 0.5, \"similarity_boost\": 0.75, \"style\": 0.3, \"use_speaker_boost\": true }\n}",
-        "options": { "response": { "response": { "responseFormat": "file", "outputPropertyName": "data" } } }
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
       },
       "id": "tts",
       "name": "ElevenLabs TTS",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [ 840, 300 ],
-      "credentials": { "httpHeaderAuth": { "id": "REPLACE_WITH_CREDENTIAL_ID", "name": "ElevenLabs API" } }
+      "position": [
+        840,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "ElevenLabs API"
+        }
+      }
     },
     {
       "parameters": {
@@ -78,7 +117,10 @@
       "name": "Save MP3",
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
-      "position": [ 1080, 300 ]
+      "position": [
+        1080,
+        300
+      ]
     },
     {
       "parameters": {
@@ -88,17 +130,82 @@
       "name": "Render MP4 (Remotion)",
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
-      "position": [ 1320, 300 ]
+      "position": [
+        1320,
+        300
+      ]
     }
   ],
   "connections": {
-    "Daily 6am": { "main": [ [ { "node": "Due ads today", "type": "main", "index": 0 } ] ] },
-    "Due ads today": { "main": [ [ { "node": "List ElevenLabs Voices", "type": "main", "index": 0 } ] ] },
-    "List ElevenLabs Voices": { "main": [ [ { "node": "Pick voice id", "type": "main", "index": 0 } ] ] },
-    "Pick voice id": { "main": [ [ { "node": "ElevenLabs TTS", "type": "main", "index": 0 } ] ] },
-    "ElevenLabs TTS": { "main": [ [ { "node": "Save MP3", "type": "main", "index": 0 } ] ] },
-    "Save MP3": { "main": [ [ { "node": "Render MP4 (Remotion)", "type": "main", "index": 0 } ] ] }
+    "Daily 6am": {
+      "main": [
+        [
+          {
+            "node": "Due ads today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Due ads today": {
+      "main": [
+        [
+          {
+            "node": "List ElevenLabs Voices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List ElevenLabs Voices": {
+      "main": [
+        [
+          {
+            "node": "Pick voice id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick voice id": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs TTS": {
+      "main": [
+        [
+          {
+            "node": "Save MP3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save MP3": {
+      "main": [
+        [
+          {
+            "node": "Render MP4 (Remotion)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
   "active": false,
-  "settings": { "executionOrder": "v1" }
+  "settings": {
+    "executionOrder": "v1"
+  }
 }
