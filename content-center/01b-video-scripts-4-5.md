@@ -5,7 +5,8 @@
 
 > Built from `00-brand-brief.md`. Product-forward, LinkedIn-first. Dark navy + charcoal + gold. Fraunces serif headings, Inter/DM Sans body. Snapshot is **included in the $150/mo pilot** — never advertised as free. No cartoon spider, no mystical folklore, not charity-toned.
 >
-> **🎙️ Narration: ElevenLabs.** Generate every voiceover (Section E scripts) with the single locked "Anansi Atlas house voice" (see brand brief → Production standards). Warm, credible, calm-confident delivery; follow each script's timestamps for pacing; export the VO first, then cut picture to it.
+> **🎙️ Narration: ElevenLabs (4-voice roster: Christopher · Siren · Jackson · Giselle).** Generate each Section E script with its assigned voice below. Warm, credible, calm-confident delivery; follow each script's timestamps for pacing; export the VO first, then cut picture to it.
+> **Voice assignments in this file:** Video 4 Problem/Solution Ad → **Giselle** · Video 5 Emotional Brand film → **Christopher** (anchors the brand alongside the Platform Walkthrough).
 >
 > Realistic example org used throughout: **Bright Harbor Youth Collective** — a mid-size youth-workforce nonprofit.
 

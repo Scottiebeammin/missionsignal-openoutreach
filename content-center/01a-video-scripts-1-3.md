@@ -5,7 +5,8 @@
 
 > Production-ready packages built from `00-brand-brief.md`. Product-forward, LinkedIn-first, cinematic. Navy + charcoal + gold; Fraunces headings, Inter/DM Sans body. The Opportunity Web Snapshot is **included** in the $150/mo Founding pilot — never advertised as free.
 >
-> **🎙️ Narration: ElevenLabs.** Generate every voiceover (Section E scripts) with the single locked "Anansi Atlas house voice" (see brand brief → Production standards). Warm, credible, calm-confident delivery; follow each script's timestamps for pacing; export the VO first, then cut picture to it.
+> **🎙️ Narration: ElevenLabs (4-voice roster: Christopher · Siren · Jackson · Giselle).** Generate each Section E script with its assigned voice below. Warm, credible, calm-confident delivery; follow each script's timestamps for pacing; export the VO first, then cut picture to it.
+> **Voice assignments in this file:** Video 1 Platform Walkthrough → **Christopher** · Video 2 Snapshot Feature Ad → **Siren** · Video 3 Pilot Signup Ad → **Jackson**.
 
 **Example org used throughout:** *Riverside Youth Arts Collective* — a community youth-arts nonprofit (after-school studios, teen mentorship, mural programs) in a mid-size city. Credible, relatable, mission-driven.
 
