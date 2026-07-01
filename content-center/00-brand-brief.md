@@ -65,9 +65,9 @@ Dark navy + charcoal + **gold accents**. Clean product UI shots, dashboard-style
     9. Felicity – Young and Well-Spoken (British female) — cinematic alt
     10. Allison (US female, brighter/millennial — test, may be too energetic)
   - Dial Stability/Style for an awake, confident business read; keep settings consistent per voice.
-- **✅ VOICES CHOSEN (saved in Scott's ElevenLabs "My Voices"): `Christopher` + `Siren`.** Two-voice setup for now.
-  - **Suggested role split (confirm after a listen):** use the warmer/more conversational of the two as the **Brand / Platform Walkthrough / Emotional Brand** voice; use the more assertive/persuasive one for the **Pilot Signup + Feature ad CTAs** ("act now" reads). Alternate them so content doesn't sound monotonous.
-  - Test both on the two audition lines before committing the split: *"Applications are open for the Founding Atlas Partners Pilot. Nineteen seats remain."* / *"Anansi Atlas maps the web of opportunity around your mission."*
+- **✅ VOICE ROSTER (saved in Scott's ElevenLabs "My Voices"): `Christopher` · `Siren` · `Jackson` · `Giselle`.** Four-voice set — gives range across the 5 videos + social clips without sounding monotone.
+  - **Suggested use (confirm after a listen):** designate a **primary brand voice** (the warmest/most credible of the four) used on the Platform Walkthrough + Emotional Brand film for consistency; use a **second, more assertive voice** for the Pilot Signup + Feature-ad CTAs; keep the remaining two as **variety/alternates** for social clips (TikTok/Reels/carousels-with-VO) and A/B testing. Don't scatter all four randomly — anchor the two hero videos to one voice.
+  - Test on the two audition lines before assigning: *"Applications are open for the Founding Atlas Partners Pilot. Nineteen seats remain."* / *"Anansi Atlas maps the web of opportunity around your mission."*
   - Final per-video assignment (fill in once decided): Walkthrough → _____ · Snapshot Feature → _____ · Pilot Signup → _____ · Problem/Solution → _____ · Emotional Brand → _____.
 
 ## Hard "avoid" list
