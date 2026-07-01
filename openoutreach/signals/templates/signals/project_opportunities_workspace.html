@@ -97,7 +97,7 @@
               {% elif o.relevance >= 2 %}<span class="score-badge" style="background:#1f7a8c;color:#fff;">Good match</span>
               {% elif o.relevance >= 1 %}<span class="score-badge">Possible match</span>{% endif %}
               <span class="pill status-{{ o.status }}">{{ o.get_status_display }}</span>
-              {% if o.deadline %}<span class="score-badge">Due {{ o.deadline }}</span>{% endif %}
+              {% if o.deadline %}<span class="score-badge score-low">Due {{ o.deadline }}</span>{% endif %}
             </p>
             <p class="muted">{{ o.source_name|default:"Source not listed" }}</p>
             <div class="opp-actions">
@@ -128,7 +128,7 @@
                 <p>
                   <span class="pill status-{{ o.status }}">{{ o.get_status_display }}</span>
                   <span class="pill priority-{{ o.priority_level }}">{{ o.get_priority_level_display }}</span>
-                  {% if o.deadline %}<span class="score-badge">Due {{ o.deadline }}</span>{% endif %}
+                  {% if o.deadline %}<span class="score-badge score-low">Due {{ o.deadline }}</span>{% endif %}
                 </p>
                 <p class="muted">{{ o.source_name|default:"Source not listed" }}</p>
                 {% if o.source_urls %}<p><a href="{{ o.source_urls.0 }}" target="_blank" rel="noopener">View opportunity →</a></p>{% endif %}
