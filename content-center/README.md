@@ -24,6 +24,7 @@ An **automated content creation center** for Anansi Atlas: a repeatable engine t
 | [07-content-calendar-july-2026.md](07-content-calendar-july-2026.md) | **Dated** July 2026 calendar (Jul 1–31) — every post written; Platform Walkthrough drops Jul 8; pilot CTAs escalate to a Jul 30–31 last call. |
 | [08-creative-ad-concepts.md](08-creative-ad-concepts.md) | 12 bold creative ad concepts (pattern-interrupt, visual metaphor, product-in-motion, kinetic type, silent/captions, scarcity, carousel…) each with script, visuals, VO voice, AI prompt, cost tier + a "shoot first 3" pick. |
 | [09-paid-ad-variations.md](09-paid-ad-variations.md) | Paid pack: LinkedIn + Meta targeting, 8 LinkedIn ads + 3 carousels + 6 Meta ads, an 8-test A/B matrix, budget guidance, UTM convention, compliance sign-off. |
+| [video-ads/](video-ads/) | **Renderable** Remotion project — two 30s square LinkedIn ad commercials (PlatformShowcase + PilotSignup) that export to real MP4s. `npm install` → `npm run render:all`. Add ElevenLabs VO per the README. |
 
 ## How to use it
 1. Start with **02** (launch sequence) — it tells you exactly what to post in the next 7 days.
