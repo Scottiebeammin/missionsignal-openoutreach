@@ -3,6 +3,7 @@ import {
   AbsoluteFill,
   Img,
   interpolate,
+  OffthreadVideo,
   spring,
   useCurrentFrame,
   useVideoConfig,
@@ -599,4 +600,35 @@ export const SceneDissolve: React.FC<{ boundaries: number[]; fade?: number; peak
   }
   if (op <= 0) return null;
   return <AbsoluteFill style={{ background: BRAND.navy, opacity: op, pointerEvents: "none" }} />;
+};
+
+/**
+ * B-roll — a generated video clip (ElevenLabs Veo / any MP4 in public/broll/) played full-frame
+ * with a navy→gold brand overlay so it matches the look and any text on top stays readable.
+ * Muted by default (our VO is the audio). Use for cinematic cold-opens / cutaways that
+ * screen-recordings can't provide (e.g. a nonprofit leader at a laptop).
+ */
+export const BRoll: React.FC<{
+  src: string;
+  overlay?: number;
+  children?: React.ReactNode;
+  fade?: number;
+  durationInFrames?: number;
+}> = ({ src, overlay = 0.45, children, fade = 12, durationInFrames }) => {
+  const frame = useCurrentFrame();
+  const opIn = interpolate(frame, [0, fade], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const opOut = durationInFrames
+    ? interpolate(frame, [durationInFrames - fade, durationInFrames], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    : 1;
+  return (
+    <AbsoluteFill style={{ opacity: Math.min(opIn, opOut) }}>
+      <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <AbsoluteFill
+        style={{
+          background: `linear-gradient(180deg, rgba(13,27,61,${overlay * 0.55}) 0%, rgba(13,27,61,${overlay}) 60%, rgba(13,27,61,${Math.min(1, overlay + 0.3)}) 100%)`,
+        }}
+      />
+      {children}
+    </AbsoluteFill>
+  );
 };

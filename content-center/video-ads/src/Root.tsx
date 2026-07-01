@@ -111,7 +111,9 @@ export const RemotionRoot: React.FC = () => {
         fps={FPS}
         width={SIZE}
         height={SIZE}
-        defaultProps={{ audioSrc: null as string | null }}
+        // VO wired so Remotion Studio plays it WITH SOUND (localhost:3000).
+        // (Requires public/product-walkthrough-vo.mp3 — generated via `npm run vo ProductWalkthrough`.)
+        defaultProps={{ audioSrc: "product-walkthrough-vo.mp3" as string | null }}
       />
     </>
   );

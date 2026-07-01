@@ -4,3 +4,7 @@ out/
 *.log
 .env
 public/*.mp3
+public/broll/*
+!public/broll/.gitkeep
+public/music/*
+!public/music/.gitkeep
