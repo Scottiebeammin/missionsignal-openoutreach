@@ -14,7 +14,11 @@ export const SERIF = serif;
 export const SANS = sans;
 
 /** Deep navy background with a subtle radial glow + faint web threads (tasteful, not spidery). */
-export const NavyBG: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+export const NavyBG: React.FC<{ children?: React.ReactNode; w?: number; h?: number }> = ({
+  children,
+  w = SIZE,
+  h = SIZE,
+}) => {
   return (
     <AbsoluteFill
       style={{
@@ -22,19 +26,19 @@ export const NavyBG: React.FC<{ children?: React.ReactNode }> = ({ children }) =
         fontFamily: SANS,
       }}
     >
-      <WebThreads />
+      <WebThreads w={w} h={h} />
       {children}
     </AbsoluteFill>
   );
 };
 
 /** Faint gold radial threads — abstract network motif, NEVER a literal spider. */
-const WebThreads: React.FC = () => {
-  const cx = SIZE / 2;
-  const cy = SIZE / 2;
+const WebThreads: React.FC<{ w: number; h: number }> = ({ w, h }) => {
+  const cx = w / 2;
+  const cy = h / 2;
   return (
     <AbsoluteFill style={{ opacity: 0.1 }}>
-      <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
         {Array.from({ length: 16 }).map((_, i) => {
           const a = (i / 16) * Math.PI * 2;
           return (

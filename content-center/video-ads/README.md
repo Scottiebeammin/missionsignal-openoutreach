@@ -1,15 +1,21 @@
 # Anansi Atlas — LinkedIn Ad Commercials (Remotion)
 
-*Created: 2026-07-01 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+*Created: 2026-07-01 · Updated: 2026-07-01 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
 
-Two production-ready **30-second, 1:1 square** ad commercials built as code with [Remotion](https://remotion.dev) — they render to real MP4s for LinkedIn. Add-on; touches no app code.
+Seven production-ready ad commercials built as code with [Remotion](https://remotion.dev) — they render to real MP4s. Add-on; touches no app code. Every one matches its date's **Voice Needed** entry in `07-content-calendar-july-2026.md`.
 
-| Composition | Purpose | Assigned VO voice |
-|---|---|---|
-| **PlatformShowcase** | "Who we are / what we do" product showcase → apply for the pilot | **Christopher** |
-| **PilotSignup** | Drive Founding Atlas Partners Pilot applications (scarcity: 19 seats) | **Jackson** |
+| Composition | Date | Format | Purpose | Voice |
+|---|---|---|---|---|
+| **PlatformShowcase** | Jul 8 | 30s square | Hero "who we are / what we do" showcase → apply | **Christopher** |
+| **PilotSignup** | Jul 18 | 30s square | Founding Pilot scarcity push (19 seats) | **Jackson** |
+| **Jul10-SnapshotClip** | Jul 10 | 12s square | Snapshot b-roll insert — "information vs. direction" | **Siren** |
+| **Jul11-Repurpose** | Jul 11 | — | Re-cut of the Jul 8 walkthrough — reuses its VO, no new comp | Christopher (reused) |
+| **Jul17-EndorsementOutro** | Jul 17 | 8s square | Founder-endorsement video outro card | **Jackson** |
+| **Jul24-ListVsMap** | Jul 24 | 15s square | Split-screen "list vs. map" | **Siren** |
+| **Jul25-SnapshotScroll** | Jul 25 | 15s **vertical 9:16** | IG/TikTok Snapshot scroll-through | **Giselle** |
+| **Jul31-ClosingOutro** | Jul 31 | 8s square | Founder-close video outro card | **Jackson** |
 
-Both are navy/charcoal/gold, Fraunces + Inter, and recreate the real product UI (orb-web hero, Snapshot bubble cards, "What To Do Next"). Snapshot is shown as **included in the paid pilot** — never "free."
+All navy/charcoal/gold, Fraunces + Inter, recreating the real product UI (orb-web hero, teal/gold Snapshot bubble cards, "What To Do Next"). Snapshot is always shown as **included in the paid pilot** — never "free." Every ad has baked-in bottom subtitles (see below).
 
 ## Prerequisites (already on this machine)
 Node, npm, ffmpeg, and Chrome are installed. First time only:
@@ -25,9 +31,10 @@ npm start          # opens Remotion Studio in the browser — scrub, tweak, prev
 
 ## Render to MP4
 ```bash
-npm run render:showcase   # -> out/platform-showcase.mp4
-npm run render:pilot      # -> out/pilot-signup.mp4
-npm run render:all
+npm run render:showcase          # -> out/platform-showcase.mp4
+npm run render:pilot             # -> out/pilot-signup.mp4
+npm run build                    # renders every "kind: remotion" ad in ads.config.mjs, wiring in VO if present
+node scripts/build.mjs Jul24-ListVsMap   # render just one by id
 ```
 Renders are silent by default (no VO). See below to add narration.
 
@@ -93,14 +100,39 @@ To schedule a **new** dated post: add an entry to both the calendar's Voice Need
 > A hundred and fifty dollars a month, locked for life, for the first twenty organizations.
 > Nineteen seats remain. Apply now at anansi atlas dot com, slash anansi atlas.
 
-## LinkedIn upload specs
+### Jul10-SnapshotClip — voice: Siren (~12s)
+> The Opportunity Web Snapshot leads with a summary and a 30-day action plan — not a search result.
+> That's the difference between information and direction.
+
+### Jul17-EndorsementOutro — voice: Jackson (~8s)
+> Founding Partners lock in one hundred and fifty dollars a month, for life.
+> Apply at anansi atlas dot com, slash anansi atlas.
+
+### Jul24-ListVsMap — voice: Siren (~15s)
+> One page. One clear move.
+> Funders, partners, and government pathways — mapped around your mission, with readiness scored and a single top move to make next.
+
+### Jul25-SnapshotScroll — voice: Giselle (~15s)
+> Your Snapshot doesn't bury the point. It opens with a 30-day action plan, ranked for your mission.
+> Teal marks strength. Gold marks a gap. One page. One clear move.
+> Included in the founding pilot.
+
+### Jul31-ClosingOutro — voice: Jackson (~8s)
+> The Founding Atlas Partners pilot is nearly full.
+> One hundred and fifty dollars a month, locked for life. Apply or message me today.
+
+All scripts also live as data in `ads.config.mjs` — that's the source of truth; this section is for quick copy/paste into ElevenLabs.
+
+## LinkedIn / Instagram / TikTok upload specs
 - Format: MP4 (H.264) — what these render as. ✅
-- Aspect: 1:1 (1080×1080) — renders here; strong in the LinkedIn feed. ✅
-- Length: 30s (LinkedIn allows up to 10 min; 15–30s is ideal for feed ads). ✅
-- **Captions:** LinkedIn autoplays muted — most viewers won't hear the VO. Consider baking on-screen captions (the ads already carry key on-screen text; for full spoken-word captions, add a caption track in `src/` or upload an .srt on LinkedIn).
+- Aspect: 1:1 square for LinkedIn feed ads; **Jul25-SnapshotScroll renders 9:16 vertical** (1080×1920) for Instagram Reels / TikTok. ✅
+- Length: 8–30s depending on placement (LinkedIn allows up to 10 min; 8–30s fits feed/Reels/TikTok). ✅
+- **Captions:** baked in on every ad (see Subtitles below) — LinkedIn/IG/TikTok all autoplay muted, so this matters everywhere.
 
 ## Files
-- `src/brand.ts` — brand tokens (kept in sync with `00-brand-brief.md`)
-- `src/components.tsx` — shared brand components (NavyBG, OrbWeb, BubbleCard, CTA…)
-- `src/ads/PlatformShowcase.tsx` · `src/ads/PilotSignup.tsx` — the two ads
-- `src/Root.tsx` — composition registry
+- `src/brand.ts` — brand tokens + square/vertical dimensions (kept in sync with `00-brand-brief.md`)
+- `src/components.tsx` — shared brand components (NavyBG, OrbWeb, BubbleCard, CTA, Subtitles…)
+- `src/ads/*.tsx` — the seven ad compositions
+- `src/Root.tsx` — composition registry (ids, durations, square vs. vertical dimensions)
+- `ads.config.mjs` — single source of truth: voice, script, audio file, and scheduled date per ad
+- `scripts/generate-vo.mjs` · `scripts/build.mjs` · `scripts/build-scheduled.mjs` — VO generation, rendering, and date-driven automation

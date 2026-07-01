@@ -16,6 +16,8 @@ export const BRAND = {
 
 export const FPS = 30;
 export const SIZE = 1080; // square 1:1 — best for LinkedIn feed
+export const VERT_W = 1080; // 9:16 vertical — Instagram Reels / TikTok
+export const VERT_H = 1920;
 
 export const SIGNUP_URL = "anansiatlas.com/anansi-atlas";
 

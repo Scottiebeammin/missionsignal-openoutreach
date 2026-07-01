@@ -44,7 +44,7 @@ export const ADS = [
   },
   {
     id: "Jul10-SnapshotClip",
-    kind: "voiceover-only",
+    kind: "remotion",
     voice: "Siren",
     audioOut: "jul10-siren.mp3",
     scheduledDate: "2026-07-10", // optional screen b-roll under the Fri Jul 10 talking-head short
@@ -61,7 +61,7 @@ export const ADS = [
   },
   {
     id: "Jul17-EndorsementOutro",
-    kind: "voiceover-only",
+    kind: "remotion",
     voice: "Jackson",
     audioOut: "jul17-jackson.mp3",
     scheduledDate: "2026-07-17", // optional outro line on the founder endorsement video's closing card
@@ -72,7 +72,7 @@ export const ADS = [
   },
   {
     id: "Jul24-ListVsMap",
-    kind: "voiceover-only",
+    kind: "remotion",
     voice: "Siren",
     audioOut: "jul24-siren.mp3",
     scheduledDate: "2026-07-24", // screen segment for the "list vs. map" split-screen short
@@ -83,7 +83,7 @@ export const ADS = [
   },
   {
     id: "Jul25-SnapshotScroll",
-    kind: "voiceover-only",
+    kind: "remotion",
     voice: "Giselle",
     audioOut: "jul25-giselle.mp3",
     scheduledDate: "2026-07-25", // full VO for the Snapshot scroll-through repurpose
@@ -95,7 +95,7 @@ export const ADS = [
   },
   {
     id: "Jul31-ClosingOutro",
-    kind: "voiceover-only",
+    kind: "remotion",
     voice: "Jackson",
     audioOut: "jul31-jackson.mp3",
     scheduledDate: "2026-07-31", // optional outro line on the founder closing video's card
