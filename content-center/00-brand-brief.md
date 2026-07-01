@@ -70,5 +70,10 @@ Dark navy + charcoal + **gold accents**. Clean product UI shots, dashboard-style
   - Test on the two audition lines before assigning: *"Applications are open for the Founding Atlas Partners Pilot. Nineteen seats remain."* / *"Anansi Atlas maps the web of opportunity around your mission."*
   - **Per-video assignment (provisional — swap freely after auditioning):** Walkthrough → **Christopher** · Snapshot Feature → **Siren** · Pilot Signup → **Jackson** · Problem/Solution → **Giselle** · Emotional Brand → **Christopher** (Christopher anchors both hero videos for brand consistency; Jackson carries the assertive pilot CTA; Siren + Giselle add variety on the feature/problem ads and social clips).
 
+## The Anansi lore (updated stance — lean in tastefully, no cartoon)
+We DO lean lightly into the Anansi story as a brand metaphor — Anansi the **weaver / keeper of stories / connector**, and the **"web of opportunity"** motif. It's a genuine part of the brand (the landing page uses it) and it's evocative. What we AVOID is the **cartoon/gimmicky** version:
+- ✅ OK: elegant abstract web/network/pathway motifs; the weaver-of-connections framing; one tasteful line of origin story; gold "threads" connecting nodes.
+- ❌ NOT OK: cartoon spider characters/mascots, literal creepy spider imagery, heavy mystical/"mythical powers" language, over-explaining the folklore, or letting the myth overshadow the product. The metaphor supports the product; it never replaces it.
+
 ## Hard "avoid" list
-generic SaaS language · guaranteed funding promises · exaggerated AI claims · cartoon spider imagery · mystical/gimmicky folklore language · over-explaining Anansi · making it sound like only a grant-search tool · founder-led storytelling as the main angle right now · sounding desperate · sounding like a charity instead of a serious business-support platform.
+generic SaaS language · guaranteed funding promises · exaggerated AI claims · **cartoon spider mascots / literal creepy-spider imagery** (the tasteful weaver/web metaphor is fine — see lore stance above) · gimmicky/heavy mystical folklore that overshadows the product · making it sound like only a grant-search tool · founder-led storytelling as the main angle right now · sounding desperate · sounding like a charity instead of a serious business-support platform.
