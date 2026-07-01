@@ -52,13 +52,17 @@ npm install                                        # first time only
 npx remotion render PremiumShowcase out/PremiumShowcase.mp4
 npx remotion render FullExplainer out/FullExplainer.mp4   # ~5 min video, longer render time
 ```
-Add narration the same way as the pipeline ads: generate VO (see below), save to `public/`, then pass `--props='{"audioSrc":"..."}'` (or use `npm run vo` / drop the file in and re-render — same mechanics as the dated ads, just run manually since these aren't on the scheduler).
+## Voiceover — now fully wired (one command)
+Both flagships are now entries in `ads.config.mjs` (flagged `oneOff: true` so the date scheduler ignores them, but `npm run vo` still generates their narration). Both use **Christopher**. To produce the finished videos with sound:
+```bash
+export ELEVENLABS_API_KEY=sk_...          # your key — never commit it
+npm run vo                                 # auto-pulls every voice by name & generates all MP3s
+                                           #   (Christopher, Jackson, Siren, Giselle across all ads)
+npm run build PremiumShowcase FullExplainer  # re-renders these two with VO + transitions + subtitles
+```
+`npm run vo PremiumShowcase` does just one. Scripts live in `ads.config.mjs`; the copy below is for reference / manual ElevenLabs paste.
 
-## Voiceover — generate with ElevenLabs
-Both use **Christopher** — the same voice anchoring the two pipeline hero videos, for brand consistency across every flagship asset. These aren't in `ads.config.mjs` (by design — one-offs, no scheduled date), so generate the VO manually:
-
-1. Paste each script below into ElevenLabs with the **Christopher** voice. Export MP3.
-2. Save as `public/premium-showcase-vo.mp3` and `public/full-explainer-vo.mp3`.
+**Manual fallback:** paste a script below into ElevenLabs (Christopher), export MP3, save as `public/premium-showcase-vo.mp3` / `public/full-explainer-vo.mp3`, then `npm run build <id>`.
 3. Render with the file wired in:
 ```bash
 npx remotion render PremiumShowcase out/PremiumShowcase.mp4 --props='{"audioSrc":"premium-showcase-vo.mp3"}'

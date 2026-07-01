@@ -34,8 +34,11 @@ Reusable components in `src/components.tsx` — **use these, don't reinvent:**
 - **`BubbleCard` / `FeatureCard` / `CheckLine`** — the card vocabulary (teal=strength, gold=gap).
 - **`Subtitles`** — baked-in bottom captions on EVERY ad (LinkedIn/IG/TikTok autoplay muted).
 - **`Rise` / `SectionMarker` / `ProgressRail`** — entrance motion + long-form orientation.
+- **`SceneDissolve`** — a brief dip-to-navy between scenes for a smooth cross-dissolve. **Timing-safe** (an overlay, not a `TransitionSeries`), so it never desyncs the fixed-frame subtitles. Pass the scene-boundary frames.
 
 **Pacing:** hero cuts ~4–7s per beat; feature reels ~12s per screen; nothing sits static — always a slow zoom, a rise, or a reveal in motion.
+
+**Installed motion libraries** (available for richer effects on new ads): `@remotion/transitions` (TransitionSeries slide/wipe/fade — use on ads built fresh where you control timing + captions), `@remotion/media-utils` (VO-synced motion, audio waveforms), `@remotion/lottie` (drop-in Lottie micro-animations).
 
 ## 5. The standard ad structure (the 6-beat spine)
 Every ad is some subset of these beats, in this order:

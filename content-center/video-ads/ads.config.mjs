@@ -104,6 +104,45 @@ export const ADS = [
       "One hundred and fifty dollars a month, locked for life. Apply or message me today.",
     ],
   },
+
+  // ── One-off flagship commercials (no scheduledDate → the scheduler ignores them;
+  //    `npm run vo` still generates their narration, `npm run build` renders them). ──
+  {
+    id: "PremiumShowcase",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "premium-showcase-vo.mp3",
+    script: [
+      "Every mission is surrounded by opportunity.",
+      "The problem was never opportunity. It was visibility.",
+      "This is Anansi Atlas.",
+      "Your Dashboard opens with one clear next move.",
+      "Your Opportunity Web maps your mission at the center.",
+      "Your Snapshot opens with a 30-day action plan.",
+      "Founding Atlas Partners aren't just customers. They're the first twenty organizations shaping this platform — a rate locked in for life.",
+      "If you're ready to stop guessing, join the family.",
+      "Apply at anansi atlas dot com, slash anansi atlas.",
+    ],
+  },
+  {
+    id: "FullExplainer",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "full-explainer-vo.mp3",
+    script: [
+      "What if the funders, partners, and public dollars already aligned with your mission weren't hiding — they were just never mapped?",
+      "Most nonprofit teams do this work in forty browser tabs. A funder database here. An email thread there. A spreadsheet somebody built two years ago that only one person still understands. Deadlines get missed. Warm partners go uncontacted. It's not a lack of effort. It's a lack of a system built to hold all of it in one place.",
+      "This is Anansi Atlas — a nonprofit opportunity intelligence platform. We call it the Web of Opportunity, because every mission sits at the center of one: aligned funders, potential partners, government pathways, and community resources, all already there, waiting to be seen clearly enough to act on.",
+      "Here's what that looks like in practice. Your Dashboard is home base. It opens with a single card: What To Do Next — one highest-leverage action, not a to-do list. Around it, health scores for Readiness, Partners, Pathways, and Opportunities. Upcoming deadlines are flagged before they're urgent. A busy executive director can open this for sixty seconds each morning and know exactly where to spend the day.",
+      "Click into the Opportunity Web, and you'll see your mission at the center — literally. Six nodes orbit it: Funders, Partners, Government, Resources, Readiness, and Pathways. This is the actual shape of your opportunity landscape, mapped instead of scattered. Nothing here is guesswork. It's built from real research on your mission.",
+      "Your Opportunity Web Snapshot is the executive brief. It opens with a plain-language summary and a thirty-day action plan, ranked specifically for your mission — not a wall of grants with no context. Below that: your top funder and partner pathways, ranked by fit. Your Readiness, scored honestly — teal where you're strong, gold where there's a gap. And your Risks and Gaps, so you see what could slow you down before it costs you a quarter. A list tells you what exists. A Snapshot tells you what to do next, in order, starting today.",
+      "When an opportunity is worth pursuing, it moves into your Pipeline — a living board that carries it from spotted to submitted to won. Partners and Sponsorship maps the funders and organizations already aligned with your mission. And Resources surfaces the capacity-building, technology, and volunteer support that strengthens your readiness before you ever apply.",
+      "We built Anansi Atlas because we believe mission-driven work shouldn't lose to logistics. The opportunity around your mission was never the problem. Seeing it clearly, and knowing what to do about it first, was. That's what this platform gives you back — time, clarity, and a system that keeps working even on the weeks you don't have time to look.",
+      "We're opening the Founding Atlas Partners Pilot to twenty mission-driven organizations — a rate locked in for life, a Snapshot built around your actual mission, and a personal walkthrough with our team. If this is the system your organization has been missing, don't wait for the standard rate. Register now at anansi atlas dot com, slash anansi atlas, and let's map your web of opportunity today.",
+    ],
+  },
 ];
 
 // ElevenLabs voice settings (tuned for an awake, credible business read — not sleepy).

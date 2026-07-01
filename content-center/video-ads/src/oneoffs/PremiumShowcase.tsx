@@ -12,6 +12,7 @@ import {
   NavyBG,
   Rise,
   SANS,
+  SceneDissolve,
   ScreenshotPanel,
   Subtitles,
 } from "../components";
@@ -113,6 +114,7 @@ export const PremiumShowcase: React.FC<Props> = ({ audioSrc }) => {
         </Center>
       </Sequence>
 
+      <SceneDissolve boundaries={[150, 330, 510, 870, 1230, 1590, 2190]} />
       <Subtitles captions={CAPTIONS} />
     </NavyBG>
   );

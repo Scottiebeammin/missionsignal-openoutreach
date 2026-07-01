@@ -16,6 +16,7 @@ import {
   ProgressRail,
   Rise,
   SANS,
+  SceneDissolve,
   ScreenshotPanel,
   SectionMarker,
   Subtitles,
@@ -251,6 +252,7 @@ export const FullExplainer: React.FC<Props> = ({ audioSrc }) => {
         </Center>
       </Sequence>
 
+      <SceneDissolve boundaries={[300, 1200, 1950, 3150, 3750, 4350, 4890, 5520, 6150, 7350, 8250]} />
       <Subtitles captions={CAPTIONS} />
     </NavyBG>
   );

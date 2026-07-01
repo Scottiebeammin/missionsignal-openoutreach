@@ -573,3 +573,30 @@ export const AnimatedLogoReveal: React.FC<{ delay?: number }> = ({ delay = 0 }) 
     </AbsoluteFill>
   );
 };
+
+/**
+ * Scene dissolve overlay — a brief dip-to-navy at each scene boundary, creating a smooth
+ * cross-dissolve WITHOUT restructuring Sequences (so global-frame subtitle timing is preserved).
+ * Add ONE of these per composition (below <Subtitles> so captions stay on top), passing the
+ * scene start frames. Timing-safe alternative to @remotion/transitions' TransitionSeries, which
+ * would shift the timeline and desync fixed-frame captions.
+ */
+export const SceneDissolve: React.FC<{ boundaries: number[]; fade?: number; peak?: number }> = ({
+  boundaries,
+  fade = 8,
+  peak = 0.9,
+}) => {
+  const frame = useCurrentFrame();
+  let op = 0;
+  for (const b of boundaries) {
+    op = Math.max(
+      op,
+      interpolate(frame, [b - fade, b, b + fade], [0, peak, 0], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      }),
+    );
+  }
+  if (op <= 0) return null;
+  return <AbsoluteFill style={{ background: BRAND.navy, opacity: op, pointerEvents: "none" }} />;
+};
