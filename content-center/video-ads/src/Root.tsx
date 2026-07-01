@@ -10,6 +10,7 @@ import { Jul25SnapshotScroll } from "./ads/Jul25SnapshotScroll";
 import { Jul31ClosingOutro } from "./ads/Jul31ClosingOutro";
 import { PremiumShowcase } from "./oneoffs/PremiumShowcase";
 import { FullExplainer } from "./oneoffs/FullExplainer";
+import { ProductWalkthrough, WALK_TOTAL } from "./oneoffs/ProductWalkthrough";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -98,6 +99,15 @@ export const RemotionRoot: React.FC = () => {
         id="FullExplainer"
         component={FullExplainer}
         durationInFrames={9150}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ audioSrc: null as string | null }}
+      />
+      <Composition
+        id="ProductWalkthrough"
+        component={ProductWalkthrough}
+        durationInFrames={WALK_TOTAL}
         fps={FPS}
         width={SIZE}
         height={SIZE}
