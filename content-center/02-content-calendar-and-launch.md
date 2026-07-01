@@ -1,5 +1,8 @@
 # Anansi Atlas — 30-Day LinkedIn-First Content Calendar & Launch Sequence
 
+*Created: 2026-06-30 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+
+
 > Built from `00-brand-brief.md`. LinkedIn first. Product-forward, not founder-story-forward. The Snapshot is **included in the $150/mo pilot** — never "free." Goal: **19–20 Founding Atlas Partners**.
 > Signup link (everywhere): **https://anansiatlas.com/anansi-atlas/**
 > Accounts: **MS** = Marcus Scott (personal) · **AA** = Anansi Atlas (business page)

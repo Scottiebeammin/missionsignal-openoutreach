@@ -1,6 +1,11 @@
 # Anansi Atlas — Video Scripts 1–3
 
+*Created: 2026-06-30 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+
+
 > Production-ready packages built from `00-brand-brief.md`. Product-forward, LinkedIn-first, cinematic. Navy + charcoal + gold; Fraunces headings, Inter/DM Sans body. The Opportunity Web Snapshot is **included** in the $150/mo Founding pilot — never advertised as free.
+>
+> **🎙️ Narration: ElevenLabs.** Generate every voiceover (Section E scripts) with the single locked "Anansi Atlas house voice" (see brand brief → Production standards). Warm, credible, calm-confident delivery; follow each script's timestamps for pacing; export the VO first, then cut picture to it.
 
 **Example org used throughout:** *Riverside Youth Arts Collective* — a community youth-arts nonprofit (after-school studios, teen mentorship, mural programs) in a mid-size city. Credible, relatable, mission-driven.
 

@@ -1,5 +1,8 @@
 # Anansi Atlas — Content Center
 
+*Created: 2026-06-30 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+
+
 An **automated content creation center** for Anansi Atlas: a repeatable engine to build awareness, educate nonprofit leaders, showcase the platform, and drive **Founding Atlas Partners Pilot** signups (goal: 19–20 orgs).
 
 > **This is an add-on.** It is a self-contained set of marketing assets and does **not** modify the Anansi Atlas application or codebase.

@@ -1,6 +1,11 @@
 # Anansi Atlas — Video Scripts 4 & 5
 
+*Created: 2026-06-30 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+
+
 > Built from `00-brand-brief.md`. Product-forward, LinkedIn-first. Dark navy + charcoal + gold. Fraunces serif headings, Inter/DM Sans body. Snapshot is **included in the $150/mo pilot** — never advertised as free. No cartoon spider, no mystical folklore, not charity-toned.
+>
+> **🎙️ Narration: ElevenLabs.** Generate every voiceover (Section E scripts) with the single locked "Anansi Atlas house voice" (see brand brief → Production standards). Warm, credible, calm-confident delivery; follow each script's timestamps for pacing; export the VO first, then cut picture to it.
 >
 > Realistic example org used throughout: **Bright Harbor Youth Collective** — a mid-size youth-workforce nonprofit.
 

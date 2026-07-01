@@ -1,5 +1,8 @@
 # Anansi Atlas — LinkedIn Growth Strategy & Lead Conversion System
 
+*Created: 2026-06-30 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+
+
 > Built from `00-brand-brief.md`. Goal: recruit **19–20 Founding Atlas Partners** into the Pilot ($150/mo locked for life, first 20 orgs; $299/mo standard after). Founder account = **Marcus Scott**. Business page = **Anansi Atlas**. Apply link = **https://anansiatlas.com/anansi-atlas/**.
 >
 > Voice: clear · practical · strategic · warm · product-forward. Never desperate, never spammy, never charity-toned. The Snapshot is **not free** — it's included in the pilot subscription.

@@ -1,5 +1,8 @@
 # Anansi Atlas — Content Pillars & Weekly Repurposing System
 
+*Created: 2026-06-30 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+
+
 > Built from `00-brand-brief.md`. Voice: clear, practical, strategic, warm, credible, direct, conversion-focused. Product-forward, LinkedIn first. The Snapshot is **included in the pilot subscription** — never advertise it as free. Signup: **https://anansiatlas.com/anansi-atlas/**
 
 ---

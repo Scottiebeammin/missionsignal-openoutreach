@@ -1,5 +1,8 @@
 # Anansi Atlas — Template Library
 
+*Created: 2026-06-30 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+
+
 > Ready-to-use, publishable content for the Founding Atlas Partners Pilot.
 > Voice: clear, practical, strategic, warm, mission-centered. Product-forward — not personal-memoir, not charity-toned, not hype.
 > Founder personal account: **Marcus Scott** · Business page: **Anansi Atlas** · Signup: **https://anansiatlas.com/anansi-atlas/**

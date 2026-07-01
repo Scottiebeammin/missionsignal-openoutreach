@@ -1,5 +1,8 @@
 # Anansi Atlas — Content Center Brand Brief (shared context)
 
+*Created: 2026-06-30 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+
+
 > This is the single source of truth every content deliverable in this folder is built from.
 > It is an **add-on** marketing asset set — it does NOT change the Anansi Atlas application or codebase.
 
@@ -43,6 +46,10 @@ Dark navy + charcoal + **gold accents**. Clean product UI shots, dashboard-style
 - **Snapshot page:** leads with the summary + 30-day action plan, then funder pathways, partner pathways, top opportunities, readiness, risks & gaps; teal = strength, gold = gap color coding; rose "Due" deadline pills.
 - **Dashboard:** a "What To Do Next" single-action card, KPI health scores (Readiness / Partners / Pathways / Opportunities), upcoming deadlines, active pipeline, teal opportunity "bubbles."
 - **Sidebar sections:** Overview (Dashboard, Snapshot, Opportunity Web, Partners & Sponsorship) · Take Action (Pipeline, Pathways, Ecosystem) · Build Strength (Readiness, Resources) · Your Space (Organization).
+
+## Production standards
+- **Voiceover / narration: use ElevenLabs** for all video VO. Pick one consistent, credible, warm-but-serious voice and reuse it across every video so the brand has a recognizable sound. Match the pacing in each script's timestamps; keep delivery calm and confident (not hype-y announcer). Export narration, then cut picture to it.
+- Keep one ElevenLabs voice as the "Anansi Atlas house voice" once chosen — note the voice name/ID here when locked: _TBD_.
 
 ## Hard "avoid" list
 generic SaaS language · guaranteed funding promises · exaggerated AI claims · cartoon spider imagery · mystical/gimmicky folklore language · over-explaining Anansi · making it sound like only a grant-search tool · founder-led storytelling as the main angle right now · sounding desperate · sounding like a charity instead of a serious business-support platform.

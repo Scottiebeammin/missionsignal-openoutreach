@@ -1,5 +1,8 @@
 # Anansi Atlas — Content Automation & Measurement System
 
+*Created: 2026-06-30 · Anansi Atlas Content Center (Scott Foundry Group LLC)*
+
+
 > The operating system for the Anansi Atlas content center. Built for a non-technical founder (Marcus Scott) to actually run.
 > Goal it serves: recruit **19–20 nonprofit / mission-driven organizations** into the **Founding Atlas Partners Pilot** ($150/mo locked for life, first 20 orgs).
 > Signup / apply link (use everywhere): **https://anansiatlas.com/anansi-atlas/**
