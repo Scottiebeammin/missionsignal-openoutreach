@@ -103,3 +103,47 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false
+
+  # ── Daily waitlist nurture sequence ──
+  # Sends the due step (day 1 / 3 / 7 after signup) of the 3-email nurture sequence
+  # to NEW/REVIEWED waitlist signups, then feeds completed sequences into the
+  # SalesLead pipeline as Inbound/Nurturing so no lead falls out of view.
+  # Same EMAIL_* vars as the web service; SCHEDULING_URL optional (Cal.com link).
+  - type: cron
+    name: anansi-daily-nurture
+    runtime: python
+    region: virginia
+    plan: starter
+    branch: main
+    schedule: "30 14 * * *"   # daily 14:30 UTC (morning US Eastern)
+    buildCommand: "pip install -r requirements/web.txt"
+    startCommand: "python manage.py send_nurture_emails"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: anansi-atlas-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_USE_TLS
+        sync: false
+      - key: EMAIL_USE_SSL
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: SCHEDULING_URL
+        sync: false

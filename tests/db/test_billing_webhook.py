@@ -81,3 +81,15 @@ def test_missing_secret_returns_503():
     with patch.dict("os.environ", {"STRIPE_WEBHOOK_SECRET": ""}):
         resp = Client().post(WEBHOOK_PATH, data=b"{}", content_type="application/json")
     assert resp.status_code == 503
+
+
+def test_purchase_closes_matching_sales_lead(mailoutbox):
+    from openoutreach.signals.models import SalesLead
+    lead = SalesLead.objects.create(
+        name="Jordan Rivera", email="buyer@nonprofit.org",
+        source=SalesLead.Source.WARM, status=SalesLead.Status.CALL_DONE,
+    )
+    resp = _post_webhook(_checkout_event())
+    assert resp.status_code == 200
+    lead.refresh_from_db()
+    assert lead.status == SalesLead.Status.CLOSED

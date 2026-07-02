@@ -24,6 +24,9 @@ urlpatterns = [
     path("operator/waitlist/<int:pk>/enrich/", operator_views.operator_enrich_signup, name="operator-waitlist-enrich"),
     # Resources hub + SEO content pages
     path("resources/", views.resources_hub, name="resources-hub"),
+    # Legal
+    path("privacy/", views.privacy_policy, name="privacy-policy"),
+    path("terms/", views.terms_of_service, name="terms-of-service"),
     path("nonprofit-grant-research/", views.seo_grant_research, name="nonprofit-grant-research"),
     path("nonprofit-funding-intelligence/", views.seo_funding_intelligence, name="nonprofit-funding-intelligence"),
     path("opportunity-mapping-for-nonprofits/", views.seo_opportunity_mapping, name="opportunity-mapping-nonprofits"),

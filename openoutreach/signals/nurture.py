@@ -18,9 +18,31 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 
-from openoutreach.signals.models import InterestSignup
+from openoutreach.signals.models import InterestSignup, SalesLead
 
 logger = logging.getLogger(__name__)
+
+
+def _ensure_pipeline_lead(signup: InterestSignup) -> None:
+    """A signup that finished the nurture sequence without converting becomes a
+    SalesLead (Inbound / Nurturing) so it stays visible in the pipeline instead
+    of dying quietly in the waitlist table. Idempotent by email."""
+    if SalesLead.objects.filter(email__iexact=signup.email).exists():
+        return
+    SalesLead.objects.create(
+        name=signup.name or signup.organization,
+        organization=signup.organization,
+        email=signup.email,
+        role=signup.role[:200],
+        source=SalesLead.Source.INBOUND,
+        status=SalesLead.Status.NURTURING,
+        notes=(
+            "Auto-added: completed the 3-step waitlist nurture sequence without "
+            f"converting. Interest: {signup.get_interest_type_display()}."
+            + (f"\nSignup message: {signup.message}" if signup.message else "")
+        ),
+    )
+    logger.info("SalesLead created from nurtured signup %s", signup.email)
 
 # Days after signup when each step fires
 _STEP_DAYS = {1: 1, 2: 3, 3: 7}
@@ -81,6 +103,8 @@ def send_due_nurture_emails(now=None, dry_run: bool = False) -> tuple[int, int]:
             signup.save(update_fields=["nurture_step"])
             sent += 1
             logger.info("Nurture step %s sent to %s", next_step, signup.email)
+            if next_step == _MAX_STEP:
+                _ensure_pipeline_lead(signup)
         except Exception:
             logger.exception("Nurture email failed for signup=%s step=%s", signup.pk, next_step)
             skipped += 1

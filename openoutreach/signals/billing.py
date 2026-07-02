@@ -31,7 +31,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from openoutreach.signals.models import InterestSignup
+from openoutreach.signals.models import InterestSignup, SalesLead
 from openoutreach.signals.notifications import ANANSI_ATLAS_OPERATOR_EMAIL
 
 logger = logging.getLogger(__name__)
@@ -170,6 +170,10 @@ def stripe_webhook(request):
     converted = InterestSignup.objects.filter(email__iexact=email).exclude(
         status=InterestSignup.Status.CONVERTED
     ).update(status=InterestSignup.Status.CONVERTED)
+    # Close the loop in the sales pipeline: a purchase = Closed — Won.
+    SalesLead.objects.filter(email__iexact=email).exclude(
+        status=SalesLead.Status.CLOSED
+    ).update(status=SalesLead.Status.CLOSED)
 
     scheduling_url = os.getenv("SCHEDULING_URL", "")
     _send_seat_welcome(user, scheduling_url)
