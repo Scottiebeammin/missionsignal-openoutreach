@@ -3,6 +3,7 @@ import { Composition } from "remotion";
 import { FPS, SIZE, VERT_H, VERT_W } from "./brand";
 import { PlatformShowcase } from "./ads/PlatformShowcase";
 import { PilotSignup } from "./ads/PilotSignup";
+import { PilotSeatsReveal, PILOT_SEATS_REVEAL_TOTAL } from "./ads/PilotSeatsReveal";
 import { Jul10SnapshotClip } from "./ads/Jul10SnapshotClip";
 import { Jul17EndorsementOutro } from "./ads/Jul17EndorsementOutro";
 import { Jul24ListVsMap } from "./ads/Jul24ListVsMap";
@@ -39,6 +40,17 @@ export const RemotionRoot: React.FC = () => {
         width={SIZE}
         height={SIZE}
         defaultProps={{ audioSrc: null as string | null }}
+      />
+
+      {/* FIRST LINKEDIN POST — "19 of 20 Seats" stat reveal (GSAP+D3+Three.js+Lottie layered) */}
+      <Composition
+        id="PilotSeatsReveal"
+        component={PilotSeatsReveal}
+        durationInFrames={PILOT_SEATS_REVEAL_TOTAL}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ audioSrc: "pilot-seats-reveal-vo.mp3" as string | null }}
       />
 
       {/* July calendar's remaining voice-needed clips */}

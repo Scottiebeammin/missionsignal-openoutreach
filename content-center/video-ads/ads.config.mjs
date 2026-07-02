@@ -43,6 +43,21 @@ export const ADS = [
     ],
   },
   {
+    // FIRST LINKEDIN POST — "19 of 20 Seats" stat reveal. oneOff (posted manually, not
+    // scheduler-dated). Voice: Jackson (assertive/scarcity — same as PilotSignup).
+    id: "PilotSeatsReveal",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Jackson",
+    audioOut: "pilot-seats-reveal-vo.mp3",
+    script: [
+      "Founding Atlas Partners applications are open.",
+      "Nineteen of twenty seats are already claimed — just one spot left before the rate closes for good.",
+      "One hundred fifty dollars a month, locked in for life.",
+      "Apply now, before the founding cohort closes.",
+    ],
+  },
+  {
     id: "Jul10-SnapshotClip",
     kind: "remotion",
     voice: "Siren",
