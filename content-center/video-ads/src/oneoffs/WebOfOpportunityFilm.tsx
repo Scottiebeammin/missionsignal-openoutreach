@@ -665,11 +665,14 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
           <Audio src={staticFile(audioSrc)} />
         </Sequence>
       ) : null}
-      {/* light background music bed (ElevenLabs Music API) — quiet under the VO, fades out at the close */}
+      {/* light background music bed (ElevenLabs Music API). startFrom skips the bed's
+          10s ambient swell so the hook has real music; envelope plays fuller during the
+          silent hook then DUCKS under the narration (classic bed = ~15dB under VO). */}
       <Audio
         src={staticFile("music/film-bed.mp3")}
+        startFrom={250}
         volume={(f) =>
-          interpolate(f, [0, 40, FILM_TOTAL - 70, FILM_TOTAL - 5], [0, 0.13, 0.13, 0], {
+          interpolate(f, [0, 12, LEAD, LEAD + 30, FILM_TOTAL - 70, FILM_TOTAL - 5], [0, 0.5, 0.5, 0.3, 0.3, 0], {
             extrapolateLeft: "clamp",
             extrapolateRight: "clamp",
           })
