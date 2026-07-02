@@ -189,13 +189,17 @@ def founding_seat_count(request):
         secret_key = os.getenv("STRIPE_SECRET_KEY", "")
         price_id = os.getenv("STRIPE_FOUNDING_PRICE_ID", "")
         if not secret_key or not price_id:
-            return JsonResponse({"claimed": 1, "remaining": 19, "total": _FOUNDING_SEAT_TOTAL, "live": False})
+            # Fail CLOSED — no invented numbers; the frontend hides the widget.
+            return JsonResponse({"claimed": 0, "remaining": 0, "total": _FOUNDING_SEAT_TOTAL, "live": False})
         try:
             stripe.api_key = secret_key
             subs = stripe.Subscription.list(price=price_id, status="active", limit=100)
-            claimed = len(subs.data) + 1  # founder seat offset
+            claimed = len(subs.data)
         except Exception:
-            claimed = _seat_cache[0] if _seat_cache else 4
+            if _seat_cache is None:
+                # Never had a real number — hide rather than fabricate.
+                return JsonResponse({"claimed": 0, "remaining": 0, "total": _FOUNDING_SEAT_TOTAL, "live": False})
+            claimed = _seat_cache[0]
         _seat_cache = (claimed, now)
     remaining = max(0, _FOUNDING_SEAT_TOTAL - claimed)
     return JsonResponse({"claimed": claimed, "remaining": remaining, "total": _FOUNDING_SEAT_TOTAL, "live": True})

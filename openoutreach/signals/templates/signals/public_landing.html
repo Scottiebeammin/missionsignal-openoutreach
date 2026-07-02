@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Anansi Atlas — The Web of Opportunity</title>
-  <meta name="description" content="Anansi Atlas maps the funders, partners, and grant opportunities aligned to your nonprofit's mission — in 10 minutes. Founding partner seats available at $150/month.">
+  <meta name="description" content="Anansi Atlas maps the funders, partners, and grant opportunities aligned to your nonprofit's mission. Founding partner seats available at $150/month.">
 
   <!-- OpenGraph (LinkedIn, Facebook, iMessage previews) -->
   <meta property="og:title" content="Anansi Atlas — The Web of Opportunity">
@@ -109,6 +109,16 @@
     .btn-ghost:hover {
       background: rgba(255,255,255,0.12);
       border-color: rgba(229,173,63,0.40);
+    }
+    /* Ghost variant for LIGHT backgrounds — navy text/border so it's readable */
+    .btn-ghost-dark {
+      background: transparent;
+      border-color: rgba(13,27,61,0.35);
+      color: var(--ink, #0D1B3D);
+    }
+    .btn-ghost-dark:hover {
+      background: rgba(13,27,61,0.06);
+      border-color: rgba(13,27,61,0.6);
     }
     .btn-lg { min-height: 54px; padding: 15px 32px; font-size: 1rem; }
 
@@ -690,7 +700,7 @@
       font-size: 0.84rem; font-weight: 700; color: rgba(210,225,245,0.85);
     }
 
-    input, select {
+    input, select, textarea {
       width: 100%;
       border: 1.5px solid rgba(255,255,255,0.12);
       border-radius: var(--r-sm);
@@ -700,8 +710,9 @@
       font: inherit; font-size: 0.91rem;
       transition: border-color 150ms ease, box-shadow 150ms ease;
     }
-    input::placeholder { color: rgba(180,200,230,0.30); }
-    input:focus, select:focus {
+    input::placeholder, textarea::placeholder { color: rgba(180,200,230,0.30); }
+    textarea { resize: vertical; min-height: 110px; }
+    input:focus, select:focus, textarea:focus {
       border-color: var(--gold);
       box-shadow: 0 0 0 3px rgba(229,173,63,0.18);
       outline: none;
@@ -710,6 +721,12 @@
     select option { background: #0c1526; color: var(--white); }
 
     .field-errors { margin-top: 4px; font-size: 0.80rem; color: #f87171; }
+    .nav-cta-short { display: none; }
+    @media (max-width: 640px) {
+      .nav-cta-full { display: none; }
+      .nav-cta-short { display: inline; }
+      #site-nav .btn-gold { padding: 10px 16px; font-size: 0.85rem; }
+    }
     .form-note { font-size: 0.80rem; color: var(--muted); text-align: center; margin-top: 8px; }
 
     /* ── MYTHOLOGY CLOSE ── */
@@ -897,8 +914,186 @@
       .sticky-cta { display: flex; flex-direction: column; }
     }
 
+    /* ── PROBLEM ZONE ── */
+    .problem-zone {
+      background: linear-gradient(175deg, #0a1428 0%, var(--night) 100%);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .problem-lines {
+      max-width: 620px; margin: 24px auto 0; text-align: center;
+    }
+    .problem-lines p {
+      color: var(--muted); font-size: clamp(0.97rem, 1.4vw, 1.06rem);
+      line-height: 1.7; margin-bottom: 10px;
+    }
+    .problem-chips {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 14px;
+      margin: 44px auto 0; max-width: 720px;
+      position: relative;
+    }
+    .problem-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px;
+      border: 1px solid var(--line-gold);
+      border-radius: 999px;
+      background: rgba(229,173,63,0.06);
+      color: var(--gold-pale);
+      font-size: 0.86rem; font-weight: 700; letter-spacing: 0.02em;
+      transition: transform 700ms cubic-bezier(0.22,1,0.36,1), opacity 700ms ease;
+    }
+    .problem-chip::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold-lt); flex-shrink: 0;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .problem-chips:not(.in-view) .problem-chip { opacity: 0.15; }
+      .problem-chips:not(.in-view) .problem-chip:nth-child(1) { transform: translate(-46px, 30px) rotate(-14deg); }
+      .problem-chips:not(.in-view) .problem-chip:nth-child(2) { transform: translate(28px, -34px) rotate(9deg); }
+      .problem-chips:not(.in-view) .problem-chip:nth-child(3) { transform: translate(-18px, -26px) rotate(-7deg); }
+      .problem-chips:not(.in-view) .problem-chip:nth-child(4) { transform: translate(40px, 24px) rotate(12deg); }
+      .problem-chips:not(.in-view) .problem-chip:nth-child(5) { transform: translate(-34px, -18px) rotate(6deg); }
+      .problem-chips:not(.in-view) .problem-chip:nth-child(6) { transform: translate(24px, 36px) rotate(-10deg); }
+      .problem-chips.in-view .problem-chip:nth-child(1) { transition-delay: 0ms; }
+      .problem-chips.in-view .problem-chip:nth-child(2) { transition-delay: 80ms; }
+      .problem-chips.in-view .problem-chip:nth-child(3) { transition-delay: 160ms; }
+      .problem-chips.in-view .problem-chip:nth-child(4) { transition-delay: 240ms; }
+      .problem-chips.in-view .problem-chip:nth-child(5) { transition-delay: 320ms; }
+      .problem-chips.in-view .problem-chip:nth-child(6) { transition-delay: 400ms; }
+    }
+    .problem-chips.in-view .problem-chip { opacity: 1; transform: none; }
+    .problem-thread {
+      width: 100%; height: 2px; margin-top: 18px;
+      background: linear-gradient(90deg, transparent, var(--gold-lt), transparent);
+      opacity: 0; transform: scaleX(0.2);
+      transition: opacity 700ms ease 500ms, transform 700ms ease 500ms;
+    }
+    .problem-chips.in-view + .problem-thread { opacity: 0.45; transform: scaleX(1); }
+
+    /* ── PRODUCT PROOF (screenshots) ── */
+    .shots-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin: 44px 0 40px;
+      text-align: left;
+    }
+    .shot-frame {
+      background: var(--ink);
+      border: 1px solid rgba(201,144,30,0.35);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(13,26,46,0.22);
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 700ms ease, transform 700ms ease;
+    }
+    .shot-frame.in-view { opacity: 1; transform: none; }
+    .shot-frame:nth-child(2) { transition-delay: 120ms; }
+    .shot-frame:nth-child(3) { transition-delay: 240ms; }
+    .shot-bar {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 14px;
+      background: #0a1424;
+      border-bottom: 1px solid rgba(229,173,63,0.20);
+    }
+    .shot-bar i {
+      width: 9px; height: 9px; border-radius: 50%; display: block;
+      background: rgba(229,173,63,0.35);
+    }
+    .shot-bar i:first-child { background: rgba(229,173,63,0.75); }
+    .shot-frame img {
+      display: block; width: 100%; height: auto;
+      aspect-ratio: 16 / 10; object-fit: cover; object-position: top;
+      background: #0c1526;
+    }
+    .shot-caption {
+      padding: 14px 16px;
+      font-size: 0.84rem; font-weight: 600;
+      color: rgba(240,230,210,0.85);
+      background: var(--ink);
+    }
+    @media (max-width: 860px) { .shots-grid { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; } }
+
+    /* ── STAT ROW / COUNTERS ── */
+    .stat-row {
+      display: flex; justify-content: center; gap: clamp(24px, 6vw, 72px);
+      flex-wrap: wrap; margin-top: 44px;
+      padding: 24px 0 0;
+      border-top: 1px solid var(--line);
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700;
+      color: var(--gold-lt); line-height: 1;
+    }
+    .stat-num small { font-size: 0.55em; font-weight: 600; }
+    .stat-label {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted); margin-top: 6px;
+    }
+
+    /* ── PRICING de-emphasis ── */
+    .price-card.future { opacity: 0.62; filter: saturate(0.85); }
+    .price-card.future:hover { opacity: 0.85; }
+    .launch-chip {
+      display: inline-block; align-self: flex-start;
+      font-size: 0.64rem; font-weight: 800; letter-spacing: 0.10em; text-transform: uppercase;
+      color: rgba(13,26,46,0.55);
+      border: 1px solid rgba(13,26,46,0.18);
+      border-radius: 999px; padding: 3px 10px; margin-bottom: 14px;
+    }
+
+    /* ── HERO WEB DRAW-ON ── */
+    @media (prefers-reduced-motion: no-preference) {
+      .hero-web-bg .hero-strand {
+        stroke-dasharray: 240; stroke-dashoffset: 240;
+        transition: stroke-dashoffset 1100ms ease;
+      }
+      .web-drawn .hero-web-bg .hero-strand { stroke-dashoffset: 0; }
+      .web-drawn .hero-web-bg .hero-strand:nth-of-type(1) { transition-delay: 0ms; }
+      .web-drawn .hero-web-bg .hero-strand:nth-of-type(2) { transition-delay: 120ms; }
+      .web-drawn .hero-web-bg .hero-strand:nth-of-type(3) { transition-delay: 240ms; }
+      .web-drawn .hero-web-bg .hero-strand:nth-of-type(4) { transition-delay: 360ms; }
+      .web-drawn .hero-web-bg .hero-strand:nth-of-type(5) { transition-delay: 480ms; }
+      .web-drawn .hero-web-bg .hero-strand:nth-of-type(6) { transition-delay: 600ms; }
+      .hero-web-bg svg text, .hero-web-bg svg rect[rx="8"] {
+        opacity: 0; transition: opacity 800ms ease 1300ms;
+      }
+      .web-drawn .hero-web-bg svg text, .web-drawn .hero-web-bg svg rect[rx="8"] { opacity: 1; }
+    }
+
+    /* ── MYTH ZONE VIDEO ── */
+    .myth-video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .myth-video-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(170deg, rgba(6,13,28,0.75) 0%, rgba(4,9,15,0.85) 100%);
+      pointer-events: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .myth-video, .myth-video-overlay { display: none; }
+    }
+
+    /* ── HERO SECONDARY LINK ── */
+    .hero-direct-link {
+      display: inline-block;
+      font-size: 0.86rem; font-weight: 600;
+      color: var(--gold-lt);
+      border-bottom: 1px solid rgba(229,173,63,0.35);
+      padding-bottom: 1px;
+      transition: color 150ms, border-color 150ms;
+    }
+    .hero-direct-link:hover { color: var(--gold-pale); border-color: var(--gold-pale); }
+
+    #seat-counter[hidden] { display: none; }
+
     @media (prefers-reduced-motion: reduce) {
       .reveal { opacity: 1; transform: none; transition: none; }
+      .problem-chip, .shot-frame, .problem-thread { opacity: 1 !important; transform: none !important; transition: none !important; }
       svg animate, svg animateMotion { dur: 10000s; }
     }
   </style>
@@ -967,26 +1162,42 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "What is Anansi Atlas?",
+            "name": "Is Anansi Atlas just a grant search tool?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Anansi Atlas is a nonprofit opportunity intelligence platform that delivers an Opportunity Web Snapshot — a personalized intelligence brief mapping aligned funders, strategic partners, active grants, government pathways, and a funding readiness score for your specific organization."
+              "text": "No. Anansi Atlas is a strategic intelligence layer — not a database you search. It maps the full opportunity landscape around your specific mission: funders, partners, government pathways, community resources, readiness gaps, and a 30-day action plan. You don't search it. It builds around you."
             }
           },
           {
             "@type": "Question",
-            "name": "How much does Anansi Atlas cost?",
+            "name": "What's included in the founding partner price?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The founding partner rate is $150/month, locked for life for the first 20 organizations. Standard pricing after the founding cohort is $299/month. No per-report fees, no usage limits, cancel anytime."
+              "text": "$150/month includes full platform access, your Opportunity Web Snapshot, your entire strategic workspace (funding pipeline, readiness tracker, partner map), and a 45-minute personal founder walkthrough call with the team. The price is locked for life — it never increases as long as you stay active."
             }
           },
           {
             "@type": "Question",
-            "name": "How long does the intake form take?",
+            "name": "Is the Snapshot a report or part of the platform?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "About 10 minutes. You'll answer questions about your mission, programs, geography, focus areas, and who you serve."
+              "text": "Both. The Snapshot is the first guided map of your organization's opportunity ecosystem. It can be reviewed as a deliverable, but it is also connected to your organization's platform workspace."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What does early access mean?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Early access means your organization gets into the platform during the founding cohort stage while the product is being refined with real nonprofit teams. Founding partners help shape the tools around actual nonprofit needs."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What if my organization is small or new?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Anansi Atlas is built for organizations at every stage. The Readiness Score is honest — if you have gaps, it names them and tells you what to address first. Small organizations often benefit most because they don't have research capacity and this replaces what they can't afford to hire."
             }
           },
           {
@@ -994,15 +1205,23 @@
             "name": "When do I get my Opportunity Web Snapshot?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Your Snapshot is included in the founding pilot. Once you're onboarded, we build it around your specific mission and schedule your personal walkthrough call — that's where you see it together with the Anansi Atlas team."
+              "text": "Your Snapshot is included in the founding pilot. Once you're onboarded, we build it around your specific mission and schedule your personal walkthrough call — that's where you see it together with the Anansi Atlas team, not alone in a dashboard."
             }
           },
           {
             "@type": "Question",
-            "name": "How is Anansi Atlas different from grant databases like Candid or GrantStation?",
+            "name": "What happens after the founding cohort closes?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Grant databases show you who exists. Anansi Atlas shows you who is aligned to your specific mission, whether you're ready to pursue them, what partnerships strengthen your applications, and what government pathways fit your work — with a prioritized action plan."
+              "text": "Founding Atlas Partners keep their $150/month rate locked for life — even as public pricing increases. The next cohort (Early Atlas Partners) opens at $200/month. At public launch, Standard opens at $299/month and Pro at $497/month."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I cancel anytime?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. No contracts, no commitments. Cancel any time. If you lock in the founding partner rate and leave, the rate isn't guaranteed when you return — but there's no penalty for canceling."
             }
           }
         ]
@@ -1014,11 +1233,6 @@
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
-<!-- ── Sticky mobile CTA bar ── -->
-<div class="sticky-cta" id="sticky-cta" aria-hidden="true">
-  <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="justify-content:center;">Apply for a Founding Seat · $150/mo →</a>
-  <a class="btn btn-ghost" href="#ask" style="justify-content:center;font-size:0.88rem;">Have Questions? Get More Info</a>
-</div>
 
 <!-- ═══ NAV ════════════════════════════════════════════════════════ -->
 <nav id="site-nav" aria-label="Anansi Atlas navigation">
@@ -1028,7 +1242,7 @@
         <img class="brand-logo" src="{% static 'signals/anansi-atlas-logo.png' %}" alt="Anansi Atlas" width="496" height="248">
       </a>
       <div style="display:flex;align-items:center;gap:16px;">
-        <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Join the Founding Cohort →</a>
+        <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener"><span class="nav-cta-full">Claim Your Founding Seat — $150/mo →</span><span class="nav-cta-short">Claim Seat · $150/mo →</span></a>
       </div>
     </div>
   </div>
@@ -1112,12 +1326,12 @@
         <line x1="280" y1="252" x2="280" y2="52"/>
         <line x1="280" y1="252" x2="453" y2="152"/>
       </g>
-      <line x1="280" y1="252" x2="480" y2="252" stroke="url(#wSg0)" stroke-width="1.5"/>
-      <line x1="280" y1="252" x2="380" y2="425" stroke="url(#wSg1)" stroke-width="1.5"/>
-      <line x1="280" y1="252" x2="180" y2="425" stroke="url(#wSg2)" stroke-width="1.5"/>
-      <line x1="280" y1="252" x2="80" y2="252" stroke="url(#wSg3)" stroke-width="1.5"/>
-      <line x1="280" y1="252" x2="180" y2="79" stroke="url(#wSg4)" stroke-width="1.5"/>
-      <line x1="280" y1="252" x2="380" y2="79" stroke="url(#wSg5)" stroke-width="1.5"/>
+      <line class="hero-strand" x1="280" y1="252" x2="480" y2="252" stroke="url(#wSg0)" stroke-width="1.5"/>
+      <line class="hero-strand" x1="280" y1="252" x2="380" y2="425" stroke="url(#wSg1)" stroke-width="1.5"/>
+      <line class="hero-strand" x1="280" y1="252" x2="180" y2="425" stroke="url(#wSg2)" stroke-width="1.5"/>
+      <line class="hero-strand" x1="280" y1="252" x2="80" y2="252" stroke="url(#wSg3)" stroke-width="1.5"/>
+      <line class="hero-strand" x1="280" y1="252" x2="180" y2="79" stroke="url(#wSg4)" stroke-width="1.5"/>
+      <line class="hero-strand" x1="280" y1="252" x2="380" y2="79" stroke="url(#wSg5)" stroke-width="1.5"/>
       <circle cx="280" cy="252" r="44" fill="none" stroke="#c9901e" stroke-width="0.7" opacity="0.28"/>
       <circle cx="280" cy="252" r="44" fill="none" stroke="#e5ad3f" stroke-width="1.3" opacity="0.6" stroke-dasharray="24 252" stroke-dashoffset="0">
         <animate attributeName="stroke-dashoffset" values="0;-276" dur="7s" repeatCount="indefinite" calcMode="linear"/>
@@ -1266,23 +1480,25 @@
   <!-- Hero copy -->
   <div class="shell hero-content">
     <div class="hero-inner">
-      <p class="eyebrow eyebrow-gold reveal">Early Access · Founding Cohort · 19 Seats</p>
+      <p class="eyebrow eyebrow-gold reveal">Early Access · Founding Cohort · 20 Seats Only</p>
       <div class="gold-rule reveal" style="margin-bottom:20px;"></div>
       <h1 class="hero-h1 reveal reveal-delay-1">
         Your mission deserves a map. <em>Not a mountain of research.</em>
       </h1>
       <p class="hero-sub reveal reveal-delay-2">
-        Anansi Atlas organizes the funders, partners, and pathways already aligned with your nonprofit into one clear platform — starting with a guided Opportunity Web Snapshot. Founding Atlas Partners get early access, a walkthrough, and founder-led support for $150/month.
+        Anansi Atlas shows nonprofit leaders the funders, partners, and government pathways already aligned with their mission — organized in one platform, and walked through with you, not left in a dashboard.
       </p>
       <div class="hero-btns reveal reveal-delay-3">
-        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat — $150/mo →</a>
+        <a class="btn btn-gold btn-lg" href="#get-started">Apply for a Founding Seat — $150/mo →</a>
         <a class="btn btn-ghost btn-lg" href="#what-you-get">See What's Included</a>
       </div>
-      <p class="reveal reveal-delay-4" style="font-size:0.78rem;color:rgba(229,173,63,0.65);margin-top:-16px;font-weight:500;">19 seats remaining · Rate locked for life · No risk — cancel any time</p>
+      <p class="reveal reveal-delay-4" style="margin-top:-16px;margin-bottom:24px;">
+        <a class="hero-direct-link" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Ready now? Claim your seat directly →</a>
+      </p>
       <div class="trust-bar reveal reveal-delay-4">
         <span>Built for nonprofits</span>
         <div class="trust-dot" aria-hidden="true"></div>
-        <span>19 of 20 Seats Remaining · $150/mo locked for life</span>
+        <span>20-seat founding cohort · $150/mo locked for life</span>
         <div class="trust-dot" aria-hidden="true"></div>
         <span>Pro access · Never increases</span>
       </div>
@@ -1292,7 +1508,32 @@
 
 <main>
 
-<!-- ═══ FOUNDER STORY ════════════════════════════════════════════════ -->
+<!-- ═══ THE PROBLEM ══════════════════════════════════════════════════ -->
+<div class="problem-zone">
+  <div class="shell">
+    <section aria-label="The problem">
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">The Problem</p>
+      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:680px;margin:0 auto;">
+        The opportunity was never missing.<br><em>It was scattered.</em>
+      </h2>
+      <div class="problem-lines reveal reveal-delay-2">
+        <p>The funders aligned with your mission live in 40 browser tabs and three inboxes.</p>
+        <p>The partners who could strengthen your next application sit in a spreadsheet nobody opens.</p>
+        <p>The government pathways exist — in one person's memory. The problem isn't scarcity. It's visibility.</p>
+      </div>
+      <div class="problem-chips" id="problem-chips" aria-hidden="true">
+        <span class="problem-chip">Funders</span>
+        <span class="problem-chip">Partners</span>
+        <span class="problem-chip">Government</span>
+        <span class="problem-chip">Resources</span>
+        <span class="problem-chip">Readiness</span>
+        <span class="problem-chip">Pathways</span>
+      </div>
+      <div class="problem-thread" aria-hidden="true"></div>
+    </section>
+  </div>
+</div>
+
 <!-- ═══ HOW IT WORKS ════════════════════════════════════════════════ -->
 <div class="how-zone">
   <div class="shell">
@@ -1305,7 +1546,7 @@
         <div class="how-step reveal">
           <div class="how-num" aria-hidden="true">1</div>
           <h3>Apply for a founding seat</h3>
-          <p>Secure your spot in the founding cohort at $150/month — locked for life. 19 seats remaining. Takes two minutes to apply.</p>
+          <p>Secure your spot in the founding cohort at $150/month — locked for life. Capped at 20 organizations. Takes two minutes to apply.</p>
         </div>
         <div class="how-step reveal reveal-delay-1">
           <div class="how-num" aria-hidden="true">2</div>
@@ -1317,10 +1558,6 @@
           <h3>Personal walkthrough with the team</h3>
           <p>Every founding partner gets a 45-minute walkthrough call. We go through your Snapshot together, build your first action plan, and you leave knowing exactly where to start.</p>
         </div>
-      </div>
-      <div style="text-align:center; margin-top:40px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;" class="reveal">
-        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
-        <a class="btn btn-ghost btn-lg" href="#ask">Get More Information</a>
       </div>
     </section>
   </div>
@@ -1380,9 +1617,19 @@
           <p>Founding partners shape the platform. Your feedback and needs get priority as Anansi Atlas is built with real nonprofit teams during the founding cohort stage.</p>
         </div>
       </div>
-      <div style="text-align:center;margin-top:48px;" class="reveal">
-        <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
-        <p style="margin-top:12px;font-size:0.78rem;color:var(--muted);">19 seats remaining · $150/month · Locked for life</p>
+      <div class="stat-row reveal" aria-label="Platform at a glance">
+        <div class="stat-item">
+          <div class="stat-num"><span class="count-up" data-count="6">0</span></div>
+          <div class="stat-label">Pathways mapped</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">0–<span class="count-up" data-count="100">0</span></div>
+          <div class="stat-label">Readiness score</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num"><span class="count-up" data-count="30">0</span><small>-day</small></div>
+          <div class="stat-label">Action plan</div>
+        </div>
       </div>
     </section>
   </div>
@@ -1426,10 +1673,10 @@
     <section aria-label="Plans and pricing" style="padding: clamp(60px,8vw,100px) 0;">
       <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Plans &amp; Pricing</p>
       <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto;">
-        Four tiers. One mission.<br><em>Find your fit.</em>
+        One seat is open <em>today.</em>
       </h2>
       <p class="reveal reveal-delay-2" style="text-align:center;max-width:580px;margin:16px auto 0;color:rgba(13,26,46,0.65);font-size:0.97rem;line-height:1.7;">
-        All tiers include the <strong style="color:var(--ink);">Atlas Circle</strong> — our founder community for mission-driven leaders. All tiers open at public launch.
+        Founding Atlas Partner — full Pro access at a founding rate, locked for life.
       </p>
       <div class="reveal reveal-delay-3" style="margin:20px auto 0;max-width:560px;background:var(--ink);border-radius:var(--r);padding:16px 24px;text-align:center;">
         <p style="margin:0;font-size:0.88rem;line-height:1.65;color:rgba(200,215,235,0.90);">
@@ -1440,7 +1687,8 @@
       <div class="pricing-grid">
 
         <!-- Base -->
-        <div class="price-card reveal">
+        <div class="price-card future reveal">
+          <span class="launch-chip">At public launch</span>
           <p class="price-card-name">Base</p>
           <p class="price-card-tagline">Clarity at a glance</p>
           <div class="price-card-amount"><sup>$</sup>150<span>/mo</span></div>
@@ -1453,15 +1701,16 @@
             <li>Community resources</li>
             <li>Atlas Circle — Quarterly</li>
           </ul>
-          <a class="btn btn-ghost" href="#get-started">Join the waitlist</a>
+          <a class="btn btn-ghost-dark btn" href="#get-started">Join the waitlist</a>
           <p class="price-card-note">Available at public launch</p>
         </div>
 
         <!-- Standard -->
-        <div class="price-card reveal reveal-delay-1">
+        <div class="price-card future reveal reveal-delay-1">
+          <span class="launch-chip">At public launch</span>
           <p class="price-card-name">Standard</p>
           <p class="price-card-tagline">Stay current, stay ready</p>
-          <div class="price-card-amount"><sup>$</sup>297<span>/mo</span></div>
+          <div class="price-card-amount"><sup>$</sup>299<span>/mo</span></div>
           <p class="price-card-billing">At public launch</p>
           <div class="price-card-divider"></div>
           <ul class="price-card-features">
@@ -1472,13 +1721,13 @@
             <li>Funding alerts</li>
             <li>Atlas Circle — Monthly</li>
           </ul>
-          <a class="btn btn-ghost" href="#get-started">Join the waitlist</a>
+          <a class="btn btn-ghost-dark btn" href="#get-started">Join the waitlist</a>
           <p class="price-card-note">Available at public launch</p>
         </div>
 
         <!-- Pro — Featured with Founding Partner offer -->
         <div class="price-card featured reveal reveal-delay-2">
-          <span class="price-card-badge">🕸 19 Seats Remaining — Open Now</span>
+          <span class="price-card-badge">🕸 Founding Cohort — Open Now</span>
           <p class="price-card-name">Pro</p>
           <p class="price-card-tagline">Full access · 2× monthly strategy calls</p>
           <div class="price-card-amount" style="margin-bottom:2px;"><sup>$</sup>150<span>/mo</span></div>
@@ -1497,12 +1746,13 @@
             <li>Priority feature input</li>
             <li>Future Pro access locked in</li>
           </ul>
-          <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
+          <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Claim Your Founding Seat — $150/mo →</a>
           <p class="price-card-note">Once 20 seats close, they close permanently.<br>Public Pro pricing increases after founding cohort closes.</p>
         </div>
 
         <!-- Enterprise -->
-        <div class="price-card reveal reveal-delay-3">
+        <div class="price-card future reveal reveal-delay-3">
+          <span class="launch-chip">At public launch</span>
           <p class="price-card-name">Enterprise</p>
           <p class="price-card-tagline">White-glove · Multi-program</p>
           <div class="price-card-amount" style="font-size:2.2rem;letter-spacing:-0.01em;">Custom</div>
@@ -1516,10 +1766,57 @@
             <li>White-glove onboarding</li>
             <li>Atlas Circle — Private sessions</li>
           </ul>
-          <a class="btn btn-ghost" href="mailto:info@anansiatlas.com?subject=Enterprise%20Inquiry%20%E2%80%94%20Anansi%20Atlas">Schedule a conversation</a>
+          <a class="btn btn-ghost-dark btn" href="mailto:info@anansiatlas.com?subject=Enterprise%20Inquiry%20%E2%80%94%20Anansi%20Atlas">Schedule a conversation</a>
           <p class="price-card-note">Available at public launch</p>
         </div>
 
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ═══ FAQ ══════════════════════════════════════════════════════════ -->
+<div class="how-zone">
+  <div class="shell">
+    <section aria-label="Frequently asked questions">
+      <div class="section-divider reveal"></div>
+      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Common Questions</p>
+      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto 48px;">
+        <em>Answers</em> before you decide.
+      </h2>
+      <div style="display:grid;gap:16px;max-width:760px;margin:0 auto;">
+        <details class="faq-item reveal" open>
+          <summary class="faq-q">Is Anansi Atlas just a grant search tool?</summary>
+          <p class="faq-a">No. Anansi Atlas is a strategic intelligence layer — not a database you search. It maps the full opportunity landscape around your specific mission: funders, partners, government pathways, community resources, readiness gaps, and a 30-day action plan. You don't search it. It builds around you.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-1">
+          <summary class="faq-q">What's included in the founding partner price?</summary>
+          <p class="faq-a">$150/month includes full platform access, your Opportunity Web Snapshot, your entire strategic workspace (funding pipeline, readiness tracker, partner map), and a 45-minute personal founder walkthrough call with the team. The price is locked for life — it never increases as long as you stay active.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-2">
+          <summary class="faq-q">Is the Snapshot a report or part of the platform?</summary>
+          <p class="faq-a">Both. The Snapshot is the first guided map of your organization's opportunity ecosystem. It can be reviewed as a deliverable, but it is also connected to your organization's platform workspace.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-3">
+          <summary class="faq-q">What does early access mean?</summary>
+          <p class="faq-a">Early access means your organization gets into the platform during the founding cohort stage while the product is being refined with real nonprofit teams. Founding partners help shape the tools around actual nonprofit needs.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary class="faq-q">What if my organization is small or new?</summary>
+          <p class="faq-a">Anansi Atlas is built for organizations at every stage. The Readiness Score is honest — if you have gaps, it names them and tells you what to address first. Small organizations often benefit most because they don't have research capacity and this replaces what they can't afford to hire.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-1">
+          <summary class="faq-q">When do I get my Opportunity Web Snapshot?</summary>
+          <p class="faq-a">Your Snapshot is included in the founding pilot. Once you're onboarded, we build it around your specific mission and schedule your personal walkthrough call. That's where you see it — together with the Anansi Atlas team, not alone in a dashboard.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-2">
+          <summary class="faq-q">What happens after the founding cohort closes?</summary>
+          <p class="faq-a">Founding Atlas Partners keep their $150/month rate locked for life — even as public pricing increases. The next cohort (Early Atlas Partners) opens at $200/month. At public launch, Standard opens at $299/month and Pro at $497/month.</p>
+        </details>
+        <details class="faq-item reveal reveal-delay-3">
+          <summary class="faq-q">Can I cancel anytime?</summary>
+          <p class="faq-a">Yes. No contracts, no commitments. Cancel any time. If you lock in the founding partner rate and leave, the rate isn't guaranteed when you return — but there's no penalty for canceling.</p>
+        </details>
       </div>
     </section>
   </div>
@@ -1572,16 +1869,36 @@
   </div>
 </div>
 
-<!-- ═══ SEAT COUNTER ═════════════════════════════════════════════════ -->
+<!-- ═══ PRODUCT PROOF + SEAT COUNTER ═════════════════════════════════ -->
 <div class="proof-zone">
   <div class="shell">
-    <section aria-label="Founding seats remaining" style="padding: clamp(40px,5vw,64px) 0; text-align:center;">
-      <p class="section-label eyebrow-gold reveal" style="display:block;margin-bottom:16px;">Founding Atlas Partners</p>
-      <div class="seat-counter reveal reveal-delay-1" id="seat-counter">
-        <div class="seat-counter-dot" aria-hidden="true"></div>
-        <span id="seat-counter-text">19 of 20 founding seats remaining</span>
+    <section aria-label="See the actual platform" style="padding: clamp(50px,6vw,80px) 0; text-align:center;">
+      <p class="section-label eyebrow-gold reveal" style="display:block;margin-bottom:12px;">See the Actual Platform</p>
+      <h2 class="display reveal reveal-delay-1" style="max-width:620px;margin:0 auto;color:var(--ink);">
+        Not a mockup. <em>The platform itself.</em>
+      </h2>
+      <div class="shots-grid">
+        <figure class="shot-frame">
+          <div class="shot-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+          <img src="{% static 'signals/shot-dashboard.png' %}" alt="Anansi Atlas dashboard" loading="lazy" width="1600" height="1000">
+          <figcaption class="shot-caption">Your Dashboard — one clear next move</figcaption>
+        </figure>
+        <figure class="shot-frame">
+          <div class="shot-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+          <img src="{% static 'signals/shot-web.png' %}" alt="The Opportunity Web view" loading="lazy" width="1600" height="1000">
+          <figcaption class="shot-caption">The Opportunity Web — your mission at the center</figcaption>
+        </figure>
+        <figure class="shot-frame">
+          <div class="shot-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+          <img src="{% static 'signals/shot-snapshot.png' %}" alt="The Opportunity Web Snapshot" loading="lazy" width="1600" height="1000">
+          <figcaption class="shot-caption">The Snapshot — a 30-day action plan</figcaption>
+        </figure>
       </div>
-      <p class="reveal reveal-delay-2" style="margin-top:16px;font-size:0.85rem;color:rgba(13,26,46,0.50);">Once 20 seats close, they close permanently. Early cohort opens next at $200/month.</p>
+      <div class="seat-counter reveal" id="seat-counter" hidden>
+        <div class="seat-counter-dot" aria-hidden="true"></div>
+        <span id="seat-counter-text"></span>
+      </div>
+      <p class="reveal reveal-delay-1" style="margin-top:16px;font-size:0.85rem;color:rgba(13,26,46,0.50);max-width:520px;margin-left:auto;margin-right:auto;">When these 20 seats fill, the founding rate is gone for good. The next group joins at $200/month, and public Pro pricing launches at $497.</p>
     </section>
   </div>
 </div>
@@ -1595,7 +1912,7 @@
         <div class="form-left">
           <p class="section-label eyebrow-gold reveal" style="margin-bottom:12px;">Ready to Move?</p>
           <h2 class="display reveal reveal-delay-1">
-            Ready to map your<br><em>opportunity ecosystem?</em>
+            Claim one of the<br><em>20 founding seats.</em>
           </h2>
 
           <!-- Path 1: Claim now -->
@@ -1603,7 +1920,7 @@
             <p style="font-size:0.70rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:8px;">Ready now</p>
             <p style="font-size:0.95rem;font-weight:700;color:var(--white);margin-bottom:6px;">Secure your founding seat now</p>
             <p style="font-size:0.84rem;color:var(--muted);margin-bottom:14px;line-height:1.6;">$150/month · Pro access · Rate locked for life. Takes 2 minutes. We'll reach out within 24 hours to start your Snapshot.</p>
-            <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="width:100%;justify-content:center;">Apply for a Founding Seat → $150/mo</a>
+            <a class="btn btn-gold" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" style="width:100%;justify-content:center;">Claim Your Founding Seat — $150/mo →</a>
           </div>
 
           <!-- Divider -->
@@ -1674,7 +1991,7 @@
                 </button>
               </form>
               <p class="form-note" style="margin-top:12px;">We'll reach out within 24 hours to build your Snapshot and schedule your walkthrough.</p>
-              <p class="form-note" style="margin-top:6px;font-weight:600;color:rgba(229,173,63,0.80);">Founding Atlas Partners · $150/month · Pro access · 19 seats remaining · Locked for life</p>
+              <p class="form-note" style="margin-top:6px;font-weight:600;color:rgba(229,173,63,0.80);">Founding Atlas Partners · $150/month · Pro access · Locked for life</p>
             </div>
 
             <div id="tab-invest" role="tabpanel" aria-labelledby="btn-invest" class="tab-panel" hidden>
@@ -1713,7 +2030,54 @@
 </div>
 
 <!-- ═══ MYTHOLOGY CLOSE ══════════════════════════════════════════════ -->
+<!-- ═══ FOUNDER STORY ════════════════════════════════════════════════ -->
+<div class="founder-zone">
+  <div class="shell">
+    <section aria-label="Founder story" style="padding: clamp(60px,8vw,100px) 0;">
+      <div class="founder-layout">
+        <div class="founder-avatar-block reveal">
+          <img src="{% static 'signals/founder-headshot.png' %}" alt="Founder of Anansi Atlas" class="founder-photo" width="180" height="180" loading="lazy">
+          <div class="founder-cred">
+            <strong>The Founder</strong>
+            Built from inside the sector<br>
+            U.S. Air Force Veteran<br>
+            Former nonprofit executive
+          </div>
+        </div>
+        <div>
+          <p class="section-label eyebrow-gold reveal">From the founder</p>
+          <div class="gold-rule reveal reveal-delay-1"></div>
+          <blockquote class="founder-quote reveal reveal-delay-1">
+            "I watched strong organizations lose out on funding that was already within reach — not for lack of effort, but for lack of visibility. Anansi Atlas is the map I wished my teams had."
+          </blockquote>
+          <div class="founder-body reveal reveal-delay-2">
+            <p>I spent years working inside the nonprofit sector at the executive level, where I saw how hard mission-driven organizations fight to serve their communities, stretch limited resources, and keep moving forward.</p>
+            <p>But I also saw something else.</p>
+            <p>Many organizations were missing opportunities that were already within reach.</p>
+            <p>Not because they lacked effort.<br>
+            Not because they lacked passion.<br>
+            Not because the mission wasn't strong.</p>
+            <p>The problem was visibility.</p>
+            <p>Funders were hard to find.<br>
+            Potential partners were disconnected.<br>
+            Government pathways were buried.<br>
+            Resources were scattered.<br>
+            Readiness gaps quietly blocked progress before an application was ever submitted.</p>
+            <p>That experience is what led me to build <strong>Anansi Atlas</strong>.</p>
+            <p>I wanted to create a clearer way for nonprofits and mission-driven organizations to see the full web of opportunity around their mission — and know where to focus next.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+
 <div class="myth-zone">
+  <video class="myth-video" autoplay muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">
+    <source src="{% static 'signals/globe-loop.mp4' %}" type="video/mp4">
+  </video>
+  <div class="myth-video-overlay" aria-hidden="true"></div>
   <div class="myth-web-bg" aria-hidden="true">
     <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
       <g stroke="#c9901e" stroke-width="1.2" fill="none">
@@ -1742,139 +2106,14 @@
           — Founder, Anansi Atlas
         </p>
         <div style="margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;" class="reveal reveal-delay-2">
-          <a class="btn btn-gold btn-lg" href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener">Apply for a Founding Seat →</a>
-          <a class="btn btn-ghost btn-lg" href="#ask">Get More Information</a>
+          <a class="btn btn-gold btn-lg" href="#get-started">Apply for a Founding Seat →</a>
         </div>
       </div>
     </section>
-  </div>
-</div>
-
-<!-- ═══ FAQ ════════════════════════════════════════════════════════════ -->
-<div style="background: var(--night, #07101d); padding: 80px 0;">
-  <div class="shell">
-    <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Common Questions</p>
-    <h2 class="display reveal reveal-delay-1" style="text-align:center;color:#fff;max-width:540px;margin:0 auto 48px;">
-      Everything you need to know
-    </h2>
-    <div class="faq-card-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:860px;margin:0 auto;">
-
-      <div class="faq-card reveal">
-        <h3>Is this just a grant search tool?</h3>
-        <p>No. Anansi Atlas is a strategic intelligence layer — not a database you search. It maps the full opportunity landscape around your specific mission: funders, partners, government pathways, readiness gaps, and a 30-day action plan. You don't search it. It builds around you.</p>
-      </div>
-
-      <div class="faq-card reveal reveal-delay-1">
-        <h3>What if my organization is small or new?</h3>
-        <p>Anansi Atlas is built for organizations at every stage. The Readiness Score is honest — if you have gaps, it names them and tells you what to address first. Small organizations often benefit most because they don't have research capacity and this replaces what they can't afford to hire.</p>
-      </div>
-
-      <div class="faq-card reveal">
-        <h3>How long does the intake form take?</h3>
-        <p>About 10 minutes. You'll answer questions about your mission, programs, geography, focus areas, and who you serve. No jargon, no consultants required — just plain language about your work.</p>
-      </div>
-
-      <div class="faq-card reveal reveal-delay-1">
-        <h3>When do I get my Opportunity Web Snapshot?</h3>
-        <p>Your Snapshot is included in the founding pilot. Once you're onboarded, we build it around your specific mission and schedule your personal walkthrough call. That's where you see it — together with the Anansi Atlas team, not alone in a dashboard.</p>
-      </div>
-
-      <div class="faq-card reveal">
-        <h3>What's included in the founding partner price?</h3>
-        <p>$150/month includes full platform access, your Opportunity Web Snapshot, your entire strategic workspace (funding pipeline, readiness tracker, partner map), and a 45-minute personal founder walkthrough call with the team. The price is locked for life — it never increases as long as you stay active.</p>
-      </div>
-
-      <div class="faq-card reveal reveal-delay-1">
-        <h3>Can I cancel anytime?</h3>
-        <p>Yes. No contracts, no commitments. Cancel any time. If you lock in the founding partner rate and leave, the rate isn't guaranteed when you return — but there's no penalty for canceling.</p>
-      </div>
-
-    </div>
   </div>
 </div>
 
 </main>
-
-<!-- ═══ FOUNDER STORY ════════════════════════════════════════════════ -->
-<div class="founder-zone">
-  <div class="shell">
-    <section aria-label="Founder story" style="padding: clamp(60px,8vw,100px) 0;">
-      <div class="founder-layout">
-        <div class="founder-avatar-block reveal">
-          <img src="{% static 'signals/founder-headshot.png' %}" alt="Founder of Anansi Atlas" class="founder-photo">
-          <div class="founder-cred">
-            <strong>The Founder</strong>
-            Built from inside the sector<br>
-            U.S. Air Force Veteran<br>
-            Former nonprofit executive
-          </div>
-        </div>
-        <div>
-          <p class="section-label eyebrow-gold reveal">From the founder</p>
-          <div class="gold-rule reveal reveal-delay-1"></div>
-          <blockquote class="founder-quote reveal reveal-delay-1">
-            "Built by a former nonprofit executive who's been in your shoes."
-          </blockquote>
-          <div class="founder-body reveal reveal-delay-2">
-            <p>I spent years working inside the nonprofit sector at the executive level, where I saw how hard mission-driven organizations fight to serve their communities, stretch limited resources, and keep moving forward.</p>
-            <p>But I also saw something else.</p>
-            <p>Many organizations were missing opportunities that were already within reach.</p>
-            <p>Not because they lacked effort.<br>
-            Not because they lacked passion.<br>
-            Not because the mission wasn't strong.</p>
-            <p>The problem was visibility.</p>
-            <p>Funders were hard to find.<br>
-            Potential partners were disconnected.<br>
-            Government pathways were buried.<br>
-            Resources were scattered.<br>
-            Readiness gaps quietly blocked progress before an application was ever submitted.</p>
-            <p>That experience is what led me to build <strong>Anansi Atlas</strong>.</p>
-            <p>I wanted to create a clearer way for nonprofits and mission-driven organizations to see the full web of opportunity around their mission — and know where to focus next.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-</div>
-
-<!-- ═══ FAQ ══════════════════════════════════════════════════════════ -->
-<div class="how-zone">
-  <div class="shell">
-    <section aria-label="Frequently asked questions">
-      <div class="section-divider reveal"></div>
-      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Common Questions</p>
-      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:640px;margin:0 auto 48px;">
-        <em>Answers</em> before you decide.
-      </h2>
-      <div style="display:grid;gap:16px;max-width:760px;margin:0 auto;">
-        <details class="faq-item reveal" open>
-          <summary class="faq-q">Do founding partners get access to the platform?</summary>
-          <p class="faq-a">Yes. Founding Atlas Partners receive early access to the Anansi Atlas platform, along with a guided Opportunity Web Snapshot and founder-led support.</p>
-        </details>
-        <details class="faq-item reveal reveal-delay-1">
-          <summary class="faq-q">Is the Snapshot a report or part of the platform?</summary>
-          <p class="faq-a">Both. The Snapshot is the first guided map of your organization's opportunity ecosystem. It can be reviewed as a deliverable, but it is also connected to your organization's platform workspace.</p>
-        </details>
-        <details class="faq-item reveal reveal-delay-2">
-          <summary class="faq-q">Is Anansi Atlas just a grant search tool?</summary>
-          <p class="faq-a">No. Anansi Atlas looks beyond grants. It helps organize funders, partners, government pathways, community resources, readiness gaps, and next steps around your mission — all in one platform.</p>
-        </details>
-        <details class="faq-item reveal reveal-delay-3">
-          <summary class="faq-q">What does early access mean?</summary>
-          <p class="faq-a">Early access means your organization gets into the platform during the founding cohort stage while the product is being refined with real nonprofit teams. Founding partners help shape the tools around actual nonprofit needs.</p>
-        </details>
-        <details class="faq-item reveal">
-          <summary class="faq-q">Can we help shape the platform?</summary>
-          <p class="faq-a">Yes. Founding partners receive priority input opportunities so their needs can help shape future features, workflows, and platform improvements. You're not just a customer — you're a co-builder.</p>
-        </details>
-        <details class="faq-item reveal reveal-delay-1">
-          <summary class="faq-q">What happens after the founding cohort closes?</summary>
-          <p class="faq-a">Founding Atlas Partners keep their $150/month rate locked for life — even as public pricing increases. The next cohort (Early Atlas Partners) opens at $200/month. Public Pro launches at $497/month.</p>
-        </details>
-      </div>
-    </section>
-  </div>
-</div>
 
 <!-- ═══ ASK A QUESTION ═══════════════════════════════════════════════ -->
 <div class="form-zone" id="ask">
@@ -1945,7 +2184,7 @@
         <a href="/resources/">Resources</a>
         <a href="/privacy/">Privacy</a>
         <a href="/terms/">Terms</a>
-        <a href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" class="gold">Join the Founding Cohort →</a>
+        <a href="https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601" target="_blank" rel="noopener" class="gold">Claim Your Founding Seat — $150/mo →</a>
       </div>
     </div>
   </div>

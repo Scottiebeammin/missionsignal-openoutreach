@@ -8,6 +8,13 @@
       "port": 8001
     },
     {
+      "name": "reelforge",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/scottiebeammin/Documents/GitHub/reelforge", "run", "dev"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
       "name": "deck",
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8042", "--directory", "/private/tmp/claude-501/-Users-scottiebeammin-Documents-GitHub-missionsignal-openoutreach/809fcc4c-3f97-4618-ad79-9addd5639d1a/scratchpad"],
