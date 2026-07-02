@@ -749,24 +749,32 @@ export const GsapRise: React.FC<{
   const ref = React.useRef<HTMLDivElement>(null);
   const tlRef = React.useRef<import("gsap").core.Timeline | null>(null);
 
-  React.useEffect(() => {
-    if (!ref.current) return;
-    // paused: true — we drive it manually below; GSAP's ticker never runs.
-    const tl = gsap.timeline({ paused: true });
-    tl.from(ref.current, { y: 44, opacity: 0, duration: durationInFrames / fps, ease });
-    tlRef.current = tl;
-    return () => {
-      tl.kill();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  // IMPORTANT: creation + the first seek must happen in the SAME synchronous pass
+  // (useLayoutEffect, before paint). Splitting creation into useEffect (which fires
+  // AFTER paint) left `.from()`'s starting state (opacity:0) captured on the very
+  // first frame Remotion renders — a real bug caught via CapabilityTest, 2026-07-01.
   React.useLayoutEffect(() => {
-    if (!tlRef.current) return;
+    if (!ref.current) return;
+    if (!tlRef.current) {
+      // paused: true — we drive it manually below; GSAP's ticker never runs.
+      tlRef.current = gsap.timeline({ paused: true }).from(ref.current, {
+        y: 44,
+        opacity: 0,
+        duration: durationInFrames / fps,
+        ease,
+      });
+    }
     const localFrame = Math.max(0, frame - delay);
-    const seconds = localFrame / fps;
-    tlRef.current.time(seconds); // seek mode — deterministic, frame-exact
+    tlRef.current.time(localFrame / fps); // seek mode — deterministic, frame-exact
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frame, delay, fps]);
+
+  React.useEffect(() => {
+    return () => {
+      tlRef.current?.kill();
+      tlRef.current = null;
+    };
+  }, []);
 
   return (
     <div ref={ref} style={style}>

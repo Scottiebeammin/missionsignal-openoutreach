@@ -11,6 +11,7 @@ import { Jul31ClosingOutro } from "./ads/Jul31ClosingOutro";
 import { PremiumShowcase } from "./oneoffs/PremiumShowcase";
 import { FullExplainer } from "./oneoffs/FullExplainer";
 import { ProductWalkthrough, WALK_TOTAL } from "./oneoffs/ProductWalkthrough";
+import { CapabilityTest } from "./oneoffs/CapabilityTest";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -122,6 +123,16 @@ export const RemotionRoot: React.FC = () => {
           problemBrollSrc: null as string | null, // e.g. "broll/hands-typing.mp4"
           officeEnvSrc: null as string | null, // e.g. "broll/laptop-office.mp4" or ".jpg"
         }}
+      />
+
+      {/* ⚠️ THROWAWAY TEST — not part of the ads pipeline. GSAP capability showcase. */}
+      <Composition
+        id="CapabilityTest"
+        component={CapabilityTest}
+        durationInFrames={720}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
       />
     </>
   );
