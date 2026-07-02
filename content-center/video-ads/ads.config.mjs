@@ -43,6 +43,26 @@ export const ADS = [
     ],
   },
   {
+    // THE LAUNCH FILM — "The Web of Opportunity" cinematic brand film (Scott's full brief:
+    // 9 scenes, globe hero, gradient mesh, moody laptop, flip cards). oneOff. Voice: Christopher.
+    id: "WebOfOpportunityFilm",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "web-of-opportunity-film-vo.mp3",
+    script: [
+      "Every mission is surrounded by opportunity.",
+      "The challenge isn't that opportunities don't exist. They're scattered across dozens of places — making them difficult to see, prioritize, and act on before they're missed.",
+      "When opportunity is fragmented, organizations miss funding, partnerships, and momentum. Not because they lack potential — but because they lack visibility.",
+      "That's why we built Anansi Atlas. An opportunity intelligence platform designed to help mission-driven organizations see the full web of opportunity surrounding their mission.",
+      "Instead of searching across dozens of disconnected sources, Anansi Atlas helps organizations understand their entire opportunity ecosystem in one place.",
+      "See hidden connections, identify strategic relationships, and focus on the opportunities that matter most.",
+      "Your Opportunity Web Snapshot turns all of it into a clear, thirty-day action plan.",
+      "Now, we're inviting a limited number of organizations to become Founding Atlas Partners, and help shape the future of Anansi Atlas.",
+      "Be among the first to map the web of opportunity surrounding your mission. Join today, while seats remain.",
+    ],
+  },
+  {
     // FIRST LINKEDIN POST — "19 of 20 Seats" stat reveal. oneOff (posted manually, not
     // scheduler-dated). Voice: Jackson (assertive/scarcity — same as PilotSignup).
     id: "PilotSeatsReveal",

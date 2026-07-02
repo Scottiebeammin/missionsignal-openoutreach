@@ -16,6 +16,7 @@ import { CapabilityTest } from "./oneoffs/CapabilityTest";
 import { CapabilityTest2 } from "./oneoffs/CapabilityTest2";
 import { CapabilityTest3, CAPABILITY_TEST_3_TOTAL } from "./oneoffs/CapabilityTest3";
 import { EarthWebTest, EARTH_WEB_TEST_TOTAL } from "./oneoffs/EarthWebTest";
+import { WebOfOpportunityFilm, FILM_TOTAL } from "./oneoffs/WebOfOpportunityFilm";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -168,6 +169,17 @@ export const RemotionRoot: React.FC = () => {
         fps={FPS}
         width={SIZE}
         height={SIZE}
+      />
+
+      {/* 🎬 THE LAUNCH FILM — "The Web of Opportunity" cinematic brand film (9 scenes). */}
+      <Composition
+        id="WebOfOpportunityFilm"
+        component={WebOfOpportunityFilm}
+        durationInFrames={FILM_TOTAL}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ audioSrc: "web-of-opportunity-film-vo.mp3" as string | null }}
       />
 
       {/* ⚠️ PROTOTYPE — de-risking the rotating-globe hero visual before committing it. */}
