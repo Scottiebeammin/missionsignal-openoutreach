@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field
 
 from openoutreach.funding.grants_gov import US_STATES
@@ -27,6 +28,47 @@ MATCH_WEIGHTS = {
 NATIONAL_GEOGRAPHY_POINTS = 15
 
 _US_STATES_CF = {state.casefold() for state in US_STATES}
+
+# Deterministic downrank (never exclusion) for academic/research-instrument
+# grants when the org profile is not a research organization. Each marker hit
+# costs RESEARCH_MARKER_POINTS, capped at RESEARCH_PENALTY_CAP total.
+RESEARCH_PENALTY_CAP = 15
+RESEARCH_MARKER_POINTS = 5
+RESEARCH_PENALTY_REASON = (
+    "Academic research program — likely a weak fit for a community nonprofit"
+)
+# NIH-style activity codes (R25, R01, K99, T32, F31, U54 ...) as standalone tokens.
+_ACTIVITY_CODE_RE = re.compile(r"\b[rktfup]\d{2}\b")
+_RESEARCH_MARKERS = (
+    "research education",
+    "clinical trial",
+    "clinical research",
+    "biomedical",
+    "laborator",  # laboratory / laboratories
+    "dissertation",
+    "postdoctoral",
+    "predoctoral",
+    "principal investigator",
+    "fellowship for graduate",
+    "graduate fellowship",
+    "scientific research",
+)
+_RESEARCH_ORG_HINTS = ("research", "university", "college", "higher education", "academic")
+
+# Ranking granularity for geography (tiebreaker only): city > county > state > national.
+_GEO_GRANULARITY_CITY = 4
+_GEO_GRANULARITY_COUNTY = 3
+_GEO_GRANULARITY_STATE = 2
+_GEO_GRANULARITY_NATIONAL = 1
+
+# Ranking rank for record verification status (tiebreaker only).
+_VERIFICATION_RANKS = {"verified": 2, "reviewed": 1}
+
+# Weighted-focus-term thresholds for the topical (opportunity) scoring path:
+# a multi-word focus phrase counts 3 per occurrence, a single generic word 1.
+_FOCUS_FULL_HITS = 6      # full focus weight
+_FOCUS_STRONG_HITS = 3    # 75% of focus weight
+_FOCUS_PARTIAL_HITS = 1   # ~50% of focus weight
 
 # Grants.gov applicant-type ids compatible with nonprofit applicants:
 # 12 = 501(c)(3) nonprofits, 13 = non-501(c)(3) nonprofits,
@@ -91,10 +133,30 @@ class OpportunityMatch:
     suggested_next_action: str
     excluded: bool = False
     exclusion_reason: str = ""
+    # Ranking-only signals (do not affect the 0-100 headline score).
+    focus_term_hits: int = 0
+    geography_granularity: int = 0
+    verification_rank: int = 0
+    research_penalty: int = 0
 
     @property
     def matching_factor_count(self) -> int:
         return len(self.match_factors)
+
+    @property
+    def sort_key(self) -> tuple:
+        """Deterministic composite ranking key: headline score first, then
+        weighted focus-term overlap count, geography granularity
+        (city > county > state > national), verification status
+        (verified > reviewed > unverified), and finally name for stability."""
+        return (
+            -self.score,
+            -self.focus_term_hits,
+            -self.geography_granularity,
+            -self.verification_rank,
+            self.name.casefold(),
+            self.name,
+        )
 
 
 @dataclass(frozen=True)
@@ -284,6 +346,8 @@ def _profile(project, funding_criteria=None) -> dict:
     return {
         "organization_type": str(organization.organization_type or "").strip(),
         "state": str(organization.state or "").strip(),
+        "city": str(organization.city or "").strip(),
+        "county": str(organization.county or "").strip(),
         "geography": geography,
         "focus_areas": focus_areas,
         "beneficiaries": beneficiaries,
@@ -329,6 +393,72 @@ def _shared_keyword_matches(keywords: list[str], profile_text: str, record_text:
         for keyword in keywords
         if keyword.casefold() in profile_text and keyword.casefold() in record_text
     ]
+
+
+def _weighted_focus_hits(terms: list[str], record_text: str) -> int:
+    """Weighted occurrence count of focus terms in the record's real text
+    (title + focus lists + description/eligibility). Multi-word focus phrases
+    ("workforce development") weigh 3 per occurrence; single generic words
+    ("youth") weigh 1. Occurrences per term are capped at 3 so one spammy
+    term can't dominate."""
+    total = 0
+    seen = set()
+    for term in terms:
+        term_cf = term.strip().casefold()
+        if not term_cf or term_cf in seen:
+            continue
+        seen.add(term_cf)
+        count = min(record_text.count(term_cf), 3)
+        if count:
+            weight = 3 if " " in term_cf else 1
+            total += weight * count
+    return total
+
+
+def _topical_focus_score(weighted_hits: int, weight: int) -> int:
+    """Graded focus score from weighted term counts (topical scoring path)."""
+    if weighted_hits >= _FOCUS_FULL_HITS:
+        return weight
+    if weighted_hits >= _FOCUS_STRONG_HITS:
+        return round(weight * 0.75)
+    if weighted_hits >= _FOCUS_PARTIAL_HITS:
+        return round(weight * 0.5)
+    return 0
+
+
+def _is_research_org(profile: dict) -> bool:
+    haystack = (
+        profile.get("organization_type", "")
+        + " "
+        + " ".join(profile.get("focus_areas", []))
+    ).casefold()
+    return any(hint in haystack for hint in _RESEARCH_ORG_HINTS)
+
+
+def _research_markers_found(record_text: str) -> list[str]:
+    markers = [code.upper() for code in sorted(set(_ACTIVITY_CODE_RE.findall(record_text)))]
+    markers += [marker for marker in _RESEARCH_MARKERS if marker in record_text]
+    return markers
+
+
+def _geography_granularity(profile: dict, geography_matches: list[str], *, org_state_match: bool, is_national: bool) -> int:
+    matched_cf = {value.casefold() for value in geography_matches}
+    city = profile.get("city", "").casefold()
+    county = profile.get("county", "").casefold()
+    state = profile.get("state", "").casefold()
+    if city and city in matched_cf:
+        return _GEO_GRANULARITY_CITY
+    if county and county in matched_cf:
+        return _GEO_GRANULARITY_COUNTY
+    if org_state_match or (state and state in matched_cf):
+        return _GEO_GRANULARITY_STATE
+    if is_national:
+        return _GEO_GRANULARITY_NATIONAL
+    return 0
+
+
+def _verification_rank(verification_status: str) -> int:
+    return _VERIFICATION_RANKS.get(str(verification_status or "").strip().casefold(), 0)
 
 
 def _factor_score(matches: list[str], weight: int, *, partial: int = 0) -> int:
@@ -451,6 +581,8 @@ def _score_record(
     suggested_next_action: str | None = None,
     applicant_types: list | None = None,
     strict_screening: bool = False,
+    verification_status: str = "",
+    topical_scoring: bool = False,
 ) -> OpportunityMatch:
     record_geography = _clean_values(geography)
     record_focus = _clean_values(focus_areas)
@@ -554,7 +686,22 @@ def _score_record(
         geography_score = NATIONAL_GEOGRAPHY_POINTS
     else:
         geography_score = 0
-    focus_score = _factor_score(focus_matches, MATCH_WEIGHTS["focus"])
+    # Weighted focus-term overlap on real term counts (title + focus lists +
+    # description/eligibility text). Multi-word focus phrases outweigh single
+    # generic words. Always computed as a ranking tiebreaker; used as the
+    # focus score itself on the topical (opportunity) scoring path.
+    focus_term_pool = list(
+        dict.fromkeys(
+            profile["focus_areas"]
+            + (domain_keywords or category_keywords or LEGACY_FOCUS_KEYWORDS)
+        )
+    )
+    focus_term_hits = _weighted_focus_hits(focus_term_pool, record_text)
+
+    if topical_scoring:
+        focus_score = _topical_focus_score(focus_term_hits, MATCH_WEIGHTS["focus"])
+    else:
+        focus_score = _factor_score(focus_matches, MATCH_WEIGHTS["focus"])
     beneficiary_score = _factor_score(beneficiary_matches, MATCH_WEIGHTS["beneficiary"])
     program_score = _factor_score(program_matches, MATCH_WEIGHTS["program"])
     organization_score = MATCH_WEIGHTS["organization_type"] if organization_type_match else 0
@@ -572,7 +719,16 @@ def _score_record(
         if shared:
             domain_boost = min(10, 5 * len(shared))
 
-    score = max(0, min(base_score + domain_boost, 100))
+    # Research/academic-instrument downrank: deterministic, capped, and never
+    # an exclusion — eligibility/geography remain the only hard screens.
+    research_penalty = 0
+    research_markers: list[str] = []
+    if topical_scoring and not _is_research_org(profile):
+        research_markers = _research_markers_found(record_text)
+        if research_markers:
+            research_penalty = min(RESEARCH_PENALTY_CAP, RESEARCH_MARKER_POINTS * len(research_markers))
+
+    score = max(0, min(base_score + domain_boost - research_penalty, 100))
 
     match_factors = []
     reasons = []
@@ -597,6 +753,12 @@ def _score_record(
     if organization_type_match:
         match_factors.append("Organization Type Alignment")
         reasons.append(f"{_display(organization_type)} compatibility")
+    if research_penalty:
+        marker_label = ", ".join(research_markers[:3])
+        reasons.insert(
+            0,
+            f"{RESEARCH_PENALTY_REASON} ({marker_label}; -{research_penalty} pts)",
+        )
     if not reasons:
         reasons.append("General mission adjacency")
 
@@ -617,14 +779,17 @@ def _score_record(
         current_lifecycle_status=current_lifecycle_status,
         owner_label=owner_label,
         suggested_next_action=suggested_next_action or recommended_lifecycle_action(Opportunity.LifecycleStatus.DISCOVERED),
+        focus_term_hits=focus_term_hits,
+        geography_granularity=_geography_granularity(
+            profile, geography_matches, org_state_match=org_state_match, is_national=is_national,
+        ),
+        verification_rank=_verification_rank(verification_status),
+        research_penalty=research_penalty,
     )
 
 
 def _sort_matches(matches: list[OpportunityMatch]) -> list[OpportunityMatch]:
-    return sorted(
-        matches,
-        key=lambda match: (-match.score, -match.matching_factor_count, -match.geography_relevance, match.name),
-    )
+    return sorted(matches, key=lambda match: match.sort_key)
 
 
 GAP_TO_ACTION = {
@@ -698,6 +863,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             beneficiaries=funder.beneficiaries,
             program_terms=[],
             compatibility_text=f"{funder.eligibility_notes}\n{funder.notes}",
+            verification_status=funder.verification_status,
         )
         for funder in Funder.objects.filter(active=True)
     ])
@@ -712,6 +878,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             beneficiaries=[],
             program_terms=entity.opportunity_lanes,
             compatibility_text=f"{entity.department_or_office}\n{entity.notes}",
+            verification_status=getattr(entity, "verification_status", ""),
         )
         for entity in GovernmentEntity.objects.filter(active=True)
     ])
@@ -726,6 +893,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             beneficiaries=[],
             program_terms=provider.resource_categories,
             compatibility_text=f"{provider.eligibility_notes}\n{provider.notes}",
+            verification_status=getattr(provider, "verification_status", ""),
         )
         for provider in exclude_demo(ResourceProvider.objects.filter(active=True))
     ])
@@ -740,6 +908,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             beneficiaries=partner.beneficiaries,
             program_terms=partner.collaboration_opportunities,
             compatibility_text=partner.notes,
+            verification_status=partner.verification_status,
         )
         for partner in exclude_demo(PartnerOrganization.objects.filter(active=True))
     ])
@@ -793,6 +962,8 @@ def score_inventory_opportunity(project, opportunity, funding_criteria=None) -> 
         category_keywords=EXPANDED_CATEGORY_KEYWORDS,
         applicant_types=getattr(opportunity, "applicant_types", None) or [],
         strict_screening=True,
+        topical_scoring=True,
+        verification_status=opportunity.verification_status,
         current_lifecycle_status=opportunity.get_lifecycle_status_display(),
         owner_label="Assigned" if opportunity.assigned_owner else "Unassigned",
         suggested_next_action=recommended_lifecycle_action(opportunity.lifecycle_status),
