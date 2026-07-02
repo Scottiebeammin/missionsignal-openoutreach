@@ -1508,32 +1508,6 @@
 
 <main>
 
-<!-- ═══ THE PROBLEM ══════════════════════════════════════════════════ -->
-<div class="problem-zone">
-  <div class="shell">
-    <section aria-label="The problem">
-      <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">The Problem</p>
-      <h2 class="display reveal reveal-delay-1" style="text-align:center;max-width:680px;margin:0 auto;">
-        The opportunity was never missing.<br><em>It was scattered.</em>
-      </h2>
-      <div class="problem-lines reveal reveal-delay-2">
-        <p>The funders aligned with your mission live in 40 browser tabs and three inboxes.</p>
-        <p>The partners who could strengthen your next application sit in a spreadsheet nobody opens.</p>
-        <p>The government pathways exist — in one person's memory. The problem isn't scarcity. It's visibility.</p>
-      </div>
-      <div class="problem-chips" id="problem-chips" aria-hidden="true">
-        <span class="problem-chip">Funders</span>
-        <span class="problem-chip">Partners</span>
-        <span class="problem-chip">Government</span>
-        <span class="problem-chip">Resources</span>
-        <span class="problem-chip">Readiness</span>
-        <span class="problem-chip">Pathways</span>
-      </div>
-      <div class="problem-thread" aria-hidden="true"></div>
-    </section>
-  </div>
-</div>
-
 <!-- ═══ THE WEB OF OPPORTUNITY ══════════════════════════════════════ -->
 <div class="web-section">
   <div class="shell">
@@ -1662,20 +1636,6 @@
           <div class="snap-icon" aria-hidden="true">⭐</div>
           <h3>Priority Feature Input</h3>
           <p>Founding partners shape the platform. Your feedback and needs get priority as Anansi Atlas is built with real nonprofit teams during the founding cohort stage.</p>
-        </div>
-      </div>
-      <div class="stat-row reveal" aria-label="Platform at a glance">
-        <div class="stat-item">
-          <div class="stat-num"><span class="count-up" data-count="6">0</span></div>
-          <div class="stat-label">Pathways mapped</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">0–<span class="count-up" data-count="100">0</span></div>
-          <div class="stat-label">Readiness score</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num"><span class="count-up" data-count="30">0</span><small>-day</small></div>
-          <div class="stat-label">Action plan</div>
         </div>
       </div>
     </section>
@@ -1826,10 +1786,8 @@
 <div class="proof-zone">
   <div class="shell">
     <section aria-label="Reserve a founding seat" style="padding: clamp(30px,4vw,50px) 0; text-align:center;">
-      <div class="seat-counter reveal" id="seat-counter" hidden>
-        <div class="seat-counter-dot" aria-hidden="true"></div>
-        <span id="seat-counter-text"></span>
-      </div>
+      <h2 class="display reveal" style="color:var(--ink);margin-bottom:10px;">Grab a seat <em>today.</em></h2>
+      <a class="btn btn-gold btn-lg reveal reveal-delay-1" href="#get-started" style="margin-top:8px;">Apply for a Founding Seat →</a>
       <p class="reveal reveal-delay-1" style="margin-top:16px;font-size:0.85rem;color:rgba(13,26,46,0.50);max-width:520px;margin-left:auto;margin-right:auto;">When these 20 seats fill, the founding rate is gone for good. The next group joins at $200/month, and public Pro pricing launches at $497.</p>
     </section>
   </div>
@@ -2210,23 +2168,6 @@
     });
   });
 
-  /* ── Live seat counter ── */
-  function updateSeatCounter() {
-    fetch('/anansi-atlas/seats/')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        var el = document.getElementById('seat-counter-text');
-        if (!el) return;
-        if (data.remaining <= 0) {
-          el.textContent = 'Founding seats closed — join the waitlist';
-        } else {
-          el.textContent = data.remaining + ' of ' + data.total + ' founding seats remaining';
-        }
-      })
-      .catch(function() {});
-  }
-  updateSeatCounter();
-  setInterval(updateSeatCounter, 300000); // refresh every 5 min
 </script>
 </body>
 </html>
