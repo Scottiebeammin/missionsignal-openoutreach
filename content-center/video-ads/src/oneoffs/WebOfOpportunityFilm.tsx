@@ -15,6 +15,7 @@ import {
   SANS,
   SERIF,
   SceneDissolve,
+  DeviceFrame,
   ScreenshotPanel,
   Subtitles,
 } from "../components";
@@ -66,9 +67,10 @@ const GradientMesh: React.FC<{ opacity?: number }> = ({ opacity = 0.5 }) => {
   const frame = useCurrentFrame();
   const t = frame / 30;
   const blobs = [
-    { color: "212,160,23", x: 22 + Math.sin(t * 0.21) * 6, y: 24 + Math.cos(t * 0.17) * 5, r: 34 },
-    { color: "15,118,110", x: 76 + Math.sin(t * 0.16 + 2) * 7, y: 68 + Math.cos(t * 0.19 + 1) * 6, r: 38 },
-    { color: "35,87,137", x: 55 + Math.sin(t * 0.13 + 4) * 8, y: 30 + Math.cos(t * 0.15 + 3) * 7, r: 30 },
+    { color: "222,168,28", x: 22 + Math.sin(t * 0.21) * 8, y: 24 + Math.cos(t * 0.17) * 7, r: 38 },
+    { color: "20,150,140", x: 76 + Math.sin(t * 0.16 + 2) * 9, y: 68 + Math.cos(t * 0.19 + 1) * 8, r: 42 },
+    { color: "60,120,200", x: 55 + Math.sin(t * 0.13 + 4) * 10, y: 30 + Math.cos(t * 0.15 + 3) * 9, r: 34 },
+    { color: "205,110,70", x: 34 + Math.sin(t * 0.18 + 5.5) * 9, y: 74 + Math.cos(t * 0.14 + 4.5) * 7, r: 32 },
   ];
   return (
     <AbsoluteFill style={{ opacity, filter: "blur(70px)" }}>
@@ -82,7 +84,7 @@ const GradientMesh: React.FC<{ opacity?: number }> = ({ opacity = 0.5 }) => {
             width: `${b.r}%`,
             height: `${b.r}%`,
             borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(${b.color},0.55) 0%, rgba(${b.color},0) 70%)`,
+            background: `radial-gradient(circle, rgba(${b.color},0.75) 0%, rgba(${b.color},0) 70%)`,
           }}
         />
       ))}
@@ -496,24 +498,11 @@ const KPI: React.FC<{ label: string; value: string; delay: number; right?: boole
 );
 
 const PlatformScene: React.FC<{ durationInFrames: number }> = ({ durationInFrames }) => {
-  const frame = useCurrentFrame();
-  const glow = 0.5 + Math.sin(frame / 22) * 0.12;
   return (
     <AbsoluteFill>
-      <GradientMesh opacity={0.4} />
+      <GradientMesh opacity={0.6} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
-        <div style={{ position: "relative" }}>
-          <div
-            style={{
-              position: "absolute",
-              inset: -46,
-              borderRadius: 40,
-              background: `radial-gradient(ellipse at center, rgba(212,160,23,${glow * 0.35}) 0%, rgba(35,87,137,0.12) 50%, transparent 75%)`,
-              filter: "blur(28px)",
-            }}
-          />
-          <ScreenshotPanel src={staticFile("screenshots/dashboard.png")} label="anansiatlas.com/dashboard" durationInFrames={durationInFrames} width={600} panY={[0, -14]} />
-        </div>
+        <DeviceFrame src={staticFile("screenshots/dashboard.png")} width={640} durationInFrames={durationInFrames} delay={6} />
       </AbsoluteFill>
       <AbsoluteFill style={{ justifyContent: "center", paddingLeft: 22 }}>
         <div style={{ width: 195 }}>
@@ -533,26 +522,29 @@ const PlatformScene: React.FC<{ durationInFrames: number }> = ({ durationInFrame
 // SCENE 7 — Snapshot: flipping numbered cards (Pinterest ref #3)
 // ─────────────────────────────────────────────────────────────────────────────
 const FLIPS = [
-  { num: "01", title: "Recommended Funders", sub: "Ranked by mission fit" },
-  { num: "02", title: "Potential Partners", sub: "Who opens which doors" },
-  { num: "03", title: "Next Steps", sub: "Your 30-day action plan" },
+  { num: "01", title: "Recommended Funders", sub: "Ranked by mission fit", accent: "212,160,23" },
+  { num: "02", title: "Potential Partners", sub: "Who opens which doors", accent: "20,150,140" },
+  { num: "03", title: "Next Steps", sub: "Your 30-day action plan", accent: "205,110,70" },
 ];
 
-const FlipCard: React.FC<{ num: string; title: string; sub: string; delay: number }> = ({ num, title, sub, delay }) => {
+const FlipCard: React.FC<{ num: string; title: string; sub: string; delay: number; accent: string }> = ({ num, title, sub, delay, accent }) => {
   const frame = useCurrentFrame();
   const p = interpolate(frame - delay, [0, 34], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const eased = 1 - Math.pow(1 - p, 3);
   const rot = 180 * eased; // number face → content face
   const showBack = rot > 90;
+  const pop = interpolate(frame - delay, [0, 20], [0.7, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const float = Math.sin((frame + delay * 3) / 34) * 7;
   return (
-    <div style={{ perspective: 1200, width: 300, height: 360 }}>
+    <div style={{ perspective: 1200, width: 300, height: 360, transform: `scale(${pop}) translateY(${float}px)` }}>
       <div style={{ position: "relative", width: "100%", height: "100%", transformStyle: "preserve-3d", transform: `rotateY(${rot}deg)` }}>
         {/* front: the big numeral */}
         <div
           style={{
             position: "absolute", inset: 0, backfaceVisibility: "hidden",
-            background: "linear-gradient(160deg, #16294f 0%, #0d1b3d 100%)",
-            border: "1px solid rgba(212,160,23,0.4)", borderRadius: 22,
+            background: `linear-gradient(160deg, rgba(${accent},0.4) 0%, #0d1b3d 62%)`,
+            border: `1px solid rgba(${accent},0.8)`, borderRadius: 22,
+            boxShadow: `0 26px 60px rgba(0,0,0,0.5), 0 0 46px rgba(${accent},0.28)`,
             display: "flex", alignItems: "center", justifyContent: "center",
             visibility: showBack ? "hidden" : "visible",
           }}
@@ -563,8 +555,9 @@ const FlipCard: React.FC<{ num: string; title: string; sub: string; delay: numbe
         <div
           style={{
             position: "absolute", inset: 0, backfaceVisibility: "hidden", transform: "rotateY(180deg)",
-            background: "linear-gradient(160deg, rgba(212,160,23,0.16) 0%, #0d1b3d 60%)",
-            border: "1px solid rgba(212,160,23,0.55)", borderRadius: 22,
+            background: `linear-gradient(160deg, rgba(${accent},0.5) 0%, #0d1b3d 58%)`,
+            border: `1px solid rgba(${accent},0.9)`, borderRadius: 22,
+            boxShadow: `0 26px 60px rgba(0,0,0,0.5), 0 0 52px rgba(${accent},0.35)`,
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
             padding: 26, textAlign: "center", gap: 10,
             visibility: showBack ? "visible" : "hidden",
@@ -629,7 +622,7 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
 
       {/* SCENE 7 — Snapshot: flipping cards */}
       <Sequence from={B[6]} durationInFrames={B[7] - B[6]}>
-        <GradientMesh opacity={0.28} />
+        <GradientMesh opacity={0.55} />
         <Center gap={0}>
           <div style={{ display: "flex", gap: 34 }}>
             {FLIPS.map((f, i) => (
@@ -676,11 +669,14 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
 
 const OrbWebScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 110], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const progress = interpolate(frame, [0, 100], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const zoom = interpolate(frame, [0, 170], [0.86, 1.06], { extrapolateRight: "clamp" }); // bigger: continuous push-in
   return (
     <AbsoluteFill>
-      <GradientMesh opacity={0.25} />
-      <OrbWeb progress={progress} />
+      <GradientMesh opacity={0.5} />
+      <AbsoluteFill style={{ transform: `scale(${zoom})` }}>
+        <OrbWeb progress={progress} />
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };

@@ -786,3 +786,69 @@ export const GsapRise: React.FC<{
     </div>
   );
 };
+
+/**
+ * DeviceFrame — a screenshot presented inside a modern tablet/iPad-style device
+ * (dark rounded bezel, metallic edge light, floating drop shadow, colorful under-glow,
+ * and a slow light-reflection sweep across the glass). Per the Pinterest device ref:
+ * the product should look like it's ON a real device, not floating as a browser card.
+ */
+export const DeviceFrame: React.FC<{
+  src: string;
+  width?: number;
+  durationInFrames: number;
+  delay?: number;
+  glow?: string; // CSS gradient for the colorful under-glow
+}> = ({ src, width = 760, durationInFrames, delay = 0, glow }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({ frame: frame - delay, fps, config: { damping: 16, mass: 0.9 } });
+  const scale = interpolate(s, [0, 1], [0.82, 1]);
+  const opacity = interpolate(frame - delay, [0, 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const sweep = interpolate(frame, [delay + 20, delay + Math.min(durationInFrames - 10, 110)], [-30, 130], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const h = width * 0.68;
+  return (
+    <div style={{ position: "relative", opacity, transform: `scale(${scale})` }}>
+      {/* colorful under-glow */}
+      <div
+        style={{
+          position: "absolute",
+          inset: -60,
+          borderRadius: 60,
+          background: glow ?? "radial-gradient(ellipse at 30% 20%, rgba(212,160,23,0.4) 0%, rgba(15,118,110,0.3) 45%, rgba(196,106,61,0.25) 75%, transparent 100%)",
+          filter: "blur(46px)",
+        }}
+      />
+      {/* device body */}
+      <div
+        style={{
+          position: "relative",
+          width,
+          height: h,
+          borderRadius: 30,
+          background: "linear-gradient(145deg, #1b2333 0%, #0a0f1c 100%)",
+          border: "1px solid rgba(255,255,255,0.22)",
+          boxShadow: "0 40px 90px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)",
+          padding: 16,
+        }}
+      >
+        <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 16, overflow: "hidden", background: "#0b1428" }}>
+          <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }} />
+          {/* glass reflection sweep */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: `linear-gradient(115deg, transparent ${sweep - 14}%, rgba(255,255,255,0.14) ${sweep}%, transparent ${sweep + 14}%)`,
+            }}
+          />
+        </div>
+        {/* front camera dot */}
+        <div style={{ position: "absolute", top: 7, left: "50%", width: 6, height: 6, borderRadius: 999, background: "#2a3550", transform: "translateX(-50%)" }} />
+      </div>
+    </div>
+  );
+};
