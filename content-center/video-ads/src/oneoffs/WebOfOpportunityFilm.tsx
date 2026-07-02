@@ -849,3 +849,36 @@ const OrbWebScene: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 16:9 YOUTUBE VARIANT — the square film centered in a full-width brand
+// atmosphere (navy gradient + mesh + side glows), seams feathered into navy.
+// ─────────────────────────────────────────────────────────────────────────────
+export const WebOfOpportunityFilmWide: React.FC<{ audioSrc?: string | null }> = ({ audioSrc }) => {
+  const frame = useCurrentFrame();
+  const breathe = 0.8 + 0.2 * Math.sin(frame / 46);
+  return (
+    <AbsoluteFill
+      style={{
+        background: `radial-gradient(120% 120% at 50% 20%, ${BRAND.navy2} 0%, ${BRAND.navy} 55%, ${BRAND.charcoal} 100%)`,
+      }}
+    >
+      <GradientMesh opacity={0.6} />
+      {/* side accents so the panels feel designed, not padded */}
+      <AbsoluteFill
+        style={{
+          opacity: breathe,
+          background:
+            "radial-gradient(circle at 3% 22%, rgba(212,160,23,0.22) 0%, rgba(212,160,23,0) 30%), radial-gradient(circle at 97% 80%, rgba(58,108,200,0.24) 0%, rgba(58,108,200,0) 32%)",
+        }}
+      />
+      {/* the square film, centered */}
+      <div style={{ position: "absolute", left: (1920 - 1080) / 2, top: 0, width: 1080, height: 1080, overflow: "hidden" }}>
+        <WebOfOpportunityFilm audioSrc={audioSrc} />
+      </div>
+      {/* feather the seams into the backdrop */}
+      <div style={{ position: "absolute", left: (1920 - 1080) / 2 - 2, top: 0, width: 240, height: 1080, background: `linear-gradient(90deg, ${BRAND.navy} 0%, rgba(13,27,61,0) 100%)` }} />
+      <div style={{ position: "absolute", right: (1920 - 1080) / 2 - 2, top: 0, width: 240, height: 1080, background: `linear-gradient(270deg, ${BRAND.navy} 0%, rgba(13,27,61,0) 100%)` }} />
+    </AbsoluteFill>
+  );
+};
