@@ -53,19 +53,43 @@ const LANDMASS_BLOBS = [
   { x: 0.58, y: 0.6, r: 0.04 }, { x: 0.72, y: 0.28, r: 0.06 }, { x: 0.8, y: 0.4, r: 0.05 },
   { x: 0.78, y: 0.65, r: 0.04 }, { x: 0.3, y: 0.65, r: 0.05 }, { x: 0.35, y: 0.78, r: 0.04 },
 ];
+// Seeded LCG so the dot scatter is DETERMINISTIC (same every render) without Math.random().
+function makePrng(seed: number) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
 function buildEarthTexture(): THREE.CanvasTexture {
-  const size = 1024;
+  const size = 2048;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size / 2;
   const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#0a1730";
+  ctx.fillStyle = "#071224";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#16294f";
+  // Continents as glowing DOT FIELDS (city-lights-from-space look, per the Pinterest
+  // earth reference) — not painted blobs. Dots scatter inside each landmass region.
+  const rand = makePrng(1148910692);
   for (const b of LANDMASS_BLOBS) {
-    ctx.beginPath();
-    ctx.ellipse(b.x * canvas.width, b.y * canvas.height, b.r * canvas.width, b.r * canvas.height * 0.7, 0, 0, Math.PI * 2);
-    ctx.fill();
+    const cx = b.x * canvas.width;
+    const cy = b.y * canvas.height;
+    const rx = b.r * canvas.width;
+    const ry = b.r * canvas.height * 0.7;
+    const dots = Math.floor(rx * ry * 0.05);
+    for (let i = 0; i < dots; i++) {
+      const a = rand() * Math.PI * 2;
+      const rr = Math.sqrt(rand());
+      const x = cx + Math.cos(a) * rr * rx;
+      const y = cy + Math.sin(a) * rr * ry;
+      const bright = rand();
+      ctx.fillStyle = bright > 0.85 ? "rgba(243,221,140,0.95)" : bright > 0.5 ? "rgba(120,160,220,0.75)" : "rgba(70,110,180,0.5)";
+      ctx.beginPath();
+      ctx.arc(x, y, bright > 0.85 ? 2.2 : 1.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
   const tex = new THREE.CanvasTexture(canvas);
   tex.needsUpdate = true;
@@ -79,6 +103,7 @@ type SceneRefs = {
   globe: THREE.Group;
   arcTubes: THREE.Mesh[];
   nodeSprites: THREE.Sprite[];
+  dust: THREE.Points;
 };
 
 const EarthWeb: React.FC = () => {
@@ -95,9 +120,10 @@ const EarthWeb: React.FC = () => {
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-      camera.position.set(0, 0.5, 7.0);
+      camera.position.set(0, 1.1, 6.2);
 
       const globe = new THREE.Group();
+      globe.position.y = -1.35; // horizon composition — the planet's crown rises from the lower third (per the earth reference)
       scene.add(globe);
 
       const R = 1.6;
@@ -119,16 +145,50 @@ const EarthWeb: React.FC = () => {
       haloCanvas.width = 512;
       haloCanvas.height = 512;
       const hg = haloCanvas.getContext("2d")!;
-      const haloGrad = hg.createRadialGradient(256, 256, 130, 256, 256, 256);
-      haloGrad.addColorStop(0, "rgba(212,175,55,0.16)");
-      haloGrad.addColorStop(0.55, "rgba(212,175,55,0.05)");
+      const haloGrad = hg.createRadialGradient(256, 256, 150, 256, 256, 256);
+      haloGrad.addColorStop(0, "rgba(140,190,255,0.34)");
+      haloGrad.addColorStop(0.35, "rgba(212,175,55,0.16)");
       haloGrad.addColorStop(1, "rgba(212,175,55,0)");
       hg.fillStyle = haloGrad;
       hg.fillRect(0, 0, 512, 512);
       const haloTex = new THREE.CanvasTexture(haloCanvas);
       const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, transparent: true, depthWrite: false }));
-      halo.scale.set(R * 2.6, R * 2.6, 1); // must fade out INSIDE the viewport — larger and its edge shows as a square
+      halo.scale.set(R * 2.45, R * 2.45, 1); // must fade out INSIDE the viewport — larger and its edge shows as a square
+      halo.position.y = -1.35; // track the lowered globe
       scene.add(halo); // in scene (not globe group) so it always faces camera, doesn't spin
+
+      // ambient floating dust — tiny deterministic particles drifting above the planet
+      // (per the earth reference: the space around the globe feels alive, not empty)
+      const dustRand = makePrng(38898);
+      const dustCount = 140;
+      const dustPos = new Float32Array(dustCount * 3);
+      for (let i = 0; i < dustCount; i++) {
+        dustPos[i * 3] = (dustRand() - 0.5) * 9;
+        dustPos[i * 3 + 1] = dustRand() * 5 - 1.4;
+        dustPos[i * 3 + 2] = (dustRand() - 0.5) * 6;
+      }
+      const dustGeo = new THREE.BufferGeometry();
+      dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
+      // circular soft sprite for each particle — raw Points render as SQUARES otherwise
+      const dustCanvas = document.createElement("canvas");
+      dustCanvas.width = 32;
+      dustCanvas.height = 32;
+      const dg = dustCanvas.getContext("2d")!;
+      const dGrad = dg.createRadialGradient(16, 16, 0, 16, 16, 16);
+      dGrad.addColorStop(0, "rgba(243,221,140,1)");
+      dGrad.addColorStop(1, "rgba(243,221,140,0)");
+      dg.fillStyle = dGrad;
+      dg.fillRect(0, 0, 32, 32);
+      const dustMat = new THREE.PointsMaterial({
+        map: new THREE.CanvasTexture(dustCanvas),
+        color: 0xf3dd8c,
+        size: 0.05,
+        transparent: true,
+        opacity: 0.5,
+        depthWrite: false,
+      });
+      const dust = new THREE.Points(dustGeo, dustMat);
+      scene.add(dust);
 
       // node points (city lights)
       const spriteMat = () => {
@@ -172,19 +232,20 @@ const EarthWeb: React.FC = () => {
       const light = new THREE.AmbientLight(0xffffff, 1);
       scene.add(light);
 
-      ref.current = { renderer, scene, camera, globe, arcTubes, nodeSprites };
+      ref.current = { renderer, scene, camera, globe, arcTubes, nodeSprites, dust };
     }
 
-    const { renderer, scene, camera, globe, arcTubes, nodeSprites } = ref.current;
+    const { renderer, scene, camera, globe, arcTubes, nodeSprites, dust } = ref.current;
     const t = frame / fps;
 
     // camera slow orbit — pure function of frame
     const orbitAngle = t * 0.28;
-    camera.position.x = Math.sin(orbitAngle) * 7.0;
-    camera.position.z = Math.cos(orbitAngle) * 7.0;
-    camera.lookAt(0, 0, 0);
+    camera.position.x = Math.sin(orbitAngle) * 6.2;
+    camera.position.z = Math.cos(orbitAngle) * 6.2;
+    camera.lookAt(0, -0.15, 0); // aim just above the crown of the lowered globe
 
     globe.rotation.y = t * 0.08; // slow ambient spin
+    dust.rotation.y = t * 0.015; // dust drifts slower than the globe — parallax depth
 
     // progressively reveal each arc (draw-on), staggered — drawRange over the tube's
     // INDEX buffer (triangles are ordered along the tube length, so this sweeps cleanly)
