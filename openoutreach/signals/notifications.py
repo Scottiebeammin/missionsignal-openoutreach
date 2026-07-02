@@ -1,4 +1,5 @@
 import logging
+import os
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -6,6 +7,12 @@ from django.core.mail import send_mail
 from openoutreach.signals.models import InterestSignup
 
 ANANSI_ATLAS_OPERATOR_EMAIL = "info@anansiatlas.com"
+
+
+def scheduling_url() -> str:
+    """Cal.com booking link for the Founder Walkthrough (SCHEDULING_URL env var).
+    Empty string = not configured; emails fall back to 'we'll reach out' copy."""
+    return os.getenv("SCHEDULING_URL", "")
 
 logger = logging.getLogger(__name__)
 
@@ -61,8 +68,14 @@ def build_interest_signup_confirmation(signup: InterestSignup) -> str:
             "Anansi Atlas maps the web of opportunity around your mission: aligned funders, "
             "strategic partners, government pathways, readiness gaps, and a 30-day action plan.",
             "",
-            "We'll follow up within 48 hours to schedule your onboarding and Opportunity Web "
-            "Snapshot walkthrough. If you have questions in the meantime, just reply to this "
+            (
+                "Book your onboarding call directly — pick any time that works for you: "
+                f"{scheduling_url()}. Or if you'd rather wait, we'll follow up within 48 hours."
+                if scheduling_url()
+                else "We'll follow up within 48 hours to schedule your onboarding and "
+                "Opportunity Web Snapshot walkthrough."
+            )
+            + " If you have questions in the meantime, just reply to this "
             "email or reach us at info@anansiatlas.com.",
             "",
             "— The Anansi Atlas Team",
@@ -248,9 +261,14 @@ def send_intake_welcome(user, project) -> bool:
         "  3. Our AI research engine is now identifying real, verifiable funders and "
         "opportunities aligned to your work. This may take a few minutes.",
         "",
-        "I'll reach out personally within 24 hours to schedule your Founder Walkthrough "
-        "— a 45-minute call where we'll walk through your Snapshot together and build "
-        "your first action plan.",
+        (
+            "Book your Founder Walkthrough now — a 45-minute call where we'll walk "
+            f"through your Snapshot together and build your first action plan: {scheduling_url()}"
+            if scheduling_url()
+            else "I'll reach out personally within 24 hours to schedule your Founder "
+            "Walkthrough — a 45-minute call where we'll walk through your Snapshot "
+            "together and build your first action plan."
+        ),
         "",
         "If you have questions before then, just reply here.",
         "",

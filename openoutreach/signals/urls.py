@@ -1,5 +1,6 @@
 from django.urls import path
 
+from openoutreach.signals import billing
 from openoutreach.signals import views
 from openoutreach.signals import operator_views
 
@@ -34,6 +35,8 @@ urlpatterns = [
     path("ask/", views.ask_question, name="ask-question"),
     path("ask/thanks/", views.question_thanks, name="anansi-atlas-question-thanks"),
     path("anansi-atlas/seats/", views.founding_seat_count, name="founding-seat-count"),
+    # Stripe checkout → auto account provisioning (checkout.session.completed).
+    path("billing/stripe-webhook/", billing.stripe_webhook, name="stripe-webhook"),
     path("pilot/", views.pilot_onboarding, name="pilot-onboarding"),
     # Login-gated org intake — reached after sign-in via the portal redirect (by name).
     path("intake/", views.project_intake, name="project-intake"),
