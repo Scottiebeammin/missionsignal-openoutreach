@@ -147,3 +147,30 @@ services:
         sync: false
       - key: SCHEDULING_URL
         sync: false
+
+  # ── Weekly link-health check ──
+  # Probes every active ResourceProvider/Funder website and Opportunity source URL.
+  # Deactivates rows only on dead DNS; 404s/timeouts are logged for human review.
+  # No EMAIL_* vars needed — this job only reads/writes the database.
+  - type: cron
+    name: anansi-weekly-link-health
+    runtime: python
+    region: virginia
+    plan: starter
+    branch: main
+    schedule: "0 11 * * 0"   # Sundays 11:00 UTC (weekly)
+    buildCommand: "pip install -r requirements/web.txt"
+    startCommand: "python manage.py check_link_health"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: anansi-atlas-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"

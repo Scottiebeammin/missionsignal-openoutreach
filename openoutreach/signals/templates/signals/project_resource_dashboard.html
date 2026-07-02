@@ -117,14 +117,14 @@
 
     <section class="panel">
       <h2>Free &amp; Low-Cost Resources</h2>
-      <p class="muted">Verified supports your organization can use right now — software donations, volunteers, technical assistance, and capacity-building help. Every one links to its real source.</p>
+      <p class="muted">Verified supports your organization can use right now — software donations, volunteers, technical assistance, and capacity-building help. Each resource is labeled with its actual cost (Free, Low-cost, or Paid) and links to its real source.</p>
       {% if resources %}
         <div class="resource-grid">
           {% for resource in resources %}
             <article class="resource-card">
               <header>
                 <h3>{{ resource.name }}</h3>
-                <span class="impact-label" style="white-space:nowrap;">Free / Low-cost</span>
+                <span class="impact-label cost-badge cost-{{ resource.cost }}" style="white-space:nowrap;">{{ resource.get_cost_display }}</span>
               </header>
               <p class="muted" style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em;margin:2px 0 6px;">{{ resource.get_resource_type_display }}</p>
               {% if resource.notes %}<p>{{ resource.notes }}</p>{% endif %}
