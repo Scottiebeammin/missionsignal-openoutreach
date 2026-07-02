@@ -714,8 +714,12 @@ export const LottieAsset: React.FC<{
         setAnimationData(data);
         continueRender(handle);
       })
-      .catch(() => {
+      .catch((err) => {
         // Asset not present yet (not generated/dropped in) — fail gracefully, don't block render.
+        // If you expect this asset to exist, check: (1) the file is really at public/<src>,
+        // (2) it's valid Bodymovin/Lottie JSON — every keyframe in an animated ("a":1) property
+        // needs "i"/"o" easing handles except the last one; lottie-web fails silently otherwise.
+        console.warn("LottieAsset: no asset at", src, "— rendering nothing.", err);
         continueRender(handle);
       });
   }, [src, handle]);

@@ -62,7 +62,16 @@ GSAP has two fundamentally different modes. **Only one of them works in Remotion
 1. **Live/ticker mode** (GSAP's default) — the animation runs on GSAP's own `requestAnimationFrame` ticker, tied to real wall-clock time. This is how GSAP works on a normal website. **Do not use this in Remotion** — Remotion renders frames out of real-time order (it can render frame 400 before frame 12), so a ticker-driven animation is non-deterministic and will render wrong/blank.
 2. **Seek mode** (required in Remotion) — create the timeline with **`gsap.timeline({ paused: true })`**, then on every render call **`tl.time(frame / fps)`** or **`tl.progress(p)`** to set its state deterministically from Remotion's `useCurrentFrame()`. GSAP becomes a pure function of frame number, exactly like `interpolate()`/`spring()`.
 
-`GsapRise` in `src/components.tsx` is the reference implementation — copy its pattern (`useEffect` builds the paused timeline once; `useLayoutEffect` seeks it every frame) for any new GSAP-powered component.
+`GsapRise` in `src/components.tsx` is the reference implementation. **Real bug fixed here (2026-07-01, caught via `CapabilityTest.tsx`):** creating the timeline in `useEffect` and seeking it in a *separate* `useLayoutEffect` renders blank — `useEffect` fires *after* paint, so on the very first frame the seek runs before the timeline exists. **Fix: create the timeline (lazily, if it doesn't exist yet) AND seek it inside the SAME `useLayoutEffect`.** Copy `GsapRise`'s current pattern exactly, not an earlier version of it.
+
+### ⚠️ The Three.js + Remotion rule — same lesson, different library
+Exactly the same two-mode split applies: **never** drive rotation/position with a real-time `Clock` or a `requestAnimationFrame` loop — that's ticker mode, wrong for Remotion. Instead: create the `WebGLRenderer`/`Scene`/`Camera`/`Mesh` **once**, inside a `useLayoutEffect` keyed on `[frame, fps]` (refs aren't attached until layout-effect time — same ordering rule as GSAP), set object properties as a **pure function of `frame`** (e.g. `mesh.rotation.y = (frame / fps) * speed`), then call `renderer.render(scene, camera)` synchronously in that same effect. See `ThreeMark` in `CapabilityTest2.tsx` — built correctly the first time by applying the GSAP lesson up front.
+
+### D3 — use `d3-shape`/`d3-scale` (pure math), never `d3-selection` (DOM)
+D3 has the same two-mode trap as GSAP, but the fix is easier: **only use the math half of D3.** `d3-selection`'s `.attr()`/`.transition()` imperatively mutates the DOM on a real-time clock — fights React's virtual DOM and doesn't seek. `d3-shape`/`d3-scale`/`d3-interpolate` are **pure functions** (data in, a path string or number out) — call them directly in the render body, no refs or effects needed at all. See `SeatsProgressRing` in `CapabilityTest2.tsx`: `d3.arc()(...)` is called straight in JSX, exactly like `interpolate()`.
+
+### ⚠️ Lottie JSON — hand-authoring gotcha
+If you ever hand-write or hand-edit a Lottie/Bodymovin `.json` (vs. exporting one from LottieFiles/After Effects): **every keyframe in an animated (`"a":1`) property needs `"i"`/`"o"` bezier easing handles**, except the very last keyframe. Omit them and `lottie-web` fails to render the shape **silently** — no error, just nothing on screen (real bug hit + fixed 2026-07-01, see `public/lottie/gold-pulse.json`). Exported files from LottieFiles/AE always include these — this only bites hand-written JSON.
 
 ---
 

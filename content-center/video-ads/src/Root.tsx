@@ -12,6 +12,7 @@ import { PremiumShowcase } from "./oneoffs/PremiumShowcase";
 import { FullExplainer } from "./oneoffs/FullExplainer";
 import { ProductWalkthrough, WALK_TOTAL } from "./oneoffs/ProductWalkthrough";
 import { CapabilityTest } from "./oneoffs/CapabilityTest";
+import { CapabilityTest2 } from "./oneoffs/CapabilityTest2";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -130,6 +131,16 @@ export const RemotionRoot: React.FC = () => {
         id="CapabilityTest"
         component={CapabilityTest}
         durationInFrames={720}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+      />
+
+      {/* ⚠️ THROWAWAY TEST #2 — D3 / Three.js / Lottie capability showcase. */}
+      <Composition
+        id="CapabilityTest2"
+        component={CapabilityTest2}
+        durationInFrames={660}
         fps={FPS}
         width={SIZE}
         height={SIZE}
