@@ -67,10 +67,11 @@ const GradientMesh: React.FC<{ opacity?: number }> = ({ opacity = 0.5 }) => {
   const frame = useCurrentFrame();
   const t = frame / 30;
   const blobs = [
+    // brand palette only: gold / blue / cream / deep blue on navy
     { color: "222,168,28", x: 22 + Math.sin(t * 0.21) * 8, y: 24 + Math.cos(t * 0.17) * 7, r: 38 },
-    { color: "20,150,140", x: 76 + Math.sin(t * 0.16 + 2) * 9, y: 68 + Math.cos(t * 0.19 + 1) * 8, r: 42 },
+    { color: "58,108,200", x: 76 + Math.sin(t * 0.16 + 2) * 9, y: 68 + Math.cos(t * 0.19 + 1) * 8, r: 42 },
     { color: "243,221,140", x: 55 + Math.sin(t * 0.13 + 4) * 10, y: 30 + Math.cos(t * 0.15 + 3) * 9, r: 30 },
-    { color: "205,110,70", x: 34 + Math.sin(t * 0.18 + 5.5) * 9, y: 74 + Math.cos(t * 0.14 + 4.5) * 7, r: 32 },
+    { color: "40,78,160", x: 34 + Math.sin(t * 0.18 + 5.5) * 9, y: 74 + Math.cos(t * 0.14 + 4.5) * 7, r: 32 },
   ];
   return (
     <AbsoluteFill style={{ opacity, filter: "blur(70px)" }}>
@@ -126,19 +127,19 @@ const MissedHook: React.FC = () => {
                 gap: 24,
                 width: 780,
                 background: "rgba(9,18,38,0.9)",
-                border: "2px solid rgba(196,106,61,0.85)",
+                border: "2px solid rgba(212,160,23,0.9)",
                 borderRadius: 20,
                 padding: "20px 30px",
-                boxShadow: "0 24px 70px rgba(0,0,0,0.6), 0 0 44px rgba(196,106,61,0.3)",
+                boxShadow: "0 24px 70px rgba(0,0,0,0.6), 0 0 44px rgba(212,160,23,0.3)",
               }}
             >
-              <div style={{ fontFamily: SANS, fontWeight: 900, fontSize: 21, letterSpacing: "0.12em", color: "#ff9d73", border: "2px solid #ff9d73", borderRadius: 8, padding: "5px 12px" }}>
+              <div style={{ fontFamily: SANS, fontWeight: 900, fontSize: 21, letterSpacing: "0.12em", color: "#f3dd8c", border: "2px solid #f3dd8c", borderRadius: 8, padding: "5px 12px" }}>
                 MISSED
               </div>
               <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 52, color: BRAND.white, lineHeight: 1 }}>{m.big}</div>
               <div>
                 <div style={{ fontFamily: SANS, fontWeight: 700, fontSize: 24, color: BRAND.white }}>{m.label}</div>
-                <div style={{ fontFamily: SANS, fontSize: 19, color: "#ff9d73", fontWeight: 700 }}>{m.sub}</div>
+                <div style={{ fontFamily: SANS, fontSize: 19, color: "#f3dd8c", fontWeight: 700 }}>{m.sub}</div>
               </div>
             </div>
           );
@@ -292,7 +293,7 @@ const FadingScene: React.FC<{ durationInFrames: number }> = ({ durationInFrames 
               }}
             >
               <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 32, color: BRAND.white }}>{f.title}</div>
-              <div style={{ fontFamily: SANS, fontSize: 21, color: BRAND.rose, marginTop: 4, fontWeight: 700 }}>{f.sub}</div>
+              <div style={{ fontFamily: SANS, fontSize: 21, color: BRAND.goldLight, marginTop: 4, fontWeight: 700 }}>{f.sub}</div>
             </div>
           );
         })}
@@ -581,8 +582,8 @@ const PlatformScene: React.FC<{ durationInFrames: number }> = ({ durationInFrame
 // ─────────────────────────────────────────────────────────────────────────────
 const FLIPS = [
   { num: "01", title: "Recommended Funders", sub: "Ranked by mission fit", accent: "212,160,23" },
-  { num: "02", title: "Potential Partners", sub: "Who opens which doors", accent: "20,150,140" },
-  { num: "03", title: "Next Steps", sub: "Your 30-day action plan", accent: "205,110,70" },
+  { num: "02", title: "Potential Partners", sub: "Who opens which doors", accent: "58,108,200" },
+  { num: "03", title: "Next Steps", sub: "Your 30-day action plan", accent: "243,221,140" },
 ];
 
 const FlipCard: React.FC<{ num: string; title: string; sub: string; delay: number; accent: string }> = ({ num, title, sub, delay, accent }) => {
@@ -665,12 +666,12 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
           <Audio src={staticFile(audioSrc)} />
         </Sequence>
       ) : null}
-      {/* light background music bed (ElevenLabs Music API). startFrom skips the bed's
-          10s ambient swell so the hook has real music; envelope plays fuller during the
-          silent hook then DUCKS under the narration (classic bed = ~15dB under VO). */}
+      {/* uplifting music bed (ElevenLabs Music API) — this cut opens with energy, so no
+          startFrom offset needed; envelope plays fuller during the hook then DUCKS under
+          the narration (classic bed = ~15dB under VO). */}
       <Audio
         src={staticFile("music/film-bed.mp3")}
-        startFrom={250}
+        startFrom={0}
         volume={(f) =>
           interpolate(f, [0, 12, LEAD, LEAD + 30, FILM_TOTAL - 70, FILM_TOTAL - 5], [0, 0.5, 0.5, 0.3, 0.3, 0], {
             extrapolateLeft: "clamp",
@@ -766,13 +767,56 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
 
 const OrbWebScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 100], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const zoom = interpolate(frame, [0, 170], [0.86, 1.06], { extrapolateRight: "clamp" }); // bigger: continuous push-in
+  const progress = interpolate(frame, [8, 108], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const zoom = interpolate(frame, [0, 170], [0.8, 1.04], { extrapolateRight: "clamp" });
+  const tilt = interpolate(frame, [0, 170], [-2.5, 1.5], { extrapolateRight: "clamp" }); // slow settle, not static
+  const spotlight = interpolate(frame, [0, 40], [0, 1], { extrapolateRight: "clamp" });
+  const dust = makePrng(77);
+  const motes = Array.from({ length: 22 }, () => ({
+    x: dust() * 100, y: dust() * 100, r: 2 + dust() * 3.5, ph: dust() * Math.PI * 2, sp: 0.25 + dust() * 0.4,
+  }));
   return (
     <AbsoluteFill>
-      <GradientMesh opacity={0.5} />
-      <AbsoluteFill style={{ transform: `scale(${zoom})` }}>
+      <GradientMesh opacity={0.35} />
+      {/* gold spotlight grounds the web in the frame instead of floating on flat navy */}
+      <AbsoluteFill
+        style={{
+          opacity: spotlight,
+          background:
+            "radial-gradient(circle at 50% 46%, rgba(212,160,23,0.20) 0%, rgba(212,160,23,0.07) 32%, rgba(4,9,22,0) 58%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 55%, rgba(2,6,16,0.55) 100%)",
+        }}
+      />
+      {/* drifting gold dust for depth */}
+      <AbsoluteFill>
+        {motes.map((m, i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: `${m.x + Math.sin(frame * 0.01 * m.sp + m.ph) * 2}%`,
+              top: `${m.y - frame * 0.016 * m.sp}%`,
+              width: m.r,
+              height: m.r,
+              borderRadius: "50%",
+              background: "rgba(243,221,140,0.8)",
+              opacity: (0.25 + 0.3 * Math.sin(frame * 0.06 * m.sp + m.ph)) * spotlight,
+              boxShadow: "0 0 8px rgba(212,160,23,0.7)",
+            }}
+          />
+        ))}
+      </AbsoluteFill>
+      <AbsoluteFill
+        style={{
+          transform: `scale(${zoom}) rotate(${tilt}deg)`,
+          filter: "drop-shadow(0 0 26px rgba(212,160,23,0.45))",
+        }}
+      >
         <OrbWeb progress={progress} />
+      </AbsoluteFill>
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 110 }}>
+        <Rise delay={20}>
+          <Eyebrow>Hidden Connections, Revealed</Eyebrow>
+        </Rise>
       </AbsoluteFill>
     </AbsoluteFill>
   );
