@@ -85,7 +85,7 @@ const GradientMesh: React.FC<{ opacity?: number }> = ({ opacity = 0.5 }) => {
             width: `${b.r}%`,
             height: `${b.r}%`,
             borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(${b.color},0.75) 0%, rgba(${b.color},0) 70%)`,
+            background: `radial-gradient(circle, rgba(${b.color},0.9) 0%, rgba(${b.color},0) 70%)`,
           }}
         />
       ))}
@@ -93,6 +93,22 @@ const GradientMesh: React.FC<{ opacity?: number }> = ({ opacity = 0.5 }) => {
   );
 };
 
+
+// Soft brand-color corner light for the globe scenes (canvas is alpha:true, so
+// these read through around the planet without washing it out).
+const CornerGlows: React.FC = () => {
+  const frame = useCurrentFrame();
+  const breathe = 0.85 + 0.15 * Math.sin(frame / 40);
+  return (
+    <AbsoluteFill
+      style={{
+        opacity: breathe,
+        background:
+          "radial-gradient(circle at 8% 6%, rgba(212,160,23,0.30) 0%, rgba(212,160,23,0) 42%), radial-gradient(circle at 94% 90%, rgba(58,108,200,0.32) 0%, rgba(58,108,200,0) 45%), radial-gradient(circle at 88% 10%, rgba(243,221,140,0.16) 0%, rgba(243,221,140,0) 35%)",
+      }}
+    />
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HOOK (frames 0–~90) — the scroll-stopper. Loss-aversion money cards SLAM in
@@ -170,10 +186,12 @@ const PARTICLES = (() => {
 
 const ParticleLogoOpen: React.FC = () => {
   const frame = useCurrentFrame();
-  const conv = interpolate(frame, [80, 142], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Brand-first open: particles converge fast, logo lands ~f82, whole open fades
+  // out by ~f160 so the MISSED hook (and VO) own the frame from f150.
+  const conv = interpolate(frame, [10, 75], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const ease = 1 - Math.pow(1 - conv, 3); // cubic ease-out
-  const lineOp = interpolate(frame, [110, 148], [0, 0.4], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const webFade = interpolate(frame, [175, 220], [1, 0.25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const lineOp = interpolate(frame, [40, 86], [0, 0.4], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const webFade = interpolate(frame, [138, 160], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const pts = PARTICLES.map((p) => ({ x: p.startX + (p.homeX - p.startX) * ease, y: p.startY + (p.homeY - p.startY) * ease }));
   return (
     <AbsoluteFill>
@@ -190,16 +208,18 @@ const ParticleLogoOpen: React.FC = () => {
         ))}
       </svg>
       {/* the web becomes the wordmark — with the real emblem above it */}
-      {frame >= 145 ? <AnimatedLogoReveal delay={145} /> : null}
-      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
-        <div
-          style={{
-            transform: "translateY(-175px)",
-            opacity: interpolate(frame, [150, 175], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          }}
-        >
-          <Img src={staticFile("logo-mark.png")} style={{ width: 130, height: 130 }} />
-        </div>
+      <AbsoluteFill style={{ opacity: interpolate(frame, [138, 158], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
+        {frame >= 68 ? <AnimatedLogoReveal delay={68} /> : null}
+        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+          <div
+            style={{
+              transform: "translateY(-175px)",
+              opacity: interpolate(frame, [72, 94], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}
+          >
+            <Img src={staticFile("logo-mark.png")} style={{ width: 130, height: 130 }} />
+          </div>
+        </AbsoluteFill>
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -248,7 +268,7 @@ const ProblemScene: React.FC<{ durationInFrames: number }> = ({ durationInFrames
   const pullBack = interpolate(frame, [0, durationInFrames], [1.06, 0.94], { extrapolateRight: "clamp" });
   return (
     <AbsoluteFill>
-      <GradientMesh opacity={0.32} />
+      <GradientMesh opacity={0.5} />
       <AbsoluteFill style={{ transform: `scale(${pullBack})` }}>
         {WINDOWS.map((w, i) => (
           <div key={w.label} style={{ position: "absolute", left: `${w.x}%`, top: `${w.y}%` }}>
@@ -682,9 +702,14 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
       <ProgressRail totalFrames={FILM_TOTAL} />
 
       {/* SCENE 1 — Logo Open (silent lead + first line) */}
-      <Sequence from={0} durationInFrames={B[1]}>
+      {/* OPEN — logo first (0–~150), then the MISSED hook lands WITH the VO at f150;
+          its gold flash bridges into scene 2 (sequence extended past B[1] for the wipe). */}
+      <Sequence from={0} durationInFrames={B[1] + 18}>
+        <GradientMesh opacity={0.55} />
         <ParticleLogoOpen />
-        <MissedHook />
+        <Sequence from={LEAD - 2}>
+          <MissedHook />
+        </Sequence>
       </Sequence>
 
       {/* SCENE 2 — The Problem */}
@@ -694,11 +719,13 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
 
       {/* SCENE 3 — Why It Matters */}
       <Sequence from={B[2]} durationInFrames={B[3] - B[2]}>
+        <GradientMesh opacity={0.4} />
         <FadingScene durationInFrames={B[3] - B[2]} />
       </Sequence>
 
       {/* SCENE 4 — Introducing Anansi Atlas: THE GLOBE */}
       <Sequence from={B[3]} durationInFrames={B[4] - B[3]}>
+        <CornerGlows />
         <GlobeWeb durationInFrames={B[4] - B[3]} />
         <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 120 }}>
           <Rise delay={30}>
@@ -731,6 +758,7 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
 
       {/* SCENES 8 + 9 — Founding Partners on the globe, then the pull-back close */}
       <Sequence from={B[7]} durationInFrames={FILM_TOTAL - B[7]}>
+        <CornerGlows />
         <GlobeWeb durationInFrames={FILM_TOTAL - B[7]} partnersAt={30} pullBackAt={B[8] - B[7]} />
         {/* Scene 8 overlay: seats */}
         <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 110 }}>
@@ -777,7 +805,7 @@ const OrbWebScene: React.FC = () => {
   }));
   return (
     <AbsoluteFill>
-      <GradientMesh opacity={0.35} />
+      <GradientMesh opacity={0.5} />
       {/* gold spotlight grounds the web in the frame instead of floating on flat navy */}
       <AbsoluteFill
         style={{
