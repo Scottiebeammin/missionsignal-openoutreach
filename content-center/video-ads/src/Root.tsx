@@ -13,6 +13,7 @@ import { FullExplainer } from "./oneoffs/FullExplainer";
 import { ProductWalkthrough, WALK_TOTAL } from "./oneoffs/ProductWalkthrough";
 import { CapabilityTest } from "./oneoffs/CapabilityTest";
 import { CapabilityTest2 } from "./oneoffs/CapabilityTest2";
+import { CapabilityTest3, CAPABILITY_TEST_3_TOTAL } from "./oneoffs/CapabilityTest3";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -141,6 +142,16 @@ export const RemotionRoot: React.FC = () => {
         id="CapabilityTest2"
         component={CapabilityTest2}
         durationInFrames={660}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+      />
+
+      {/* ⚠️ THROWAWAY TEST #3 — all four systems LAYERED simultaneously, one scene. */}
+      <Composition
+        id="CapabilityTest3"
+        component={CapabilityTest3}
+        durationInFrames={CAPABILITY_TEST_3_TOTAL}
         fps={FPS}
         width={SIZE}
         height={SIZE}

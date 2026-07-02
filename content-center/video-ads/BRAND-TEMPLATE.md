@@ -53,9 +53,12 @@ Installed: `gsap`, `d3`, `three`, `@remotion/lottie` (already had it). Claude Co
 | Kinetic typography (character/word-by-word reveal) | GSAP `SplitText` (`gsap-plugins` skill) | not yet wrapped — ask when needed |
 | SVG line-draw (e.g. a cleaner `OrbWeb` thread-draw) | GSAP `DrawSVGPlugin` (`gsap-plugins` skill) | not yet wrapped — ask when needed |
 | Pre-made polish accents (shine sweep, particle burst, checkmark pop) | **Lottie** JSON from LottieFiles → `public/lottie/` | `LottieAsset` (new) |
-| Data-driven chart/stat visualization | **D3** (`d3-viz` skill) | not yet needed — no chart content today; use when we add a stat/chart video |
-| 3D/WebGL | `three` | **parked** — doesn't fit our flat 2D brand look; only reach for it with a specific, deliberate 3D idea |
+| Data-driven chart/stat visualization (progress ring, arc, bar) | **D3** — `d3-shape`'s pure generator functions, called straight in JSX | `ScoreRingSvg` pattern (`CapabilityTest2`/`3`) |
+| A subtle 3D/depth accent — background atmosphere, never the focal point | `three` — used sparingly, low opacity, slow rotation | `ThreeBackdrop` pattern (`CapabilityTest3`) |
 | Scroll-driven / drag interactions (ScrollTrigger, Draggable, Observer) | — | **not applicable** — we render headless video, not an interactive web page |
+
+### ✅ Proven pattern: LAYERING multiple systems in one scene (2026-07-01, `CapabilityTest3.tsx`)
+All four systems can run **simultaneously, stacked as layers**, because they all read the same `useCurrentFrame()` — that's what keeps them in sync with each other, not any special coordination between the libraries. Reference implementation: a "Readiness Score reveal" — `ThreeBackdrop` (quiet rotating 3D backdrop, low opacity) behind a `ScoreRingSvg` (D3 arc geometry) with a GSAP-tween-driven number inside it, a `GsapRise`-entered label, and a `LottieAsset` sparkle landing as the payoff the moment the ring completes. Copy this pattern for any "stat reveal" moment in real content (e.g. Readiness score, Funding match %, seats-filled).
 
 ### ⚠️ The GSAP + Remotion rule — read this every time you reach for GSAP
 GSAP has two fundamentally different modes. **Only one of them works in Remotion:**
