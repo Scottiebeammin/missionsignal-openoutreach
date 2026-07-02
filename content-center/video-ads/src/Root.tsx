@@ -15,6 +15,7 @@ import { ProductWalkthrough, WALK_TOTAL } from "./oneoffs/ProductWalkthrough";
 import { CapabilityTest } from "./oneoffs/CapabilityTest";
 import { CapabilityTest2 } from "./oneoffs/CapabilityTest2";
 import { CapabilityTest3, CAPABILITY_TEST_3_TOTAL } from "./oneoffs/CapabilityTest3";
+import { EarthWebTest, EARTH_WEB_TEST_TOTAL } from "./oneoffs/EarthWebTest";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -164,6 +165,16 @@ export const RemotionRoot: React.FC = () => {
         id="CapabilityTest3"
         component={CapabilityTest3}
         durationInFrames={CAPABILITY_TEST_3_TOTAL}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+      />
+
+      {/* ⚠️ PROTOTYPE — de-risking the rotating-globe hero visual before committing it. */}
+      <Composition
+        id="EarthWebTest"
+        component={EarthWebTest}
+        durationInFrames={EARTH_WEB_TEST_TOTAL}
         fps={FPS}
         width={SIZE}
         height={SIZE}
