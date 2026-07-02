@@ -88,11 +88,11 @@
     <nav class="topbar" aria-label="Mission Brief actions">
       <a class="button" href="{% url 'project-analysis-detail' project.pk %}">&larr; Analysis Review</a>
       <div class="actions">
-        <form method="post" action="{% url 'run-project-analysis' project.pk %}">
+        {% if request.user.is_staff %}<form method="post" action="{% url 'run-project-analysis' project.pk %}">
           {% csrf_token %}
           <button type="submit">Rerun Analysis</button>
         </form>
-        <a class="button" href="{% url 'project-intake' %}">Start New Intake</a>
+        <a class="button" href="{% url 'project-intake' %}">Start New Intake</a>{% endif %}
       </div>
     </nav>
 
@@ -101,7 +101,7 @@
       <h1>{{ organization.name }}</h1>
       <p class="subtitle">{{ project.name }}</p>
       <section class="snapshot" aria-label="Executive Snapshot">
-        <div class="metric"><h2>Confidence</h2><strong>{{ organization.analysis_confidence|default:"-" }}</strong></div>
+        
         <div class="metric"><h2>Status</h2><strong>{{ organization.get_analysis_status_display }}</strong></div>
         <div class="metric"><h2>Warnings</h2><strong>{{ organization.analysis_warnings|length }}</strong></div>
         <div class="metric"><h2>Funding Themes</h2><strong>{% if funding_criteria %}{{ funding_criteria.focus_areas|length }}{% else %}0{% endif %}</strong></div>

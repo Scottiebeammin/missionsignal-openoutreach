@@ -79,26 +79,31 @@ def _group(items, choices, attr_name):
     return groups
 
 
-def document_for_title(project, title: str) -> DocumentVaultItem | None:
+def document_for_title(project, title: str, documents: list[DocumentVaultItem] | None = None) -> DocumentVaultItem | None:
     normalized = title.casefold()
-    documents = DocumentVaultItem.objects.filter(project=project).order_by("title")
+    if documents is None:
+        documents = list(DocumentVaultItem.objects.filter(project=project).order_by("title"))
     for document in documents:
         if document.title.casefold() == normalized or document.get_document_type_display().casefold() == normalized:
             return document
+
+    def _first_of(document_type: str) -> DocumentVaultItem | None:
+        return next((d for d in documents if d.document_type == document_type), None)
+
     if "irs" in normalized:
-        return documents.filter(document_type=DocumentVaultItem.DocumentType.IRS_DETERMINATION_LETTER).first()
+        return _first_of(DocumentVaultItem.DocumentType.IRS_DETERMINATION_LETTER)
     if "w-9" in normalized or "w9" in normalized:
-        return documents.filter(document_type=DocumentVaultItem.DocumentType.W9).first()
+        return _first_of(DocumentVaultItem.DocumentType.W9)
     if "annual budget" in normalized:
-        return documents.filter(document_type=DocumentVaultItem.DocumentType.ANNUAL_BUDGET).first()
+        return _first_of(DocumentVaultItem.DocumentType.ANNUAL_BUDGET)
     if "program budget" in normalized or "budget" in normalized:
-        return documents.filter(document_type=DocumentVaultItem.DocumentType.PROGRAM_BUDGET).first()
+        return _first_of(DocumentVaultItem.DocumentType.PROGRAM_BUDGET)
     if "outcome" in normalized:
-        return documents.filter(document_type=DocumentVaultItem.DocumentType.OUTCOME_REPORT).first()
+        return _first_of(DocumentVaultItem.DocumentType.OUTCOME_REPORT)
     if "insurance" in normalized:
-        return documents.filter(document_type=DocumentVaultItem.DocumentType.INSURANCE).first()
+        return _first_of(DocumentVaultItem.DocumentType.INSURANCE)
     if "policy" in normalized:
-        return documents.filter(document_type=DocumentVaultItem.DocumentType.POLICY_DOCUMENT).first()
+        return _first_of(DocumentVaultItem.DocumentType.POLICY_DOCUMENT)
     return None
 
 
@@ -153,19 +158,47 @@ def suggested_requirement_definitions(opportunity: Opportunity):
 
 
 def ensure_opportunity_document_requirements(project, opportunity: Opportunity) -> list[OpportunityDocumentRequirement]:
+    # Read-mostly: this runs during dashboard/readiness GETs for every opportunity,
+    # so it must not issue writes when nothing changed (update_or_create here used
+    # to mean thousands of queries WITH WRITES on a single page render).
+    existing = {
+        requirement.title: requirement
+        for requirement in opportunity.document_requirements.select_related("linked_document")
+    }
+    vault_documents = list(DocumentVaultItem.objects.filter(project=project).order_by("title"))
+    to_create: list[OpportunityDocumentRequirement] = []
+    to_update: list[OpportunityDocumentRequirement] = []
     for title, requirement_type in suggested_requirement_definitions(opportunity):
-        linked_document = document_for_title(project, title)
-        OpportunityDocumentRequirement.objects.update_or_create(
-            opportunity=opportunity,
-            title=title,
-            defaults={
-                "requirement_type": requirement_type,
-                "linked_document": linked_document,
-                "status": _requirement_status_for_document(linked_document),
-                "notes": "Deterministic requirement suggestion for this opportunity type.",
-            },
+        linked_document = document_for_title(project, title, vault_documents)
+        status = _requirement_status_for_document(linked_document)
+        current = existing.get(title)
+        if current is None:
+            to_create.append(OpportunityDocumentRequirement(
+                opportunity=opportunity,
+                title=title,
+                requirement_type=requirement_type,
+                linked_document=linked_document,
+                status=status,
+                notes="Deterministic requirement suggestion for this opportunity type.",
+            ))
+        elif (
+            current.requirement_type != requirement_type
+            or current.linked_document_id != (linked_document.pk if linked_document else None)
+            or current.status != status
+        ):
+            current.requirement_type = requirement_type
+            current.linked_document = linked_document
+            current.status = status
+            to_update.append(current)
+    if to_create:
+        OpportunityDocumentRequirement.objects.bulk_create(to_create)
+    if to_update:
+        OpportunityDocumentRequirement.objects.bulk_update(
+            to_update, ["requirement_type", "linked_document", "status"]
         )
-    return list(opportunity.document_requirements.select_related("linked_document").all())
+    if to_create or to_update:
+        return list(opportunity.document_requirements.select_related("linked_document").all())
+    return list(existing.values())
 
 
 def build_document_vault_summary(project) -> DocumentVaultSummary:

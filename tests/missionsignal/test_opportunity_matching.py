@@ -130,16 +130,19 @@ def test_match_scoring_is_deterministic(match_project):
     second = build_opportunity_matches(project, funding_criteria)
 
     assert first.overall_score == second.overall_score
-    assert first.total_matches == 18
+    # Demo-seeded resource/partner providers use example.* domains and are now
+    # excluded from matching (demo fiction never reaches clients), so only the
+    # funding + government entities with real-looking data participate here.
+    assert first.total_matches == 12
     assert first.funding_count == 9
     assert first.government_count == 3
-    assert first.resource_count == 3
-    assert first.partnership_count == 3
+    assert first.resource_count == 0
+    assert first.partnership_count == 0
     assert first.top_recommended[0].score == 100
     assert match_level(first.top_recommended[0].score) == first.top_recommended[0].level
     assert first.highest_score == 100
-    assert first.strongest_category == "Partnership"
-    assert first.weakest_category == "Resource"
+    assert first.strongest_category == "Government"
+    assert first.weakest_category == "Partnership"
     assert first.highest_leverage_improvement == "Add measurable outcomes."
     assert first.readiness_signals == ["Outcomes", "Partnerships", "Budget", "Geography", "Beneficiaries"]
     assert first.top_gaps[0].label == "Outcomes not documented"

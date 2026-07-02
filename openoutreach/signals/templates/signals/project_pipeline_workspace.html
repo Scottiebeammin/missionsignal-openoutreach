@@ -79,6 +79,7 @@
       </div>
     </section>
 
+    {% if forecast.total_pipeline_value %}
     <section id="forecast" class="panel">
       <h2>Pipeline Forecast</h2>
       <div class="metrics">
@@ -89,6 +90,12 @@
         <div class="metric"><span class="muted">Upcoming Deadline Value</span><strong>${{ forecast.upcoming_deadline_value|floatformat:0 }}</strong></div>
       </div>
     </section>
+    {% else %}
+    <section id="forecast" class="panel">
+      <h2>Pipeline Forecast</h2>
+      <p class="muted">Your forecast unlocks when you start pursuing opportunities — mark one "Interested" or move it into the pipeline and dollar values appear here.</p>
+    </section>
+    {% endif %}
 
     <section id="board" class="panel">
       <h2>Lifecycle Board</h2>

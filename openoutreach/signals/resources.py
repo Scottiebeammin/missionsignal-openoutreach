@@ -22,7 +22,6 @@ class ResourceCategory:
 @dataclass(frozen=True)
 class ResourceRecommendation:
     name: str
-    score: int
     explanation: str
 
 
@@ -88,16 +87,16 @@ def _resource_categories(project, organization) -> list[ResourceCategory]:
 
 def _recommendations() -> list[ResourceRecommendation]:
     return [
-        ResourceRecommendation("Technical Assistance Providers", 92, "High-value support for program design, evaluation, operations, and implementation planning."),
-        ResourceRecommendation("Capacity Building Organizations", 90, "Useful for governance, fundraising, finance, leadership, and organizational sustainability."),
-        ResourceRecommendation("Nonprofit Support Centers", 86, "Strong fit for training, coaching, templates, nonprofit compliance, and local peer networks."),
-        ResourceRecommendation("Volunteer Networks", 84, "Relevant when programs can use mentors, tutors, ambassadors, event help, or operational volunteers."),
-        ResourceRecommendation("AmeriCorps Programs", 82, "Useful for direct service, digital navigation, outreach, and capacity-building roles."),
-        ResourceRecommendation("University Support Programs", 80, "Relevant for research, fellows, interns, evaluation, clinics, and student project teams."),
-        ResourceRecommendation("Software Donation Programs", 78, "Helpful for CRM, productivity, data, learning, cybersecurity, and communications tools."),
-        ResourceRecommendation("Shared Service Organizations", 76, "Useful when back-office capacity is limited or expensive to build alone."),
-        ResourceRecommendation("Equipment Assistance Programs", 74, "Relevant for devices, furniture, program supplies, facilities, and infrastructure needs."),
-        ResourceRecommendation("Broadband & Digital Access Programs", 72, "Relevant when programs include digital skills, online access, technology navigation, or connected devices."),
+        ResourceRecommendation("Technical Assistance Providers", "High-value support for program design, evaluation, operations, and implementation planning."),
+        ResourceRecommendation("Capacity Building Organizations", "Useful for governance, fundraising, finance, leadership, and organizational sustainability."),
+        ResourceRecommendation("Nonprofit Support Centers", "Strong fit for training, coaching, templates, nonprofit compliance, and local peer networks."),
+        ResourceRecommendation("Volunteer Networks", "Relevant when programs can use mentors, tutors, ambassadors, event help, or operational volunteers."),
+        ResourceRecommendation("AmeriCorps Programs", "Useful for direct service, digital navigation, outreach, and capacity-building roles."),
+        ResourceRecommendation("University Support Programs", "Relevant for research, fellows, interns, evaluation, clinics, and student project teams."),
+        ResourceRecommendation("Software Donation Programs", "Helpful for CRM, productivity, data, learning, cybersecurity, and communications tools."),
+        ResourceRecommendation("Shared Service Organizations", "Useful when back-office capacity is limited or expensive to build alone."),
+        ResourceRecommendation("Equipment Assistance Programs", "Relevant for devices, furniture, program supplies, facilities, and infrastructure needs."),
+        ResourceRecommendation("Broadband & Digital Access Programs", "Relevant when programs include digital skills, online access, technology navigation, or connected devices."),
     ]
 
 

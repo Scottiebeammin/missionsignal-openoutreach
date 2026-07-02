@@ -94,14 +94,15 @@
     </nav>
 
     <header class="hero">
-      <p class="eyebrow">Resources V1</p>
+      <p class="eyebrow">Resources</p>
       <h1>Resources Dashboard</h1>
       <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
       <section class="score-grid" aria-label="Resource readiness">
         <div class="score-box">
-          <h2>Resource Readiness Score</h2>
+          <h2>Resource Profile Completeness</h2>
           <strong>{{ readiness.readiness_score }}</strong>
           <span>{{ readiness.readiness_level }}</span>
+          <p class="muted" style="margin-top:8px;font-size:0.8rem;">How complete your profile is for this area — not a prediction of funding outcomes. Your overall readiness lives on the Readiness page.</p>
         </div>
         <section class="panel action-panel">
           <h2>Recommended Next Actions</h2>
@@ -172,13 +173,12 @@
         </section>
 
         <section class="panel">
-          <h2>Recommended Resource Types</h2>
+          <h2>Resource Types Worth Exploring</h2>
           <div class="resource-grid">
             {% for resource in readiness.recommendations %}
               <article class="resource-card">
                 <header>
                   <h3>{{ resource.name }}</h3>
-                  <span class="score-pill">{{ resource.score }}</span>
                 </header>
                 <p>{{ resource.explanation }}</p>
               </article>

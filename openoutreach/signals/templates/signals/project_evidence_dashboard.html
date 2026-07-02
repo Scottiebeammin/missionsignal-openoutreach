@@ -70,7 +70,11 @@
         {% for item in evidence_summary.missing_evidence_items %}
           <article class="item-card"><strong>{{ item }}</strong><p class="muted">Add this evidence to strengthen submissions.</p></article>
         {% empty %}
-          <article class="item-card"><strong>No missing evidence types</strong><p class="muted">Evidence inventory is ready for current requirements.</p></article>
+          {% if evidence_summary.total_evidence_items %}
+            <article class="item-card"><strong>No missing evidence types</strong><p class="muted">Evidence inventory covers current requirements.</p></article>
+          {% else %}
+            <article class="item-card"><strong>Not started yet</strong><p class="muted">Add your first outcome report or impact story — evidence is what turns a good application into a fundable one.</p></article>
+          {% endif %}
         {% endfor %}
       </div>
     </section>

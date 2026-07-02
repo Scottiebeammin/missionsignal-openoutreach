@@ -45,7 +45,7 @@ def test_project_member_can_view_government_dashboard(client, government_project
 
     assert response.status_code == 200
     assert "Government Dashboard" in content
-    assert "Government Opportunity Readiness Score" in content
+    assert "Government Profile Completeness" in content
     assert "Relevant Public-Sector Lanes" in content
     assert "Recommended Government Entity Types" in content
     assert "Government Engagement Checklist" in content

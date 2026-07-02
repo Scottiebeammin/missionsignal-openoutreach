@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from openoutreach.signals.demo_guard import exclude_demo
+
 
 @dataclass(frozen=True)
 class SnapshotInsight:
@@ -666,7 +668,7 @@ def _named_partner_fit_insights(sector: dict, context: dict) -> list[SnapshotPar
 
     sector_terms = sector.get("terms", []) + context["focus"] + context["beneficiaries"]
     candidates = []
-    for partner in PartnerOrganization.objects.filter(active=True).exclude(
+    for partner in exclude_demo(PartnerOrganization.objects.filter(active=True)).exclude(
         intelligence_status=PartnerOrganization.IntelligenceStatus.ARCHIVED,
     ):
         score = 70
@@ -703,7 +705,7 @@ def _named_resource_fit_insights(sector: dict, context: dict) -> list[SnapshotRe
 
     sector_terms = sector.get("terms", []) + context["focus"] + context["beneficiaries"]
     candidates = []
-    for provider in ResourceProvider.objects.filter(active=True):
+    for provider in exclude_demo(ResourceProvider.objects.filter(active=True)):
         score = 70
         score += min(_overlap_count(provider.focus_areas, sector_terms) * 6, 18)
         score += min(_overlap_count(provider.geography, context["geography"]) * 5, 10)
@@ -964,11 +966,10 @@ def _funder_fit_insights(
     for index, pathway in enumerate(funder_pathways[:5]):
         if pathway.label.casefold() in seen:
             continue
-        score = 92 - (index * 4)
-        if "Community Foundations" in pathway.label:
-            score = max(score, 88)
-        if "Government" in pathway.label or "Workforce" in pathway.label:
-            score = max(score, 90)
+        # These are sector-archetype suggestions, not computed matches — label them
+        # honestly instead of manufacturing a descending pseudo-score.
+        strong_signals = ("Community Foundations", "Government", "Workforce")
+        level = "Strong Fit" if (index < 2 or any(t in pathway.label for t in strong_signals)) else "Promising Fit"
         rationale = (
             f"{pathway.label} fits because the profile points to {sector['label']} work"
             " with clear mission and beneficiary alignment."
@@ -978,10 +979,10 @@ def _funder_fit_insights(
         insights.append(
             SnapshotFunderFit(
                 archetype=pathway.label,
-                alignment_level=_alignment_level(score),
+                alignment_level=level,
                 rationale=rationale,
                 preparation_steps=_dedupe(prep, 3),
-                source_indicators=[_alignment_level(score), "Archetype Fallback"],
+                source_indicators=[level, "Sector Archetype"],
             )
         )
         seen.add(pathway.label.casefold())
@@ -1259,7 +1260,7 @@ def _source_summary(project) -> SnapshotSourceSummary:
     opportunities_reviewed = Opportunity.objects.filter(project=project).exclude(
         lifecycle_status__in=[Opportunity.LifecycleStatus.DECLINED, Opportunity.LifecycleStatus.CLOSED],
     ).count()
-    ecosystem_entities_reviewed = PartnerOrganization.objects.filter(active=True).exclude(
+    ecosystem_entities_reviewed = exclude_demo(PartnerOrganization.objects.filter(active=True)).exclude(
         intelligence_status=PartnerOrganization.IntelligenceStatus.ARCHIVED,
     ).count()
 

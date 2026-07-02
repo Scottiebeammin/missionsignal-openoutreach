@@ -199,9 +199,9 @@
 
     {% for category in match_overview.categories %}
       <section class="panel">
-        <h2>{{ category.label }}</h2>
+        <h2>{{ category.label }}{% if not show_all and category.matches|length > 10 %} <span class="muted" style="font-weight:400;font-size:0.85rem;">— top 10 of {{ category.matches|length }}</span>{% endif %}</h2>
         <div class="category-grid">
-          {% for match in category.matches %}
+          {% for match in category.matches|slice:match_limit %}
             <article class="category-card">
               <div class="match-header">
                 <h3>{{ match.name }}</h3>
@@ -259,6 +259,9 @@
         </div>
       </section>
     {% endfor %}
+    {% if not show_all %}
+      <p style="text-align:center;margin:8px 0 24px;"><a href="?all=1">Show all {{ match_overview.total_matches }} matches →</a></p>
+    {% endif %}
 
     <section class="panel">
       <h2>Top Match Gaps</h2>

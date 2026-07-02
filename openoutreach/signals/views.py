@@ -10,6 +10,7 @@ from django.views.decorators.http import require_POST
 from openoutreach.core.models import Project
 from openoutreach.funding.models import Opportunity, OpportunityTask
 from openoutreach.funding.readiness import build_funding_readiness
+from openoutreach.signals.demo_guard import exclude_demo
 from openoutreach.signals.analysis_service import analyze_project
 from openoutreach.signals.celebrations import build_celebration_overview
 from openoutreach.signals.dashboard import build_executive_dashboard
@@ -682,6 +683,8 @@ def project_match_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "match_overview": match_overview,
+            "show_all": request.GET.get("all") == "1",
+            "match_limit": ":1000" if request.GET.get("all") == "1" else ":10",
             "discovery": discovery,
             "readiness": readiness,
             "score_transparency": {
@@ -898,7 +901,7 @@ def project_resource_dashboard(request, pk):
     # grouped by type — these are the real, verified supports for the org to act on.
     from openoutreach.funding.models import ResourceProvider
     resources = list(
-        ResourceProvider.objects.filter(active=True).order_by("resource_type", "name")
+        exclude_demo(ResourceProvider.objects.filter(active=True)).order_by("resource_type", "name")
     )
     return render(
         request,

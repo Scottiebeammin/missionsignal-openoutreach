@@ -45,9 +45,9 @@ def test_project_member_can_view_resource_dashboard(client, resource_project):
 
     assert response.status_code == 200
     assert "Resources Dashboard" in content
-    assert "Resource Readiness Score" in content
+    assert "Resource Profile Completeness" in content
     assert "Resource Opportunity Categories" in content
-    assert "Recommended Resource Types" in content
+    assert "Resource Types Worth Exploring" in content
     assert "Resource Readiness Checklist" in content
     assert "Recommended Resource Actions" in content
     assert "Resource Ecosystem Snapshot" in content

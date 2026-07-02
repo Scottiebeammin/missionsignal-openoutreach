@@ -7,6 +7,7 @@ from openoutreach.funding.models import (
     PartnerOrganization,
     ResourceProvider,
 )
+from openoutreach.signals.demo_guard import exclude_demo
 from openoutreach.signals.categories import CATEGORY_KEYWORDS
 from openoutreach.signals.lifecycle import recommended_lifecycle_action, suggested_lifecycle_stage
 
@@ -598,7 +599,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             program_terms=provider.resource_categories,
             compatibility_text=f"{provider.eligibility_notes}\n{provider.notes}",
         )
-        for provider in ResourceProvider.objects.filter(active=True)
+        for provider in exclude_demo(ResourceProvider.objects.filter(active=True))
     ])
     partnership_matches = _sort_matches([
         _score_record(
@@ -612,7 +613,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             program_terms=partner.collaboration_opportunities,
             compatibility_text=partner.notes,
         )
-        for partner in PartnerOrganization.objects.filter(active=True)
+        for partner in exclude_demo(PartnerOrganization.objects.filter(active=True))
     ])
     categories = [
         MatchCategory("Funding Matches", funding_matches),
