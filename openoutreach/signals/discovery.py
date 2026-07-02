@@ -197,7 +197,12 @@ def _lifecycle_stages(items: list[DiscoveryOpportunity]) -> list[DiscoveryLifecy
 
 
 def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOverview:
-    queryset = Opportunity.objects.filter(project=project).select_related("source_organization").order_by("name")
+    queryset = (
+        Opportunity.objects.filter(project=project)
+        .select_related("source_organization")
+        .prefetch_related("tasks", "deadlines")
+        .order_by("name")
+    )
     opportunities = list(queryset)
     items = [
         DiscoveryOpportunity(

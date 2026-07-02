@@ -157,15 +157,19 @@ def suggested_requirement_definitions(opportunity: Opportunity):
     ]
 
 
-def ensure_opportunity_document_requirements(project, opportunity: Opportunity) -> list[OpportunityDocumentRequirement]:
+def ensure_opportunity_document_requirements(
+    project, opportunity: Opportunity, vault_documents: list[DocumentVaultItem] | None = None
+) -> list[OpportunityDocumentRequirement]:
     # Read-mostly: this runs during dashboard/readiness GETs for every opportunity,
     # so it must not issue writes when nothing changed (update_or_create here used
     # to mean thousands of queries WITH WRITES on a single page render).
+    # .all() (not .select_related on the manager) so a caller's prefetch cache is honored.
     existing = {
         requirement.title: requirement
-        for requirement in opportunity.document_requirements.select_related("linked_document")
+        for requirement in opportunity.document_requirements.all()
     }
-    vault_documents = list(DocumentVaultItem.objects.filter(project=project).order_by("title"))
+    if vault_documents is None:
+        vault_documents = list(DocumentVaultItem.objects.filter(project=project).order_by("title"))
     to_create: list[OpportunityDocumentRequirement] = []
     to_update: list[OpportunityDocumentRequirement] = []
     for title, requirement_type in suggested_requirement_definitions(opportunity):
@@ -255,8 +259,10 @@ def build_evidence_library_summary(project) -> EvidenceLibrarySummary:
     )
 
 
-def build_opportunity_document_summary(project, opportunity: Opportunity) -> OpportunityDocumentSummary:
-    requirements = ensure_opportunity_document_requirements(project, opportunity)
+def build_opportunity_document_summary(
+    project, opportunity: Opportunity, vault_documents=None
+) -> OpportunityDocumentSummary:
+    requirements = ensure_opportunity_document_requirements(project, opportunity, vault_documents=vault_documents)
     document_requirements = [
         item
         for item in requirements

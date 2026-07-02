@@ -113,8 +113,14 @@ def _target_date(opportunity: Opportunity, days_before_deadline: int):
 
 
 def ensure_default_tasks(opportunity: Opportunity) -> list[OpportunityTask]:
+    # Read-mostly (runs on GET for every opportunity): consult the (possibly
+    # prefetched) task cache first; only touch the DB when a default is missing.
     definitions = DEFAULT_TASKS_BY_STAGE.get(opportunity.lifecycle_status, [])
+    existing_titles = {task.title for task in opportunity.tasks.all()}
+    created = False
     for index, (title, description, priority) in enumerate(definitions):
+        if title in existing_titles:
+            continue
         OpportunityTask.objects.get_or_create(
             opportunity=opportunity,
             title=title,
@@ -125,11 +131,18 @@ def ensure_default_tasks(opportunity: Opportunity) -> list[OpportunityTask]:
                 "due_date": _target_date(opportunity, max(3, 21 - (index * 4))),
             },
         )
-    return list(opportunity.tasks.select_related("owner").all())
+        created = True
+    if created:
+        return list(opportunity.tasks.select_related("owner").all())
+    tasks = list(opportunity.tasks.all())
+    return sorted(tasks, key=lambda t: t.pk or 0)
 
 
 def ensure_default_deadlines(opportunity: Opportunity) -> list[OpportunityDeadline]:
     if opportunity.deadline:
+        existing_titles = {deadline.title for deadline in opportunity.deadlines.all()}
+        if {"Submission deadline", "Internal review deadline"} <= existing_titles:
+            return list(opportunity.deadlines.all())
         OpportunityDeadline.objects.get_or_create(
             opportunity=opportunity,
             title="Submission deadline",

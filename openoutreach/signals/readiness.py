@@ -288,12 +288,18 @@ def build_readiness_overview(
     )
 
 
-def build_opportunity_pursuit_readiness(project, opportunity: Opportunity) -> OpportunityPursuitReadiness:
+def build_opportunity_pursuit_readiness(
+    project,
+    opportunity: Opportunity,
+    completeness=None,
+    vault_documents=None,
+) -> OpportunityPursuitReadiness:
     organization = project.organization
-    completeness = build_organization_completeness(project)
+    if completeness is None:
+        completeness = build_organization_completeness(project)
     tasks = list(opportunity.tasks.all())
     deadlines = list(opportunity.deadlines.all())
-    document_summary = build_opportunity_document_summary(project, opportunity)
+    document_summary = build_opportunity_document_summary(project, opportunity, vault_documents=vault_documents)
     required_documents_ready = any(task.status == OpportunityTask.Status.COMPLETE for task in tasks) or bool(tasks)
     outcomes_ready = _has_values(organization.outcomes_and_impact)
     budget_ready = _has_text(organization.budget_range)
@@ -352,9 +358,32 @@ def build_opportunity_pursuit_readiness(project, opportunity: Opportunity) -> Op
 
 
 def build_opportunity_pursuit_summary(project) -> OpportunityPursuitSummary:
-    opportunities = list(Opportunity.objects.filter(project=project).order_by("name"))
+    from django.db.models import Prefetch
+
+    from openoutreach.funding.models import DocumentVaultItem, OpportunityDocumentRequirement
+
+    opportunities = list(
+        Opportunity.objects.filter(project=project)
+        .order_by("name")
+        .prefetch_related(
+            "tasks",
+            "deadlines",
+            Prefetch(
+                "document_requirements",
+                queryset=OpportunityDocumentRequirement.objects.select_related("linked_document"),
+            ),
+        )
+    )
+    # Hoisted out of the per-opportunity loop — these are project-level constants.
+    completeness = build_organization_completeness(project)
+    vault_documents = list(DocumentVaultItem.objects.filter(project=project).order_by("title"))
     readiness = [
-        (opportunity, build_opportunity_pursuit_readiness(project, opportunity))
+        (
+            opportunity,
+            build_opportunity_pursuit_readiness(
+                project, opportunity, completeness=completeness, vault_documents=vault_documents
+            ),
+        )
         for opportunity in opportunities
     ]
     if not readiness:
