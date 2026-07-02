@@ -117,7 +117,6 @@ type SceneRefs = {
   globe: THREE.Group;
   arcTubes: THREE.Mesh[];
   arcCurves: THREE.QuadraticBezierCurve3[];
-  pulseSprites: THREE.Sprite[];
   nodeSprites: THREE.Sprite[];
   dust: THREE.Points;
 };
@@ -249,38 +248,29 @@ const EarthWeb: React.FC = () => {
         return tube;
       });
 
-      // traveling energy pulses — one bright light per arc, riding along the curve after
-      // it finishes drawing ("energy flowing through the network", per the film brief)
-      const pulseSprites: THREE.Sprite[] = arcCurves.map(() => {
-        const s = new THREE.Sprite(spriteMat());
-        s.scale.set(0.09, 0.09, 1);
-        s.visible = false;
-        globe.add(s);
-        return s;
-      });
 
       const light = new THREE.AmbientLight(0xffffff, 1);
       scene.add(light);
 
-      ref.current = { renderer, scene, camera, globe, arcTubes, arcCurves, pulseSprites, nodeSprites, dust };
+      ref.current = { renderer, scene, camera, globe, arcTubes, arcCurves, nodeSprites, dust };
     }
 
-    const { renderer, scene, camera, globe, arcTubes, arcCurves, pulseSprites, nodeSprites, dust } = ref.current;
+    const { renderer, scene, camera, globe, arcTubes, arcCurves, nodeSprites, dust } = ref.current;
     const t = frame / fps;
 
     // camera slow orbit — pure function of frame
-    const orbitAngle = t * 0.28;
+    const orbitAngle = t * 0.4;
     camera.position.x = Math.sin(orbitAngle) * 5.3;
     camera.position.z = Math.cos(orbitAngle) * 5.3;
     camera.lookAt(0, -0.15, 0); // aim just above the crown of the lowered globe
 
-    globe.rotation.y = t * 0.08; // slow ambient spin
+    globe.rotation.y = t * 0.12; // ambient spin
     dust.rotation.y = t * 0.015; // dust drifts slower than the globe — parallax depth
 
     // progressively reveal each arc (draw-on), staggered — drawRange over the tube's
     // INDEX buffer (triangles are ordered along the tube length, so this sweeps cleanly)
-    const ARC_START = (i: number) => 15 + i * 9;
-    const ARC_DRAW = 38;
+    const ARC_START = (i: number) => 8 + i * 5;
+    const ARC_DRAW = 24;
     arcTubes.forEach((tube, i) => {
       const localProgress = Math.min(1, Math.max(0, (frame - ARC_START(i)) / ARC_DRAW));
       const geo = tube.geometry as THREE.BufferGeometry;
@@ -289,25 +279,10 @@ const EarthWeb: React.FC = () => {
       (tube.material as THREE.MeshBasicMaterial).opacity = 0.55 * Math.min(1, localProgress * 3);
     });
 
-    // energy pulses — once an arc is fully drawn, a bright light rides back and forth
-    // along it forever ("energy flowing through the network")
-    pulseSprites.forEach((s, i) => {
-      const doneFrame = ARC_START(i) + ARC_DRAW;
-      if (frame < doneFrame) {
-        s.visible = false;
-        return;
-      }
-      s.visible = true;
-      const speed = 0.35 + (i % 4) * 0.08; // varied speeds so pulses don't march in lockstep
-      const phase = i * 0.37;
-      const raw = (t * speed + phase) % 2;
-      const along = raw < 1 ? raw : 2 - raw; // ping-pong 0→1→0
-      s.position.copy(arcCurves[i].getPointAt(along));
-    });
 
     // node lights grow in as the web reaches them, then breathe gently
     nodeSprites.forEach((s, i) => {
-      const arriveFrame = 12 + i * 7;
+      const arriveFrame = 6 + i * 4;
       const grow = Math.min(1, Math.max(0, (frame - arriveFrame) / 12));
       const breathe = 1 + Math.sin(t * 2.2 + i * 1.7) * 0.1;
       s.scale.set(0.13 * grow * breathe, 0.13 * grow * breathe, 1);
