@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, Img, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, Img, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import * as THREE from "three";
 import { BRAND, SIGNUP_URL } from "../brand";
 import {
@@ -69,7 +69,7 @@ const GradientMesh: React.FC<{ opacity?: number }> = ({ opacity = 0.5 }) => {
   const blobs = [
     { color: "222,168,28", x: 22 + Math.sin(t * 0.21) * 8, y: 24 + Math.cos(t * 0.17) * 7, r: 38 },
     { color: "20,150,140", x: 76 + Math.sin(t * 0.16 + 2) * 9, y: 68 + Math.cos(t * 0.19 + 1) * 8, r: 42 },
-    { color: "60,120,200", x: 55 + Math.sin(t * 0.13 + 4) * 10, y: 30 + Math.cos(t * 0.15 + 3) * 9, r: 34 },
+    { color: "243,221,140", x: 55 + Math.sin(t * 0.13 + 4) * 10, y: 30 + Math.cos(t * 0.15 + 3) * 9, r: 30 },
     { color: "205,110,70", x: 34 + Math.sin(t * 0.18 + 5.5) * 9, y: 74 + Math.cos(t * 0.14 + 4.5) * 7, r: 32 },
   ];
   return (
@@ -88,6 +88,64 @@ const GradientMesh: React.FC<{ opacity?: number }> = ({ opacity = 0.5 }) => {
           }}
         />
       ))}
+    </AbsoluteFill>
+  );
+};
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HOOK (frames 0–~90) — the scroll-stopper. Loss-aversion money cards SLAM in
+// fast (LinkedIn gives you ~2 seconds), then a gold flash wipes to the brand open.
+// ─────────────────────────────────────────────────────────────────────────────
+const MISSED = [
+  { big: "$75,000", label: "Youth Program Grant", sub: "Deadline passed — yesterday", at: 2 },
+  { big: "$40,000", label: "Capacity-Building Fund", sub: "Window closed", at: 26 },
+  { big: "$120,000", label: "Corporate Partnership", sub: "Went to another org", at: 50 },
+];
+
+const MissedHook: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const flash = interpolate(frame, [76, 84, 96], [0, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const exit = interpolate(frame, [76, 92], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 18, opacity: 1 - exit, transform: `scale(${1 + exit * 0.18})` }}>
+        {MISSED.map((m, i) => {
+          const s = spring({ frame: frame - m.at, fps, config: { damping: 14, mass: 0.7 } });
+          const sc = interpolate(s, [0, 1], [1.7, 1]);
+          const op = interpolate(frame - m.at, [0, 5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+          return (
+            <div
+              key={m.big}
+              style={{
+                opacity: op,
+                transform: `scale(${sc}) rotate(${(i - 1) * 1.6}deg)`,
+                display: "flex",
+                alignItems: "center",
+                gap: 24,
+                width: 780,
+                background: "rgba(9,18,38,0.9)",
+                border: "2px solid rgba(196,106,61,0.85)",
+                borderRadius: 20,
+                padding: "20px 30px",
+                boxShadow: "0 24px 70px rgba(0,0,0,0.6), 0 0 44px rgba(196,106,61,0.3)",
+              }}
+            >
+              <div style={{ fontFamily: SANS, fontWeight: 900, fontSize: 21, letterSpacing: "0.12em", color: "#ff9d73", border: "2px solid #ff9d73", borderRadius: 8, padding: "5px 12px" }}>
+                MISSED
+              </div>
+              <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 52, color: BRAND.white, lineHeight: 1 }}>{m.big}</div>
+              <div>
+                <div style={{ fontFamily: SANS, fontWeight: 700, fontSize: 24, color: BRAND.white }}>{m.label}</div>
+                <div style={{ fontFamily: SANS, fontSize: 19, color: "#ff9d73", fontWeight: 700 }}>{m.sub}</div>
+              </div>
+            </div>
+          );
+        })}
+      </AbsoluteFill>
+      {/* gold flash wipe into the brand open */}
+      <AbsoluteFill style={{ background: `radial-gradient(circle at 50% 50%, rgba(243,221,140,${flash}) 0%, rgba(212,160,23,${flash * 0.7}) 45%, transparent 80%)` }} />
     </AbsoluteFill>
   );
 };
@@ -111,9 +169,9 @@ const PARTICLES = (() => {
 
 const ParticleLogoOpen: React.FC = () => {
   const frame = useCurrentFrame();
-  const conv = interpolate(frame, [10, 125], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const conv = interpolate(frame, [80, 142], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const ease = 1 - Math.pow(1 - conv, 3); // cubic ease-out
-  const lineOp = interpolate(frame, [85, 140], [0, 0.4], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const lineOp = interpolate(frame, [110, 148], [0, 0.4], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const webFade = interpolate(frame, [175, 220], [1, 0.25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const pts = PARTICLES.map((p) => ({ x: p.startX + (p.homeX - p.startX) * ease, y: p.startY + (p.homeY - p.startY) * ease }));
   return (
@@ -171,7 +229,7 @@ const GlassWindow: React.FC<{ label: string; sub: string; w: number; delay: numb
         opacity: appear,
         transform: `translateY(${(1 - appear) * 22 + float}px)`,
         background: "rgba(9,18,38,0.72)",
-        border: "1px solid rgba(255,255,255,0.18)",
+        border: "1px solid rgba(212,160,23,0.45)",
         borderRadius: 14,
         padding: "16px 20px",
         backdropFilter: "blur(12px)",
@@ -572,6 +630,30 @@ const FlipCard: React.FC<{ num: string; title: string; sub: string; delay: numbe
   );
 };
 
+
+/** A diagonal gold light band that sweeps across the frame at each scene boundary. */
+const GoldSweeps: React.FC<{ boundaries: number[] }> = ({ boundaries }) => {
+  const frame = useCurrentFrame();
+  let intensity = 0;
+  let pos = 0;
+  for (const b of boundaries) {
+    const local = frame - (b - 7);
+    if (local >= 0 && local <= 16) {
+      intensity = Math.max(intensity, Math.sin((local / 16) * Math.PI));
+      pos = interpolate(local, [0, 16], [-25, 125]);
+    }
+  }
+  if (intensity <= 0.01) return null;
+  return (
+    <AbsoluteFill
+      style={{
+        pointerEvents: "none",
+        background: `linear-gradient(105deg, transparent ${pos - 16}%, rgba(243,221,140,${0.5 * intensity}) ${pos}%, transparent ${pos + 16}%)`,
+      }}
+    />
+  );
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // THE FILM
 // ─────────────────────────────────────────────────────────────────────────────
@@ -583,11 +665,22 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
           <Audio src={staticFile(audioSrc)} />
         </Sequence>
       ) : null}
+      {/* light background music bed (ElevenLabs Music API) — quiet under the VO, fades out at the close */}
+      <Audio
+        src={staticFile("music/film-bed.mp3")}
+        volume={(f) =>
+          interpolate(f, [0, 40, FILM_TOTAL - 70, FILM_TOTAL - 5], [0, 0.13, 0.13, 0], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          })
+        }
+      />
       <ProgressRail totalFrames={FILM_TOTAL} />
 
       {/* SCENE 1 — Logo Open (silent lead + first line) */}
       <Sequence from={0} durationInFrames={B[1]}>
         <ParticleLogoOpen />
+        <MissedHook />
       </Sequence>
 
       {/* SCENE 2 — The Problem */}
@@ -662,6 +755,7 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
       </Sequence>
 
       <SceneDissolve boundaries={[B[1], B[2], B[3], B[4], B[5], B[6], B[7]]} />
+      <GoldSweeps boundaries={[B[1], B[2], B[3], B[4], B[5], B[6], B[7], B[8]]} />
       <Subtitles captions={CAPTIONS} />
     </NavyBG>
   );
