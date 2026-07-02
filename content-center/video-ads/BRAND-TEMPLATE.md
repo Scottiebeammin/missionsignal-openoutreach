@@ -114,6 +114,15 @@ Christopher (brand/walkthrough anchor) · Jackson (assertive CTA/offer) · Siren
 
 ---
 
+## 0e. New to Remotion? What to expect from me (added 2026-07-01)
+Scott is new to Remotion creation — I should proactively suggest technique, not just execute the literal ask. At each build stage (§0b), I'll surface options like:
+- **Skeleton stage:** confirm beat order/structure before writing any animation.
+- **Timing stage:** flag if a beat feels rushed/over-long relative to its VO line.
+- **Motion stage:** actively pitch a technique — *"GSAP overshoot here instead of a flat fade?" / "stagger this list?" / "a Lottie shine-sweep would sell this CTA more."* — and say which skill/component I'm using and why.
+- **Polish stage:** sound cues, title-safe margins, a payoff moment on the key stat/CTA.
+
+You don't need to invoke skills by name for this to happen — I should already be doing it. Ask "did you use the right skill/pattern here?" any time something looks off, as a fast self-audit trigger.
+
 ## How to make a NEW ad (the repeatable workflow)
 1. **Copy the starter:** duplicate `src/_TEMPLATE.tsx` → `src/ads/<YourAd>.tsx`, rename the component.
 2. **Fill the 6 beats** — swap copy, pick which beats you need, point `ScreenshotPanel` at the right screenshot.
