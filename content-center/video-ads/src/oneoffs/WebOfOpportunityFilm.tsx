@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, Img, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import * as THREE from "three";
 import { BRAND, SIGNUP_URL } from "../brand";
 import {
@@ -28,7 +28,7 @@ import {
  * Voice: Christopher (~70.6s). Timing derived from the measured VO word counts.
  */
 
-const LEAD = 90; // 3s silent particle open before narration begins
+const LEAD = 150; // 5s silent particle open before narration begins (per Scott: more space up front)
 const B = [0, 77, 413, 684, 994, 1253, 1434, 1614, 1886, 2118].map((f) => f + LEAD);
 export const FILM_TOTAL = B[9];
 
@@ -109,10 +109,10 @@ const PARTICLES = (() => {
 
 const ParticleLogoOpen: React.FC = () => {
   const frame = useCurrentFrame();
-  const conv = interpolate(frame, [5, 85], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const conv = interpolate(frame, [10, 125], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const ease = 1 - Math.pow(1 - conv, 3); // cubic ease-out
-  const lineOp = interpolate(frame, [55, 95], [0, 0.4], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const webFade = interpolate(frame, [120, 165], [1, 0.25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const lineOp = interpolate(frame, [85, 140], [0, 0.4], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const webFade = interpolate(frame, [175, 220], [1, 0.25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const pts = PARTICLES.map((p) => ({ x: p.startX + (p.homeX - p.startX) * ease, y: p.startY + (p.homeY - p.startY) * ease }));
   return (
     <AbsoluteFill>
@@ -128,8 +128,18 @@ const ParticleLogoOpen: React.FC = () => {
           <circle key={i} cx={p.x} cy={p.y} r={3.2} fill={BRAND.goldLight} opacity={0.35 + 0.65 * ease} />
         ))}
       </svg>
-      {/* the web becomes the wordmark */}
-      {frame >= 95 ? <AnimatedLogoReveal delay={95} /> : null}
+      {/* the web becomes the wordmark — with the real emblem above it */}
+      {frame >= 145 ? <AnimatedLogoReveal delay={145} /> : null}
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+        <div
+          style={{
+            transform: "translateY(-175px)",
+            opacity: interpolate(frame, [150, 175], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}
+        >
+          <Img src={staticFile("logo-mark.png")} style={{ width: 130, height: 130 }} />
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
@@ -158,8 +168,8 @@ const GlassWindow: React.FC<{ label: string; sub: string; w: number; delay: numb
         width: w,
         opacity: appear,
         transform: `translateY(${(1 - appear) * 22 + float}px)`,
-        background: "rgba(255,255,255,0.055)",
-        border: "1px solid rgba(255,255,255,0.14)",
+        background: "rgba(9,18,38,0.72)",
+        border: "1px solid rgba(255,255,255,0.18)",
         borderRadius: 14,
         padding: "16px 20px",
         backdropFilter: "blur(12px)",
@@ -470,17 +480,17 @@ const KPI: React.FC<{ label: string; value: string; delay: number; right?: boole
   <Rise delay={delay}>
     <div
       style={{
-        background: "rgba(255,255,255,0.06)",
-        border: "1px solid rgba(212,160,23,0.35)",
+        background: "rgba(9,18,38,0.78)",
+        border: "1px solid rgba(212,160,23,0.45)",
         borderRadius: 16,
-        padding: "18px 26px",
+        padding: "14px 20px",
         backdropFilter: "blur(10px)",
         textAlign: right ? "right" : "left",
         boxShadow: "0 16px 44px rgba(0,0,0,0.45)",
       }}
     >
       <div style={{ fontFamily: SANS, fontSize: 17, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: BRAND.goldLight }}>{label}</div>
-      <div style={{ fontFamily: SERIF, fontSize: 44, fontWeight: 600, color: BRAND.white, lineHeight: 1.1 }}>{value}</div>
+      <div style={{ fontFamily: SERIF, fontSize: 38, fontWeight: 600, color: BRAND.white, lineHeight: 1.1 }}>{value}</div>
     </div>
   </Rise>
 );
@@ -502,16 +512,16 @@ const PlatformScene: React.FC<{ durationInFrames: number }> = ({ durationInFrame
               filter: "blur(28px)",
             }}
           />
-          <ScreenshotPanel src={staticFile("screenshots/dashboard.png")} label="anansiatlas.com/dashboard" durationInFrames={durationInFrames} width={780} panY={[0, -14]} />
+          <ScreenshotPanel src={staticFile("screenshots/dashboard.png")} label="anansiatlas.com/dashboard" durationInFrames={durationInFrames} width={600} panY={[0, -14]} />
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{ justifyContent: "center", paddingLeft: 40 }}>
-        <div style={{ width: 250 }}>
+      <AbsoluteFill style={{ justifyContent: "center", paddingLeft: 22 }}>
+        <div style={{ width: 195 }}>
           <KPI label="Readiness" value="92" delay={26} />
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{ justifyContent: "center", alignItems: "flex-end", paddingRight: 40 }}>
-        <div style={{ width: 280 }}>
+      <AbsoluteFill style={{ justifyContent: "center", alignItems: "flex-end", paddingRight: 22 }}>
+        <div style={{ width: 195 }}>
           <KPI label="Opportunities" value="53" delay={40} right />
         </div>
       </AbsoluteFill>
@@ -646,6 +656,9 @@ export const WebOfOpportunityFilm: React.FC<{ audioSrc?: string | null }> = ({ a
         {/* Scene 9 overlay: logo + CTA, arrives with the final line */}
         <Sequence from={B[8] - B[7]} durationInFrames={FILM_TOTAL - B[8]}>
           <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-end", paddingBottom: 130, gap: 22, flexDirection: "column" }}>
+            <Rise delay={4}>
+              <Img src={staticFile("logo-mark.png")} style={{ width: 110, height: 110 }} />
+            </Rise>
             <LogoLockup delay={8} />
             <CTAButton delay={22}>Become a Founding Partner</CTAButton>
             <Rise delay={32}>
