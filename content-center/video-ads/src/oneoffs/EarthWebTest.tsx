@@ -21,23 +21,37 @@ import { NavyBG, SANS } from "../components";
 const TOTAL = 240; // 8s
 
 // Fixed points around the globe (lat, lon in degrees) — deterministic, not random.
+// 12 "cities" for a denser, more organic web than the original 6 continents.
 const NODES: { lat: number; lon: number }[] = [
-  { lat: 38, lon: -97 }, // North America
-  { lat: 51, lon: 10 }, // Europe
-  { lat: -1, lon: 37 }, // Africa
-  { lat: 35, lon: 105 }, // Asia
-  { lat: -25, lon: 135 }, // Oceania
-  { lat: -15, lon: -55 }, // South America
+  { lat: 40, lon: -74 }, // New York
+  { lat: 34, lon: -118 }, // Los Angeles
+  { lat: 28, lon: -81 }, // Orlando — home
+  { lat: 51, lon: 0 }, // London
+  { lat: 48, lon: 2 }, // Paris
+  { lat: 6, lon: 3 }, // Lagos
+  { lat: -1, lon: 37 }, // Nairobi
+  { lat: 25, lon: 55 }, // Dubai
+  { lat: 19, lon: 73 }, // Mumbai
+  { lat: 1, lon: 104 }, // Singapore
+  { lat: 35, lon: 140 }, // Tokyo
+  { lat: -23, lon: -46 }, // São Paulo
 ];
-// Arcs connecting node pairs (indices into NODES) — a spanning "web", not every pair.
+// Arcs — mostly regional short-hops (they hug the surface and feel like flight trails)
+// plus a few long-hauls. [from, to] indices into NODES.
 const ARCS: [number, number][] = [
-  [0, 1],
-  [1, 2],
-  [1, 3],
-  [3, 4],
-  [0, 5],
-  [2, 5],
-  [3, 0],
+  [2, 0], // Orlando → New York
+  [0, 1], // NY → LA
+  [0, 3], // NY → London (long haul)
+  [3, 4], // London → Paris
+  [4, 5], // Paris → Lagos
+  [5, 6], // Lagos → Nairobi
+  [6, 7], // Nairobi → Dubai
+  [7, 8], // Dubai → Mumbai
+  [8, 9], // Mumbai → Singapore
+  [9, 10], // Singapore → Tokyo
+  [2, 11], // Orlando → São Paulo
+  [11, 5], // São Paulo → Lagos (long haul)
+  [10, 1], // Tokyo → LA (long haul)
 ];
 
 function toVec3(lat: number, lon: number, r: number): THREE.Vector3 {
@@ -102,6 +116,8 @@ type SceneRefs = {
   camera: THREE.PerspectiveCamera;
   globe: THREE.Group;
   arcTubes: THREE.Mesh[];
+  arcCurves: THREE.QuadraticBezierCurve3[];
+  pulseSprites: THREE.Sprite[];
   nodeSprites: THREE.Sprite[];
   dust: THREE.Points;
 };
@@ -120,7 +136,7 @@ const EarthWeb: React.FC = () => {
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-      camera.position.set(0, 1.1, 6.2);
+      camera.position.set(0, 1.0, 5.3);
 
       const globe = new THREE.Group();
       globe.position.y = -1.35; // horizon composition — the planet's crown rises from the lower third (per the earth reference)
@@ -208,40 +224,54 @@ const EarthWeb: React.FC = () => {
         const s = new THREE.Sprite(spriteMat());
         const p = toVec3(n.lat, n.lon, R * 1.02);
         s.position.copy(p);
-        s.scale.set(0.22, 0.22, 1);
+        s.scale.set(0.13, 0.13, 1);
         globe.add(s);
         return s;
       });
 
-      // arcs — TUBE geometry (not 1px THREE.Line, which reads as a faint scratch).
-      // Tubes have real thickness, catch the eye as glowing strands, and their indexed
-      // triangles are ordered along the tube's length — so setDrawRange() on the index
-      // buffer gives us a clean progressive "draw-on" reveal, frame-deterministically.
-      const arcTubes: THREE.Mesh[] = ARCS.map(([a, b]) => {
-        const pa = toVec3(NODES[a].lat, NODES[a].lon, R * 1.02);
-        const pb = toVec3(NODES[b].lat, NODES[b].lon, R * 1.02);
-        const mid = pa.clone().add(pb).multiplyScalar(0.5).normalize().multiplyScalar(R * 1.28);
-        const curve = new THREE.CatmullRomCurve3([pa, mid, pb]);
-        const geo = new THREE.TubeGeometry(curve, 60, 0.012, 8, false);
-        const mat = new THREE.MeshBasicMaterial({ color: 0xf3dd8c, transparent: true, opacity: 0.95 });
+      // arcs — thin TUBE strands that HUG the surface like flight trails: the apex lift
+      // scales with arc length (short hops stay low, long hauls rise), instead of every
+      // arc ballooning to the same tall hoop. Draw-on reveal via index drawRange.
+      const arcCurves: THREE.QuadraticBezierCurve3[] = [];
+      const arcTubes: THREE.Mesh[] = ARCS.map(([a, b], i) => {
+        const pa = toVec3(NODES[a].lat, NODES[a].lon, R * 1.015);
+        const pb = toVec3(NODES[b].lat, NODES[b].lon, R * 1.015);
+        const span = pa.distanceTo(pb) / (2 * R); // 0..1 — how far around the globe
+        const lift = R * Math.min(1.17, 1.04 + 0.2 * span); // hugging for short hops, capped so long hauls never balloon into hoops
+        const mid = pa.clone().add(pb).multiplyScalar(0.5).normalize().multiplyScalar(lift);
+        const curve = new THREE.QuadraticBezierCurve3(pa, mid, pb); // no endpoint overshoot (CatmullRom made loop-de-loops at nodes)
+        arcCurves.push(curve);
+        const radius = 0.006 + (i % 3) * 0.002; // subtle thickness variety
+        const geo = new THREE.TubeGeometry(curve, 64, radius, 8, false);
+        const mat = new THREE.MeshBasicMaterial({ color: 0xf3dd8c, transparent: true, opacity: 0.55 });
         const tube = new THREE.Mesh(geo, mat);
         globe.add(tube);
         return tube;
       });
 
+      // traveling energy pulses — one bright light per arc, riding along the curve after
+      // it finishes drawing ("energy flowing through the network", per the film brief)
+      const pulseSprites: THREE.Sprite[] = arcCurves.map(() => {
+        const s = new THREE.Sprite(spriteMat());
+        s.scale.set(0.09, 0.09, 1);
+        s.visible = false;
+        globe.add(s);
+        return s;
+      });
+
       const light = new THREE.AmbientLight(0xffffff, 1);
       scene.add(light);
 
-      ref.current = { renderer, scene, camera, globe, arcTubes, nodeSprites, dust };
+      ref.current = { renderer, scene, camera, globe, arcTubes, arcCurves, pulseSprites, nodeSprites, dust };
     }
 
-    const { renderer, scene, camera, globe, arcTubes, nodeSprites, dust } = ref.current;
+    const { renderer, scene, camera, globe, arcTubes, arcCurves, pulseSprites, nodeSprites, dust } = ref.current;
     const t = frame / fps;
 
     // camera slow orbit — pure function of frame
     const orbitAngle = t * 0.28;
-    camera.position.x = Math.sin(orbitAngle) * 6.2;
-    camera.position.z = Math.cos(orbitAngle) * 6.2;
+    camera.position.x = Math.sin(orbitAngle) * 5.3;
+    camera.position.z = Math.cos(orbitAngle) * 5.3;
     camera.lookAt(0, -0.15, 0); // aim just above the crown of the lowered globe
 
     globe.rotation.y = t * 0.08; // slow ambient spin
@@ -249,22 +279,38 @@ const EarthWeb: React.FC = () => {
 
     // progressively reveal each arc (draw-on), staggered — drawRange over the tube's
     // INDEX buffer (triangles are ordered along the tube length, so this sweeps cleanly)
+    const ARC_START = (i: number) => 15 + i * 9;
+    const ARC_DRAW = 38;
     arcTubes.forEach((tube, i) => {
-      const startFrame = 20 + i * 14;
-      const drawFrames = 45;
-      const localProgress = Math.min(1, Math.max(0, (frame - startFrame) / drawFrames));
+      const localProgress = Math.min(1, Math.max(0, (frame - ARC_START(i)) / ARC_DRAW));
       const geo = tube.geometry as THREE.BufferGeometry;
       const totalIndices = geo.index ? geo.index.count : 0;
       geo.setDrawRange(0, Math.floor(totalIndices * localProgress));
-      (tube.material as THREE.MeshBasicMaterial).opacity = 0.95 * Math.min(1, localProgress * 3);
+      (tube.material as THREE.MeshBasicMaterial).opacity = 0.55 * Math.min(1, localProgress * 3);
     });
 
-    // pulsing node lights, staggered to land as their arcs complete
+    // energy pulses — once an arc is fully drawn, a bright light rides back and forth
+    // along it forever ("energy flowing through the network")
+    pulseSprites.forEach((s, i) => {
+      const doneFrame = ARC_START(i) + ARC_DRAW;
+      if (frame < doneFrame) {
+        s.visible = false;
+        return;
+      }
+      s.visible = true;
+      const speed = 0.35 + (i % 4) * 0.08; // varied speeds so pulses don't march in lockstep
+      const phase = i * 0.37;
+      const raw = (t * speed + phase) % 2;
+      const along = raw < 1 ? raw : 2 - raw; // ping-pong 0→1→0
+      s.position.copy(arcCurves[i].getPointAt(along));
+    });
+
+    // node lights grow in as the web reaches them, then breathe gently
     nodeSprites.forEach((s, i) => {
-      const arriveFrame = 20 + i * 14 + 45;
-      const pulse = 1 + Math.sin(Math.max(0, t - arriveFrame / fps) * 3) * 0.12;
-      const grow = Math.min(1, Math.max(0, (frame - (arriveFrame - 10)) / 14));
-      s.scale.set(0.22 * pulse * grow, 0.22 * pulse * grow, 1);
+      const arriveFrame = 12 + i * 7;
+      const grow = Math.min(1, Math.max(0, (frame - arriveFrame) / 12));
+      const breathe = 1 + Math.sin(t * 2.2 + i * 1.7) * 0.1;
+      s.scale.set(0.13 * grow * breathe, 0.13 * grow * breathe, 1);
     });
 
     renderer.render(scene, camera);
