@@ -146,8 +146,16 @@ class ResourceProvider(models.Model):
         )
         OTHER = "other", "Other"
 
+    class ResourceCost(models.TextChoices):
+        FREE = "free", "Free"
+        LOW_COST = "low_cost", "Low-cost"
+        PAID = "paid", "Paid"
+
     name = models.CharField(max_length=500)
     resource_type = models.CharField(max_length=60, choices=ResourceType.choices, default=ResourceType.OTHER)
+    # Honest per-resource cost label surfaced on the resources page. Default is the
+    # conservative "low_cost"; seeding sets an explicit value for every row.
+    cost = models.CharField(max_length=20, choices=ResourceCost.choices, default=ResourceCost.LOW_COST)
     geography = models.JSONField(default=list, blank=True)
     focus_areas = models.JSONField(default=list, blank=True)
     resource_categories = models.JSONField(default=list, blank=True)
@@ -329,6 +337,10 @@ class Opportunity(models.Model):
     focus_areas = models.JSONField(default=list, blank=True)
     beneficiaries = models.JSONField(default=list, blank=True)
     eligibility_notes = models.TextField(blank=True, default="")
+    # Structured applicant-type eligibility as exposed by the source (Grants.gov
+    # fetchOpportunity applicantTypes: [{"id": "12", "description": "Nonprofits ..."}]).
+    # Empty list = unknown (never used to exclude).
+    applicant_types = models.JSONField(default=list, blank=True)
     funding_amount = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
     posted_date = models.DateField(null=True, blank=True)

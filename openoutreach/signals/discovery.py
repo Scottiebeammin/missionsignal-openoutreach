@@ -207,6 +207,9 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
         )
         for opportunity in opportunities
     ]
+    # Drop hard-screened opportunities (other-state-only scope, or applicant
+    # types that exclude nonprofits) from the discovery list entirely.
+    items = [item for item in items if not item.match.excluded]
     items = sorted(
         items,
         key=lambda item: (-item.match.score, item.opportunity.get_opportunity_type_display(), item.opportunity.name),

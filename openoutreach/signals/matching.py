@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 
+from openoutreach.funding.grants_gov import US_STATES
 from openoutreach.funding.models import (
     Funder,
     GovernmentEntity,
@@ -19,6 +20,43 @@ MATCH_WEIGHTS = {
     "program": 15,
     "organization_type": 10,
 }
+
+# Partial geography credit for national-scope opportunities: nationally-eligible
+# federal grants are honestly available everywhere, but a national program is a
+# weaker geographic signal than an explicit home-state match.
+NATIONAL_GEOGRAPHY_POINTS = 15
+
+_US_STATES_CF = {state.casefold() for state in US_STATES}
+
+# Grants.gov applicant-type ids compatible with nonprofit applicants:
+# 12 = 501(c)(3) nonprofits, 13 = non-501(c)(3) nonprofits,
+# 25 = "Others", 99 = "Unrestricted".
+_NONPROFIT_COMPATIBLE_APPLICANT_IDS = {"12", "13", "25", "99"}
+
+
+def applicant_types_allow_nonprofits(applicant_types) -> bool | None:
+    """True if the applicant-type list admits nonprofits, False if it clearly
+    excludes them, None when unknown (empty list — never used to exclude)."""
+    entries = []
+    for entry in applicant_types or []:
+        if isinstance(entry, dict):
+            entries.append((str(entry.get("id", "")).strip(), str(entry.get("description", "")).strip()))
+        else:
+            entries.append(("", str(entry).strip()))
+    entries = [(aid, desc) for aid, desc in entries if aid or desc]
+    if not entries:
+        return None
+    for aid, desc in entries:
+        desc_cf = desc.casefold()
+        if (
+            aid in _NONPROFIT_COMPATIBLE_APPLICANT_IDS
+            or "nonprofit" in desc_cf
+            or "non-profit" in desc_cf
+            or "unrestricted" in desc_cf
+            or desc_cf.startswith("others")
+        ):
+            return True
+    return False
 
 EXPANDED_CATEGORY_KEYWORDS = [
     keyword
@@ -51,6 +89,8 @@ class OpportunityMatch:
     current_lifecycle_status: str
     owner_label: str
     suggested_next_action: str
+    excluded: bool = False
+    exclusion_reason: str = ""
 
     @property
     def matching_factor_count(self) -> int:
@@ -243,6 +283,7 @@ def _profile(project, funding_criteria=None) -> dict:
 
     return {
         "organization_type": str(organization.organization_type or "").strip(),
+        "state": str(organization.state or "").strip(),
         "geography": geography,
         "focus_areas": focus_areas,
         "beneficiaries": beneficiaries,
@@ -360,6 +401,39 @@ def _readiness_signals(profile: dict) -> list[str]:
     return ["Outcomes", "Partnerships", "Budget", "Geography", "Beneficiaries"]
 
 
+def _excluded_match(
+    *,
+    profile: dict,
+    name: str,
+    opportunity_type: str,
+    category: str,
+    reason: str,
+    current_lifecycle_status: str,
+    owner_label: str,
+    suggested_next_action: str | None,
+) -> OpportunityMatch:
+    """A hard-screened-out record: score 0 and flagged so list views drop it."""
+    return OpportunityMatch(
+        name=name,
+        score=0,
+        level="Not Eligible",
+        opportunity_type=opportunity_type,
+        category=category,
+        reasons=[reason],
+        match_factors=[],
+        missing_factors=[],
+        improvement_suggestions=[],
+        potential_score=0,
+        geography_relevance=0,
+        suggested_lifecycle_stage=suggested_lifecycle_stage(),
+        current_lifecycle_status=current_lifecycle_status,
+        owner_label=owner_label,
+        suggested_next_action=suggested_next_action or recommended_lifecycle_action(Opportunity.LifecycleStatus.DISCOVERED),
+        excluded=True,
+        exclusion_reason=reason,
+    )
+
+
 def _score_record(
     *,
     profile: dict,
@@ -375,6 +449,8 @@ def _score_record(
     current_lifecycle_status: str = "Not in pipeline",
     owner_label: str = "Unassigned",
     suggested_next_action: str | None = None,
+    applicant_types: list | None = None,
+    strict_screening: bool = False,
 ) -> OpportunityMatch:
     record_geography = _clean_values(geography)
     record_focus = _clean_values(focus_areas)
@@ -388,7 +464,45 @@ def _score_record(
         + record_program_terms
     ).casefold()
 
+    record_geo_cf = {value.casefold() for value in record_geography}
+    is_national = "national" in record_geo_cf
+    org_state = profile.get("state", "")
+    org_state_match = bool(org_state) and org_state.casefold() in record_geo_cf
     geography_matches = _overlap(profile["geography"], record_geography, record_text)
+
+    if strict_screening:
+        # Explicit other-state-only scope: every geography entry is a US state,
+        # none of them the org's home state — the org cannot apply. Exclude.
+        state_only_scope = (
+            record_geo_cf
+            and not is_national
+            and record_geo_cf <= _US_STATES_CF
+            and not org_state_match
+        )
+        if state_only_scope:
+            return _excluded_match(
+                profile=profile,
+                name=name,
+                opportunity_type=opportunity_type,
+                category=category,
+                reason=f"Restricted to {', '.join(record_geography)} — outside the organization's state",
+                current_lifecycle_status=current_lifecycle_status,
+                owner_label=owner_label,
+                suggested_next_action=suggested_next_action,
+            )
+        # Applicant-type screening: exclude only when types are known and none
+        # admits nonprofits. Unknown (empty) never excludes.
+        if applicant_types_allow_nonprofits(applicant_types) is False:
+            return _excluded_match(
+                profile=profile,
+                name=name,
+                opportunity_type=opportunity_type,
+                category=category,
+                reason="Eligible applicant types do not include nonprofit organizations",
+                current_lifecycle_status=current_lifecycle_status,
+                owner_label=owner_label,
+                suggested_next_action=suggested_next_action,
+            )
 
     # Domain-aware focus matching: use the org's canonical domain keywords
     # so a healthcare org gets healthcare-keyword matches, not generic ones.
@@ -428,7 +542,18 @@ def _score_record(
         )
     )
 
-    geography_score = _factor_score(geography_matches, MATCH_WEIGHTS["geography"])
+    if org_state_match:
+        # Explicit home-state scope: full geography credit.
+        geography_score = MATCH_WEIGHTS["geography"]
+        if org_state not in geography_matches:
+            geography_matches = [org_state] + geography_matches
+    elif geography_matches:
+        geography_score = _factor_score(geography_matches, MATCH_WEIGHTS["geography"])
+    elif is_national:
+        # National-scope opportunity: honestly eligible everywhere, partial credit.
+        geography_score = NATIONAL_GEOGRAPHY_POINTS
+    else:
+        geography_score = 0
     focus_score = _factor_score(focus_matches, MATCH_WEIGHTS["focus"])
     beneficiary_score = _factor_score(beneficiary_matches, MATCH_WEIGHTS["beneficiary"])
     program_score = _factor_score(program_matches, MATCH_WEIGHTS["program"])
@@ -454,6 +579,9 @@ def _score_record(
     if geography_matches:
         match_factors.append("Geography Alignment")
         reasons.append(f"{_display(geography_matches[0])} geography alignment")
+    elif is_national:
+        match_factors.append("National Scope")
+        reasons.append("National program — eligible in any state")
     if focus_matches:
         first_focus = _display(focus_matches[0])
         match_factors.append(f"{first_focus} Alignment")
@@ -663,6 +791,8 @@ def score_inventory_opportunity(project, opportunity, funding_criteria=None) -> 
             f"{opportunity.get_source_type_display()}\n{source_context}"
         ),
         category_keywords=EXPANDED_CATEGORY_KEYWORDS,
+        applicant_types=getattr(opportunity, "applicant_types", None) or [],
+        strict_screening=True,
         current_lifecycle_status=opportunity.get_lifecycle_status_display(),
         owner_label="Assigned" if opportunity.assigned_owner else "Unassigned",
         suggested_next_action=recommended_lifecycle_action(opportunity.lifecycle_status),
