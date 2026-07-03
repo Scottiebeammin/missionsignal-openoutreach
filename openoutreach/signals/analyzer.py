@@ -132,7 +132,14 @@ def _canonical_focus(values: list[str]) -> list[str]:
 
 
 def _unique(values) -> list[str]:
-    return list(dict.fromkeys(value.strip() for value in values if value and value.strip()))
+    seen: set[str] = set()
+    out: list[str] = []
+    for value in values:
+        cleaned = (value or "").strip()
+        if cleaned and cleaned.casefold() not in seen:
+            seen.add(cleaned.casefold())
+            out.append(cleaned)
+    return out
 
 
 def _keywords(text: str, limit: int = 12) -> list[str]:
@@ -191,9 +198,11 @@ def analyze_deterministically(data: OrganizationAnalyzerInput) -> OrganizationAn
     if data.beneficiary_selections:
         beneficiaries = _unique(data.beneficiary_selections)
         inferred_b = _matches(combined, _BENEFICIARY_RULES)
+        existing = {b.casefold() for b in beneficiaries}
         for b in inferred_b:
-            if b not in beneficiaries:
+            if b.casefold() not in existing:
                 beneficiaries.append(b)
+                existing.add(b.casefold())
     else:
         beneficiaries = _matches(combined, _BENEFICIARY_RULES)
 
