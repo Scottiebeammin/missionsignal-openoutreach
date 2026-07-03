@@ -51,6 +51,7 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="opportunities" %}
   <main>
+    {% include "signals/_cluster_tabs.html" with cluster="opportunities" active="top" %}
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
       <a class="active" href="{% url 'project-opportunities' project.pk %}">Prioritized</a>
       <a href="{% url 'project-discovery' project.pk %}">Discover</a>

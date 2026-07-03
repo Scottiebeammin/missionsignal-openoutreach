@@ -60,6 +60,7 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="matching" %}
   <main>
+    {% include "signals/_cluster_tabs.html" with cluster="opportunities" active="matches" %}
     <nav class="workspace-tabs" aria-label="Opportunities workspace tabs">
       <a href="{% url 'project-opportunities' project.pk %}">Strategic Pathways</a>
       <a href="{% url 'project-discovery' project.pk %}">Discovery</a>

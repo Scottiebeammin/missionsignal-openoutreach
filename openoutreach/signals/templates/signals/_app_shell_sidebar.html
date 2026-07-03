@@ -5,42 +5,26 @@
   </div>
   <nav class="nav" aria-label="Anansi Atlas navigation">
     <div class="nav-section">
-      <span class="nav-label">Overview</span>
-      <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'project-dashboard' project.pk %}">Dashboard</a>
-      <a class="{% if active_page == 'snapshot' %}active{% endif %}" href="{% url 'project-snapshot' project.pk %}">Snapshot <span>Full summary</span></a>
-      <a class="{% if active_page == 'opportunity-web' %}active{% endif %}" href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web <span>Ecosystem map</span></a>
-      <a class="{% if active_page == 'relationships' or active_page == 'funding' or active_page == 'government' or active_page == 'partnerships' %}active{% endif %}" href="{% url 'project-relationships' project.pk %}">Partners & Sponsorship <span>Map connections</span></a>
+      <span class="nav-label">Today</span>
+      <a class="{% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'project-dashboard' project.pk %}">Home <span>Your next move</span></a>
     </div>
 
     <div class="nav-section">
-      <span class="nav-label">Take Action</span>
-      <a class="{% if active_page == 'pipeline' %}active{% endif %}" href="{% url 'project-pipeline' project.pk %}">Pipeline <span>Track pursuits</span></a>
-      <a class="{% if active_page == 'opportunities' or active_page == 'discovery' or active_page == 'matching' %}active{% endif %}" href="{% url 'project-opportunities' project.pk %}">Pathways <span>What to pursue</span></a>
-      <div class="nav-sublinks" aria-label="Pathways tools">
-        <a class="{% if active_page == 'discovery' %}active{% endif %}" href="{% url 'project-discovery' project.pk %}">Discovery</a>
-        <a class="{% if active_page == 'matching' %}active{% endif %}" href="{% url 'project-matches' project.pk %}">Matches</a>
-      </div>
-      <a class="{% if active_page == 'ecosystem' %}active{% endif %}" href="{% url 'project-ecosystem' project.pk %}">Ecosystem <span>Health by domain</span></a>
+      <span class="nav-label">Understand</span>
+      <a class="{% if active_page == 'snapshot' or active_page == 'opportunity-web' %}active{% endif %}" href="{% url 'project-snapshot' project.pk %}">Snapshot <span>Brief · web · plan</span></a>
+      <a class="{% if active_page == 'ecosystem' or active_page == 'funding' or active_page == 'government' or active_page == 'resources' or active_page == 'partnerships' or active_page == 'relationships' %}active{% endif %}" href="{% url 'project-ecosystem' project.pk %}">Ecosystem <span>Who's around you</span></a>
     </div>
 
     <div class="nav-section">
-      <span class="nav-label">Build Strength</span>
-      <a class="{% if active_page == 'readiness' or active_page == 'documents' or active_page == 'evidence' %}active{% endif %}" href="{% url 'project-readiness' project.pk %}">Readiness <span>Gaps & actions</span></a>
-      <div class="nav-sublinks" aria-label="Readiness tools">
-        <a class="{% if active_page == 'documents' %}active{% endif %}" href="{% url 'project-documents' project.pk %}">Documents</a>
-        <a class="{% if active_page == 'evidence' %}active{% endif %}" href="{% url 'project-evidence' project.pk %}">Evidence</a>
-      </div>
-      <a class="{% if active_page == 'resources' %}active{% endif %}" href="{% url 'project-resources' project.pk %}">Resources <span>Tools & support</span></a>
+      <span class="nav-label">Act</span>
+      <a class="{% if active_page == 'opportunities' or active_page == 'discovery' or active_page == 'matching' %}active{% endif %}" href="{% url 'project-opportunities' project.pk %}">Opportunities <span>Choose what to chase</span></a>
+      <a class="{% if active_page == 'pipeline' %}active{% endif %}" href="{% url 'project-pipeline' project.pk %}">Pipeline <span>Track your pursuits</span></a>
     </div>
 
     <div class="nav-section">
-      <span class="nav-label">Your Space</span>
-      <a class="{% if active_page == 'organization' or active_page == 'mission' or active_page == 'celebrations' or active_page == 'settings' or active_page == 'pilot' %}active{% endif %}" href="{% url 'project-organization' project.pk %}">Organization <span>Profile & settings</span></a>
-      <div class="nav-sublinks" aria-label="Organization tools">
-        <a class="{% if active_page == 'pilot' %}active{% endif %}" href="{% url 'project-pilot-workspace' project.pk %}">Partner</a>
-        <a class="{% if active_page == 'celebrations' %}active{% endif %}" href="{% url 'project-celebrations' project.pk %}">Wins</a>
-        <a class="{% if active_page == 'settings' %}active{% endif %}" href="{% url 'project-analysis-detail' project.pk %}">Analysis</a>
-      </div>
+      <span class="nav-label">Grow</span>
+      <a class="{% if active_page == 'readiness' or active_page == 'documents' or active_page == 'evidence' %}active{% endif %}" href="{% url 'project-readiness' project.pk %}">Readiness <span>Close your gaps</span></a>
+      <a class="{% if active_page == 'organization' or active_page == 'mission' or active_page == 'celebrations' or active_page == 'settings' or active_page == 'pilot' %}active{% endif %}" href="{% url 'project-organization' project.pk %}">Organization <span>Profile · wins · membership</span></a>
     </div>
   </nav>
 
@@ -78,13 +62,13 @@
 <script>
 (function() {
   var steps = [
-    { key: "snapshot",      title: "Start with your Snapshot",       body: "Your Opportunity Web Snapshot is the executive brief — funders, partners, resources, readiness, and recommended next steps all in one view.", selector: "a[href*='/snapshot/']" },
-    { key: "dashboard",     title: "Your command center",            body: "The Dashboard is your daily home base. It surfaces the single highest-leverage action and shows health scores across the full ecosystem.", selector: "a[href*='/dashboard/']" },
-    { key: "ecosystem",     title: "Map the opportunity ecosystem",  body: "Ecosystem gives you the big picture — how funding, government, resources, partnerships, and relationships score together.", selector: "a[href*='/ecosystem/']" },
-    { key: "funding",       title: "Explore funding lanes",          body: "Funding shows aligned funder types, grant readiness, and recommended actions to move from research to pursuit.", selector: "a[href*='/funding/']" },
-    { key: "readiness",     title: "Check your readiness",           body: "Readiness scores your organization's completeness and shows exactly what's needed to compete for each opportunity.", selector: "a[href*='/readiness/']" },
-    { key: "relationships", title: "Build partner & sponsorship intelligence", body: "Partners & Sponsorship tracks the funders, partners, and contacts tied to your mission — and surfaces who can open the most doors.", selector: "a[href*='/relationships/']" },
-    { key: "pipeline",      title: "Manage active pursuits",         body: "Pipeline is your lifecycle board — move opportunities from discovered to awarded and track weighted forecast value.", selector: "a[href*='/pipeline/']" }
+    { key: "dashboard",     title: "Start at Home",                  body: "Home is your daily base: one clear next move, your health scores, and upcoming deadlines — readable in under a minute.", selector: "a[href*='/dashboard/']" },
+    { key: "snapshot",      title: "Understand with your Snapshot",  body: "The Snapshot is your executive brief — the summary, your Opportunity Web map, and a 30-day action plan, together in one place.", selector: "a[href*='/snapshot/']" },
+    { key: "ecosystem",     title: "See who's around you",           body: "Ecosystem maps everything around your mission — funding, government, resources, partnerships, and relationships — as tabs of one view.", selector: "a[href*='/ecosystem/']" },
+    { key: "opportunities", title: "Choose what to chase",           body: "Opportunities is where you decide: top picks first, all matches and discovery behind tabs. Track anything worth pursuing.", selector: "a[href*='/opportunities/']" },
+    { key: "pipeline",      title: "Track your pursuits",            body: "Pipeline is your lifecycle board — everything you committed to, from discovered to awarded, with deadlines flagged.", selector: "a[href*='/pipeline/']" },
+    { key: "readiness",     title: "Close your gaps",                body: "Readiness shows what stands between you and a competitive application — with documents and evidence one tab away.", selector: "a[href*='/readiness/']" },
+    { key: "organization",  title: "Your organization",              body: "Your profile, wins, and membership live here. Keep the profile fresh — everything else in the Atlas is built from it.", selector: "a[href*='/organization/']" }
   ];
 
   var current = 0;
@@ -146,6 +130,7 @@
     "/dashboard/": "dashboard",
     "/ecosystem/": "ecosystem",
     "/funding/": "funding",
+    "/opportunities/": "opportunities",
     "/readiness/": "readiness",
     "/relationships/": "relationships",
     "/pipeline/": "pipeline"

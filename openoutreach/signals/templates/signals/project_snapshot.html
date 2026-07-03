@@ -168,6 +168,7 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="snapshot" %}
   <main>
+    {% include "signals/_cluster_tabs.html" with cluster="snapshot" active="overview" %}
 
   {% if first_visit %}
   <div id="welcome-banner" style="

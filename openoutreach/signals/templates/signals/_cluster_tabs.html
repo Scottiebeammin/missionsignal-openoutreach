@@ -1,8 +1,10 @@
 {% comment %}
 Shared cluster tab strip. Context contract:
-  cluster: "ecosystem" | "readiness"  (which sibling set to render)
-  active:  tab key — ecosystem: overview|funding|government|resources|partnerships
+  cluster: "ecosystem" | "readiness" | "snapshot" | "opportunities"
+  active:  tab key — ecosystem: overview|funding|government|resources|partnerships|relationships
                      readiness: overview|documents|evidence
+                     snapshot: overview|web
+                     opportunities: top|matches|discovery
   project: current project (uses project.pk for {% url %})
 Usage: {% include "signals/_cluster_tabs.html" with cluster="ecosystem" active="funding" %}
 {% endcomment %}
@@ -20,6 +22,18 @@ Usage: {% include "signals/_cluster_tabs.html" with cluster="ecosystem" active="
   <a {% if active == "government" %}class="active" aria-current="page"{% endif %} href="{% url 'project-government' project.pk %}">Government</a>
   <a {% if active == "resources" %}class="active" aria-current="page"{% endif %} href="{% url 'project-resources' project.pk %}">Resources</a>
   <a {% if active == "partnerships" %}class="active" aria-current="page"{% endif %} href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+  <a {% if active == "relationships" %}class="active" aria-current="page"{% endif %} href="{% url 'project-relationships' project.pk %}">Relationships</a>
+</nav>
+{% elif cluster == "snapshot" %}
+<nav class="cluster-tabs" aria-label="Snapshot tabs">
+  <a {% if active == "overview" %}class="active" aria-current="page"{% endif %} href="{% url 'project-snapshot' project.pk %}">Overview</a>
+  <a {% if active == "web" %}class="active" aria-current="page"{% endif %} href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
+</nav>
+{% elif cluster == "opportunities" %}
+<nav class="cluster-tabs" aria-label="Opportunities tabs">
+  <a {% if active == "top" %}class="active" aria-current="page"{% endif %} href="{% url 'project-opportunities' project.pk %}">Top Picks</a>
+  <a {% if active == "matches" %}class="active" aria-current="page"{% endif %} href="{% url 'project-matches' project.pk %}">All Matches</a>
+  <a {% if active == "discovery" %}class="active" aria-current="page"{% endif %} href="{% url 'project-discovery' project.pk %}">Discovery</a>
 </nav>
 {% elif cluster == "readiness" %}
 <nav class="cluster-tabs" aria-label="Readiness tabs">
