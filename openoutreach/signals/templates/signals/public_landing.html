@@ -1096,6 +1096,25 @@
       .problem-chip, .shot-frame, .problem-thread { opacity: 1 !important; transform: none !important; transition: none !important; }
       svg animate, svg animateMotion { dur: 10000s; }
     }
+
+    /* ── Alternating section colors (per Scott) ── */
+    .web-section.alt-light { background: var(--cream); }
+    .web-section.alt-light .display, .web-section.alt-light .web-tile h3 { color: var(--ink); }
+    .web-section.alt-light .web-tile { background: #fff; border-color: rgba(13,27,61,0.10); box-shadow: 0 10px 30px rgba(13,27,61,0.06); }
+    .web-section.alt-light .web-tile p, .web-section.alt-light p { color: rgba(13,26,46,0.72); }
+    .how-zone.alt-dark { background: linear-gradient(175deg, #0a1525 0%, #060d1b 100%); color: var(--cream); }
+    .how-zone.alt-dark .display, .how-zone.alt-dark .how-step h3 { color: #fff; }
+    .how-zone.alt-dark .how-step { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); }
+    .how-zone.alt-dark .how-step p, .how-zone.alt-dark p { color: rgba(230,236,248,0.72); }
+    .snap-zone.alt-light { background: var(--cream); }
+    .snap-zone.alt-light .display, .snap-zone.alt-light .snap-card h3 { color: var(--ink); }
+    .snap-zone.alt-light .snap-card { background: #fff; border-color: rgba(13,27,61,0.10); box-shadow: 0 10px 30px rgba(13,27,61,0.06); }
+    .snap-zone.alt-light .snap-card p, .snap-zone.alt-light p { color: rgba(13,26,46,0.72); }
+    .proof-zone.alt-gold { background: linear-gradient(135deg, #d4a017 0%, #e5ad3f 55%, #c98f12 100%); }
+    .proof-zone.alt-gold .display { color: #18100a; }
+    .proof-zone.alt-gold .display em { color: #3a2a08; }
+    .proof-zone.alt-gold .btn-gold { background: var(--night); border-color: var(--night); color: #f3dd8c; }
+    .proof-zone.alt-gold p { color: rgba(24,16,10,0.75) !important; }
   </style>
   <!-- Plausible Analytics — privacy-first, no cookies -->
   <script defer data-domain="anansiatlas.com" src="https://plausible.io/js/script.js"></script>
@@ -1509,7 +1528,7 @@
 <main>
 
 <!-- ═══ THE WEB OF OPPORTUNITY ══════════════════════════════════════ -->
-<div class="web-section">
+<div class="web-section alt-light">
   <div class="shell">
     <section aria-label="The Web of Opportunity">
       <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">The Web of Opportunity</p>
@@ -1556,7 +1575,7 @@
 </div>
 
 <!-- ═══ HOW IT WORKS ════════════════════════════════════════════════ -->
-<div class="how-zone">
+<div class="how-zone alt-dark">
   <div class="shell">
     <section aria-label="How Anansi Atlas works">
       <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">How It Works</p>
@@ -1585,7 +1604,7 @@
 </div>
 
 <!-- ═══ WHAT FOUNDING PARTNERS RECEIVE ══════════════════════════════ -->
-<div class="snap-zone" id="what-you-get">
+<div class="snap-zone alt-light" id="what-you-get">
   <div class="shell">
     <section aria-label="What Founding Atlas Partners receive">
       <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">What You Receive</p>
@@ -1643,7 +1662,7 @@
 </div>
 
 <!-- ═══ WHY PLATFORM ACCESS MATTERS ═════════════════════════════════ -->
-<div class="how-zone">
+<div class="how-zone alt-dark">
   <div class="shell">
     <section aria-label="Why platform access matters">
       <p class="section-label eyebrow-gold reveal" style="text-align:center;display:block;margin-bottom:12px;">Why Platform Access Matters</p>
@@ -1783,7 +1802,7 @@
 </div>
 
 <!-- ═══ RESERVE A SEAT ═══════════════════════════════════════════════ -->
-<div class="proof-zone">
+<div class="proof-zone alt-gold">
   <div class="shell">
     <section aria-label="Reserve a founding seat" style="padding: clamp(30px,4vw,50px) 0; text-align:center;">
       <h2 class="display reveal" style="color:var(--ink);margin-bottom:10px;">Grab a seat <em>today.</em></h2>
