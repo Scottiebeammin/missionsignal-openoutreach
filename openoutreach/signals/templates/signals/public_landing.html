@@ -1115,6 +1115,7 @@
     .proof-zone.alt-gold .display em { color: #3a2a08; }
     .proof-zone.alt-gold .btn-gold { background: var(--night); border-color: var(--night); color: #f3dd8c; }
     .proof-zone.alt-gold p { color: rgba(24,16,10,0.75) !important; }
+
   </style>
   <!-- Plausible Analytics — privacy-first, no cookies -->
   <script defer data-domain="anansiatlas.com" src="https://plausible.io/js/script.js"></script>
@@ -1345,12 +1346,12 @@
         <line x1="280" y1="252" x2="280" y2="52"/>
         <line x1="280" y1="252" x2="453" y2="152"/>
       </g>
-      <line class="hero-strand" x1="280" y1="252" x2="480" y2="252" stroke="url(#wSg0)" stroke-width="1.5"/>
-      <line class="hero-strand" x1="280" y1="252" x2="380" y2="425" stroke="url(#wSg1)" stroke-width="1.5"/>
-      <line class="hero-strand" x1="280" y1="252" x2="180" y2="425" stroke="url(#wSg2)" stroke-width="1.5"/>
-      <line class="hero-strand" x1="280" y1="252" x2="80" y2="252" stroke="url(#wSg3)" stroke-width="1.5"/>
-      <line class="hero-strand" x1="280" y1="252" x2="180" y2="79" stroke="url(#wSg4)" stroke-width="1.5"/>
-      <line class="hero-strand" x1="280" y1="252" x2="380" y2="79" stroke="url(#wSg5)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="480" y2="252" stroke="url(#wSg0)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="380" y2="425" stroke="url(#wSg1)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="180" y2="425" stroke="url(#wSg2)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="80" y2="252" stroke="url(#wSg3)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="180" y2="79" stroke="url(#wSg4)" stroke-width="1.5"/>
+      <line x1="280" y1="252" x2="380" y2="79" stroke="url(#wSg5)" stroke-width="1.5"/>
       <circle cx="280" cy="252" r="44" fill="none" stroke="#c9901e" stroke-width="0.7" opacity="0.28"/>
       <circle cx="280" cy="252" r="44" fill="none" stroke="#e5ad3f" stroke-width="1.3" opacity="0.6" stroke-dasharray="24 252" stroke-dashoffset="0">
         <animate attributeName="stroke-dashoffset" values="0;-276" dur="7s" repeatCount="indefinite" calcMode="linear"/>
@@ -1538,6 +1539,7 @@
       <p class="body-muted body-lg reveal reveal-delay-2" style="text-align:center;max-width:560px;margin:16px auto 0;">
         Funders, partners, programs, and resources sit in dozens of disconnected places. Anansi Atlas brings them together so you can see the whole web at once.
       </p>
+
       <div class="web-tiles">
         <div class="web-tile reveal">
           <span class="web-tile-icon" aria-hidden="true">💰</span>
@@ -2158,6 +2160,9 @@
     document.getElementById('btn-' + name).classList.add('active');
     document.getElementById('btn-' + name).setAttribute('aria-selected', 'true');
   }
+
+  /* ── Hero web draw-on ── */
+  requestAnimationFrame(function() { document.body.classList.add('web-drawn'); });
 
   /* ── Nav: solid on scroll ── */
   var nav = document.getElementById('site-nav');
