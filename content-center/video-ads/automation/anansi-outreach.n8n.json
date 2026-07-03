@@ -1,0 +1,60 @@
+{
+  "name": "Anansi Outreach — daily 15 warm drafts (approval digest)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "cronExpression", "expression": "0 8 * * 1-5" }
+          ]
+        }
+      },
+      "id": "trigger-daily",
+      "name": "Weekdays 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "filePath": "={{ $env.OUTREACH_DIR }}/anansi-atlas-pipeline-system.csv"
+      },
+      "id": "read-pipeline",
+      "name": "Read canonical pipeline CSV",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ── Anansi outreach batch composer ─────────────────────────────────────────\n// Contract: the canonical CSV from the vault (Schema (n8n) tab in\n// anansi-atlas-sales-pipeline-MASTER.xlsx). Upsert-on-email / warm-wins /\n// never-downgrade reconciliation is ported below (JS twin of\n// 08_Assets/reconcile_pipeline.py) — feed incoming CSVs through reconcileRows()\n// if you wire an ingest branch; the daily draft flow only READS the canon.\n//\n// Env expected on the n8n container:\n//   OUTREACH_DIR            – mounted vault 08_Assets folder\n//   WALKTHROUGH_VIDEO_URL   – unlisted YouTube walkthrough (the hero CTA)\n//   STRIPE_MONTHLY_URL, STRIPE_ANNUAL_URL, CAL_URL – offer links\n//   BATCH_SIZE              – default 15\n\nconst CANON = ['lead_id','dedup_key','is_warm','list_segment','warmth','campaign_track','ref','organization','contact_name','first_name','last_name','role_title','email','relationship_depth','focus_angle','subject_line','stage','next_action','why_fit','website','email_status','source','date_added','last_updated','notes'];\n\nfunction parseCsv(text) {\n  const rows = [];\n  let cur = [''], inQ = false, row = cur;\n  for (let i = 0; i < text.length; i++) {\n    const ch = text[i];\n    if (inQ) {\n      if (ch === '\"') { if (text[i+1] === '\"') { row[row.length-1] += '\"'; i++; } else inQ = false; }\n      else row[row.length-1] += ch;\n    } else if (ch === '\"') inQ = true;\n    else if (ch === ',') row.push('');\n    else if (ch === '\\n' || ch === '\\r') { if (row.length > 1 || row[0] !== '') { rows.push(row); } row = ['']; if (ch === '\\r' && text[i+1] === '\\n') i++; rows.length && (cur = row); }\n    else row[row.length-1] += ch;\n  }\n  if (row.length > 1 || row[0] !== '') rows.push(row);\n  const head = rows.shift().map(h => h.trim().toLowerCase());\n  return rows.map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] || '').trim()])));\n}\n\n// JS twin of reconcile_pipeline.py — upsert on email, warm wins, never downgrade.\nfunction reconcileRows(baseRows, incomingRows) {\n  const nemail = e => (e || '').trim().toLowerCase();\n  const today = new Date().toISOString().slice(0, 10);\n  const by = new Map(baseRows.map(r => [r.dedup_key, r]));\n  for (const raw of incomingRows) {\n    const low = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k.toLowerCase().trim(), v]));\n    const key = nemail(low.email);\n    if (!key) continue;\n    if (by.has(key)) {\n      const r = by.get(key);\n      for (const c of CANON) if (low[c]) r[c] = low[c];\n      if ((low.is_warm || '').toUpperCase() === 'TRUE' || r.is_warm === 'TRUE') r.is_warm = 'TRUE';\n      r.last_updated = today;\n    } else {\n      const r = Object.fromEntries(CANON.map(c => [c, low[c] || '']));\n      r.email = low.email; r.dedup_key = key;\n      r.lead_id = 'AA-' + key.split('').reduce((a, c) => ((a << 5) - a + c.charCodeAt(0)) >>> 0, 0).toString(16).toUpperCase().padStart(10, '0').slice(0, 10);\n      if (!r.is_warm) r.is_warm = 'FALSE';\n      if (!r.list_segment) r.list_segment = r.is_warm === 'TRUE' ? 'warm' : 'cold_florida_crm';\n      if (!r.email_status) r.email_status = 'not_sent';\n      r.date_added = today; r.last_updated = today;\n      baseRows.push(r); by.set(key, r);\n    }\n  }\n  return baseRows;\n}\n\nconst csvText = Buffer.from($input.first().binary.data.data, 'base64').toString('utf8');\nconst leads = parseCsv(csvText);\n\nconst BATCH = parseInt($env.BATCH_SIZE || '15', 10);\nconst warmthRank = { hot: 0, warm: 1, reconnect: 2, cold: 3 };\nconst queue = leads\n  .filter(l => l.email && l.email_status === 'not_sent')\n  .sort((a, b) => (a.is_warm === b.is_warm ? 0 : a.is_warm === 'TRUE' ? -1 : 1)\n    || ((warmthRank[a.warmth] ?? 9) - (warmthRank[b.warmth] ?? 9)));\nconst batch = queue.slice(0, BATCH);\n\nconst video = $env.WALKTHROUGH_VIDEO_URL || '⟦VIDEO LINK — set WALKTHROUGH_VIDEO_URL⟧';\nconst monthly = $env.STRIPE_MONTHLY_URL || 'https://buy.stripe.com/3cI28q4PM4Xw3cPfnzbV601';\nconst annual = $env.STRIPE_ANNUAL_URL || '';\nconst cal = $env.CAL_URL || 'https://cal.com/marcus-scott-br7maf/founder-walkthrough';\n\nfunction draftFor(l) {\n  const first = l.first_name || (l.contact_name || '').split(' ')[0] || 'there';\n  const warm = l.is_warm === 'TRUE';\n  const opening = warm\n    ? `Hi ${first},\\n\\nIt's Marcus — ${l.relationship_depth || l.why_fit || 'we crossed paths in my Aeras days'}.`\n    : `Hi ${first},\\n\\nI'm Marcus Scott, founder of Anansi Atlas here in Central Florida. I'm reaching out because ${l.why_fit || `${l.organization} sits right in the middle of the work we map`}.`;\n  const angle = l.focus_angle ? `\\n\\n${l.focus_angle}` : '';\n  const body = `${opening}${angle}\\n\\nI've built Anansi Atlas: it maps the web of opportunity around a nonprofit's mission — aligned funders, partners, government pathways, free capacity-building resources — into one clear brief with a readiness read and a 30-day action plan.\\n\\n▶ Here's a 3-minute look at the actual platform (no pitch deck, the real thing):\\n${video}\\n\\nIf it clicks, two doors — no pressure either way:\\n• Claim a founding seat ($150/mo${annual ? `, or ${'$'}1,440/yr — save 20%` : ''}, locked for life): ${monthly}${annual ? `\\n  Annual: ${annual}` : ''}\\n• Or grab 45 minutes with me first: ${cal}\\n\\nEither way — glad ${l.organization} is out there doing this work.\\n\\n— Marcus\\nAnansi Atlas · The Web of Opportunity · anansiatlas.com`;\n  return {\n    lead_id: l.lead_id, organization: l.organization, contact: l.contact_name,\n    email: l.email, warmth: l.warmth || (warm ? 'warm' : 'cold'), segment: l.list_segment,\n    subject: l.subject_line || `Thought of ${l.organization} while building this`,\n    body,\n  };\n}\n\nconst drafts = batch.map(draftFor);\nconst digest = drafts.map((d, i) =>\n  `━━━ ${i + 1}/${drafts.length} · ${d.organization} · ${d.warmth.toUpperCase()} ━━━\\nTo: ${d.contact} <${d.email}>\\nSubject: ${d.subject}\\n\\n${d.body}\\n`\n).join('\\n\\n');\n\nreturn [{ json: {\n  date: new Date().toISOString().slice(0, 10),\n  batch_size: drafts.length,\n  remaining_after: Math.max(0, queue.length - drafts.length),\n  digest,\n  drafts,\n} }];"
+      },
+      "id": "compose-batch",
+      "name": "Compose today's 15 drafts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "fromEmail": "info@anansiatlas.com",
+        "toEmail": "info@anansiatlas.com",
+        "subject": "=Outreach drafts {{ $json.date }} — {{ $json.batch_size }} ready for approval ({{ $json.remaining_after }} left in queue)",
+        "text": "={{ $json.digest }}",
+        "options": {}
+      },
+      "id": "send-digest",
+      "name": "Email digest to Marcus (approve → send)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [660, 0]
+    }
+  ],
+  "connections": {
+    "Weekdays 8am": { "main": [[{ "node": "Read canonical pipeline CSV", "type": "main", "index": 0 }]] },
+    "Read canonical pipeline CSV": { "main": [[{ "node": "Compose today's 15 drafts", "type": "main", "index": 0 }]] },
+    "Compose today's 15 drafts": { "main": [[{ "node": "Email digest to Marcus (approve → send)", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}
