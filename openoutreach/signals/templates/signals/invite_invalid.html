@@ -1,0 +1,9 @@
+{% extends "core/_auth_base.html" %}
+{% block title %}Invite link expired — Anansi Atlas{% endblock %}
+{% block content %}
+  <h1>This invite link has expired</h1>
+  <p class="subtitle">Invite links are valid for 14 days. Email us at <a href="mailto:info@anansiatlas.com">info@anansiatlas.com</a> and we'll send you a fresh one right away.</p>
+  <div class="auth-footer">
+    Already have an account? <a href="{% url 'login' %}">Sign in</a>
+  </div>
+{% endblock %}

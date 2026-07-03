@@ -1,0 +1,29 @@
+{% extends "core/_auth_base.html" %}
+{% block title %}You're invited — Anansi Atlas{% endblock %}
+{% block content %}
+  <h1>Welcome, {{ organization.name }}</h1>
+  <p class="subtitle">Create your account to open your Opportunity Web — your funders, partners, pathways, and 30-day action plan are already mapped and waiting.</p>
+
+  {% if form.non_field_errors %}
+    <div class="error-list">
+      <ul>{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<p class="help-text">{{ field.help_text }}</p>{% endif %}
+      {% if field.errors %}
+        <div class="error-list"><ul>{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+      {% endif %}
+    {% endfor %}
+    <button class="btn-primary" type="submit">Open my Opportunity Web →</button>
+  </form>
+
+  <div class="auth-footer">
+    Already have an account? <a href="{% url 'login' %}">Sign in</a>
+  </div>
+{% endblock %}
