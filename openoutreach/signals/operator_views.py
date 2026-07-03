@@ -39,7 +39,22 @@ def operator_dashboard(request):
     # Projects with no opportunities (need research)
     needs_research = projects.filter(opp_count=0)
 
+    # Sales-pipeline summary card (segmented command center)
+    from django.utils import timezone
+    from openoutreach.signals.models import SalesLead
+    today = timezone.localdate()
+    pipeline_summary = {
+        "total": SalesLead.objects.count(),
+        "warm": SalesLead.objects.filter(list_segment=SalesLead.Segment.WARM).count(),
+        "cold_florida": SalesLead.objects.filter(
+            list_segment=SalesLead.Segment.COLD_FLORIDA_CRM
+        ).count(),
+        "due_today": SalesLead.objects.filter(next_follow_up__lte=today).count(),
+        "closed": SalesLead.objects.filter(status=SalesLead.Status.CLOSED).count(),
+    }
+
     ctx = {
+        "pipeline_summary": pipeline_summary,
         "total_projects": total_projects,
         "total_signups": total_signups,
         "total_funders": Funder.objects.filter(active=True).count(),
@@ -260,25 +275,71 @@ def operator_enrich_signup(request, pk):
 
 @_operator_required
 def operator_pipeline(request):
+    from django.db.models import Case, IntegerField, Q, Value, When
+    from django.utils import timezone
+
     from openoutreach.signals.models import SalesLead
+
     status_filter = request.GET.get("status", "")
     source_filter = request.GET.get("source", "")
-    qs = SalesLead.objects.all()
+    segment_filter = request.GET.get("segment", "")
+    if segment_filter not in SalesLead.Segment.values:
+        segment_filter = ""
+
+    today = timezone.localdate()
+
+    segment_counts = {
+        seg.value: SalesLead.objects.filter(list_segment=seg).count()
+        for seg in SalesLead.Segment
+    }
+
+    segment_qs = SalesLead.objects.all()
+    if segment_filter:
+        segment_qs = segment_qs.filter(list_segment=segment_filter)
+
+    qs = segment_qs
     if status_filter:
         qs = qs.filter(status=status_filter)
     if source_filter:
         qs = qs.filter(source=source_filter)
 
-    status_counts = {s.value: SalesLead.objects.filter(status=s).count() for s in SalesLead.Status}
+    # Sort: due follow-ups first, then warmth (hot > warm > reconnect > cold),
+    # then organization.
+    qs = qs.annotate(
+        due_rank=Case(
+            When(next_follow_up__lte=today, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        ),
+        warmth_rank=Case(
+            When(warmth=SalesLead.Warmth.HOT, then=Value(0)),
+            When(warmth=SalesLead.Warmth.WARM, then=Value(1)),
+            When(warmth=SalesLead.Warmth.RECONNECT, then=Value(2)),
+            When(warmth=SalesLead.Warmth.COLD, then=Value(3)),
+            default=Value(4),
+            output_field=IntegerField(),
+        ),
+    ).order_by("due_rank", "warmth_rank", "organization", "name")
+
+    # Per-status counts within the current segment (summary header cards).
+    status_counts = {s.value: segment_qs.filter(status=s).count() for s in SalesLead.Status}
+    due_count = segment_qs.filter(next_follow_up__lte=today).count()
+
     ctx = {
         "leads": qs,
         "status_filter": status_filter,
         "source_filter": source_filter,
+        "segment_filter": segment_filter,
+        "segment_counts": segment_counts,
+        "segment_total": segment_qs.count(),
         "status_counts": status_counts,
+        "due_count": due_count,
+        "today": today,
         "total": SalesLead.objects.count(),
         "closed": status_counts.get("closed", 0),
         "statuses": SalesLead.Status.choices,
         "sources": SalesLead.Source.choices,
+        "segments": SalesLead.Segment.choices,
     }
     return render(request, "signals/operator/pipeline.html", ctx)
 

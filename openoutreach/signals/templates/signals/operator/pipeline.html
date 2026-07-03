@@ -5,11 +5,29 @@
 
 {% block content %}
 
-<!-- Stats row -->
+<!-- Segment tab strip -->
+<div class="segment-tabs" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+  <a href="{% url 'operator-pipeline' %}" class="segment-tab {% if not segment_filter %}segment-tab-active{% endif %}">
+    All <span class="segment-count">{{ total }}</span>
+  </a>
+  <a href="?segment=warm" class="segment-tab {% if segment_filter == 'warm' %}segment-tab-active{% endif %}">
+    🔥 Warm Network <span class="segment-count">{{ segment_counts.warm|default:0 }}</span>
+  </a>
+  <a href="?segment=cold_florida_crm" class="segment-tab {% if segment_filter == 'cold_florida_crm' %}segment-tab-active{% endif %}">
+    🌴 Cold — Florida CRM <span class="segment-count">{{ segment_counts.cold_florida_crm|default:0 }}</span>
+  </a>
+</div>
+
+<!-- Stats row (current segment) -->
 <div class="stat-grid" style="margin-bottom:20px;">
   <div class="stat-card">
-    <div class="stat-label">Total Leads</div>
-    <div class="stat-value">{{ total }}</div>
+    <div class="stat-label">Leads {% if segment_filter %}in Segment{% else %}Total{% endif %}</div>
+    <div class="stat-value">{{ segment_total }}</div>
+  </div>
+  <div class="stat-card {% if due_count %}gold{% endif %}">
+    <div class="stat-label">Due Follow-Ups</div>
+    <div class="stat-value">{{ due_count }}</div>
+    <div class="stat-sub">Due today or overdue</div>
   </div>
   <div class="stat-card gold">
     <div class="stat-label">Closed — Won</div>
@@ -28,14 +46,16 @@
 
 <!-- Filters + Add button -->
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-  <a href="{% url 'operator-pipeline' %}" class="btn btn-ghost btn-sm {% if not status_filter and not source_filter %}btn-active{% endif %}" style="{% if not status_filter and not source_filter %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">All ({{ total }})</a>
-  <a href="?status=new" class="btn btn-ghost btn-sm {% if status_filter == 'new' %}btn-active{% endif %}" style="{% if status_filter == 'new' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">New ({{ status_counts.new|default:0 }})</a>
-  <a href="?status=reached_out" class="btn btn-ghost btn-sm {% if status_filter == 'reached_out' %}btn-active{% endif %}" style="{% if status_filter == 'reached_out' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Reached Out ({{ status_counts.reached_out|default:0 }})</a>
-  <a href="?status=call_scheduled" class="btn btn-ghost btn-sm {% if status_filter == 'call_scheduled' %}btn-active{% endif %}" style="{% if status_filter == 'call_scheduled' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Call Scheduled ({{ status_counts.call_scheduled|default:0 }})</a>
-  <a href="?status=call_done" class="btn btn-ghost btn-sm {% if status_filter == 'call_done' %}btn-active{% endif %}" style="{% if status_filter == 'call_done' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Call Done ({{ status_counts.call_done|default:0 }})</a>
-  <a href="?status=closed" class="btn btn-ghost btn-sm {% if status_filter == 'closed' %}btn-active{% endif %}" style="{% if status_filter == 'closed' %}background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.4);{% endif %}">✓ Won ({{ status_counts.closed|default:0 }})</a>
-  <a href="?status=nurturing" class="btn btn-ghost btn-sm {% if status_filter == 'nurturing' %}btn-active{% endif %}" style="{% if status_filter == 'nurturing' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Nurturing ({{ status_counts.nurturing|default:0 }})</a>
-  <a href="?status=passed" class="btn btn-ghost btn-sm {% if status_filter == 'passed' %}btn-active{% endif %}" style="{% if status_filter == 'passed' %}background:rgba(255,255,255,.08);{% endif %}">Passed ({{ status_counts.passed|default:0 }})</a>
+  {% with segq=segment_filter %}
+  <a href="{% url 'operator-pipeline' %}{% if segq %}?segment={{ segq }}{% endif %}" class="btn btn-ghost btn-sm {% if not status_filter and not source_filter %}btn-active{% endif %}" style="{% if not status_filter and not source_filter %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">All ({{ segment_total }})</a>
+  <a href="?status=new{% if segq %}&segment={{ segq }}{% endif %}" class="btn btn-ghost btn-sm {% if status_filter == 'new' %}btn-active{% endif %}" style="{% if status_filter == 'new' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">New ({{ status_counts.new|default:0 }})</a>
+  <a href="?status=reached_out{% if segq %}&segment={{ segq }}{% endif %}" class="btn btn-ghost btn-sm {% if status_filter == 'reached_out' %}btn-active{% endif %}" style="{% if status_filter == 'reached_out' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Reached Out ({{ status_counts.reached_out|default:0 }})</a>
+  <a href="?status=call_scheduled{% if segq %}&segment={{ segq }}{% endif %}" class="btn btn-ghost btn-sm {% if status_filter == 'call_scheduled' %}btn-active{% endif %}" style="{% if status_filter == 'call_scheduled' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Call Scheduled ({{ status_counts.call_scheduled|default:0 }})</a>
+  <a href="?status=call_done{% if segq %}&segment={{ segq }}{% endif %}" class="btn btn-ghost btn-sm {% if status_filter == 'call_done' %}btn-active{% endif %}" style="{% if status_filter == 'call_done' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Call Done ({{ status_counts.call_done|default:0 }})</a>
+  <a href="?status=closed{% if segq %}&segment={{ segq }}{% endif %}" class="btn btn-ghost btn-sm {% if status_filter == 'closed' %}btn-active{% endif %}" style="{% if status_filter == 'closed' %}background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.4);{% endif %}">✓ Won ({{ status_counts.closed|default:0 }})</a>
+  <a href="?status=nurturing{% if segq %}&segment={{ segq }}{% endif %}" class="btn btn-ghost btn-sm {% if status_filter == 'nurturing' %}btn-active{% endif %}" style="{% if status_filter == 'nurturing' %}background:rgba(212,160,23,.15);border-color:var(--gold-lt);{% endif %}">Nurturing ({{ status_counts.nurturing|default:0 }})</a>
+  <a href="?status=passed{% if segq %}&segment={{ segq }}{% endif %}" class="btn btn-ghost btn-sm {% if status_filter == 'passed' %}btn-active{% endif %}" style="{% if status_filter == 'passed' %}background:rgba(255,255,255,.08);{% endif %}">Passed ({{ status_counts.passed|default:0 }})</a>
+  {% endwith %}
   <div style="margin-left:auto;">
     <button class="btn btn-gold btn-sm" onclick="document.getElementById('add-form').style.display=document.getElementById('add-form').style.display==='none'?'block':'none'">+ Add Lead</button>
   </div>
@@ -101,6 +121,11 @@
           {% elif lead.source == "referral" %}<span class="source-badge source-referral">🤝 Referral</span>
           {% elif lead.source == "inbound" %}<span class="source-badge source-inbound">📥 Inbound</span>
           {% else %}<span class="source-badge source-cold">❄️ Cold</span>{% endif %}
+          {% if lead.warmth == "hot" %}<span class="warmth-badge warmth-hot">HOT</span>
+          {% elif lead.warmth == "warm" %}<span class="warmth-badge warmth-warm">WARM</span>
+          {% elif lead.warmth == "reconnect" %}<span class="warmth-badge warmth-reconnect">RECONNECT</span>
+          {% elif lead.warmth == "cold" %}<span class="warmth-badge warmth-coldw">COLD</span>{% endif %}
+          {% if lead.email_status and lead.email_status != "not_sent" %}<span class="badge badge-muted" title="Email status">✉ {{ lead.email_status }}</span>{% endif %}
           {% if lead.status == "closed" %}<span class="badge badge-green">✓ Won</span>
           {% elif lead.status == "call_scheduled" %}<span class="badge badge-gold">📅 Call Scheduled</span>
           {% elif lead.status == "call_done" %}<span class="badge badge-gold">Call Done</span>
@@ -110,7 +135,7 @@
           {% else %}<span class="badge badge-muted">New</span>{% endif %}
         </div>
         <div style="font-size:.80rem;color:rgba(255,255,255,.45);">
-          {{ lead.organization|default:"No org" }}{% if lead.role %} · {{ lead.role }}{% endif %}
+          {{ lead.organization|default:"No org" }}{% if lead.role %} · {{ lead.role }}{% endif %}{% if lead.region %} · 📍 {{ lead.region }}{% endif %}
           {% if lead.email %} · <a href="mailto:{{ lead.email }}" style="color:var(--gold-lt);">{{ lead.email }}</a>{% endif %}
           {% if lead.linkedin_url %} · <a href="{{ lead.linkedin_url }}" target="_blank" rel="noopener" style="color:rgba(167,139,250,.8);">LinkedIn ↗</a>{% endif %}
         </div>
@@ -201,6 +226,28 @@
   .source-cold     { background: rgba(96,165,250,.12); color: #60a5fa; border: 1px solid rgba(96,165,250,.2); }
   .source-referral { background: rgba(74,222,128,.12); color: #4ade80; border: 1px solid rgba(74,222,128,.2); }
   .source-inbound  { background: rgba(212,160,23,.12); color: var(--gold-lt); border: 1px solid rgba(212,160,23,.2); }
+  .warmth-badge {
+    font-size: .64rem; font-weight: 900; letter-spacing: .08em;
+    padding: 2px 7px; border-radius: 5px;
+  }
+  .warmth-hot       { background: rgba(212,160,23,.22); color: var(--gold-lt); border: 1px solid rgba(212,160,23,.45); }
+  .warmth-warm      { background: rgba(45,212,191,.14); color: #2dd4bf; border: 1px solid rgba(45,212,191,.3); }
+  .warmth-reconnect { background: rgba(167,139,250,.12); color: #a78bfa; border: 1px solid rgba(167,139,250,.25); }
+  .warmth-coldw     { background: rgba(255,255,255,.06); color: rgba(255,255,255,.4); border: 1px solid rgba(255,255,255,.12); }
+  .segment-tab {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 10px; text-decoration: none;
+    font-size: .85rem; font-weight: 700; color: rgba(255,255,255,.6);
+    background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+  }
+  .segment-tab:hover { border-color: rgba(212,160,23,.35); color: #fff; }
+  .segment-tab-active {
+    background: rgba(212,160,23,.15); border-color: var(--gold-lt); color: #fff;
+  }
+  .segment-count {
+    font-size: .72rem; font-weight: 800;
+    background: rgba(255,255,255,.1); border-radius: 999px; padding: 1px 8px;
+  }
 </style>
 
 <script>

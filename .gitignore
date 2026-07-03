@@ -25,3 +25,4 @@ tests/fixtures/pages/**/*.html
 # patch artifacts
 *.patch
 *.patch.gz.b64
+data/florida-crm-staging/

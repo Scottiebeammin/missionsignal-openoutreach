@@ -130,6 +130,16 @@ class SalesLead(models.Model):
         NURTURING = "nurturing", "Nurturing"
         PASSED = "passed", "Passed"
 
+    class Segment(models.TextChoices):
+        WARM = "warm", "Warm Network"
+        COLD_FLORIDA_CRM = "cold_florida_crm", "Cold — Florida CRM"
+
+    class Warmth(models.TextChoices):
+        HOT = "hot", "Hot"
+        WARM = "warm", "Warm"
+        RECONNECT = "reconnect", "Reconnect"
+        COLD = "cold", "Cold"
+
     name = models.CharField(max_length=300)
     organization = models.CharField(max_length=300, blank=True, default="")
     email = models.EmailField(blank=True, default="")
@@ -138,6 +148,13 @@ class SalesLead(models.Model):
     linkedin_url = models.URLField(max_length=500, blank=True, default="")
     source = models.CharField(max_length=20, choices=Source.choices, default=Source.WARM)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.NEW)
+    list_segment = models.CharField(max_length=20, choices=Segment.choices, default=Segment.WARM)
+    warmth = models.CharField(max_length=20, choices=Warmth.choices, blank=True, default="")
+    region = models.CharField(max_length=120, blank=True, default="")
+    focus_area = models.CharField(max_length=200, blank=True, default="")
+    why_fit = models.TextField(blank=True, default="")
+    subject_line = models.CharField(max_length=300, blank=True, default="")
+    email_status = models.CharField(max_length=30, blank=True, default="not_sent")
     notes = models.TextField(blank=True, default="")
     outreach_draft = models.TextField(blank=True, default="")
     next_follow_up = models.DateField(null=True, blank=True)

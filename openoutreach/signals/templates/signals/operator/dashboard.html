@@ -27,6 +27,35 @@
   </div>
 </div>
 
+<div class="section-card" style="margin-bottom:20px;">
+  <div class="section-card-header">
+    <div class="section-card-title">Sales Pipeline</div>
+    <a href="{% url 'operator-pipeline' %}" class="section-card-link">Open pipeline →</a>
+  </div>
+  <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+    <div>
+      <div style="font-size:1.5rem;font-weight:800;color:#fff;">{{ pipeline_summary.total }}</div>
+      <div style="font-size:.74rem;color:rgba(255,255,255,.45);">Total leads</div>
+    </div>
+    <a href="{% url 'operator-pipeline' %}?segment=warm" style="text-decoration:none;">
+      <div style="font-size:1.5rem;font-weight:800;color:#fb923c;">{{ pipeline_summary.warm }}</div>
+      <div style="font-size:.74rem;color:rgba(255,255,255,.45);">🔥 Warm Network</div>
+    </a>
+    <a href="{% url 'operator-pipeline' %}?segment=cold_florida_crm" style="text-decoration:none;">
+      <div style="font-size:1.5rem;font-weight:800;color:#60a5fa;">{{ pipeline_summary.cold_florida }}</div>
+      <div style="font-size:.74rem;color:rgba(255,255,255,.45);">🌴 Cold — Florida CRM</div>
+    </a>
+    <div>
+      <div style="font-size:1.5rem;font-weight:800;color:{% if pipeline_summary.due_today %}var(--gold-lt){% else %}rgba(255,255,255,.5){% endif %};">{{ pipeline_summary.due_today }}</div>
+      <div style="font-size:.74rem;color:rgba(255,255,255,.45);">Follow-ups due</div>
+    </div>
+    <div>
+      <div style="font-size:1.5rem;font-weight:800;color:#4ade80;">{{ pipeline_summary.closed }}</div>
+      <div style="font-size:.74rem;color:rgba(255,255,255,.45);">Closed — Won</div>
+    </div>
+  </div>
+</div>
+
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
 
   <div class="section-card">
