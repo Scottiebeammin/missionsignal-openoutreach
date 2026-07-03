@@ -1,0 +1,30 @@
+{% comment %}
+Shared cluster tab strip. Context contract:
+  cluster: "ecosystem" | "readiness"  (which sibling set to render)
+  active:  tab key — ecosystem: overview|funding|government|resources|partnerships
+                     readiness: overview|documents|evidence
+  project: current project (uses project.pk for {% url %})
+Usage: {% include "signals/_cluster_tabs.html" with cluster="ecosystem" active="funding" %}
+{% endcomment %}
+<style>
+  .cluster-tabs { display: flex; flex-wrap: wrap; gap: 18px; margin: 0 0 18px; padding: 0 0 10px; border-bottom: 1px solid rgba(13, 27, 61, .12); }
+  .cluster-tabs a { display: inline-flex; align-items: center; min-height: 26px; padding: 0 0 8px; border-bottom: 2px solid transparent; color: var(--muted, #687789); font-weight: 800; font-size: .9rem; text-decoration: none; transition: border-color .16s ease, color .16s ease; }
+  .cluster-tabs a:hover { color: #8a5b00; border-bottom-color: rgba(212, 160, 23, .5); }
+  .cluster-tabs a.active { color: #8a5b00; border-bottom-color: #d4a017; }
+  @media (max-width: 720px) { .cluster-tabs { overflow-x: auto; flex-wrap: nowrap; gap: 14px; } .cluster-tabs a { white-space: nowrap; font-size: .8rem; } }
+</style>
+{% if cluster == "ecosystem" %}
+<nav class="cluster-tabs" aria-label="Ecosystem tabs">
+  <a {% if active == "overview" %}class="active" aria-current="page"{% endif %} href="{% url 'project-ecosystem' project.pk %}">Overview</a>
+  <a {% if active == "funding" %}class="active" aria-current="page"{% endif %} href="{% url 'project-funding' project.pk %}">Funding</a>
+  <a {% if active == "government" %}class="active" aria-current="page"{% endif %} href="{% url 'project-government' project.pk %}">Government</a>
+  <a {% if active == "resources" %}class="active" aria-current="page"{% endif %} href="{% url 'project-resources' project.pk %}">Resources</a>
+  <a {% if active == "partnerships" %}class="active" aria-current="page"{% endif %} href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
+</nav>
+{% elif cluster == "readiness" %}
+<nav class="cluster-tabs" aria-label="Readiness tabs">
+  <a {% if active == "overview" %}class="active" aria-current="page"{% endif %} href="{% url 'project-readiness' project.pk %}">Overview</a>
+  <a {% if active == "documents" %}class="active" aria-current="page"{% endif %} href="{% url 'project-documents' project.pk %}">Documents</a>
+  <a {% if active == "evidence" %}class="active" aria-current="page"{% endif %} href="{% url 'project-evidence' project.pk %}">Evidence</a>
+</nav>
+{% endif %}

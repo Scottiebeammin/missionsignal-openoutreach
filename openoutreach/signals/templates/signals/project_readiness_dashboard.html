@@ -38,11 +38,7 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="readiness" %}
   <main>
-    <nav class="workspace-tabs" aria-label="Readiness navigation">
-      <a class="active" href="{% url 'project-readiness' project.pk %}">Overview</a>
-      <a href="{% url 'project-documents' project.pk %}">Requirements</a>
-      <a href="{% url 'project-evidence' project.pk %}">Files</a>
-    </nav>
+    {% include "signals/_cluster_tabs.html" with cluster="readiness" active="overview" %}
 
     <header class="hero">
       <section>

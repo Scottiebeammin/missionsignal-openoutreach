@@ -77,43 +77,21 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="resources" %}
   <main>
-    <nav class="workspace-tabs" aria-label="Ecosystem workspace tabs">
-      <a href="{% url 'project-ecosystem' project.pk %}">Overview</a>
-      <a href="{% url 'project-funding' project.pk %}">Funding</a>
-      <a href="{% url 'project-government' project.pk %}">Government</a>
-      <a class="active" href="{% url 'project-resources' project.pk %}">Resources</a>
-      <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
-    </nav>
-    <nav class="topbar" aria-label="Resources actions">
-      <a class="button" href="{% url 'project-mission-brief' project.pk %}">&larr; Mission Brief</a>
-      <div class="actions">
-        <a class="button" href="{% url 'project-funding' project.pk %}">Funding</a>
-        <a class="button" href="{% url 'project-government' project.pk %}">Government</a>
-        <a class="button" href="{% url 'project-ecosystem' project.pk %}">Ecosystem</a>
-      </div>
-    </nav>
+    {% include "signals/_cluster_tabs.html" with cluster="ecosystem" active="resources" %}
 
-    <header class="hero">
-      <p class="eyebrow">Resources</p>
-      <h1>Resources Dashboard</h1>
-      <p class="subtitle">{{ organization.name }} - {{ project.name }}</p>
-      <section class="score-grid" aria-label="Resource readiness">
-        <div class="score-box">
-          <h2>Resource Profile Completeness</h2>
-          <strong>{{ readiness.readiness_score }}</strong>
-          <span>{{ readiness.readiness_level }}</span>
-          <p class="muted" style="margin-top:8px;font-size:0.8rem;">How complete your profile is for this area — not a prediction of funding outcomes. Your overall readiness lives on the Readiness page.</p>
-        </div>
-        <section class="panel action-panel">
-          <h2>Recommended Next Actions</h2>
-          <ol class="advisor-list">
-            {% for action in readiness.actions|slice:":3" %}
-              <li>{{ action }}<span class="impact-label">Impact: Improves resource readiness and operating capacity.</span></li>
-            {% endfor %}
-          </ol>
-        </section>
-      </section>
+    <header class="hero" style="padding:16px 24px;">
+      <h1 style="font-size:1.4rem;">Resources</h1>
+      <p class="muted" style="margin:0;">Profile completeness: <strong>{{ readiness.readiness_score }}</strong> ({{ readiness.readiness_level }}) — how complete your profile is for this area, not a prediction of funding outcomes. Overall readiness lives on the Readiness page.</p>
     </header>
+
+    <section class="panel action-panel" style="margin-bottom:14px;">
+      <h2>Recommended Next Actions</h2>
+      <ol class="advisor-list">
+        {% for action in readiness.actions|slice:":3" %}
+          <li>{{ action }}<span class="impact-label">Impact: Improves resource readiness and operating capacity.</span></li>
+        {% endfor %}
+      </ol>
+    </section>
 
     <section class="panel">
       <h2>Free &amp; Low-Cost Resources</h2>

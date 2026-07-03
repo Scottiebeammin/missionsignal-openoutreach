@@ -31,15 +31,9 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="documents" %}
   <main>
-    <nav class="workspace-tabs" aria-label="Document workspace navigation">
-      <a href="{% url 'project-readiness' project.pk %}">Overview</a>
-      <a class="active" href="{% url 'project-documents' project.pk %}">Requirements</a>
-      <a href="{% url 'project-evidence' project.pk %}">Files</a>
-    </nav>
-    <header class="hero">
-      <p class="eyebrow">Readiness Requirements</p>
-      <h1>Requirements</h1>
-      <p class="muted">{{ organization.name }} - {{ project.name }}</p>
+    {% include "signals/_cluster_tabs.html" with cluster="readiness" active="documents" %}
+    <header class="hero" style="padding:14px 22px;">
+      <h1 style="font-size:1.4rem;margin:0;">Documents</h1>
     </header>
 
     <section class="panel">

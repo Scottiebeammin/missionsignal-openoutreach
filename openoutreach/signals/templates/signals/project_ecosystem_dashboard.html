@@ -75,22 +75,11 @@
 <body>
   {% include "signals/_app_shell_sidebar.html" with active_page="ecosystem" %}
   <main>
-    <nav class="workspace-tabs" aria-label="Ecosystem workspace tabs">
-      <a class="active" href="{% url 'project-ecosystem' project.pk %}">Overview</a>
-      <a href="{% url 'project-funding' project.pk %}">Funding</a>
-      <a href="{% url 'project-government' project.pk %}">Government</a>
-      <a href="{% url 'project-resources' project.pk %}">Resources</a>
-      <a href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
-      <a href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
-    </nav>
+    {% include "signals/_cluster_tabs.html" with cluster="ecosystem" active="overview" %}
     <nav class="topbar" aria-label="Ecosystem actions">
       <a class="button" href="{% url 'project-dashboard' project.pk %}">&larr; Dashboard</a>
       <div class="actions">
         <a class="button" href="{% url 'project-mission-brief' project.pk %}">Mission Brief</a>
-        <a class="button" href="{% url 'project-funding' project.pk %}">Funding</a>
-        <a class="button" href="{% url 'project-government' project.pk %}">Government</a>
-        <a class="button" href="{% url 'project-resources' project.pk %}">Resources</a>
-        <a class="button" href="{% url 'project-partnerships' project.pk %}">Partnerships</a>
         <a class="button" href="{% url 'project-opportunity-web' project.pk %}">Opportunity Web</a>
         <a class="button" href="{% url 'project-discovery' project.pk %}">Discovery</a>
         <a class="button" href="{% url 'project-matches' project.pk %}">Matching</a>
