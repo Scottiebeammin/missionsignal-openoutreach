@@ -98,7 +98,7 @@
       <h2>Funding Summary</h2>
       <div class="summary-grid">
         <div class="summary-card"><strong>{{ readiness.readiness_score }}</strong><span class="muted">Funding Score</span><p class="muted">{{ readiness.readiness_level }}</p></div>
-        <div class="summary-card"><strong>{{ readiness.funding_themes|length }}</strong><span class="muted">Funding Themes</span><p class="muted">{{ readiness.funding_themes.0|default:"Themes not inferred yet" }}</p></div>
+
         <div class="summary-card"><strong>{{ readiness.recommended_funder_types|length }}</strong><span class="muted">Funder Types</span><p class="muted">{{ readiness.recommended_funder_types.0.name|default:"No recommendations yet" }}</p></div>
         <div class="summary-card"><strong>Local Government</strong><span class="muted">Core Lane</span><p class="muted">City, county, service contract, and RFP pathways.</p></div>
       </div>
@@ -107,32 +107,20 @@
     <div class="dashboard">
       <div class="stack">
         <section class="panel">
-          <h2>Funding Themes</h2>
-          <div class="theme-grid">
-            {% for theme in readiness.funding_themes %}
-              <div class="theme-card">{{ theme }}</div>
-            {% endfor %}
-          </div>
-        </section>
-
-        <section class="panel">
-          <h2>Recommended Funder Types</h2>
+          <h2>Recommended Pathways — Grants</h2>
+          <p class="muted">Live grant opportunities matched to your mission and geography, ranked by fit and deadline.</p>
           <div class="funder-grid">
-            {% for funder in readiness.recommended_funder_types %}
-              <article class="funder-card{% if funder.name == 'Local Government' %} local-government{% endif %}">
+            {% for grant in recommended_grants %}
+              <article class="funder-card">
                 <header>
-                  <h3>{{ funder.name }}</h3>
-                  <span class="score-pill">{{ funder.score }}</span>
+                  <h3>{{ grant.name }}</h3>
                 </header>
-                <p>{{ funder.explanation }}</p>
-                {% if funder.details %}
-                  <ul class="detail-list">
-                    {% for detail in funder.details %}
-                      <li>{{ detail }}</li>
-                    {% endfor %}
-                  </ul>
-                {% endif %}
+                {% if grant.deadline %}<p class="muted">Due {{ grant.deadline }}</p>{% endif %}
+                {% if grant.source_organization %}<p class="muted">{{ grant.source_organization.name }}</p>{% endif %}
+                <p><a class="button" href="{% url 'project-opportunity-workspace' project.pk grant.pk %}">Open workspace →</a></p>
               </article>
+            {% empty %}
+              <div class="empty-state"><strong>No grant pathways yet</strong> Your grant matches appear here as soon as discovery runs for your profile.</div>
             {% endfor %}
           </div>
         </section>

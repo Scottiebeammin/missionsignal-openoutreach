@@ -31,6 +31,8 @@
     ul, ol { margin: 8px 0 0; padding-left: 20px; }
     li + li { margin-top: 4px; }
     @media (max-width: 1000px) { .hero, .metric-grid, .relationship-grid, .insight-grid { grid-template-columns: 1fr; } }
+      .relationship-card { min-width: 0; overflow-wrap: anywhere; }
+    .relationship-card .pill { white-space: normal; line-height: 1.5; }
   </style>
   {% include "signals/_app_shell_styles.html" %}
 </head>
@@ -54,8 +56,8 @@
     <section class="panel">
       <h2>Who Matters Next</h2>
       <div class="metric-grid">
-        <div class="metric-card"><strong>{{ relationships.relationship_gaps.0|default:"No relationship gap" }}</strong><span>Biggest Gap</span></div>
-        <div class="metric-card"><strong>{{ relationships.recommended_actions.0|default:relationships.health.highest_leverage_action }}</strong><span>Next Contact Action</span></div>
+        <div class="metric-card"><strong>Biggest Gap</strong><span>{{ relationships.relationship_gaps.0|default:"No relationship gap" }}</span></div>
+        <div class="metric-card"><strong>Next Contact Action</strong><span>{{ relationships.recommended_actions.0|default:relationships.health.highest_leverage_action }}</span></div>
       </div>
       <div class="relationship-grid" style="margin-top: 12px;">
         {% for partner in relationships.key_partners|slice:":1" %}

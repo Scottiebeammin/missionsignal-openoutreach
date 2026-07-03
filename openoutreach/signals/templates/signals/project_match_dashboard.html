@@ -159,6 +159,13 @@
             <p><strong>Current Lifecycle Status:</strong> {{ match.current_lifecycle_status }}</p>
             <p><strong>Owner:</strong> {{ match.owner_label }} <strong>Suggested Next Action:</strong> {{ match.suggested_next_action }}</p>
             <p><strong>Primary Recommendation:</strong> {{ match.improvement_suggestions.0|default:"Review fit and confirm owner before pursuing." }}</p>
+            <p>
+              {% if match.website %}
+                <a class="button" href="{{ match.website }}" target="_blank" rel="noopener">Visit their website →</a>
+              {% else %}
+                <a class="button" href="https://www.google.com/search?q={{ match.name|urlencode }}" target="_blank" rel="noopener">Find this organization →</a>
+              {% endif %}
+            </p>
             <div class="factor-block">
               <p class="factor-title">Why It Matches</p>
               <ul>

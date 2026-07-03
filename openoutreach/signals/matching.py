@@ -133,6 +133,7 @@ class OpportunityMatch:
     suggested_next_action: str
     excluded: bool = False
     exclusion_reason: str = ""
+    website: str = ""
     # Ranking-only signals (do not affect the 0-100 headline score).
     focus_term_hits: int = 0
     geography_granularity: int = 0
@@ -582,6 +583,7 @@ def _score_record(
     applicant_types: list | None = None,
     strict_screening: bool = False,
     verification_status: str = "",
+    website: str = "",
     topical_scoring: bool = False,
 ) -> OpportunityMatch:
     record_geography = _clean_values(geography)
@@ -785,6 +787,7 @@ def _score_record(
         ),
         verification_rank=_verification_rank(verification_status),
         research_penalty=research_penalty,
+        website=website,
     )
 
 
@@ -864,6 +867,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             program_terms=[],
             compatibility_text=f"{funder.eligibility_notes}\n{funder.notes}",
             verification_status=funder.verification_status,
+            website=funder.website,
         )
         for funder in Funder.objects.filter(active=True)
     ])
@@ -879,6 +883,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             program_terms=entity.opportunity_lanes,
             compatibility_text=f"{entity.department_or_office}\n{entity.notes}",
             verification_status=getattr(entity, "verification_status", ""),
+            website=getattr(entity, "website", ""),
         )
         for entity in GovernmentEntity.objects.filter(active=True)
     ])
@@ -894,6 +899,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             program_terms=provider.resource_categories,
             compatibility_text=f"{provider.eligibility_notes}\n{provider.notes}",
             verification_status=getattr(provider, "verification_status", ""),
+            website=provider.website,
         )
         for provider in exclude_demo(ResourceProvider.objects.filter(active=True))
     ])
@@ -909,6 +915,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             program_terms=partner.collaboration_opportunities,
             compatibility_text=partner.notes,
             verification_status=partner.verification_status,
+            website=partner.website,
         )
         for partner in exclude_demo(PartnerOrganization.objects.filter(active=True))
     ])

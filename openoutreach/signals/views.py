@@ -381,9 +381,25 @@ def project_pilot_feedback(request, pk):
 
 @login_required
 def project_funding_dashboard(request, pk):
+    from datetime import date as _date
+
+    from openoutreach.funding.relevance import (
+        is_off_geography, is_research_grant, opportunity_relevance, org_keywords,
+    )
+
     project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     readiness = build_funding_readiness(project, funding_criteria)
+    # Recommended grant pathways: same relevance ranking the Pathways page uses.
+    grants = list(
+        Opportunity.objects.filter(project=project, opportunity_type=Opportunity.OpportunityType.GRANT)
+        .exclude(status=Opportunity.Status.EXPIRED)
+    )
+    keywords = org_keywords(project.organization)
+    for o in grants:
+        o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords)
+    grants.sort(key=lambda o: (-o.relevance, o.deadline or _date.max, o.name))
+    recommended_grants = [o for o in grants if o.relevance > 0][:6]
     return render(
         request,
         "signals/project_funding_dashboard.html",
@@ -392,6 +408,7 @@ def project_funding_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "readiness": readiness,
+            "recommended_grants": recommended_grants,
         },
     )
 
