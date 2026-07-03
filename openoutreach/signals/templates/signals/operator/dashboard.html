@@ -30,7 +30,11 @@
 <div class="section-card" style="margin-bottom:20px;">
   <div class="section-card-header">
     <div class="section-card-title">Sales Pipeline</div>
-    <a href="{% url 'operator-pipeline' %}" class="section-card-link">Open pipeline →</a>
+    <div style="display:flex;gap:16px;">
+      <a href="{% url 'operator-market' %}" class="section-card-link">Florida Market →</a>
+      <a href="{% url 'operator-market-counties' %}" class="section-card-link">County Rollout →</a>
+      <a href="{% url 'operator-pipeline' %}" class="section-card-link">Open pipeline →</a>
+    </div>
   </div>
   <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
     <div>

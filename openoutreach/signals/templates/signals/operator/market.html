@@ -1,0 +1,105 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}Florida Market{% endblock %}
+{% block page_title %}Florida Market Database{% endblock %}
+{% block nav_market %}active{% endblock %}
+
+{% block content %}
+<div class="stat-grid" style="grid-template-columns:repeat(3,1fr);">
+  <div class="stat-card">
+    <div class="stat-label">Total Organizations</div>
+    <div class="stat-value">{{ total_orgs }}</div>
+    <div class="stat-sub">Florida IRS exempt-org universe</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Matching Filters</div>
+    <div class="stat-value">{{ filtered_count }}</div>
+    <div class="stat-sub">Shown below · 50 per page</div>
+  </div>
+  <div class="stat-card gold">
+    <div class="stat-label">Promoted to Pipeline</div>
+    <div class="stat-value">{{ promoted_count }}</div>
+    <div class="stat-sub"><a href="{% url 'operator-pipeline' %}?segment=cold_florida_crm" style="color:var(--gold-lt);">Open Cold — Florida CRM →</a></div>
+  </div>
+</div>
+
+<div class="section-card">
+  <div class="section-card-header">
+    <div class="section-card-title">Market Browser</div>
+    <a href="{% url 'operator-market-counties' %}" class="section-card-link">County Rollout board →</a>
+  </div>
+  <form method="get" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);">
+    <select name="county" class="mkt-input">
+      <option value="">All counties</option>
+      {% for c in counties %}<option value="{{ c }}" {% if c == county_filter %}selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+    <select name="region" class="mkt-input">
+      <option value="">All regions</option>
+      {% for r in regions %}<option value="{{ r }}" {% if r == region_filter %}selected{% endif %}>{{ r }}</option>{% endfor %}
+    </select>
+    <select name="sector" class="mkt-input">
+      <option value="">All NTEE sectors</option>
+      {% for s in sectors %}<option value="{{ s }}" {% if s == sector_filter %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+    <input type="text" name="min_assets" value="{{ min_assets }}" placeholder="Min assets $" class="mkt-input" style="width:120px;">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search name / city / EIN" class="mkt-input" style="width:200px;">
+    <button type="submit" class="btn btn-gold btn-sm">Filter</button>
+    {% if querystring %}<a href="{% url 'operator-market' %}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+  </form>
+
+  {% if page.object_list %}
+  <table class="data-table">
+    <thead>
+      <tr><th>Organization</th><th>City</th><th>County</th><th>Region</th><th>Sector</th><th>Assets</th><th>Income</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for org in page.object_list %}
+      <tr>
+        <td>
+          {{ org.name }}
+          <div style="font-size:.72rem;color:rgba(255,255,255,.30);">EIN {{ org.ein }}{% if org.ntee_code %} · {{ org.ntee_code }}{% endif %}</div>
+        </td>
+        <td style="color:rgba(255,255,255,.55);">{{ org.city|default:"—" }}</td>
+        <td style="color:rgba(255,255,255,.55);">{{ org.county|default:"—" }}</td>
+        <td style="color:rgba(255,255,255,.45);font-size:.8rem;">{{ org.region|default:"—" }}</td>
+        <td style="color:rgba(255,255,255,.45);font-size:.8rem;">{{ org.ntee_sector|default:"—" }}</td>
+        <td style="white-space:nowrap;">{% if org.asset_amount is not None %}${{ org.asset_amount|floatformat:0 }}{% else %}—{% endif %}</td>
+        <td style="white-space:nowrap;">{% if org.income_amount is not None %}${{ org.income_amount|floatformat:0 }}{% else %}—{% endif %}</td>
+        <td style="white-space:nowrap;">
+          {% if org.promoted_lead_id %}
+            <a href="{% url 'operator-pipeline' %}?segment=cold_florida_crm" class="badge badge-green" style="text-decoration:none;">In pipeline ✓</a>
+          {% else %}
+            <form method="post" action="{% url 'operator-market-promote' org.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ querystring }}{% if page.number > 1 %}{% if querystring %}&{% endif %}page={{ page.number }}{% endif %}">
+              <button type="submit" class="btn btn-ghost btn-sm">→ Pipeline</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="display:flex;gap:12px;align-items:center;justify-content:center;padding:14px;border-top:1px solid var(--line);font-size:.82rem;color:rgba(255,255,255,.5);">
+    {% if page.has_previous %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page.previous_page_number }}" class="btn btn-ghost btn-sm">← Prev</a>{% endif %}
+    Page {{ page.number }} of {{ page.paginator.num_pages }}
+    {% if page.has_next %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page.next_page_number }}" class="btn btn-ghost btn-sm">Next →</a>{% endif %}
+  </div>
+  {% else %}
+    <div class="empty-state">No organizations match. Import with <code>manage.py import_florida_market</code> or adjust filters.</div>
+  {% endif %}
+</div>
+
+<style>
+  .mkt-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--white);
+    padding: 7px 10px;
+    font-size: 0.82rem;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .mkt-input option { background: var(--navy); color: var(--white); }
+</style>
+{% endblock %}

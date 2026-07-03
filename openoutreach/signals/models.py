@@ -168,6 +168,63 @@ class SalesLead(models.Model):
         return f"{self.name} — {self.organization}"
 
 
+class FloridaOrg(models.Model):
+    """One row of the statewide Florida IRS exempt-org universe (114k+).
+
+    These are NOT leads — they're the prospect universe. Promoting one to the
+    sales pipeline creates a SalesLead and links it via `promoted_lead`.
+    """
+
+    record_id = models.CharField(max_length=20, unique=True)  # e.g. NP-000001
+    ein = models.CharField(max_length=20, db_index=True)
+    name = models.CharField(max_length=300)
+    sort_name = models.CharField(max_length=300, blank=True, default="")
+    street = models.CharField(max_length=300, blank=True, default="")
+    city = models.CharField(max_length=120, blank=True, default="")
+    county = models.CharField(max_length=120, blank=True, default="", db_index=True)
+    region = models.CharField(max_length=120, blank=True, default="", db_index=True)
+    state = models.CharField(max_length=10, blank=True, default="")
+    zip_code = models.CharField(max_length=20, blank=True, default="")
+    subsection = models.CharField(max_length=10, blank=True, default="")
+    ntee_code = models.CharField(max_length=20, blank=True, default="")
+    ntee_sector = models.CharField(max_length=120, blank=True, default="", db_index=True)
+    ruling_month = models.CharField(max_length=10, blank=True, default="")
+    asset_amount = models.BigIntegerField(null=True, blank=True)
+    income_amount = models.BigIntegerField(null=True, blank=True)
+    promoted_lead = models.ForeignKey(
+        SalesLead, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="florida_orgs",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("name",)
+
+    def __str__(self):
+        return f"{self.record_id} — {self.name}"
+
+
+class CountyRollout(models.Model):
+    """County-by-county rollout board for the Florida market (67 counties)."""
+
+    county = models.CharField(max_length=120, unique=True)
+    rollout_tier = models.CharField(max_length=60, blank=True, default="")
+    region = models.CharField(max_length=120, blank=True, default="")
+    owner = models.CharField(max_length=120, blank=True, default="")
+    status = models.CharField(max_length=60, blank=True, default="")
+    nonprofit_count = models.IntegerField(default=0)
+    high_priority_count = models.IntegerField(default=0)
+    funder_starter_count = models.IntegerField(default=0)
+    notes = models.TextField(blank=True, default="")
+
+    class Meta:
+        ordering = ("county",)
+
+    def __str__(self):
+        return self.county
+
+
 class PilotProfile(models.Model):
     class LifecycleStatus(models.TextChoices):
         WAITLIST = "waitlist", "Waitlist"

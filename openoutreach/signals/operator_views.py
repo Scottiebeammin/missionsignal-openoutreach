@@ -478,6 +478,119 @@ def operator_pipeline_delete(request, pk):
 
 
 @_operator_required
+def operator_market(request):
+    """Florida Market browser — the 114k-org prospect universe."""
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+
+    from openoutreach.signals.models import CountyRollout, FloridaOrg
+
+    county = request.GET.get("county", "").strip()
+    region = request.GET.get("region", "").strip()
+    sector = request.GET.get("sector", "").strip()
+    min_assets = request.GET.get("min_assets", "").strip()
+    q = request.GET.get("q", "").strip()
+
+    qs = FloridaOrg.objects.all()
+    if county:
+        qs = qs.filter(county=county)
+    if region:
+        qs = qs.filter(region=region)
+    if sector:
+        qs = qs.filter(ntee_sector=sector)
+    if min_assets:
+        try:
+            qs = qs.filter(asset_amount__gte=int(min_assets.replace(",", "")))
+        except ValueError:
+            min_assets = ""
+    if q:
+        qs = qs.filter(Q(name__icontains=q) | Q(city__icontains=q) | Q(ein__icontains=q))
+
+    paginator = Paginator(qs.select_related("promoted_lead"), 50)
+    page = paginator.get_page(request.GET.get("page"))
+
+    # Preserve current filters in pagination/promote links.
+    params = request.GET.copy()
+    params.pop("page", None)
+    querystring = params.urlencode()
+
+    counties = list(
+        CountyRollout.objects.order_by("county").values_list("county", flat=True)
+    ) or list(
+        FloridaOrg.objects.exclude(county="").order_by("county")
+        .values_list("county", flat=True).distinct()
+    )
+    regions = list(
+        FloridaOrg.objects.exclude(region="").order_by("region")
+        .values_list("region", flat=True).distinct()
+    )
+    sectors = list(
+        FloridaOrg.objects.exclude(ntee_sector="").order_by("ntee_sector")
+        .values_list("ntee_sector", flat=True).distinct()
+    )
+
+    ctx = {
+        "page": page,
+        "total_orgs": FloridaOrg.objects.count(),
+        "filtered_count": paginator.count,
+        "promoted_count": FloridaOrg.objects.filter(promoted_lead__isnull=False).count(),
+        "counties": counties,
+        "regions": regions,
+        "sectors": sectors,
+        "county_filter": county,
+        "region_filter": region,
+        "sector_filter": sector,
+        "min_assets": min_assets,
+        "q": q,
+        "querystring": querystring,
+    }
+    return render(request, "signals/operator/market.html", ctx)
+
+
+@_operator_required
+@require_POST
+def operator_market_promote(request, pk):
+    from openoutreach.signals.market import promote_org_to_pipeline
+    from openoutreach.signals.models import FloridaOrg
+
+    org = get_object_or_404(FloridaOrg, pk=pk)
+    lead, created = promote_org_to_pipeline(org)
+    if created:
+        messages.success(request, f"Added {org.name} to the pipeline (Cold — Florida CRM).")
+    else:
+        messages.warning(request, f"{org.name} is already in the pipeline.")
+    from django.http import HttpResponseRedirect
+    from django.urls import reverse
+    url = reverse("operator-market")
+    next_qs = request.POST.get("next", "")
+    if next_qs:
+        url += f"?{next_qs}"
+    return HttpResponseRedirect(url)
+
+
+@_operator_required
+def operator_market_counties(request):
+    """County Rollout board — the 67-county build-out plan."""
+    from openoutreach.signals.models import CountyRollout
+
+    sort = request.GET.get("sort", "county")
+    allowed = {
+        "county": "county",
+        "tier": "rollout_tier",
+        "region": "region",
+        "owner": "owner",
+        "status": "status",
+        "nonprofits": "-nonprofit_count",
+        "priority": "-high_priority_count",
+        "funders": "-funder_starter_count",
+    }
+    order = allowed.get(sort, "county")
+    counties = CountyRollout.objects.order_by(order, "county")
+    ctx = {"counties": counties, "sort": sort if sort in allowed else "county"}
+    return render(request, "signals/operator/market_counties.html", ctx)
+
+
+@_operator_required
 def operator_waitlist(request):
     try:
         from openoutreach.signals.models import InterestSignup
