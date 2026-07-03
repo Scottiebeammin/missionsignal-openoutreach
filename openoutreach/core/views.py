@@ -131,6 +131,8 @@ def account_activate(request):
     """The activation paywall: account exists but isn't verified yet."""
     if user_is_verified(request.user):
         return redirect("portal")
+    import os as _os
     return render(request, "core/activate.html", {
         "stripe_url": STRIPE_FOUNDING_SEAT_URL,
+        "annual_url": _os.getenv("STRIPE_ANNUAL_URL", ""),
     })

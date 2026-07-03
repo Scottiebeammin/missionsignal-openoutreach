@@ -133,6 +133,7 @@ def public_landing_page(request):
             "form": form,
             "signup_failed": signup_failed,
             "waitlist_roles": WAITLIST_ROLES,
+            "annual_url": os.getenv("STRIPE_ANNUAL_URL", ""),
         },
     )
 

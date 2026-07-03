@@ -175,13 +175,13 @@ class OrganizationMember(models.Model):
         ]
 
     ONBOARDING_STEPS = [
-        ("snapshot",      "View your Snapshot",       "project-snapshot"),
-        ("dashboard",     "Explore the Dashboard",    "project-dashboard"),
-        ("ecosystem",     "Review the Ecosystem",     "project-ecosystem"),
-        ("funding",       "Check Funding lanes",      "project-funding"),
-        ("readiness",     "Review Readiness",         "project-readiness"),
-        ("relationships", "Check Relationships",      "project-relationships"),
-        ("pipeline",      "Explore the Pipeline",     "project-pipeline"),
+        ("snapshot",      "Open your Snapshot",            "project-snapshot"),
+        ("dashboard",     "Explore your Dashboard",        "project-dashboard"),
+        ("ecosystem",     "Review your Ecosystem",         "project-ecosystem"),
+        ("funding",       "See your funding matches",      "project-funding"),
+        ("readiness",     "Review your Readiness",         "project-readiness"),
+        ("relationships", "Visit Partners & Sponsorship",  "project-relationships"),
+        ("pipeline",      "Explore your Pipeline",         "project-pipeline"),
     ]
 
     def onboarding_progress(self):
