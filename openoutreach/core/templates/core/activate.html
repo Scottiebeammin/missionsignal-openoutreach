@@ -1,0 +1,21 @@
+{% extends "core/_auth_base.html" %}
+{% block title %}Activate your seat — Anansi Atlas{% endblock %}
+{% block content %}
+  <h1>Almost there, {{ request.user.first_name|default:"friend" }}</h1>
+  <p class="subtitle">Your account is created — one step left to open your Opportunity Web: claim your Founding Atlas Partner seat.</p>
+
+  <div style="border:1.5px solid rgba(212,160,23,0.45); border-radius:12px; padding:18px 20px; margin:18px 0;">
+    <p style="margin:0 0 6px; font-weight:700;">Founding Atlas Partner — $150/month, locked for life</p>
+    <p style="margin:0 0 14px; font-size:0.9rem; opacity:0.8;">Full platform access, your Opportunity Web Snapshot, and a 45-minute walkthrough call. Cancel anytime. Standard pricing will be $299/month.</p>
+    <a class="btn-primary" style="display:block; text-align:center; text-decoration:none;" href="{{ stripe_url }}">Claim your founding seat →</a>
+  </div>
+
+  <p style="font-size:0.88rem; opacity:0.8;">Use the <strong>same email address</strong> you signed up with ({{ request.user.email }}) at checkout — your access unlocks automatically within a minute of payment. Paid already? <a href="{% url 'portal' %}">Refresh here</a>.</p>
+
+  <div class="auth-footer" style="margin-top:16px;">
+    Invited by our team, or something not working?<br>
+    <a href="mailto:info@anansiatlas.com?subject=Account%20activation%20help%20—%20{{ request.user.email|urlencode }}" style="font-weight:700;">Message support →</a>
+    &nbsp;·&nbsp;
+    <a href="{% url 'anansi-atlas-landing' %}#ask">Ask a question</a>
+  </div>
+{% endblock %}
