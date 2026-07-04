@@ -22,6 +22,7 @@ ORG_FIELDS = [
     "ein", "name", "sort_name", "street", "city", "county", "region",
     "state", "zip_code", "subsection", "ntee_code", "ntee_sector",
     "ruling_month", "asset_amount", "income_amount",
+    "priority", "relationship_stage", "next_action",
 ]
 
 
@@ -53,6 +54,9 @@ def _org_values(row):
         "ruling_month": g("Ruling Month"),
         "asset_amount": _to_int(row.get("Asset Amount")),
         "income_amount": _to_int(row.get("Income Amount")),
+        "priority": g("Priority"),
+        "relationship_stage": g("Relationship Stage"),
+        "next_action": g("Next Action"),
     }
 
 

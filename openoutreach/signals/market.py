@@ -16,13 +16,20 @@ def _fmt_amount(value):
 
 
 def build_provenance_notes(org: FloridaOrg) -> str:
-    return (
+    notes = (
         f"Promoted from Florida Market Database ({org.record_id}). "
         f"EIN: {org.ein or 'unknown'}. "
         f"NTEE: {org.ntee_code or 'unclassified'} ({org.ntee_sector or 'Unknown sector'}). "
         f"Assets: {_fmt_amount(org.asset_amount)}. Income: {_fmt_amount(org.income_amount)}. "
         f"Location: {org.city or 'unknown city'}, {org.county or 'unknown'} County."
     )
+    if org.website:
+        notes += f" Website: {org.website}."
+    if org.principal_officer:
+        notes += f" Principal officer: {org.principal_officer}."
+    if org.contact_source:
+        notes += f" Contact source: {org.contact_source}."
+    return notes
 
 
 def promote_org_to_pipeline(org: FloridaOrg):
@@ -43,6 +50,8 @@ def promote_org_to_pipeline(org: FloridaOrg):
             list_segment=SalesLead.Segment.COLD_FLORIDA_CRM,
             warmth=SalesLead.Warmth.COLD,
             region=org.county,
+            phone=org.phone,
+            email=org.contact_email,
             notes=build_provenance_notes(org),
         )
         org.promoted_lead = lead

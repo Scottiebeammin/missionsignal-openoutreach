@@ -490,8 +490,17 @@ def operator_market(request):
     sector = request.GET.get("sector", "").strip()
     min_assets = request.GET.get("min_assets", "").strip()
     q = request.GET.get("q", "").strip()
+    priority = request.GET.get("priority", "").strip()
+    has_contact = request.GET.get("has_contact", "").strip()
 
     qs = FloridaOrg.objects.all()
+    if priority:
+        qs = qs.filter(priority=priority)
+    if has_contact:
+        qs = qs.filter(
+            Q(website__gt="") | Q(phone__gt="") | Q(contact_email__gt="")
+            | Q(principal_officer__gt="")
+        )
     if county:
         qs = qs.filter(county=county)
     if region:
@@ -540,6 +549,12 @@ def operator_market(request):
         "county_filter": county,
         "region_filter": region,
         "sector_filter": sector,
+        "priority_filter": priority,
+        "has_contact": has_contact,
+        "priorities": list(
+            FloridaOrg.objects.exclude(priority="").order_by("priority")
+            .values_list("priority", flat=True).distinct()
+        ),
         "min_assets": min_assets,
         "q": q,
         "querystring": querystring,

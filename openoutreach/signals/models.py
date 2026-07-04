@@ -191,6 +191,15 @@ class FloridaOrg(models.Model):
     ruling_month = models.CharField(max_length=10, blank=True, default="")
     asset_amount = models.BigIntegerField(null=True, blank=True)
     income_amount = models.BigIntegerField(null=True, blank=True)
+    priority = models.CharField(max_length=20, blank=True, default="", db_index=True)
+    relationship_stage = models.CharField(max_length=60, blank=True, default="")
+    next_action = models.CharField(max_length=300, blank=True, default="")
+    website = models.URLField(max_length=500, blank=True, default="")
+    phone = models.CharField(max_length=40, blank=True, default="")
+    contact_email = models.EmailField(blank=True, default="")
+    principal_officer = models.CharField(max_length=200, blank=True, default="")
+    contact_source = models.CharField(max_length=200, blank=True, default="")
+    contact_updated_at = models.DateTimeField(null=True, blank=True)
     promoted_lead = models.ForeignKey(
         SalesLead, null=True, blank=True, on_delete=models.SET_NULL,
         related_name="florida_orgs",

@@ -40,6 +40,13 @@
       <option value="">All NTEE sectors</option>
       {% for s in sectors %}<option value="{{ s }}" {% if s == sector_filter %}selected{% endif %}>{{ s }}</option>{% endfor %}
     </select>
+    <select name="priority" class="mkt-input">
+      <option value="">All priorities</option>
+      {% for p in priorities %}<option value="{{ p }}" {% if p == priority_filter %}selected{% endif %}>{{ p }}</option>{% endfor %}
+    </select>
+    <label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:rgba(255,255,255,.6);">
+      <input type="checkbox" name="has_contact" value="1" {% if has_contact %}checked{% endif %}> Has contact info
+    </label>
     <input type="text" name="min_assets" value="{{ min_assets }}" placeholder="Min assets $" class="mkt-input" style="width:120px;">
     <input type="text" name="q" value="{{ q }}" placeholder="Search name / city / EIN" class="mkt-input" style="width:200px;">
     <button type="submit" class="btn btn-gold btn-sm">Filter</button>
@@ -49,19 +56,26 @@
   {% if page.object_list %}
   <table class="data-table">
     <thead>
-      <tr><th>Organization</th><th>City</th><th>County</th><th>Region</th><th>Sector</th><th>Assets</th><th>Income</th><th></th></tr>
+      <tr><th>Organization</th><th>City</th><th>County</th><th>Sector</th><th>Contact</th><th>Assets</th><th>Income</th><th></th></tr>
     </thead>
     <tbody>
       {% for org in page.object_list %}
       <tr>
         <td>
           {{ org.name }}
+          {% if org.priority %}<span class="badge {% if org.priority == 'High' %}badge-gold{% else %}badge-muted{% endif %}" style="font-size:.62rem;margin-left:4px;">{{ org.priority }}</span>{% endif %}
           <div style="font-size:.72rem;color:rgba(255,255,255,.30);">EIN {{ org.ein }}{% if org.ntee_code %} · {{ org.ntee_code }}{% endif %}</div>
         </td>
         <td style="color:rgba(255,255,255,.55);">{{ org.city|default:"—" }}</td>
         <td style="color:rgba(255,255,255,.55);">{{ org.county|default:"—" }}</td>
-        <td style="color:rgba(255,255,255,.45);font-size:.8rem;">{{ org.region|default:"—" }}</td>
         <td style="color:rgba(255,255,255,.45);font-size:.8rem;">{{ org.ntee_sector|default:"—" }}</td>
+        <td style="font-size:.76rem;max-width:190px;">
+          {% if org.website %}<a href="{{ org.website }}" target="_blank" rel="noopener" style="color:var(--gold-lt);word-break:break-all;">{{ org.website|cut:"http://"|cut:"https://"|truncatechars:34 }}</a><br>{% endif %}
+          {% if org.contact_email %}<span style="color:rgba(255,255,255,.6);word-break:break-all;">{{ org.contact_email|truncatechars:34 }}</span><br>{% endif %}
+          {% if org.phone %}<span style="color:rgba(255,255,255,.6);">{{ org.phone }}</span><br>{% endif %}
+          {% if org.principal_officer %}<span style="color:rgba(255,255,255,.4);">{{ org.principal_officer|truncatechars:30 }}</span>{% endif %}
+          {% if not org.website and not org.contact_email and not org.phone and not org.principal_officer %}<span style="color:rgba(255,255,255,.25);">—</span>{% endif %}
+        </td>
         <td style="white-space:nowrap;">{% if org.asset_amount is not None %}${{ org.asset_amount|floatformat:0 }}{% else %}—{% endif %}</td>
         <td style="white-space:nowrap;">{% if org.income_amount is not None %}${{ org.income_amount|floatformat:0 }}{% else %}—{% endif %}</td>
         <td style="white-space:nowrap;">

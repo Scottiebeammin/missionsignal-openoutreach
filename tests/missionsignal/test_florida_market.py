@@ -16,6 +16,7 @@ MASTER_HEADERS = [
     "Record ID", "EIN", "Organization", "Sort Name", "Street", "City",
     "County", "Region", "State", "ZIP", "Subsection", "NTEE Code",
     "NTEE Sector", "Ruling Month", "Asset Amount", "Income Amount",
+    "Priority", "Relationship Stage", "Next Action",
 ]
 COUNTY_HEADERS = [
     "County", "Rollout Tier", "Region", "Owner", "Status",
@@ -42,6 +43,8 @@ def _fixture_csvs(tmp_path, asset_override=None):
             "ZIP": "33101", "NTEE Sector": "Youth Development",
             "NTEE Code": "O50",
             "Asset Amount": asset_override or "500000", "Income Amount": "120000",
+            "Priority": "High", "Relationship Stage": "New",
+            "Next Action": "Call them",
         },
         {
             "Record ID": "NP-000002", "EIN": "222222222",
@@ -194,3 +197,117 @@ def test_counties_page(tmp_path, client):
         reverse("operator-market-counties"), {"sort": "nonprofits"}, HTTP_HOST="localhost"
     )
     assert resp.status_code == 200
+
+
+# ── Contact enrichment (IRS 990-N e-Postcard) ────────────────────────────────
+
+def _epostcard_zip(tmp_path, rows):
+    """Build a fake data-download-epostcard.zip in tmp_path; return the dir."""
+    import zipfile
+    lines = "\n".join("|".join(r) for r in rows) + "\n"
+    with zipfile.ZipFile(tmp_path / "data-download-epostcard.zip", "w") as zf:
+        zf.writestr("data-download-epostcard.txt", lines)
+    return str(tmp_path)
+
+
+def _epostcard_row(ein, year, website, officer):
+    return [ein, year, "SOME ORG", "T", "F", "01-01", "12-31",
+            website, officer, "1 Main St", "", "Miami", "", "FL", "33101", "US",
+            "1 Main St", "", "Miami", "", "FL", "33101", "US", "", "", ""]
+
+
+def test_enrich_joins_by_ein_and_keeps_newest_year(tmp_path):
+    master, counties = _fixture_csvs(tmp_path)
+    _import(master, counties)
+    # DB EIN has no leading zeros here; file EIN zero-padded — join must normalize.
+    irs_dir = _epostcard_zip(tmp_path, [
+        _epostcard_row("0111111111", "2022", "www.old.org", "Old Officer"),
+        _epostcard_row("111111111", "2024", "www.sunshineyouth.org", "Jane Doe"),
+        _epostcard_row("222222222", "2023", "gulf@arts.org", "Bob Lee"),
+        _epostcard_row("999999999", "2024", "www.nomatch.org", "Nobody"),
+    ])
+    call_command("enrich_florida_contacts", irs_dir=irs_dir)
+
+    org = FloridaOrg.objects.get(record_id="NP-000001")
+    assert org.website == "http://www.sunshineyouth.org"  # newest year wins
+    assert org.principal_officer == "Jane Doe"
+    assert org.contact_source == "irs-epostcard-2024"
+    assert org.contact_updated_at is not None
+
+    arts = FloridaOrg.objects.get(record_id="NP-000002")
+    assert arts.contact_email == "gulf@arts.org"  # '@' routes to email
+    assert arts.website == ""
+    assert arts.principal_officer == "Bob Lee"
+
+
+def test_enrich_never_overwrites_other_source_without_force(tmp_path):
+    master, counties = _fixture_csvs(tmp_path)
+    _import(master, counties)
+    org = FloridaOrg.objects.get(record_id="NP-000001")
+    org.website = "https://manual.example.org"
+    org.contact_source = "manual-research"
+    org.save()
+
+    irs_dir = _epostcard_zip(tmp_path, [
+        _epostcard_row("111111111", "2024", "www.sunshineyouth.org", "Jane Doe"),
+    ])
+    call_command("enrich_florida_contacts", irs_dir=irs_dir)
+    org.refresh_from_db()
+    assert org.website == "https://manual.example.org"  # protected
+    assert org.principal_officer == "Jane Doe"  # empty field still fills
+
+    call_command("enrich_florida_contacts", irs_dir=irs_dir, force=True)
+    org.refresh_from_db()
+    assert org.website == "http://www.sunshineyouth.org"
+
+
+def test_import_maps_priority_fields(tmp_path):
+    master, counties = _fixture_csvs(tmp_path)
+    _import(master, counties)
+    org = FloridaOrg.objects.get(record_id="NP-000001")
+    assert org.priority == "High"
+    assert org.relationship_stage == "New"
+    assert org.next_action == "Call them"
+
+
+def test_promotion_carries_contact_info(tmp_path):
+    master, counties = _fixture_csvs(tmp_path)
+    _import(master, counties)
+    org = FloridaOrg.objects.get(record_id="NP-000001")
+    org.website = "https://sunshineyouth.org"
+    org.phone = "305-555-0100"
+    org.contact_email = "info@sunshineyouth.org"
+    org.principal_officer = "Jane Doe"
+    org.contact_source = "irs-epostcard-2024"
+    org.save()
+
+    lead, created = promote_org_to_pipeline(org)
+    assert created
+    assert lead.phone == "305-555-0100"
+    assert lead.email == "info@sunshineyouth.org"
+    assert "https://sunshineyouth.org" in lead.notes
+    assert "Jane Doe" in lead.notes
+
+
+def test_market_page_contact_and_priority_filters(tmp_path, client):
+    master, counties = _fixture_csvs(tmp_path)
+    _import(master, counties)
+    org = FloridaOrg.objects.get(record_id="NP-000001")
+    org.website = "https://sunshineyouth.org"
+    org.save()
+    _staff_client(client)
+
+    resp = client.get(
+        reverse("operator-market"), {"has_contact": "1"}, HTTP_HOST="localhost"
+    )
+    assert resp.status_code == 200
+    assert b"Sunshine Youth Org" in resp.content
+    assert b"Gulf Coast Arts" not in resp.content
+    assert b"sunshineyouth.org" in resp.content
+
+    resp = client.get(
+        reverse("operator-market"), {"priority": "High"}, HTTP_HOST="localhost"
+    )
+    assert resp.status_code == 200
+    assert b"Sunshine Youth Org" in resp.content
+    assert b"Gulf Coast Arts" not in resp.content
