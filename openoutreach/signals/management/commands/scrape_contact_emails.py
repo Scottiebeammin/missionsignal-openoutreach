@@ -120,7 +120,10 @@ class Command(BaseCommand):
                         if contact_url:
                             time.sleep(options["delay"] / 2)
                             email = extract_email(_fetch(contact_url), domain)
-                except (urllib.error.URLError, TimeoutError, ConnectionError, OSError, ValueError):
+                except Exception:
+                    # Crawler must survive anything a random website throws at it
+                    # (bad ports/InvalidURL, TLS errors, redirect loops, encoding
+                    # bombs). One site's weirdness never stops the sweep.
                     errors += 1
                 if email and not org.contact_email:  # never overwrite
                     org.contact_email = email[:254]
