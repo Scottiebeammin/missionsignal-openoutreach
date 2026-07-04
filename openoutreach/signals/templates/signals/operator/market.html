@@ -74,7 +74,7 @@
         </td>
         <td style="color:rgba(255,255,255,.45);font-size:.8rem;">{{ org.ntee_sector|default:"—" }}</td>
         <td style="font-size:.76rem;max-width:210px;">
-          {% if org.website %}<span title="{{ org.website }}">🌐 <a href="{{ org.website }}" target="_blank" rel="noopener" style="color:var(--gold-lt);">{{ org.website_label|truncatechars:30 }}</a></span><br>{% endif %}
+          {% if org.website %}<span title="{{ org.website }}">🌐 <a href="{{ org.website }}" target="_blank" rel="noopener" style="color:var(--gold-lt);">{{ org.website_label|truncatechars:30 }}</a></span><br>{% else %}<span>📘 <a href="https://www.facebook.com/search/pages/?q={{ org.name|add:' '|add:org.city|urlencode }}" target="_blank" rel="noopener" style="color:rgba(120,170,255,.85);">Find on Facebook →</a></span><br>{% endif %}
           {% if org.contact_email %}<span style="color:rgba(255,255,255,.6);word-break:break-all;">✉ {{ org.contact_email|truncatechars:32 }}</span><br>{% endif %}
           {% if org.phone %}<span style="color:rgba(255,255,255,.6);white-space:nowrap;">☎ {{ org.phone }}</span><br>{% endif %}
           {% if org.principal_officer %}<span style="color:rgba(255,255,255,.4);">👤 {{ org.principal_officer|truncatechars:28 }}</span>{% endif %}
