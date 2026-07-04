@@ -319,7 +319,15 @@ class Command(BaseCommand):
         (compress_type 9, unsupported by Python's zipfile) are extracted with
         the system `unzip` (Info-ZIP 6.0 supports Deflate64) to a temp dir.
         """
-        with zipfile.ZipFile(zip_path) as zf:
+        try:
+            zf = zipfile.ZipFile(zip_path)
+        except zipfile.BadZipFile:
+            # Truncated/corrupt bundle (partial download or IRS HTML error page
+            # that slipped past the download check) — skip it; the caller marks
+            # it processed so resume doesn't crash-loop on the same file.
+            self.stderr.write(f"  ! bad zip, skipping: {zip_path.name}")
+            return
+        with zf:
             deflate64 = any(i.compress_type not in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED)
                             for i in zf.infolist())
             if not deflate64:
