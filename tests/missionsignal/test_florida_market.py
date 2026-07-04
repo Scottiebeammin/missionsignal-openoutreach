@@ -311,3 +311,82 @@ def test_market_page_contact_and_priority_filters(tmp_path, client):
     assert resp.status_code == 200
     assert b"Sunshine Youth Org" in resp.content
     assert b"Gulf Coast Arts" not in resp.content
+
+
+# ---- fetch_990_contacts (Phase 2: full 990 XML) ----------------------------
+
+_990_XML = """<?xml version="1.0" encoding="utf-8"?>
+<Return xmlns="http://www.irs.gov/efile" returnVersion="2023v5.0">
+  <ReturnHeader>
+    <ReturnTs>2024-05-01T12:00:00-05:00</ReturnTs>
+    <TaxYr>2023</TaxYr>
+    <Filer>
+      <EIN>0111111111</EIN>
+      <BusinessName><BusinessNameLine1Txt>SUNSHINE YOUTH ORG</BusinessNameLine1Txt></BusinessName>
+      <PhoneNum>3055550100</PhoneNum>
+    </Filer>
+    <BusinessOfficerGrp>
+      <PersonNm>Jane Doe</PersonNm>
+      <PersonTitleTxt>PRESIDENT</PersonTitleTxt>
+      <PhoneNum>3055550199</PhoneNum>
+    </BusinessOfficerGrp>
+    <PreparerPersonGrp><PhoneNum>9995550000</PhoneNum></PreparerPersonGrp>
+  </ReturnHeader>
+  <ReturnData>
+    <IRS990>
+      <WebsiteAddressTxt>www.sunshineyouth.org</WebsiteAddressTxt>
+      <PrincipalOfficerNm>Jane Doe</PrincipalOfficerNm>
+    </IRS990>
+  </ReturnData>
+</Return>
+"""
+
+
+def test_parse_990_xml_extracts_contact_fields():
+    from openoutreach.signals.management.commands.fetch_990_contacts import parse_990_xml
+
+    extract = parse_990_xml(_990_XML.encode())
+    assert extract == {
+        "ein": "111111111",  # leading zero normalized
+        "tax_year": 2023,
+        "website": "http://www.sunshineyouth.org",
+        "phone": "3055550100",  # Filer phone, not preparer's
+        "officer": "Jane Doe",
+    }
+    assert parse_990_xml(b"<not-xml") is None
+    assert parse_990_xml(b"<Return><ReturnHeader/></Return>") is None  # no EIN
+
+
+def test_fetch_990_no_overwrite_and_newest_year_wins(tmp_path):
+    from openoutreach.signals.management.commands.fetch_990_contacts import apply_extract
+
+    master, counties = _fixture_csvs(tmp_path)
+    _import(master, counties)
+    org = FloridaOrg.objects.get(record_id="NP-000001")
+    org.website = "https://manual.example.org"
+    org.contact_source = "manual-research"
+    org.save()
+
+    extract = {"ein": "111111111", "tax_year": 2023, "officer": "Jane Doe",
+               "website": "http://www.sunshineyouth.org", "phone": "3055550100"}
+    assert apply_extract(org, extract) is True
+    assert org.website == "https://manual.example.org"  # different source protected
+    assert org.phone == "3055550100"  # empty field fills
+    assert org.principal_officer == "Jane Doe"
+    assert org.contact_source == "irs-990-xml-2023"
+    org.save()
+
+    # Same family, older year: must not regress the phone.
+    older = dict(extract, tax_year=2021, phone="1112223333")
+    assert apply_extract(org, older) is False
+    assert org.phone == "3055550100"
+
+    # Same family, newer year: refresh allowed.
+    newer = dict(extract, tax_year=2024, phone="7865550123")
+    assert apply_extract(org, newer) is True
+    assert org.phone == "7865550123"
+    assert org.contact_source == "irs-990-xml-2024"
+
+    # --force clobbers the manual website.
+    assert apply_extract(org, dict(extract, tax_year=2024), force=True) is True
+    assert org.website == "http://www.sunshineyouth.org"
