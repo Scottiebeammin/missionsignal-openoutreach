@@ -18,9 +18,9 @@
         <th><a href="?sort=region" {% if sort == 'region' %}style="color:var(--gold-lt);"{% endif %}>Region</a></th>
         <th><a href="?sort=owner" {% if sort == 'owner' %}style="color:var(--gold-lt);"{% endif %}>Owner</a></th>
         <th><a href="?sort=status" {% if sort == 'status' %}style="color:var(--gold-lt);"{% endif %}>Status</a></th>
-        <th><a href="?sort=nonprofits" {% if sort == 'nonprofits' %}style="color:var(--gold-lt);"{% endif %}>Nonprofits</a></th>
-        <th><a href="?sort=priority" {% if sort == 'priority' %}style="color:var(--gold-lt);"{% endif %}>High-Priority</a></th>
-        <th><a href="?sort=funders" {% if sort == 'funders' %}style="color:var(--gold-lt);"{% endif %}>Funder Starters</a></th>
+        <th style="text-align:right;"><a href="?sort=nonprofits" {% if sort == 'nonprofits' %}style="color:var(--gold-lt);"{% endif %}>Nonprofits</a></th>
+        <th style="text-align:right;"><a href="?sort=priority" {% if sort == 'priority' %}style="color:var(--gold-lt);"{% endif %}>High-Priority</a></th>
+        <th style="text-align:right;"><a href="?sort=funders" {% if sort == 'funders' %}style="color:var(--gold-lt);"{% endif %}>Funder Starters</a></th>
         <th>Notes</th>
       </tr>
     </thead>
@@ -36,9 +36,9 @@
           {% elif "complete" in c.status|lower or "done" in c.status|lower %}<span class="badge badge-green">{{ c.status }}</span>
           {% else %}<span class="badge badge-gold">{{ c.status }}</span>{% endif %}
         </td>
-        <td>{{ c.nonprofit_count }}</td>
-        <td>{{ c.high_priority_count }}</td>
-        <td>{{ c.funder_starter_count }}</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">{{ c.nonprofit_fmt }}</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">{{ c.high_priority_fmt }}</td>
+        <td style="text-align:right;font-variant-numeric:tabular-nums;">{{ c.funder_starter_fmt }}</td>
         <td style="color:rgba(255,255,255,.40);font-size:.78rem;max-width:280px;">{{ c.notes|truncatechars:90|default:"—" }}</td>
       </tr>
       {% endfor %}

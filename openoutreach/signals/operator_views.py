@@ -492,8 +492,11 @@ def operator_market(request):
     q = request.GET.get("q", "").strip()
     priority = request.GET.get("priority", "").strip()
     has_contact = request.GET.get("has_contact", "").strip()
+    serves = request.GET.get("serves", "").strip()
 
     qs = FloridaOrg.objects.all()
+    if serves:
+        qs = qs.filter(service_area=serves)
     if priority:
         qs = qs.filter(priority=priority)
     if has_contact:
@@ -518,6 +521,18 @@ def operator_market(request):
     paginator = Paginator(qs.select_related("promoted_lead"), 50)
     page = paginator.get_page(request.GET.get("page"))
 
+    # Display helpers computed server-side (no template filters needed).
+    from openoutreach.signals.market import compact_amount, website_domain
+    for org in page.object_list:
+        org.assets_compact = compact_amount(org.asset_amount)
+        org.income_compact = compact_amount(org.income_amount)
+        org.website_label = website_domain(org.website)
+
+    if paginator.count:
+        page_summary = f"{page.start_index():,}–{page.end_index():,} of {paginator.count:,}"
+    else:
+        page_summary = "0 of 0"
+
     # Preserve current filters in pagination/promote links.
     params = request.GET.copy()
     params.pop("page", None)
@@ -538,9 +553,10 @@ def operator_market(request):
         .values_list("ntee_sector", flat=True).distinct()
     )
 
+    total_orgs = FloridaOrg.objects.count()
     ctx = {
         "page": page,
-        "total_orgs": FloridaOrg.objects.count(),
+        "total_orgs": total_orgs,
         "filtered_count": paginator.count,
         "promoted_count": FloridaOrg.objects.filter(promoted_lead__isnull=False).count(),
         "counties": counties,
@@ -555,9 +571,17 @@ def operator_market(request):
             FloridaOrg.objects.exclude(priority="").order_by("priority")
             .values_list("priority", flat=True).distinct()
         ),
+        "serves_filter": serves,
+        "service_areas": list(
+            FloridaOrg.objects.exclude(service_area="").order_by("service_area")
+            .values_list("service_area", flat=True).distinct()
+        ),
         "min_assets": min_assets,
         "q": q,
         "querystring": querystring,
+        "page_summary": page_summary,
+        "total_orgs_fmt": f"{total_orgs:,}",
+        "filtered_count_fmt": f"{paginator.count:,}",
     }
     return render(request, "signals/operator/market.html", ctx)
 
@@ -600,7 +624,11 @@ def operator_market_counties(request):
         "funders": "-funder_starter_count",
     }
     order = allowed.get(sort, "county")
-    counties = CountyRollout.objects.order_by(order, "county")
+    counties = list(CountyRollout.objects.order_by(order, "county"))
+    for c in counties:
+        c.nonprofit_fmt = f"{c.nonprofit_count:,}"
+        c.high_priority_fmt = f"{c.high_priority_count:,}"
+        c.funder_starter_fmt = f"{c.funder_starter_count:,}"
     ctx = {"counties": counties, "sort": sort if sort in allowed else "county"}
     return render(request, "signals/operator/market_counties.html", ctx)
 

@@ -390,3 +390,199 @@ def test_fetch_990_no_overwrite_and_newest_year_wins(tmp_path):
     # --force clobbers the manual website.
     assert apply_extract(org, dict(extract, tax_year=2024), force=True) is True
     assert org.website == "http://www.sunshineyouth.org"
+
+
+# ── Data-cleanup normalizers ─────────────────────────────────────────────────
+
+from openoutreach.signals.market import (  # noqa: E402
+    clean_email, clean_phone, clean_website, clean_zip, compact_amount,
+    smart_title, website_domain,
+)
+
+
+def test_clean_phone():
+    assert clean_phone("4075551234") == "(407) 555-1234"
+    assert clean_phone("407-555-1234") == "(407) 555-1234"
+    assert clean_phone("(407) 555-1234") == "(407) 555-1234"
+    assert clean_phone("14075551234") == "(407) 555-1234"
+    assert clean_phone("+1 407 555 1234") == "(407) 555-1234"
+    assert clean_phone("555-1234") == ""          # too short
+    assert clean_phone("CALL US") == ""           # letters
+    assert clean_phone("") == ""
+    assert clean_phone(None) == ""
+
+
+def test_clean_website():
+    assert clean_website("WWW.EXAMPLE.ORG") == "https://www.example.org"
+    assert clean_website("http://Example.org/Path") == "http://example.org/path"
+    assert clean_website("example.org.") == "https://example.org"
+    assert clean_website("  example.org  ") == "https://example.org"
+    for junk in ("N/A", "NONE", "NA", "WWW", ".", "", None, "nodothere"):
+        assert clean_website(junk) == ""
+    assert clean_website("info@example.org") == ""   # email → caller routes
+    assert clean_website("https://" + "a" * 500 + ".org") == ""  # too long
+    # idempotent
+    assert clean_website("https://www.example.org") == "https://www.example.org"
+
+
+def test_clean_email():
+    assert clean_email("Info@Example.ORG") == "info@example.org"
+    assert clean_email(" info@example.org ") == "info@example.org"
+    assert clean_email("not-an-email") == ""
+    assert clean_email("WWW.EXAMPLE.ORG") == ""
+    assert clean_email(None) == ""
+
+
+def test_clean_zip():
+    assert clean_zip("32334-0092") == "32334-0092"
+    assert clean_zip("32801") == "32801"
+    assert clean_zip("328010000") == "32801"        # zero-padded +4 dropped
+    assert clean_zip("328011234") == "32801-1234"
+    assert clean_zip("garbage") == "garbage"        # unrecoverable → raw
+    assert clean_zip("") == ""
+
+
+def test_smart_title():
+    assert smart_title("SUNSHINE YOUTH ORG INC") == "Sunshine Youth Org Inc"
+    assert smart_title("friends of the library") == "Friends of the Library"
+    assert smart_title("MCDONALD FAMILY FOUNDATION") == "McDonald Family Foundation"
+    assert smart_title("O'BRIEN CHARITABLE TRUST") == "O'Brien Charitable Trust"
+    assert smart_title("YMCA OF CENTRAL FLORIDA") == "YMCA of Central Florida"
+    assert smart_title("VFW POST 4287") == "VFW Post 4287"
+    assert smart_title("AMVETS POST II") == "AMVETS Post II"
+    # Mixed case untouched
+    assert smart_title("Already Nice Name") == "Already Nice Name"
+    assert smart_title("McDonald House") == "McDonald House"
+    # Idempotent
+    once = smart_title("BOYS AND GIRLS CLUB OF TAMPA INC")
+    assert smart_title(once) == once
+    assert smart_title("") == ""
+
+
+def test_compact_amount_and_domain():
+    assert compact_amount(None) == "—"
+    assert compact_amount(0) == "$0"
+    assert compact_amount(950) == "$950"
+    assert compact_amount(1_200_000) == "$1.2M"
+    assert compact_amount(3_000) == "$3K"
+    assert compact_amount(2_000_000_000) == "$2B"
+    assert website_domain("https://www.example.org/about") == "example.org"
+    assert website_domain("") == ""
+
+
+# ── clean_florida_data command ───────────────────────────────────────────────
+
+def test_clean_florida_data_command_idempotent(tmp_path):
+    master, counties = _fixture_csvs(tmp_path)
+    _import(master, counties)
+    org = FloridaOrg.objects.get(record_id="NP-000001")
+    org.name = "SUNSHINE YOUTH ORG INC"
+    org.city = "MIAMI"
+    org.street = "123 MAIN ST"
+    org.principal_officer = "JANE MCDONALD"
+    org.phone = "4075551234"
+    org.website = "WWW.SUNSHINE.ORG"
+    org.contact_email = "Info@Sunshine.ORG"
+    org.zip_code = "331010000"
+    org.save()
+
+    org2 = FloridaOrg.objects.get(record_id="NP-000002")
+    org2.phone = "CALL US"
+    org2.website = "hello@gulfarts.org"   # email in website field
+    org2.contact_email = ""
+    org2.save()
+
+    lead = SalesLead.objects.create(
+        name="Test", phone="8135550000", email="Big@Org.COM",
+    )
+    bad_lead = SalesLead.objects.create(name="Keep", phone="n/a", email="not-an-email")
+
+    call_command("clean_florida_data")
+
+    org.refresh_from_db()
+    assert org.name == "Sunshine Youth Org Inc"
+    assert org.city == "Miami"
+    assert org.street == "123 Main St"
+    assert org.principal_officer == "Jane McDonald"
+    assert org.phone == "(407) 555-1234"
+    assert org.website == "https://www.sunshine.org"
+    assert org.contact_email == "info@sunshine.org"
+    assert org.zip_code == "33101"
+
+    org2.refresh_from_db()
+    assert org2.phone == ""                       # garbage blanked on FloridaOrg
+    assert org2.website == ""                     # moved out of website
+    assert org2.contact_email == "hello@gulfarts.org"
+
+    lead.refresh_from_db()
+    assert lead.phone == "(813) 555-0000"
+    assert lead.email == "big@org.com"
+    bad_lead.refresh_from_db()
+    assert bad_lead.phone == "n/a"                # never blanked on SalesLead
+    assert bad_lead.email == "not-an-email"
+
+    # Second run: zero changes.
+    from openoutreach.signals.management.commands.clean_florida_data import (
+        clean_lead, clean_org,
+    )
+    for o in FloridaOrg.objects.all():
+        assert clean_org(o) == []
+    for l in SalesLead.objects.all():
+        assert clean_lead(l) == []
+
+
+def test_clean_florida_data_dry_run_writes_nothing(tmp_path):
+    master, counties = _fixture_csvs(tmp_path)
+    _import(master, counties)
+    org = FloridaOrg.objects.get(record_id="NP-000001")
+    org.name = "SUNSHINE YOUTH ORG INC"
+    org.save()
+    call_command("clean_florida_data", "--dry-run")
+    org.refresh_from_db()
+    assert org.name == "SUNSHINE YOUTH ORG INC"
+
+
+# ── Service-area facet ───────────────────────────────────────────────────────
+
+from openoutreach.signals.market import derive_service_area  # noqa: E402
+
+
+def test_derive_service_area_ntee_letters():
+    assert derive_service_area("A65", "", "Anything") == "Arts & Culture"
+    assert derive_service_area("B25", "", "X") == "Education"
+    assert derive_service_area("D20", "", "X") == "Environment & Animals"
+    assert derive_service_area("F32", "", "X") == "Health & Mental Health"
+    assert derive_service_area("K31", "", "X") == "Food Security"
+    assert derive_service_area("L41", "", "X") == "Homelessness & Housing"
+    assert derive_service_area("O50", "", "X") == "Youth Development"
+    assert derive_service_area("X20", "", "X") == "Faith-Based"
+    assert derive_service_area("s80", "", "X") == "Community & Civic"  # case-insensitive
+
+
+def test_derive_service_area_name_fallback():
+    assert derive_service_area("", "", "First Baptist Church of Ocala") == "Faith-Based"
+    assert derive_service_area("", "Unknown / unclassified", "VFW Post 4287") == "Veterans"
+    assert derive_service_area("Z99", "", "American Legion Post 12") == "Veterans"
+    assert derive_service_area("", "", "Boys and Girls Club") == "Youth Development"
+    assert derive_service_area("", "", "Community Food Pantry") == "Food Security"
+    assert derive_service_area("", "", "Sunrise Housing Partners") == "Homelessness & Housing"
+    assert derive_service_area("", "", "Riverside Widget Society") == "Unknown"
+
+
+def test_clean_command_populates_service_area_and_filter(tmp_path, client):
+    master, counties = _fixture_csvs(tmp_path)
+    _import(master, counties)
+    call_command("clean_florida_data")
+
+    org = FloridaOrg.objects.get(record_id="NP-000001")  # NTEE O50
+    assert org.service_area == "Youth Development"
+    org2 = FloridaOrg.objects.get(record_id="NP-000002")  # no code, "Gulf Coast Arts"
+    assert org2.service_area == "Arts & Culture"
+
+    _staff_client(client)
+    resp = client.get(
+        reverse("operator-market"), {"serves": "Youth Development"}, HTTP_HOST="localhost"
+    )
+    assert resp.status_code == 200
+    assert b"Sunshine Youth Org" in resp.content
+    assert b"Gulf Coast Arts" not in resp.content

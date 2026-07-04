@@ -188,6 +188,7 @@ class FloridaOrg(models.Model):
     subsection = models.CharField(max_length=10, blank=True, default="")
     ntee_code = models.CharField(max_length=20, blank=True, default="")
     ntee_sector = models.CharField(max_length=120, blank=True, default="", db_index=True)
+    service_area = models.CharField(max_length=60, blank=True, default="", db_index=True)
     ruling_month = models.CharField(max_length=10, blank=True, default="")
     asset_amount = models.BigIntegerField(null=True, blank=True)
     income_amount = models.BigIntegerField(null=True, blank=True)
