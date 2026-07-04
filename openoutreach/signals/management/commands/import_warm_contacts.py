@@ -99,12 +99,19 @@ class Command(BaseCommand):
                     ).first()
 
                 stage = _STAGE_MAP.get((row.get("stage") or "").strip().lower(), SalesLead.Status.NEW)
+                raw_warmth = (row.get("relationship_warmth") or "").strip().lower()
+                warmth = raw_warmth if raw_warmth in {"hot", "warm", "reconnect", "cold"} else ""
+                why_bits = [b.strip() for b in (row.get("why_a_fit", ""), row.get("shared_memory", "")) if b and b.strip()]
                 fields = {
                     "name": name or org,
                     "organization": org,
                     "email": email,
                     "role": (row.get("role") or "").strip()[:200],
                     "source": SalesLead.Source.WARM,
+                    "list_segment": SalesLead.Segment.WARM,
+                    "warmth": warmth,
+                    "focus_area": (row.get("focus_area") or "").strip()[:200],
+                    "why_fit": " — ".join(why_bits),
                     "notes": _build_notes(row),
                     "next_follow_up": _parse_date(row.get("next_touch_date", "")),
                 }
