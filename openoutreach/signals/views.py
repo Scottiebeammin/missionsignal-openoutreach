@@ -5,6 +5,7 @@ import stripe
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from openoutreach.core.access import user_is_project_admin
@@ -476,6 +477,10 @@ def project_organization_workspace(request, pk):
         .select_related("user")
         .order_by("-is_admin", "created_at")
     )
+    # A freshly-minted invite link is shown once (pop from session) so the admin
+    # can copy and send it — the link itself is never persisted.
+    invite_link = request.session.pop("pending_invite_link", "")
+    is_admin = user_is_project_admin(request.user, project)
     return render(
         request,
         "signals/project_organization_workspace.html",
@@ -485,9 +490,42 @@ def project_organization_workspace(request, pk):
             "funding_criteria": funding_criteria,
             "recommended_next_steps": next_steps[:5],
             "members": members,
-            "is_account_admin": user_is_project_admin(request.user, project),
+            "is_account_admin": is_admin,
+            "current_user_id": request.user.pk,
+            "invite_link": invite_link,
         },
     )
+
+
+@login_required
+@require_POST
+def project_invite_teammate(request, pk):
+    """Account admin mints a signed invite link to send to a teammate."""
+    from openoutreach.signals.invites import make_invite_token
+
+    project = client_project(request, pk)
+    if not user_is_project_admin(request.user, project):
+        return HttpResponseForbidden("Only your account admin can invite teammates.")
+    token = make_invite_token(project.pk)
+    request.session["pending_invite_link"] = request.build_absolute_uri(
+        reverse("project-invite", kwargs={"token": token})
+    )
+    return redirect("project-organization", pk=pk)
+
+
+@login_required
+@require_POST
+def project_remove_seat(request, pk, member_id):
+    """Account admin removes a teammate seat (never an admin seat or themselves)."""
+    project = client_project(request, pk)
+    if not user_is_project_admin(request.user, project):
+        return HttpResponseForbidden("Only your account admin can remove teammates.")
+    member = get_object_or_404(OrganizationMember, pk=member_id, project=project)
+    if member.is_admin or member.user_id == request.user.pk:
+        return HttpResponseForbidden("You can't remove an admin seat or yourself.")
+    project.users.remove(member.user)
+    member.delete()
+    return redirect("project-organization", pk=pk)
 
 
 @login_required

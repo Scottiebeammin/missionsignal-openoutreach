@@ -71,7 +71,16 @@
 
     <section class="panel">
       <h2>Team &amp; Seats</h2>
-      <p class="muted">Everyone with access to this workspace. Your account admin manages profile settings like areas of support.</p>
+      <p class="muted">Everyone with access to this workspace. Your account admin manages profile settings and can invite or remove teammates.</p>
+
+      {% if invite_link %}
+        <div style="border:1px solid var(--accent); background:var(--accent-soft); border-radius:8px; padding:12px; margin:10px 0;">
+          <strong>Invite link ready — copy and send it to your teammate.</strong>
+          <p class="muted" style="margin:6px 0 0;">Valid for 14 days. They pick their own password and join this workspace.</p>
+          <input type="text" readonly value="{{ invite_link }}" onclick="this.select()" style="width:100%; margin-top:8px; padding:8px 10px; border:1px solid var(--line); border-radius:6px; font:inherit;">
+        </div>
+      {% endif %}
+
       <ul style="list-style:none; margin:10px 0 0; padding:0; display:grid; gap:8px;">
         {% for member in members %}
           <li style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
@@ -80,11 +89,24 @@
             <span class="muted">{{ member.get_role_display }}</span>
             {% if member.contact_email %}<span class="muted">{{ member.contact_email }}</span>{% endif %}
             {% if member.last_seen_at %}<span class="muted">Last seen {{ member.last_seen_at|date:"M j" }}</span>{% endif %}
+            {% if is_account_admin and not member.is_admin and member.user_id != current_user_id %}
+              <form method="post" action="{% url 'project-remove-seat' project.pk member.pk %}" style="margin:0 0 0 auto;" onsubmit="return confirm('Remove {{ member.contact_name|default:member.user.username|escapejs }} from this workspace?');">
+                {% csrf_token %}
+                <button type="submit" style="min-height:auto; padding:4px 10px; border:1px solid var(--line); border-radius:6px; background:white; color:var(--muted); font-weight:700; cursor:pointer;">Remove</button>
+              </form>
+            {% endif %}
           </li>
         {% empty %}
           <li class="muted">No seats yet.</li>
         {% endfor %}
       </ul>
+
+      {% if is_account_admin %}
+        <form method="post" action="{% url 'project-invite-teammate' project.pk %}" style="margin-top:12px;">
+          {% csrf_token %}
+          <button type="submit" style="min-height:36px; padding:8px 12px; border:1px solid var(--accent); border-radius:6px; background:var(--accent); color:white; font-weight:800; cursor:pointer;">Invite a teammate</button>
+        </form>
+      {% endif %}
     </section>
 
     <section class="panel">
