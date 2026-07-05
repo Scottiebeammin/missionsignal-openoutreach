@@ -64,11 +64,13 @@
     },
     {
       "parameters": {
-        "fromEmail": "info@anansiatlas.com",
+        "fromEmail": "mail@anansiatlas.com",
         "toEmail": "info@anansiatlas.com",
         "subject": "=Outreach drafts {{ $json.date }} \u2014 {{ $json.batch_size }} ready for approval ({{ $json.remaining_after }} left in queue)",
         "text": "={{ $json.digest }}",
-        "options": {}
+        "options": {
+          "replyTo": "info@anansiatlas.com"
+        }
       },
       "id": "send-digest",
       "name": "Email digest to Marcus (approve \u2192 send)",

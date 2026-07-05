@@ -174,6 +174,10 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/portal/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
+# SMTP backend that stamps Reply-To (info@) on every message while mail sends
+# FROM the dedicated DKIM-signed sending mailbox (DEFAULT_FROM_EMAIL, mail@).
+# Overridable via EMAIL_BACKEND env (e.g. console backend for local dev).
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "openoutreach.core.email.ReplyToSMTPBackend")
 EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "25"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
