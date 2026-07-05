@@ -80,6 +80,33 @@ class FoundationMatch:
     tracked_opportunity_id: int | None = None
 
 
+# Rough "a grant this size could be us" target by annual budget. Foundation
+# grants to a nonprofit typically land well under its annual budget; these
+# targets center the band so the receipts panel leads with relatable grants
+# instead of $2M university gifts. Keys match Organization.budget_range values
+# (freeform across intake versions — matched case/space-insensitively).
+_BUDGET_TARGET = [
+    ("5m", 1_000_000),
+    ("1m - 5m", 400_000),
+    ("1m-5m", 400_000),
+    ("250k - 1m", 100_000),
+    ("250k-1m", 100_000),
+    ("under_250k", 25_000),
+    ("under $250k", 25_000),
+    ("250k", 25_000),
+]
+
+
+def budget_target_amount(budget_range: str) -> int | None:
+    key = (budget_range or "").strip().casefold()
+    if not key:
+        return None
+    for needle, target in _BUDGET_TARGET:
+        if needle in key:
+            return target
+    return None
+
+
 @dataclass
 class GrantReceipt:
     filer_name: str
@@ -98,13 +125,15 @@ class FoundationOverview:
     receipt_foundation_count: int
     service_areas: list[str]
     county: str
+    sort: str = "fit"           # "fit" (grants your size) | "largest"
+    fit_available: bool = False  # a budget target exists, so the toggle is meaningful
 
 
 def _money(amount) -> str:
     return f"${amount:,.0f}" if amount else ""
 
 
-def build_foundation_overview(project, *, limit=12, grants_limit=15) -> FoundationOverview:
+def build_foundation_overview(project, *, limit=12, grants_limit=15, sort="fit") -> FoundationOverview:
     organization = project.organization
     focus_terms = [str(a) for a in (organization.focus_areas or [])]
     base = exclude_demo(Funder.objects.filter(active=True, funder_type__in=FOUNDATION_TYPES))
@@ -150,7 +179,6 @@ def build_foundation_overview(project, *, limit=12, grants_limit=15) -> Foundati
         grants = (
             FoundationGrantPaid.objects.filter(recipient_name__in=name_variants)
             .exclude(amount=None)
-            .order_by("-amount")
         )
         from django.db.models import Sum
 
@@ -158,6 +186,18 @@ def build_foundation_overview(project, *, limit=12, grants_limit=15) -> Foundati
         totals = grants.aggregate(total=Sum("amount"))
         receipt_total = totals["total"] or 0
         foundation_count = grants.values("filer_ein").distinct().count()
+
+        target = budget_target_amount(organization.budget_range)
+        fit_available = target is not None
+        if sort == "fit" and target:
+            # Lead with grants closest to what an org this size actually receives,
+            # not the biggest institutional gifts. Bounded window kept in python.
+            window = list(grants.order_by("-amount")[:400])
+            window.sort(key=lambda g: abs((g.amount or 0) - target))
+            shown = window[:grants_limit]
+        else:
+            sort = "largest"
+            shown = list(grants.order_by("-amount")[:grants_limit])
         receipts = [
             GrantReceipt(
                 filer_name=g.filer_name.title(),
@@ -166,7 +206,7 @@ def build_foundation_overview(project, *, limit=12, grants_limit=15) -> Foundati
                 tax_year=g.tax_year,
                 purpose=(g.purpose or "")[:140],
             )
-            for g in grants[:grants_limit]
+            for g in shown
         ]
 
     return FoundationOverview(
@@ -177,4 +217,6 @@ def build_foundation_overview(project, *, limit=12, grants_limit=15) -> Foundati
         receipt_foundation_count=foundation_count,
         service_areas=service_areas,
         county=county,
+        sort=sort if sort in ("fit", "largest") else "fit",
+        fit_available=fit_available,
     )

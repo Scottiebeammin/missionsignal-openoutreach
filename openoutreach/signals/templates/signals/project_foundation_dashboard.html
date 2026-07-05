@@ -97,9 +97,22 @@
     </section>
 
     <section class="panel">
-      <h2>Foundations Funding Organizations Like Yours</h2>
+      <div style="display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px;">
+        <h2 style="margin:0;">Foundations Funding Organizations Like Yours</h2>
+        {% if overview.fit_available and overview.receipts %}
+          <div style="font-size:.85rem; font-weight:800;">
+            {% if overview.sort == "fit" %}
+              <span style="color:var(--gold);">Grants your size</span> ·
+              <a href="?sort=largest" style="color:var(--muted);">Largest grants</a>
+            {% else %}
+              <a href="?sort=fit" style="color:var(--muted);">Grants your size</a> ·
+              <span style="color:var(--gold);">Largest grants</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
       {% if overview.receipts %}
-        <p class="muted">Actual grants reported on IRS 990-PF filings to {% if overview.county %}{{ overview.county }} County {% endif %}organizations in your service areas ({{ overview.service_areas|join:", " }}). Exact-name matches only — a floor, not a ceiling.</p>
+        <p class="muted">Actual grants reported on IRS 990-PF filings to {% if overview.county %}{{ overview.county }} County {% endif %}organizations in your service areas ({{ overview.service_areas|join:", " }}).{% if overview.sort == "fit" and overview.fit_available %} Showing grants closest to your organization's size first.{% endif %} Exact-name matches only — a floor, not a ceiling.</p>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Foundation</th><th>Gave To</th><th>Amount</th><th>Year</th><th>Purpose</th></tr></thead>

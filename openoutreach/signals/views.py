@@ -328,7 +328,8 @@ def project_foundation_dashboard(request, pk):
     from openoutreach.signals.foundations import build_foundation_overview
 
     project = client_project(request, pk)
-    overview = build_foundation_overview(project)
+    sort = request.GET.get("sort", "fit")
+    overview = build_foundation_overview(project, sort=sort)
     return render(
         request,
         "signals/project_foundation_dashboard.html",

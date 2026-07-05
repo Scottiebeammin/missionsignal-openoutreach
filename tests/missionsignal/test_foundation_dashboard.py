@@ -78,6 +78,33 @@ def test_receipts_panel_shows_grants_to_orgs_like_yours(client, workspace):
     assert "$25,000" in content
 
 
+def test_receipts_fit_sort_leads_with_budget_sized_grants(client, workspace):
+    user, organization, project = workspace
+    organization.budget_range = "under_250k"  # target ≈ $25k
+    organization.save(update_fields=["budget_range"])
+    from openoutreach.signals.models import FloridaOrg
+    FloridaOrg.objects.create(
+        record_id="fl-fit-1", name="PEER YOUTH ORG", county="Orange",
+        state="FL", service_area="Youth Development",
+    )
+    common = dict(recipient_name="PEER YOUTH ORG", recipient_state="FL", tax_year=2025,
+                  source_url="https://apps.irs.gov/x.zip")
+    FoundationGrantPaid.objects.create(filer_ein="1", filer_name="BIG UNIVERSITY FUND",
+                                       amount=3_000_000, dedup_key="k-big", **common)
+    FoundationGrantPaid.objects.create(filer_ein="2", filer_name="LOCAL FAMILY FUND",
+                                       amount=22_000, dedup_key="k-fit", **common)
+    client.force_login(user)
+
+    # Default (fit): the $22k relatable grant leads, not the $3M gift.
+    fit = client.get(reverse("project-foundations", kwargs={"pk": project.pk})).content.decode()
+    assert fit.index("Local Family Fund") < fit.index("Big University Fund")
+    assert "Grants your size" in fit
+
+    # ?sort=largest: the $3M gift leads.
+    largest = client.get(reverse("project-foundations", kwargs={"pk": project.pk}) + "?sort=largest").content.decode()
+    assert largest.index("Big University Fund") < largest.index("Local Family Fund")
+
+
 def test_pursue_creates_pipeline_opportunity_once(client, workspace, derived_foundation):
     user, _organization, project = workspace
     client.force_login(user)
