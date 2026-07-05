@@ -174,3 +174,69 @@ services:
           property: connectionString
       - key: ALLOWED_HOSTS
         value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"
+
+  # ── Monthly grants refresh ──
+  # Re-pulls Grants.gov for every active project (geo/eligibility-aware ingestion),
+  # then emails owners any new matches + upcoming deadlines. Idempotent upserts.
+  - type: cron
+    name: anansi-monthly-grants
+    runtime: python
+    region: virginia
+    plan: starter
+    branch: main
+    schedule: "0 11 2 * *"   # 2nd of each month, 11:00 UTC
+    buildCommand: "pip install -r requirements/web.txt"
+    startCommand: "python manage.py pull_grants_gov --all && python manage.py send_opportunity_alerts"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: anansi-atlas-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_USE_TLS
+        sync: false
+      - key: EMAIL_USE_SSL
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+
+  # ── Quarterly foundation refresh (990-PF) ──
+  # Current filing year only (bounded runtime); FoundationGrantPaid dedup makes
+  # reruns idempotent, so a timeout just means the next quarter catches up.
+  - type: cron
+    name: anansi-quarterly-foundations
+    runtime: python
+    region: virginia
+    plan: starter
+    branch: main
+    schedule: "0 9 3 1,4,7,10 *"   # 3rd of Jan/Apr/Jul/Oct, 09:00 UTC
+    buildCommand: "pip install -r requirements/web.txt"
+    startCommand: "python manage.py pull_990pf_grants --years 2026 --derive-funders --no-resume"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: anansi-atlas-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"
