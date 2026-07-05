@@ -31,3 +31,4 @@ data/florida-crm-staging/
 # The portable Florida market snapshot IS committed (production data transfer)
 !data/florida-market-snapshot.csv.gz
 !data/florida-county-rollout-snapshot.csv
+!data/foundation-grants-snapshot.csv.gz
