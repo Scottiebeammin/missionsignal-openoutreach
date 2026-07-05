@@ -34,11 +34,6 @@ Behavior (mirrors enrich_florida_contacts conventions):
 
 import json
 import re
-import shutil
-import subprocess
-import tempfile
-import urllib.error
-import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
@@ -46,14 +41,11 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
+from openoutreach.funding.irs_xml import (
+    BASE_URL, BUNDLE_SUFFIXES, download_bundle, iter_zip_xml_members,
+)
 from openoutreach.signals.models import FloridaOrg
 
-BASE_URL = "https://apps.irs.gov/pub/epostcard/990/xml"
-# Known monthly bundle suffixes; missing/empty ones are skipped after a HEAD probe.
-BUNDLE_SUFFIXES = [
-    "01A", "02A", "03A", "04A", "05A", "05B", "06A", "07A", "08A",
-    "09A", "10A", "11A", "11B", "11C", "12A",
-]
 DEFAULT_YEARS = "2026,2025,2024"
 SOURCE_PREFIX = "irs-990-xml-"
 PROGRESS_FILE = "fetch_990_progress.json"
@@ -291,80 +283,22 @@ class Command(BaseCommand):
 
     def _download(self, url, dest):
         """Download url -> dest. Returns False if missing/empty (skippable)."""
-        self.stdout.write(f"Downloading {url} ...")
-        tmp = dest.with_suffix(".part")
-        req = urllib.request.Request(url, headers={
-            "User-Agent": "AnansiAtlas-research/1.0 (nonprofit contact enrichment)"})
-        try:
-            with urllib.request.urlopen(req, timeout=120) as resp, open(tmp, "wb") as fh:  # noqa: S310
-                while True:
-                    chunk = resp.read(1 << 20)
-                    if not chunk:
-                        break
-                    fh.write(chunk)
-        except urllib.error.HTTPError as exc:
-            if exc.code == 404:
-                return False
-            raise
-        if tmp.stat().st_size == 0 or not zipfile.is_zipfile(tmp):
-            tmp.unlink()  # empty/placeholder bundle (or an HTML error page)
-            return False
-        tmp.rename(dest)
-        return True
+        return download_bundle(url, dest, log=self.stdout.write)
 
     def _iter_xml_members(self, zip_path, ein_to_pks):
         """Yield raw XML bytes for members whose Filer EIN is a FloridaOrg EIN.
 
-        Streams via zipfile when possible; IRS bundles that use Deflate64
-        (compress_type 9, unsupported by Python's zipfile) are extracted with
-        the system `unzip` (Info-ZIP 6.0 supports Deflate64) to a temp dir.
+        Shared streaming machinery lives in ``funding/irs_xml.py``; this wraps
+        it with a head-bytes EIN prefilter so only FloridaOrg returns are read.
         """
-        try:
-            zf = zipfile.ZipFile(zip_path)
-        except zipfile.BadZipFile:
-            # Truncated/corrupt bundle (partial download or IRS HTML error page
-            # that slipped past the download check) — skip it; the caller marks
-            # it processed so resume doesn't crash-loop on the same file.
-            self.stderr.write(f"  ! bad zip, skipping: {zip_path.name}")
-            return
-        with zf:
-            deflate64 = any(i.compress_type not in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED)
-                            for i in zf.infolist())
-            if not deflate64:
-                for info in zf.infolist():
-                    if not info.filename.lower().endswith(".xml"):
-                        continue
-                    with zf.open(info) as fh:
-                        head = fh.read(4096)
-                        m = _EIN_RE.search(head)
-                        if not m or norm_ein(m.group(1).decode()) not in ein_to_pks:
-                            continue
-                        yield head + fh.read()
-                return
-        tmp = Path(tempfile.mkdtemp(prefix="irs990_", dir=zip_path.parent))
-        try:
-            # IRS bundles have a quirky central directory ("-76 bytes too
-            # long"); unzip extracts everything but exits 1-3 with warnings,
-            # so judge success by what landed on disk, not the exit code.
-            result = subprocess.run(  # noqa: S603
-                ["unzip", "-q", "-o", str(zip_path), "-d", str(tmp)],
-                capture_output=True, text=True)
-            xml_files = [p for p in tmp.rglob("*")
-                         if p.is_file() and p.suffix.lower() == ".xml"]
-            if not xml_files:
-                raise CommandError(
-                    f"unzip failed on {zip_path} (exit {result.returncode}): "
-                    f"{result.stderr[-500:]}"
-                )
-            for path in xml_files:
-                with open(path, "rb") as fh:
-                    head = fh.read(4096)
-                    m = _EIN_RE.search(head)
-                    if not m or norm_ein(m.group(1).decode()) not in ein_to_pks:
-                        continue
-                    yield head + fh.read()
-        finally:
-            shutil.rmtree(tmp, ignore_errors=True)
+
+        def _is_florida_org(head):
+            m = _EIN_RE.search(head)
+            return bool(m) and norm_ein(m.group(1).decode()) in ein_to_pks
+
+        yield from iter_zip_xml_members(
+            zip_path, head_filter=_is_florida_org, log=self.stderr.write,
+        )
 
     def _process_zip(self, zip_path, ein_to_pks, tier_eins, applied_years,
                      tier_updated, *, force):

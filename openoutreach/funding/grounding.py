@@ -18,6 +18,7 @@ Nothing reaches the Opportunity table without passing through `ingest_verified_o
 """
 import re
 import urllib.error
+import urllib.parse
 import urllib.request
 
 from django.utils import timezone
@@ -37,7 +38,13 @@ VERIFIED = "verified"   # real URL that responded
 
 
 def is_reserved_domain(url: str) -> bool:
-    return bool(url) and bool(_RESERVED_RE.search(url))
+    if not url:
+        return False
+    # Test the parsed HOSTNAME, not the raw string: in "https://example.org" the
+    # host is preceded by "//" (not ^ or "."), which used to slip the regex.
+    parsed = urllib.parse.urlsplit(url if "://" in url else f"http://{url}")
+    host = parsed.hostname or url
+    return bool(_RESERVED_RE.search(host))
 
 
 def is_reachable(url: str, timeout: int = 8) -> bool:

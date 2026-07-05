@@ -1,3 +1,5 @@
+import re
+
 from django.conf import settings
 from django.db import models
 
@@ -579,6 +581,88 @@ class OpportunityDocumentRequirement(models.Model):
 
     def __str__(self):
         return self.title
+
+
+# Trailing corporate suffixes stripped when joining IRS recipient names to
+# FloridaOrg names (both sides are normalized the same way; punctuation is
+# already gone by the time this runs).
+_ORG_NAME_SUFFIXES = re.compile(r"\b(incorporated|inc|corporation|corp|co|ltd|llc)$")
+
+
+class FoundationGrantPaid(models.Model):
+    """One grant a private foundation reported paying on its IRS 990-PF (Part XV).
+
+    Grounded discovery Layer 1: every row traces to an authoritative IRS e-file
+    XML bundle (``source_url``), so foundation-grant intelligence cannot be a
+    hallucination. Rows are ingested by ``manage.py pull_990pf_grants`` and kept
+    only when Florida-relevant (FL filer or FL recipient). ``dedup_key`` is the
+    sha256 of (filer_ein, tax_year, recipient_name.lower(), amount) — re-pulls
+    skip existing rows instead of duplicating.
+    """
+
+    filer_ein = models.CharField(max_length=9, db_index=True)
+    filer_name = models.CharField(max_length=500, blank=True, default="")
+    filer_city = models.CharField(max_length=120, blank=True, default="")
+    filer_state = models.CharField(max_length=2, blank=True, default="", db_index=True)
+    recipient_name = models.CharField(max_length=500, blank=True, default="", db_index=True)
+    recipient_ein = models.CharField(max_length=9, blank=True, default="", db_index=True)
+    recipient_city = models.CharField(max_length=120, blank=True, default="")
+    recipient_state = models.CharField(max_length=2, blank=True, default="", db_index=True)
+    amount = models.BigIntegerField(null=True, blank=True)
+    purpose = models.TextField(blank=True, default="")
+    tax_year = models.CharField(max_length=4, blank=True, default="", db_index=True)
+    # The IRS e-file XML bundle this grant was parsed out of.
+    source_url = models.URLField(max_length=500, blank=True, default="")
+    dedup_key = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["filer_ein", "tax_year"], name="funding_fgp_filer_year_idx"),
+        ]
+        verbose_name = "Foundation grant paid"
+        verbose_name_plural = "Foundation grants paid"
+
+    def __str__(self):
+        return f"{self.filer_name} -> {self.recipient_name} (${self.amount or 0:,}, {self.tax_year})"
+
+    @staticmethod
+    def normalize_org_name(value):
+        """Casefold + strip punctuation/suffixes so IRS names join FloridaOrg names.
+
+        'SUNSHINE YOUTH ORG, INC.' and 'Sunshine Youth Org' both normalize to
+        'sunshine youth org'.
+        """
+        value = re.sub(r"[^a-z0-9& ]+", " ", (value or "").casefold())
+        value = re.sub(r"\s+", " ", value).strip()
+        value = re.sub(r"^the\s+", "", value)
+        while True:
+            stripped = _ORG_NAME_SUFFIXES.sub("", value).strip()
+            if stripped == value:
+                return value
+            value = stripped
+
+    @classmethod
+    def grants_to_orgs_like(cls, service_area, county=None):
+        """Grants whose recipient matches a FloridaOrg with the given service area.
+
+        Joins normalized-casefold recipient names to FloridaOrg names — powers
+        "foundations that fund orgs like yours". Returns a chainable queryset.
+        """
+        from openoutreach.signals.models import FloridaOrg
+
+        orgs = FloridaOrg.objects.filter(service_area=service_area)
+        if county:
+            orgs = orgs.filter(county=county)
+        targets = {cls.normalize_org_name(name) for name in orgs.values_list("name", flat=True)}
+        targets.discard("")
+        if not targets:
+            return cls.objects.none()
+        pks = [
+            pk for pk, name in cls.objects.values_list("pk", "recipient_name")
+            if cls.normalize_org_name(name) in targets
+        ]
+        return cls.objects.filter(pk__in=pks)
 
 
 class FundingOpportunity(models.Model):
