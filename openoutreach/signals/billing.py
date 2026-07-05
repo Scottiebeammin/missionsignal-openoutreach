@@ -33,7 +33,7 @@ from django.views.decorators.http import require_POST
 
 from openoutreach.core.access import founding_partners_group
 from openoutreach.signals.models import InterestSignup, SalesLead
-from openoutreach.signals.notifications import ANANSI_ATLAS_OPERATOR_EMAIL
+from openoutreach.signals.notifications import OPERATOR_RECIPIENTS
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +132,7 @@ def _notify_operator_seat(email: str, full_name: str, user, created: bool, signu
             subject=f"🎉 Founding seat purchased — {full_name or email}",
             message=body,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[ANANSI_ATLAS_OPERATOR_EMAIL],
+            recipient_list=OPERATOR_RECIPIENTS,
             fail_silently=False,
         )
     except Exception:

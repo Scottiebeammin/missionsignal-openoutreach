@@ -12,7 +12,7 @@ import os
 
 from django.core.mail.backends.smtp import EmailBackend as _SMTPBackend
 
-DEFAULT_REPLY_TO = "info@anansiatlas.com"
+DEFAULT_REPLY_TO = "marcus@anansiatlas.com"
 
 
 def reply_to_address() -> str:

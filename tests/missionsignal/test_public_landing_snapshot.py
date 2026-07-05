@@ -103,7 +103,7 @@ def test_interest_signup_form_submission_stores_local_record_and_sends_emails(cl
     # Operator notification + signer confirmation.
     assert len(mail.outbox) == 2
     notification, confirmation = mail.outbox
-    assert notification.to == ["info@anansiatlas.com"]
+    assert notification.to == ["info@anansiatlas.com", "marcus@anansiatlas.com"]
     assert notification.subject == "New Anansi Atlas interest signup"
     assert "Name: Jordan Lee" in notification.body
     assert "Organization: Mission Works" in notification.body

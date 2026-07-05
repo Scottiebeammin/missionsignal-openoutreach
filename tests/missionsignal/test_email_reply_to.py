@@ -9,8 +9,8 @@ from django.core.mail import EmailMessage
 from openoutreach.core.email import apply_default_reply_to, reply_to_address
 
 
-def test_default_reply_to_is_info():
-    assert reply_to_address() == "info@anansiatlas.com"
+def test_default_reply_to_is_marcus():
+    assert reply_to_address() == "marcus@anansiatlas.com"
 
 
 def test_reply_to_env_override():
@@ -23,7 +23,7 @@ def test_stamps_reply_to_when_absent():
                        to=["client@org.org"])
     assert not msg.reply_to
     apply_default_reply_to([msg])
-    assert msg.reply_to == ["info@anansiatlas.com"]
+    assert msg.reply_to == ["marcus@anansiatlas.com"]
 
 
 def test_does_not_override_explicit_reply_to():
@@ -41,4 +41,4 @@ def test_platform_email_sends_from_mail_and_replies_to_info(settings):
     msg = EM(subject="Welcome", body="hi", to=["client@org.org"])
     apply_default_reply_to([msg])
     assert msg.from_email == "mail@anansiatlas.com" or msg.from_email is None  # None -> DEFAULT at send
-    assert msg.reply_to == ["info@anansiatlas.com"]
+    assert msg.reply_to == ["marcus@anansiatlas.com"]

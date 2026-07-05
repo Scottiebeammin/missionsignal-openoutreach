@@ -50,7 +50,8 @@ def test_checkout_provisions_user_and_converts_signup(mailoutbox):
     assert len(mailoutbox) == 2
     welcome = next(m for m in mailoutbox if m.to == ["buyer@nonprofit.org"])
     assert "/accounts/reset/" in welcome.body
-    operator = next(m for m in mailoutbox if m.to == ["info@anansiatlas.com"])
+    operator = next(m for m in mailoutbox if "info@anansiatlas.com" in m.to)
+    assert operator.to == ["info@anansiatlas.com", "marcus@anansiatlas.com"]
     assert "FOUNDING SEAT" in operator.body
 
 

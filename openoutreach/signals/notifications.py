@@ -7,6 +7,10 @@ from django.core.mail import send_mail
 from openoutreach.signals.models import InterestSignup
 
 ANANSI_ATLAS_OPERATOR_EMAIL = "info@anansiatlas.com"
+MARCUS_EMAIL = "marcus@anansiatlas.com"
+# Operator alerts (new signups, questions, completed intakes) go to the shared
+# inbox AND Marcus's personal inbox so nothing waits unseen.
+OPERATOR_RECIPIENTS = [ANANSI_ATLAS_OPERATOR_EMAIL, MARCUS_EMAIL]
 
 
 def scheduling_url() -> str:
@@ -15,8 +19,6 @@ def scheduling_url() -> str:
     return os.getenv("SCHEDULING_URL", "")
 
 logger = logging.getLogger(__name__)
-
-ANANSI_ATLAS_SIGNUP_NOTIFICATION_RECIPIENT = ANANSI_ATLAS_OPERATOR_EMAIL
 
 
 def build_interest_signup_notification(signup: InterestSignup) -> str:
@@ -48,7 +50,7 @@ def notify_interest_signup(signup: InterestSignup) -> bool:
             subject=subject,
             message=build_interest_signup_notification(signup),
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[ANANSI_ATLAS_SIGNUP_NOTIFICATION_RECIPIENT],
+            recipient_list=OPERATOR_RECIPIENTS,
             fail_silently=False,
         )
     except Exception:
@@ -359,7 +361,7 @@ def notify_new_intake(user, project) -> bool:
             subject=f"New intake: {org.name}",
             message=body,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[ANANSI_ATLAS_OPERATOR_EMAIL],
+            recipient_list=OPERATOR_RECIPIENTS,
             fail_silently=False,
         )
     except Exception:
