@@ -1,9 +1,16 @@
+"""Auth surface: signup form, login/logout, and the portal router.
+
+The portal is a pure router now (no rendered page of its own): staff go to
+Django admin, unverified accounts hit the activation paywall, verified users
+without a project go to intake, first-time members get the snapshot tour, and
+everyone else lands on their project dashboard. Rendered-content assertions
+live with the pages that render (dashboard/snapshot tests).
+"""
 import pytest
 from django.contrib.auth.models import User
 from django.urls import reverse
 
 from openoutreach.core.models import Organization, OrganizationMember, Project
-from openoutreach.signals.models import PilotProfile
 
 
 pytestmark = pytest.mark.django_db
@@ -22,24 +29,22 @@ def _make_project(user, org_name="Test Org"):
     return project
 
 
+SIGNUP = {
+    "first_name": "New", "last_name": "User", "email": "newuser@example.org",
+    "password1": "Str0ngPass!xyz", "password2": "Str0ngPass!xyz",
+}
+
+
 # ── Signup ────────────────────────────────────────────────────────────────────
 
 def test_signup_creates_user(client):
-    response = client.post(reverse("signup"), {
-        "username": "newuser",
-        "password1": "Str0ngPass!xyz",
-        "password2": "Str0ngPass!xyz",
-    })
-    assert User.objects.filter(username="newuser").exists()
+    response = client.post(reverse("signup"), SIGNUP)
+    assert User.objects.filter(email="newuser@example.org").exists()
     assert response.status_code == 302
 
 
 def test_signup_redirects_to_portal(client):
-    response = client.post(reverse("signup"), {
-        "username": "newuser2",
-        "password1": "Str0ngPass!xyz",
-        "password2": "Str0ngPass!xyz",
-    })
+    response = client.post(reverse("signup"), SIGNUP)
     assert response["Location"] == "/portal/"
 
 
@@ -66,7 +71,7 @@ def test_logout_clears_session(client):
     assert "/accounts/login/" in response["Location"]
 
 
-# ── Portal access ─────────────────────────────────────────────────────────────
+# ── Portal router ─────────────────────────────────────────────────────────────
 
 def test_unauthenticated_portal_redirects_to_login(client):
     response = client.get(reverse("portal"))
@@ -74,85 +79,54 @@ def test_unauthenticated_portal_redirects_to_login(client):
     assert response["Location"].startswith("/accounts/login/")
 
 
-def test_portal_renders_for_authenticated_user(client):
+def test_staff_routed_to_admin(client):
+    user = _make_user("staffer")
+    user.is_staff = True
+    user.save()
+    client.force_login(user)
+    response = client.get(reverse("portal"))
+    assert response.status_code == 302
+    assert response["Location"] == "/admin/"
+
+
+def test_unverified_user_without_project_hits_paywall(client):
     user = _make_user()
     client.force_login(user)
     response = client.get(reverse("portal"))
-    assert response.status_code == 200
+    assert response.status_code == 302
+    assert response["Location"] == reverse("account-activate")
 
 
-def test_portal_shows_empty_state_when_no_project(client):
+def test_first_time_member_routed_to_snapshot_tour(client):
     user = _make_user()
+    project = _make_project(user)
+    OrganizationMember.objects.create(user=user, project=project)  # has_toured=False
     client.force_login(user)
     response = client.get(reverse("portal"))
-    assert b"being set up" in response.content
+    assert response.status_code == 302
+    assert response["Location"] == reverse("project-snapshot", kwargs={"pk": project.pk})
 
 
-def test_portal_shows_org_name_when_project_linked(client):
+def test_toured_member_routed_to_own_dashboard(client):
     user = _make_user()
-    _make_project(user, "Empowered Girls Inc")
+    project = _make_project(user)
+    OrganizationMember.objects.create(user=user, project=project, has_toured=True)
     client.force_login(user)
     response = client.get(reverse("portal"))
-    assert b"Empowered Girls Inc" in response.content
+    assert response.status_code == 302
+    assert response["Location"] == reverse("project-dashboard", kwargs={"pk": project.pk})
 
 
-# ── Data isolation ────────────────────────────────────────────────────────────
-
-def test_user_cannot_see_another_orgs_portal(client):
+def test_member_routed_to_own_project_not_another_orgs(client):
     user_a = _make_user("user_a", "testpass123")
     user_b = _make_user("user_b", "testpass123")
-    _make_project(user_a, "Org A")
-    _make_project(user_b, "Org B")
+    project_a = _make_project(user_a, "Org A")
+    project_b = _make_project(user_b, "Org B")
 
     client.force_login(user_a)
     response = client.get(reverse("portal"))
-    assert b"Org A" in response.content
-    assert b"Org B" not in response.content
-
-
-# ── Pilot status ──────────────────────────────────────────────────────────────
-
-def test_portal_shows_pilot_status(client):
-    user = _make_user()
-    project = _make_project(user)
-    PilotProfile.objects.create(
-        project=project,
-        organization_name=project.organization.name,
-        lifecycle_status=PilotProfile.LifecycleStatus.SNAPSHOT_IN_PROGRESS,
-        snapshot_status=PilotProfile.SnapshotStatus.BUILDING_SNAPSHOT,
-    )
-    client.force_login(user)
-    response = client.get(reverse("portal"))
-    assert response.status_code == 200
-    assert b"being built" in response.content
-
-
-def test_portal_shows_snapshot_link_when_delivered(client):
-    user = _make_user()
-    project = _make_project(user)
-    PilotProfile.objects.create(
-        project=project,
-        organization_name=project.organization.name,
-        lifecycle_status=PilotProfile.LifecycleStatus.SNAPSHOT_DELIVERED,
-        snapshot_status=PilotProfile.SnapshotStatus.DELIVERED,
-    )
-    client.force_login(user)
-    response = client.get(reverse("portal"))
-    assert b"View Snapshot" in response.content or b"Open Snapshot" in response.content
-
-
-def test_portal_shows_placeholder_when_snapshot_not_delivered(client):
-    user = _make_user()
-    project = _make_project(user)
-    PilotProfile.objects.create(
-        project=project,
-        organization_name=project.organization.name,
-        lifecycle_status=PilotProfile.LifecycleStatus.SNAPSHOT_IN_PROGRESS,
-        snapshot_status=PilotProfile.SnapshotStatus.BUILDING_SNAPSHOT,
-    )
-    client.force_login(user)
-    response = client.get(reverse("portal"))
-    assert b"Available after delivery" in response.content
+    assert response["Location"].endswith(f"/projects/{project_a.pk}/dashboard/")
+    assert f"/projects/{project_b.pk}/" not in response["Location"]
 
 
 # ── OrganizationMember ────────────────────────────────────────────────────────

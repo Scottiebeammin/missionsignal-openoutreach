@@ -2,6 +2,7 @@ pydantic
 pydantic-ai-slim[openai,anthropic,google,groq,mistral,cohere]
 griffe>=1,<2
 jsonpath-ng
+httpx
 pandas
 jinja2
 termcolor

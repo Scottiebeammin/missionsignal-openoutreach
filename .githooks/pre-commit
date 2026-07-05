@@ -1,11 +1,11 @@
 #!/bin/sh
 # Block commits that contain likely secrets (API keys, tokens, private keys).
 # Bypass for a one-off with: git commit --no-verify  (use only when you're sure).
-PATTERN='sk-ant-[A-Za-z0-9_-]{20}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+PATTERN='sk-ant-[A-Za-z0-9_-]{20}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|sk_live_[A-Za-z0-9]{20,}|rk_live_[A-Za-z0-9]{20,}|whsec_[A-Za-z0-9]{24,}|AIza[A-Za-z0-9_-]{30,}|ya29\.[A-Za-z0-9_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
 HITS=$(git diff --cached -U0 --no-color | grep -nE "$PATTERN")
 if [ -n "$HITS" ]; then
   echo "❌ Commit blocked — a secret-like value was found in staged changes:"
-  echo "$HITS" | sed -E 's/(sk-ant-|ghp_|github_pat_|AKIA|xox.-)[A-Za-z0-9_-]+/\1***REDACTED***/g' | head
+  echo "$HITS" | sed -E 's/(sk-ant-|ghp_|github_pat_|AKIA|xox.-|sk_live_|rk_live_|whsec_|AIza|ya29\.)[A-Za-z0-9_.-]+/\1***REDACTED***/g' | head
   echo ""
   echo "   Secrets must NOT be committed. Put them in SiteConfig (Django admin) or env vars."
   echo "   If this value is already exposed, ROTATE it at the source immediately."

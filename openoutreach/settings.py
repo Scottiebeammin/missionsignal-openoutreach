@@ -77,6 +77,16 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = False
     SECURE_REFERRER_POLICY = "same-origin"
 
+# Password strength — enforced wherever validate_password runs (public signup,
+# invite accept, admin password forms). Without this list validate_password is
+# a no-op and one-character passwords pass.
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 10}},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
+
 INSTALLED_APPS = [
     "unfold",
     "unfold.contrib.filters",

@@ -228,3 +228,84 @@ def test_research_org_is_not_penalized(db):
     )
     match = score_inventory_opportunity(project, opportunity)
     assert match.research_penalty == 0
+
+
+# --- Two-tier funder pool (990-PF derived prefilter + cap) ---------------------
+
+def test_derived_funder_pool_prefilters_and_caps(db):
+    from openoutreach.signals.matching import DERIVED_FUNDER_SCORING_CAP, funder_matching_pool
+
+    curated_off_topic = Funder.objects.create(
+        name="Curated Opera Trust",
+        funder_type=Funder.FunderType.OTHER,
+        focus_areas=["Opera"],
+        geography=["Vermont"],
+    )
+    # More on-focus derived foundations than the per-request scoring cap.
+    Funder.objects.bulk_create([
+        Funder(
+            name=f"Derived Youth Foundation {i:04d}",
+            funder_type=Funder.FunderType.FAMILY_FOUNDATION,
+            focus_areas=["Youth Development"],
+            is_derived=True,
+            grant_count=i,
+            grants_total_amount=1_000 * i,
+        )
+        for i in range(DERIVED_FUNDER_SCORING_CAP + 5)
+    ])
+    # A derived funder with no focus overlap is prefiltered out entirely,
+    # no matter how large its giving history.
+    Funder.objects.create(
+        name="Derived Maritime Museum Fund",
+        funder_type=Funder.FunderType.FAMILY_FOUNDATION,
+        focus_areas=["Maritime History"],
+        is_derived=True,
+        grant_count=10_000,
+    )
+
+    pool = funder_matching_pool(["Youth Development"])
+    names = {funder.name for funder in pool}
+    derived_in_pool = [funder for funder in pool if funder.is_derived]
+
+    assert curated_off_topic.name in names               # Tier A: always scored
+    assert "Derived Maritime Museum Fund" not in names   # focus prefilter
+    assert len(derived_in_pool) == DERIVED_FUNDER_SCORING_CAP
+    # Largest givers first: only the smallest grant_count rows fell off the cap.
+    assert min(funder.grant_count for funder in derived_in_pool) == 5
+    assert max(funder.grant_count for funder in derived_in_pool) == DERIVED_FUNDER_SCORING_CAP + 4
+
+
+def test_non_derived_funders_always_scored_in_matches(florida_project):
+    Funder.objects.create(
+        name="Curated Opera Trust",
+        funder_type=Funder.FunderType.OTHER,
+        focus_areas=["Opera"],       # zero overlap with the org's focus terms
+        geography=["Vermont"],
+    )
+    Funder.objects.create(
+        name="Derived Maritime Museum Fund",
+        funder_type=Funder.FunderType.FAMILY_FOUNDATION,
+        focus_areas=["Maritime History"],
+        is_derived=True,
+        grant_count=10_000,
+    )
+    overview = build_opportunity_matches(florida_project)
+    funding = next(c for c in overview.categories if c.label == "Funding Matches")
+    names = {match.name for match in funding.matches}
+    assert "Curated Opera Trust" in names          # curated: scored regardless of focus
+    assert "Derived Maritime Museum Fund" not in names  # derived + off-focus: not scored
+
+
+def test_on_focus_derived_funders_are_scored(florida_project):
+    # Focus areas overlap the org's "Workforce Development" focus term.
+    Funder.objects.create(
+        name="Derived Sunshine Youth Foundation",
+        funder_type=Funder.FunderType.FAMILY_FOUNDATION,
+        focus_areas=["Workforce Development"],
+        geography=["Florida", "Orlando"],
+        is_derived=True,
+        grant_count=42,
+    )
+    overview = build_opportunity_matches(florida_project)
+    funding = next(c for c in overview.categories if c.label == "Funding Matches")
+    assert "Derived Sunshine Youth Foundation" in {match.name for match in funding.matches}

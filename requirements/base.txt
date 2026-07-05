@@ -6,6 +6,7 @@ pydantic-ai-slim[openai,anthropic,google,groq,mistral,cohere,bedrock]
 # empty `griffelib` meta-package and reorganized symbols. Pin until upstream fixes.
 griffe>=1,<2
 jsonpath-ng
+httpx
 pandas
 jinja2
 termcolor

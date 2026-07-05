@@ -4,8 +4,12 @@ Project invite links.
 The founder generates a signed, expiring URL for a specific project
 (`manage.py create_invite --project-id N`), sends it to the client, and the
 client picks their own email + password. The new account is attached to the
-project and logged straight into the portal. Public self-serve signup stays
-closed — only someone holding a valid signed token can create an account here.
+project and logged straight into the portal. This is the only self-serve path
+that grants project membership — public signup (`/accounts/signup/`) creates
+UNVERIFIED accounts that stop at the activation paywall. Unlike public signup,
+a token-holder may claim a webhook-provisioned password-less account by email
+(the founder's signed link is the authorization); accounts that already have a
+password are told to sign in.
 """
 
 from django import forms

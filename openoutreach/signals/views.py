@@ -878,8 +878,8 @@ def project_opportunity_workspace(request, pk, opportunity_id):
 @login_required
 @require_POST
 def update_opportunity_lifecycle(request, pk, opportunity_id):
-    client_project(request, pk)
-    opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
+    project = client_project(request, pk)
+    opportunity = get_object_or_404(Opportunity, pk=opportunity_id, project=project)
     target_status = request.POST.get("target_status", "")
     transition_opportunity_lifecycle(opportunity, target_status, actor=request.user)
     ensure_default_tasks(opportunity)
@@ -889,8 +889,8 @@ def update_opportunity_lifecycle(request, pk, opportunity_id):
 @login_required
 @require_POST
 def assign_opportunity_owner_view(request, pk, opportunity_id):
-    client_project(request, pk)
-    opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
+    project = client_project(request, pk)
+    opportunity = get_object_or_404(Opportunity, pk=opportunity_id, project=project)
     owner_action = request.POST.get("owner_action", "")
     if owner_action == "assign_me":
         assign_opportunity_owner(opportunity, request.user)
@@ -914,7 +914,13 @@ def toggle_opportunity_interest(request, pk, opportunity_id):
         opportunity.is_interested = True
         opportunity.interest_marked_at = timezone.now()
     opportunity.save(update_fields=["is_interested", "interest_marked_at", "updated_at"])
-    return redirect(request.META.get("HTTP_REFERER") or "/projects/%s/opportunities/" % pk)
+    from django.utils.http import url_has_allowed_host_and_scheme
+    referer = request.META.get("HTTP_REFERER", "")
+    if referer and url_has_allowed_host_and_scheme(
+        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
+    ):
+        return redirect(referer)
+    return redirect("project-opportunities", pk=pk)
 
 
 @login_required
@@ -947,8 +953,8 @@ def project_match_feedback(request, pk):
 @login_required
 @require_POST
 def update_opportunity_task_status(request, pk, opportunity_id, task_id):
-    client_project(request, pk)
-    opportunity = get_object_or_404(Opportunity, pk=opportunity_id)
+    project = client_project(request, pk)
+    opportunity = get_object_or_404(Opportunity, pk=opportunity_id, project=project)
     task = get_object_or_404(OpportunityTask, pk=task_id, opportunity=opportunity)
     target_status = request.POST.get("target_status", "")
     valid_statuses = {value for value, _label in OpportunityTask.Status.choices}

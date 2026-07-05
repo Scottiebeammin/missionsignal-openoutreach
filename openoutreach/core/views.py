@@ -81,10 +81,16 @@ class SignupForm(forms.Form):
     password2 = forms.CharField(label="Confirm password", widget=forms.PasswordInput)
 
     def clean_email(self):
+        # Any existing account blocks public signup — including webhook-provisioned
+        # password-less ones, which must be claimed via their emailed password-set
+        # link (or "Forgot password"), never by an unauthenticated signup POST that
+        # would let anyone who knows the buyer's email take over a paid seat.
         email = self.cleaned_data["email"].lower().strip()
-        existing = get_user_model().objects.filter(email__iexact=email).first()
-        if existing and existing.has_usable_password():
-            raise forms.ValidationError("An account with this email already exists — sign in instead.")
+        if get_user_model().objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                "An account with this email already exists — sign in instead, or use "
+                "“Forgot password” on the sign-in page to set your password."
+            )
         return email
 
     def clean(self):
@@ -107,18 +113,13 @@ def signup(request):
         form = SignupForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data["email"]
-            User = get_user_model()
-            user = User.objects.filter(email__iexact=email).first()
-            if user is None:
-                user = User.objects.create_user(
-                    username=email,
-                    email=email,
-                    first_name=form.cleaned_data["first_name"],
-                    last_name=form.cleaned_data.get("last_name", ""),
-                )
-            user.set_password(form.cleaned_data["password1"])
-            user.first_name = form.cleaned_data["first_name"]
-            user.save()
+            user = get_user_model().objects.create_user(
+                username=email,
+                email=email,
+                password=form.cleaned_data["password1"],
+                first_name=form.cleaned_data["first_name"],
+                last_name=form.cleaned_data.get("last_name", ""),
+            )
             auth_login(request, user)
             return redirect("portal")
     else:

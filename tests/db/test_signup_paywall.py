@@ -53,6 +53,20 @@ def test_duplicate_active_email_rejected():
     assert b"sign in instead" in r.content
 
 
+def test_password_less_webhook_account_cannot_be_claimed_via_signup():
+    # The Stripe webhook provisions buyers WITHOUT a usable password; they claim
+    # the account via their emailed password-set link. Until then, a public
+    # signup POST with the buyer's email must not take over the paid seat.
+    u = get_user_model().objects.create_user(username="rae@neworg.org", email="rae@neworg.org")
+    u.set_unusable_password(); u.save()
+    r = Client().post("/accounts/signup/", SIGNUP, HTTP_HOST="localhost")
+    assert r.status_code == 200
+    assert b"sign in instead" in r.content
+    u.refresh_from_db()
+    assert not u.has_usable_password()
+    assert get_user_model().objects.filter(email__iexact="rae@neworg.org").count() == 1
+
+
 def test_webhook_purchase_verifies_account(mailoutbox):
     # Full loop: self-signup (unverified) -> Stripe purchase (same email) -> verified.
     from unittest.mock import patch
