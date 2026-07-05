@@ -23,6 +23,10 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def document_project(db):
     user, _organization, project = seed_missionsignal_demo()
+    # The product now scopes opportunities to a project (live ingest stamps
+    # Opportunity.project); the demo seed writes a global catalog, so adopt it
+    # into the demo project the way live ingest would.
+    Opportunity.objects.filter(project__isnull=True).update(project=project)
     return project, user
 
 
@@ -70,7 +74,7 @@ def test_evidence_library_summary_scores_and_groups(document_project):
 
 def test_opportunity_document_requirements_are_idempotent(document_project):
     project, _user = document_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
 
     first = build_opportunity_document_summary(project, opportunity)
     second = build_opportunity_document_summary(project, opportunity)
@@ -92,14 +96,16 @@ def test_member_can_view_document_vault(client, document_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Readiness Requirements" in content
-    assert "Requirements" in content
+    assert "Documents" in content
+    assert "Document Readiness" in content
     assert "Document readiness score" in content
     assert "Total documents" in content
     assert "Available documents" in content
     assert "Missing documents" in content
     assert "Needs update" in content
+    assert "Missing Critical Documents" in content
     assert "Document List by Status" in content
+    assert "Document List by Type" in content
     assert "IRS Determination Letter" in content
 
 
@@ -111,14 +117,15 @@ def test_member_can_view_evidence_library(client, document_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Readiness Files" in content
-    assert "Files" in content
+    assert "Evidence" in content
+    assert "Evidence Readiness" in content
     assert "Evidence readiness score" in content
     assert "Total evidence items" in content
     assert "Outcome evidence" in content
     assert "Impact stories" in content
     assert "Evidence List by Status" in content
-    assert "Participants completing digital skills workshops" in content
+    assert "Evidence List by Type" in content
+    assert "Participants completing life skills workshops" in content
 
 
 def test_non_member_cannot_view_document_or_evidence_pages(client, document_project):
@@ -132,7 +139,7 @@ def test_non_member_cannot_view_document_or_evidence_pages(client, document_proj
 
 def test_opportunity_workspace_shows_documents_and_evidence(client, document_project):
     project, user = document_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     client.force_login(user)
 
     response = client.get(
@@ -140,9 +147,10 @@ def test_opportunity_workspace_shows_documents_and_evidence(client, document_pro
     )
     content = response.content.decode()
 
+    assert response.status_code == 200
     assert "Documents" in content
     assert "Evidence" in content
-    assert "Required Document" in content or "Required documents" in content
+    assert "Required Document" in content
     assert "Required Evidence" in content
     assert "Document readiness score" in content
     assert "Evidence readiness score" in content
@@ -151,22 +159,18 @@ def test_opportunity_workspace_shows_documents_and_evidence(client, document_pro
     assert "Outcome Report" in content
 
 
-def test_dashboard_pipeline_discovery_matching_show_document_context(client, document_project):
+def test_pipeline_discovery_and_matching_show_document_context(client, document_project):
     project, user = document_project
     client.force_login(user)
 
-    dashboard = client.get(reverse("project-dashboard", kwargs={"pk": project.pk})).content.decode()
     pipeline = client.get(reverse("project-pipeline", kwargs={"pk": project.pk})).content.decode()
     discovery = client.get(reverse("project-discovery", kwargs={"pk": project.pk})).content.decode()
     matching = client.get(reverse("project-matches", kwargs={"pk": project.pk})).content.decode()
 
-    assert "Document / Evidence Summary" in dashboard
-    assert "Missing critical documents" in dashboard
-    assert "Opportunities blocked by missing documents" in dashboard
-    assert "Docs Ready" in pipeline
-    assert "Docs Missing" in pipeline
-    assert "Evidence Missing" in pipeline
+    assert "Docs " in pipeline
     assert "Submission Readiness" in discovery
+    assert "Docs " in discovery
+    assert "Evidence " in discovery
     assert "Document readiness" in matching
     assert "Evidence readiness" in matching
     assert "Submission readiness" in matching

@@ -22,6 +22,10 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def readiness_project(db):
     user, _organization, project = seed_missionsignal_demo()
+    # The product now scopes opportunities to a project (live ingest stamps
+    # Opportunity.project); the demo seed writes a global catalog, so adopt it
+    # into the demo project the way live ingest would.
+    Opportunity.objects.filter(project__isnull=True).update(project=project)
     return project, user
 
 
@@ -81,7 +85,7 @@ def test_readiness_engine_scoring(readiness_project):
 
 def test_opportunity_pursuit_readiness_scoring(readiness_project):
     project, _user = readiness_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
 
     pursuit = build_opportunity_pursuit_readiness(project, opportunity)
 
@@ -99,7 +103,10 @@ def test_opportunity_pursuit_summary(readiness_project):
     summary = build_opportunity_pursuit_summary(project)
 
     assert 0 <= summary.average_score <= 100
-    assert summary.ready_opportunities + summary.needs_preparation_opportunities == Opportunity.objects.count()
+    assert (
+        summary.ready_opportunities + summary.needs_preparation_opportunities
+        == Opportunity.objects.filter(project=project).count()
+    )
     assert summary.strongest_opportunity is not None
     assert summary.weakest_opportunity is not None
 
@@ -114,24 +121,23 @@ def test_project_member_can_view_readiness_dashboard(client, readiness_project):
     assert response.status_code == 200
     assert "Prepare to compete." in content
     assert "Overall Readiness" in content
+    assert "What To Fix Next" in content
+    assert "Readiness Health" in content
     assert "Organization Completeness" in content
-    assert "Organization Completeness Score" in content
     assert "Completed Areas" in content
     assert "Missing Areas" in content
     assert "Highest Leverage Missing Area" in content
+    assert "Readiness Dimensions" in content
+    assert "Opportunity Pursuit Readiness" in content
+    assert "Strongest Opportunity" in content
     assert "Readiness Strengths" in content
     assert "Readiness Gaps" in content
     assert "Highest Leverage Actions" in content
-    assert "Score Transparency" in content
-    assert "Readiness Score Transparency" in content
-    assert "Organization Completeness Transparency" in content
-    assert "Score Contributors" in content
-    assert "Score Gaps" in content
-    assert "Opportunity Pursuit Readiness Summary" in content
-    assert "Requirements and Files" in content
     assert "Requirement readiness" in content
     assert "File readiness" in content
-    assert "Submission readiness" in content
+    assert "Submission Readiness" in content
+    assert reverse("project-documents", kwargs={"pk": project.pk}) in content
+    assert reverse("project-evidence", kwargs={"pk": project.pk}) in content
 
 
 def test_non_member_cannot_view_readiness_dashboard(client, readiness_project):
@@ -151,21 +157,21 @@ def test_dashboard_and_ecosystem_include_readiness_health(client, readiness_proj
     dashboard = client.get(reverse("project-dashboard", kwargs={"pk": project.pk})).content.decode()
     ecosystem = client.get(reverse("project-ecosystem", kwargs={"pk": project.pk})).content.decode()
 
-    assert "Readiness Health" in dashboard
-    assert "Organization Completeness" in dashboard
-    assert "Readiness Score" in dashboard
-    assert "Top Readiness Gap" in dashboard
-    assert "Top Readiness Action" in dashboard
+    assert "Readiness" in dashboard
+    assert "Org completeness" in dashboard
+    assert "Top readiness gap" in dashboard
+    assert "Opportunity readiness avg" in dashboard
     assert reverse("project-readiness", kwargs={"pk": project.pk}) in dashboard
     assert "Readiness Health" in ecosystem
     assert "Completeness Score" in ecosystem
     assert "Opportunity Readiness Average" in ecosystem
+    assert "Top Readiness Gap" in ecosystem
     assert reverse("project-readiness", kwargs={"pk": project.pk}) in ecosystem
 
 
 def test_opportunity_workspace_displays_pursuit_readiness(client, readiness_project):
     project, user = readiness_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     client.force_login(user)
 
     response = client.get(
@@ -173,13 +179,13 @@ def test_opportunity_workspace_displays_pursuit_readiness(client, readiness_proj
     )
     content = response.content.decode()
 
+    assert response.status_code == 200
+    assert "Opportunity Overview" in content
     assert "Pursuit Readiness" in content
     assert "Readiness Details" in content
-    assert "Score Transparency" in content
-    assert "Score Contributors" in content
-    assert "Score Gaps" in content
-    assert "Improvement Opportunities" in content
-    assert "Required Missing Areas" in content
+    assert "Submission Readiness Impact" in content
+    assert "Highest Leverage Action" in content
+    assert "Why It Matches" in content
 
 
 def test_discovery_pipeline_and_matching_display_readiness(client, readiness_project):
@@ -192,5 +198,6 @@ def test_discovery_pipeline_and_matching_display_readiness(client, readiness_pro
 
     assert "Pursuit Readiness" in discovery
     assert "Ready " in pipeline
+    assert "Lifecycle Board" in pipeline
     assert "Pursuit Readiness" in matching
     assert "Combined Opportunity Health" in matching

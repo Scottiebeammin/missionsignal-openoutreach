@@ -132,25 +132,28 @@ def test_non_member_cannot_post_feedback(client, feedback_project):
 
 
 def test_flagged_opportunity_leaves_top_ten(client, feedback_project, workspace_opportunities):
+    # The demo seed plus the fixture pair gives a pool larger than the shelf, so
+    # flag whatever currently leads the shelf and assert the next-best refills.
     project, user = feedback_project
-    flagged, kept = workspace_opportunities
     client.force_login(user)
     url = reverse("project-opportunities", kwargs={"pk": project.pk})
 
-    # Present in the top shelf before feedback.
     before = client.get(url)
-    assert flagged.pk in [o.pk for o in before.context["top_opportunities"]]
+    top_before = [o.pk for o in before.context["top_opportunities"]]
+    flagged_pk, runner_up_pk = top_before[0], top_before[1]
 
-    MatchFeedback.objects.create(project=project, kind="opportunity", target_key=str(flagged.pk))
+    MatchFeedback.objects.create(project=project, kind="opportunity", target_key=str(flagged_pk))
     after = client.get(url)
 
     top_pks = [o.pk for o in after.context["top_opportunities"]]
-    assert flagged.pk not in top_pks
-    assert kept.pk in top_pks
+    assert flagged_pk not in top_pks
+    assert runner_up_pk in top_pks
+    # The shelf refills back to full size from the remaining pool.
+    assert len(top_pks) == len(top_before)
     # Still browsable in the full list, tagged not_a_fit.
     all_by_pk = {o.pk: o for o in after.context["all_opportunities"]}
-    assert all_by_pk[flagged.pk].not_a_fit is True
-    assert all_by_pk[kept.pk].not_a_fit is False
+    assert all_by_pk[flagged_pk].not_a_fit is True
+    assert all_by_pk[runner_up_pk].not_a_fit is False
 
 
 def test_workspace_renders_not_a_fit_button(client, feedback_project, workspace_opportunities):

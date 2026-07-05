@@ -39,12 +39,14 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
     ).count() == 1
     assert first_organization.organization_summary
     assert first_organization.focus_areas
-    assert first_organization.city == "Cleveland"
+    # Demo was rethemed to a coherent Orlando/Florida youth-development org
+    # (Bright Future Youth Collective) in the clean-demo-seed pass.
+    assert first_organization.city == "Orlando"
     assert FundingCriteria.objects.filter(project=first_project).count() == 1
     assert Funder.objects.filter(name__in=[
-        "Cuyahoga Community Foundation",
-        "North Coast Corporate Giving Fund",
-        "Ohio Workforce Innovation Fund",
+        "Orange Community Foundation",
+        "Central Florida Corporate Giving Fund",
+        "Florida Workforce Innovation Fund",
     ]).count() == 3
     assert Funder.objects.count() >= 9
     assert Funder.objects.filter(source_references__0__title__icontains="public funding profile").exists()
@@ -58,26 +60,26 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
     assert "environmental justice" in funder_focus_areas
     assert "healthcare" in funder_focus_areas
     assert GovernmentEntity.objects.filter(name__in=[
-        "City of Cleveland Youth and Workforce Office",
-        "Cuyahoga County Workforce Partnership",
-        "Cleveland Public Library Digital Access Team",
+        "City of Orlando Youth and Workforce Office",
+        "Orange County Workforce Partnership",
+        "Orlando Public Library Youth Access Team",
     ]).count() == 3
     assert ResourceProvider.objects.filter(name__in=[
-        "Ohio Nonprofit Capacity Lab",
+        "Florida Nonprofit Capacity Lab",
         "Tech Access Donation Network",
-        "Cleveland Volunteer Connector",
+        "Orlando Volunteer Connector",
     ]).count() == 3
     assert PartnerOrganization.objects.filter(name__in=[
-        "Cleveland Community College Career Pathways",
+        "Orlando Community College Career Pathways",
         "Lakefront Employers Tech Council",
-        "Neighborhood Digital Inclusion Coalition",
+        "Neighborhood Youth Inclusion Coalition",
     ]).count() == 3
-    assert PartnerOrganization.objects.filter(mission_alignment_notes__icontains="BridgeForward").exists()
+    assert PartnerOrganization.objects.filter(mission_alignment_notes__icontains="Bright Future").exists()
     assert SourceOrganization.objects.count() >= 10
     assert SourceOrganization.objects.filter(verification_status=SourceOrganization.VerificationStatus.REVIEWED).count() >= 10
     assert Opportunity.objects.count() >= 20
     assert Opportunity.objects.filter(name__in=[
-        "Digital Equity Grant",
+        "Youth Opportunity Grant",
         "Workforce Development Grant",
         "Youth Technology Initiative",
         "Community Partnership Program",
@@ -104,7 +106,7 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
     ).exists()
     assert Celebration.objects.filter(project=first_project).count() == 10
     assert Celebration.objects.filter(title__in=[
-        "Digital Equity Grant Awarded",
+        "Youth Opportunity Grant Awarded",
         "New Workforce Partnership",
         "Technology Access Milestone",
         "Community Health Success Story",
@@ -113,7 +115,7 @@ def test_demo_seed_is_idempotent_and_analysis_ready():
         "Food Security Milestone",
         "Environmental Justice Partnership",
         "Strategic Introduction to City Workforce Leaders",
-        "Community Collaboration with Digital Inclusion Partners",
+        "Community Collaboration with Youth Inclusion Partners",
     ]).count() == 10
     assert OrganizationAnalysisRun.objects.filter(
         organization=first_organization,

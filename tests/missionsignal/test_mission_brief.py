@@ -68,7 +68,7 @@ def test_mission_brief_displays_profile_funding_criteria_and_next_steps(
     assert "Greene" in content
     assert "Missouri" in content
     assert "Serves rural communities throughout the county." in content
-    assert "workforce development" in content
+    assert "Workforce Development" in content
     assert "youth" in content
     assert "Executive Snapshot" in content
     assert "Mission Summary" in content
@@ -84,8 +84,10 @@ def test_mission_brief_displays_profile_funding_criteria_and_next_steps(
     assert "Program Portfolio" in content
     assert "Preview only" in content
     assert "Analysis Review" in content
-    assert "Rerun Analysis" in content
-    assert "Start New Intake" in content
+    # Rerun Analysis / Start New Intake are staff-only operator actions now;
+    # regular project members must not see them.
+    assert "Rerun Analysis" not in content
+    assert "Start New Intake" not in content
     assert "Review and confirm the inferred organization profile." in content
     assert "Prepare outcome and impact data to strengthen funding readiness." in content
     assert "Add a budget range to improve award-size fit." in content

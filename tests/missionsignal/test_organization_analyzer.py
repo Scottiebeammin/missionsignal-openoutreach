@@ -42,7 +42,7 @@ def test_deterministic_analyzer_returns_structured_output():
         state="Michigan",
     ))
     assert isinstance(result, OrganizationAnalyzerOutput)
-    assert "workforce development" in result.focus_areas
+    assert "Workforce Development" in result.focus_areas
     assert "youth" in result.beneficiaries
     assert result.service_geographies == ["Detroit", "Michigan"]
     assert result.analysis_confidence > 0
@@ -67,7 +67,7 @@ def test_deterministic_analyzer_uses_optional_readiness_profile_fields():
     assert result.outcomes_and_impact == ["85% completion rate", "120 graduates"]
     assert "Nonprofit" in result.funding_criteria.inclusion_criteria
     assert "85% completion rate" in result.funding_criteria.inclusion_criteria
-    assert not any("Outcomes and impact require" in warning for warning in result.analysis_warnings)
+    assert not any("Outcomes and impact" in warning for warning in result.analysis_warnings)
     assert not any("Budget range" in warning for warning in result.analysis_warnings)
     assert not any("Current funding sources" in warning for warning in result.analysis_warnings)
     assert not any("Existing partnerships" in warning for warning in result.analysis_warnings)
@@ -86,7 +86,7 @@ def test_analysis_updates_organization_profile(project):
     assert organization.analysis_warnings == output.analysis_warnings
     assert organization.analysis_confidence == output.analysis_confidence
     assert organization.analysis_status == Organization.AnalysisStatus.PARTIAL
-    assert organization.analyzer_version == "deterministic-mvp-v1"
+    assert organization.analyzer_version == "deterministic-mvp-v2"
     assert organization.last_analyzed_at is not None
     assert run.status == OrganizationAnalysisRun.Status.PARTIAL
 

@@ -419,24 +419,25 @@ def test_source_organization_model_defaults_and_string():
 
 
 def test_opportunity_database_models_are_registered_in_admin():
+    # Curated operator admin (AnansiAdminConfig): the Opportunity Web core
+    # stays registered for day-to-day operations...
     assert admin.site.is_registered(Funder)
     assert admin.site.is_registered(GovernmentEntity)
     assert admin.site.is_registered(ResourceProvider)
     assert admin.site.is_registered(PartnerOrganization)
     assert admin.site.is_registered(Opportunity)
-    assert admin.site.is_registered(OpportunityTask)
-    assert admin.site.is_registered(OpportunityDeadline)
-    assert admin.site.is_registered(DocumentVaultItem)
-    assert admin.site.is_registered(EvidenceLibraryItem)
-    assert admin.site.is_registered(OpportunityDocumentRequirement)
-    assert admin.site.is_registered(SourceOrganization)
-    assert admin.site.is_registered(OrganizationContact)
-    assert admin.site.is_registered(RelationshipPartnerOrganization)
     assert admin.site.is_registered(InterestSignup)
-    source_admin = admin.site._registry[OrganizationSourcePage]
-    assert "source_type" in source_admin.list_filter
-    assert "review_status" in source_admin.list_filter
-    assert source_admin.list_editable == ("review_status", "relevance")
+    # ...while internal plumbing is intentionally unregistered after
+    # autodiscover (see openoutreach/admin_config.py "hidden" list).
+    assert not admin.site.is_registered(OpportunityTask)
+    assert not admin.site.is_registered(OpportunityDeadline)
+    assert not admin.site.is_registered(DocumentVaultItem)
+    assert not admin.site.is_registered(EvidenceLibraryItem)
+    assert not admin.site.is_registered(OpportunityDocumentRequirement)
+    assert not admin.site.is_registered(SourceOrganization)
+    assert not admin.site.is_registered(OrganizationContact)
+    assert not admin.site.is_registered(RelationshipPartnerOrganization)
+    assert not admin.site.is_registered(OrganizationSourcePage)
 
 
 

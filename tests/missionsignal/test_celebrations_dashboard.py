@@ -46,12 +46,12 @@ def test_celebrations_page_renders_seeded_examples_and_metrics(client, celebrati
     response = client.get(reverse("project-celebrations", kwargs={"pk": project.pk}))
 
     content = response.content.decode()
-    assert "Digital Equity Grant Awarded" in content
+    assert "Youth Opportunity Grant Awarded" in content
     assert "New Workforce Partnership" in content
     assert "Technology Access Milestone" in content
     assert "Community Health Success Story" in content
     assert "Strategic Introduction to City Workforce Leaders" in content
-    assert "Community Collaboration with Digital Inclusion Partners" in content
+    assert "Community Collaboration with Youth Inclusion Partners" in content
     assert "Celebrations shared" in content
     assert "Opportunities awarded" in content
     assert "Partnerships formed" in content
@@ -69,9 +69,14 @@ def test_global_footer_and_navigation_render_on_celebrations_page(client, celebr
     assert "The Web of Opportunity" in content
     assert "anansiatlas.com" in content
     assert "Anansi Atlas is operated by Scott Foundry Group LLC." in content
-    assert "Dashboard" in content
+    # 7-door journey sidebar: Today/Home, Understand/Snapshot+Ecosystem,
+    # Act/Opportunities+Pipeline, Grow/Readiness+Organization.
+    # (Documents/Evidence/Settings moved behind cluster tabs.)
+    assert "Home" in content
+    assert "Snapshot" in content
+    assert "Ecosystem" in content
+    assert "Opportunities" in content
+    assert "Pipeline" in content
     assert "Readiness" in content
-    assert "Documents" in content
-    assert "Evidence" in content
+    assert "Organization" in content
     assert "Celebrations" in content
-    assert "Settings" in content

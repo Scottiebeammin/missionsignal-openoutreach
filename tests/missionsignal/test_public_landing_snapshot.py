@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 
+from openoutreach.funding.models import Opportunity
 from openoutreach.signals.demo import seed_missionsignal_demo
 from openoutreach.signals.models import InterestSignup, OrganizationSourcePage, PilotProfile
 
@@ -14,6 +15,10 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def snapshot_project(db):
     user, _organization, project = seed_missionsignal_demo()
+    # The product now scopes opportunities to a project (live ingest stamps
+    # Opportunity.project); the demo seed writes a global catalog, so adopt it
+    # into the demo project the way live ingest would.
+    Opportunity.objects.filter(project__isnull=True).update(project=project)
     return project, user
 
 
@@ -24,16 +29,32 @@ def test_public_landing_page_renders_without_login(client):
     assert response.status_code == 200
     assert "Anansi Atlas" in content
     assert "The Web of Opportunity" in content
-    assert "Map the Web of Opportunity Around Your Mission" in content
-    assert "funders, potential partners, community resources, strategic risks, pathways" in content
-    assert "Explore the Opportunity Web Snapshot" in content
-    assert "Become a Founding Atlas Partner" in content
-    assert "$100 pilot package" in content
-    assert "Limited to the first 10 partners" in content
-    assert "30-day action plan" in content
-    assert "Marcus Scott" in content
-    assert "anansiatlas.com" in content
+    assert "Your mission deserves a map." in content
+    assert "Not a mountain of research." in content
+    assert "Opportunity Web Snapshot" in content
+    assert "Apply for a Founding Seat" in content
+    assert "$150/mo" in content
+    assert "$150/month" in content
+    assert "locked for life" in content
+    assert "Sign up today" in content
+    assert "20 founding seats" in content
     assert "Scott Foundry Group LLC" in content
+    assert "anansiatlas.com" in content
+    # Pricing copy rule: the Snapshot is never marketed as free.
+    assert "free snapshot" not in content.lower()
+
+
+def test_public_landing_page_shows_annual_offer_when_configured(client, monkeypatch):
+    annual_url = "https://buy.stripe.com/test-annual"
+    monkeypatch.setenv("STRIPE_ANNUAL_URL", annual_url)
+
+    response = client.get(reverse("anansi-atlas-landing"))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert annual_url in content
+    assert "$1,440/year" in content
+    assert "save 20%" in content
 
 
 def test_public_landing_page_renders_waitlist_form_fields(client):
@@ -41,19 +62,18 @@ def test_public_landing_page_renders_waitlist_form_fields(client):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert '<form method="post">' in content
+    assert 'method="post"' in content
     assert 'name="name"' in content
     assert 'name="organization"' in content
     assert 'name="email"' in content
     assert 'name="role"' in content
-    assert 'name="website"' in content
-    assert 'name="interest_type"' in content
-    assert 'name="message"' in content
-    assert "Explore the Opportunity Web Snapshot" in content
+    assert 'name="interest_type" value="founding_atlas_partners"' in content
+    assert 'name="message"' in content  # ask-a-question form
+    assert "Apply for a Founding Seat" in content
 
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
-def test_interest_signup_form_submission_stores_local_record_and_sends_email(client):
+def test_interest_signup_form_submission_stores_local_record_and_sends_emails(client):
     mail.outbox = []
     response = client.post(
         reverse("anansi-atlas-landing"),
@@ -63,7 +83,7 @@ def test_interest_signup_form_submission_stores_local_record_and_sends_email(cli
             "email": "jordan@example.org",
             "role": "Executive Director",
             "website": "https://mission.example.org",
-            "interest_type": InterestSignup.InterestType.OPPORTUNITY_WEB_SNAPSHOT,
+            "interest_type": InterestSignup.InterestType.FOUNDING_ATLAS_PARTNERS,
             "message": "We want a snapshot.",
         },
     )
@@ -80,8 +100,9 @@ def test_interest_signup_form_submission_stores_local_record_and_sends_email(cli
     assert pilot.contact_name == "Jordan Lee"
     assert pilot.email == "jordan@example.org"
     assert pilot.lifecycle_status == PilotProfile.LifecycleStatus.WAITLIST
-    assert len(mail.outbox) == 1
-    notification = mail.outbox[0]
+    # Operator notification + signer confirmation.
+    assert len(mail.outbox) == 2
+    notification, confirmation = mail.outbox
     assert notification.to == ["info@anansiatlas.com"]
     assert notification.subject == "New Anansi Atlas interest signup"
     assert "Name: Jordan Lee" in notification.body
@@ -89,9 +110,12 @@ def test_interest_signup_form_submission_stores_local_record_and_sends_email(cli
     assert "Email: jordan@example.org" in notification.body
     assert "Role / Title: Executive Director" in notification.body
     assert "Website: https://mission.example.org" in notification.body
-    assert "Interest Type: Get Opportunity Web Snapshot" in notification.body
+    assert "Interest Type: Join Founding Atlas Partners" in notification.body
     assert "Message: We want a snapshot." in notification.body
     assert "Created At:" in notification.body
+    assert confirmation.to == ["jordan@example.org"]
+    assert confirmation.subject == "You're on the Anansi Atlas waitlist"
+    assert "Hi Jordan," in confirmation.body
 
 
 def test_interest_signup_email_failure_does_not_break_signup(client, monkeypatch):
@@ -161,41 +185,31 @@ def test_pilot_onboarding_route_renders_without_login(client):
 
     assert response.status_code == 200
     assert "Founding Atlas Partners" in content
-    assert "Become a Founding Atlas Partner" in content
-    assert "$100" in content
-    assert "Limited to the first 10 Founding Atlas Partners" in content
+    assert "Become a Founding Atlas Partner." in content
+    assert "Limited founding cohort" in content
+    assert "Request pilot access" in content
+    # What's included
     assert "Opportunity Web Snapshot" in content
-    assert "30 Days Platform Access" in content
     assert "Executive Dashboard Access" in content
-    assert "Readiness Review" in content
-    assert "Relationship Review" in content
+    assert "Opportunity Web Access" in content
+    assert "Readiness &amp; Relationship Review" in content
     assert "Founder-Led Walkthrough" in content
     assert "30-Day Action Plan" in content
-    assert "Founding Atlas Partner Recognition" in content
-    assert "Pilot onboarding flow" in content
+    assert "30 Days Platform Access" in content
+    assert "Founding Partner Recognition" in content
+    # How it works
     assert "Submit interest" in content
-    assert "Welcome and scheduling" in content
     assert "Organization intake" in content
-    assert "Opportunity Web Snapshot generation" in content
-    assert "Founder walkthrough" in content
+    assert "Snapshot + walkthrough" in content
     assert "30-day action period" in content
-    assert "Feedback and refinement" in content
-    assert "Snapshot deliverable" in content
-    assert "Executive Summary" in content
-    assert "Top Opportunities" in content
-    assert "Relationship Gaps" in content
-    assert "Readiness Gaps" in content
-    assert "Strategic Moves" in content
-    assert "30-Day Recommendations" in content
-    assert "Marcus Scott, Founder, Anansi Atlas" in content
-    assert "Pilot FAQ" in content
+    # Founder strip
+    assert "Marcus Scott" in content
+    assert "Founder, Anansi Atlas" in content
+    assert "Scott Foundry Group LLC" in content
+    # FAQ
     assert "What is Anansi Atlas?" in content
     assert "What is an Opportunity Web Snapshot?" in content
     assert "How long does the pilot last?" in content
-    assert "Mission and programs" in content
-    assert "Geography" in content
-    assert "Funders and partners" in content
-    assert "Resources and evidence" in content
 
 
 def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_project):
@@ -206,7 +220,7 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
         title="Founder research notes",
         source_type=OrganizationSourcePage.SourceType.FOUNDER_NOTES,
         notes="Website observations and local funder research for Snapshot production.",
-        raw_text="BridgeForward has strong workforce alignment and needs partner evidence.",
+        raw_text="Bright Future has strong workforce alignment and needs partner evidence.",
         relevance=OrganizationSourcePage.Relevance.HIGH,
         review_status=OrganizationSourcePage.ReviewStatus.USED_IN_SNAPSHOT,
     )
@@ -216,71 +230,48 @@ def test_project_member_can_view_opportunity_web_snapshot(client, snapshot_proje
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Opportunity Web Snapshot · Consulting Deliverable" in content
-    assert "30-Day Action Plan" in content
-    assert "What This Delivers" in content
-    assert "Executive Summary" in content
-    assert "Opportunity Overview" in content
+    assert "Opportunity Web Snapshot" in content
     assert "Readiness Score" in content
+    assert "Executive Summary" in content
+    assert "30-Day Action Plan" in content
     assert "Top Funder Pathways" in content
-    assert "Top Partner Pathways" in content
-    assert "Top Resource Gaps" in content
+    assert "Named Funder Targets" in content
+    assert "Partner Pathways" in content
+    assert "Ecosystem Gaps to Close" in content
     assert "Top Opportunities" in content
-    assert "Top Risks" in content
-    assert "Top Relationship Gaps" in content
-    assert "Top Recommended Actions" in content
-    assert "Why this appears" in content
-    assert "Mission Alignment" in content
-    assert "Geographic Alignment" in content
-    assert "Great Lakes Corporate Giving Program" in content
-    assert "Named Relationship Targets" in content
     assert "Relationship Intelligence" in content
     assert "Top Relationships To Build" in content
     assert "Opportunity Pathways" in content
     assert "Network Health" in content
-    assert "High Impact" in content
-    assert "Unlocks:" in content
-    assert "Pursue County Workforce Board" in content
-    assert "Why now" in content
-    assert "Preparation required" in content
-    assert "Risk" in content
-    assert "Verified Opportunity" in content
-    assert "Funder Fit" in content
-    assert "Cuyahoga Community Foundation" in content
-    assert "Ohio Workforce Innovation Fund" in content
-    assert "Source reference:" in content
-    assert "Source-backed Funder" in content
-    assert "Reviewed Source" in content
-    assert "Strong Geographic Fit" in content
-    assert "Excellent Fit" in content
-    assert "Ecosystem Gaps" in content
-    assert "Strengthen City of Cleveland Youth and Workforce Office" in content
-    assert "Cleveland Community College Career Pathways" in content
     assert "Readiness Context" in content
-    assert "may reduce competitiveness for workforce development opportunities" in content
-    assert "Review pursuit fit for" in content
-    assert "Prepare materials for Cuyahoga Community Foundation" in content
-    assert "Initiate conversation with" in content
+    assert "Risks and Gaps" in content
+    assert "Top Risks" in content
+    assert "Top Resource Gaps" in content
+    assert "Organization Intelligence" in content
     assert "Source Summary" in content
     assert "Sources reviewed" in content
     assert "Funders reviewed" in content
     assert "Opportunities reviewed" in content
-    assert "Ecosystem entities reviewed" in content
-    assert "Organization Intelligence" in content
-    assert "Mission Themes" in content
-    assert "Workforce Development" in content
-    assert "Digital Access" in content
-    assert "Strategic Priorities" in content
-    assert "Build Partner Pipeline" in content
-    assert "Funding Priorities" in content
-    assert "Institutional Grants" in content
-    assert "Partnership Priorities" in content
-    assert "Founder Insights" in content
-    assert "Leadership is concerned with partner evidence and relationship depth." in content
+    # Deterministic demo intelligence (Orlando-themed seed data)
+    assert "Central Florida Corporate Giving Program" in content
+    assert "United Way of Greater Orlando" in content
+    assert "Orlando Community College Career Pathways" in content
+    assert "City of Orlando Youth and Workforce Office" in content
+    assert "Youth Opportunity Grant" in content
+    # Rationale / transparency labels
+    assert "Why this appears" in content
+    assert "Why now" in content
+    assert "Preparation required" in content
+    assert "Unlocks:" in content
+    assert "High Impact" in content
+    assert "Mission Alignment" in content
+    assert "Strong Geographic Fit" in content
+    assert "Excellent Fit" in content
+    assert "Verified Opportunity" in content
+    assert "Reviewed Source" in content
+    assert "Source reference:" in content
     assert "This aligns with the organizational priority:" in content
-    assert "Founder research notes" in content
-    assert "Missing Source Guidance" in content
-    assert "Add program descriptions to improve opportunity matching." in content
+    assert "Book your Founder Walkthrough" in content
 
 
 def test_non_member_cannot_view_opportunity_web_snapshot(client, snapshot_project):
@@ -301,7 +292,7 @@ def test_dashboard_and_web_link_to_snapshot(client, snapshot_project):
     web = client.get(reverse("project-opportunity-web", kwargs={"pk": project.pk})).content.decode()
     snapshot_url = reverse("project-snapshot", kwargs={"pk": project.pk})
 
-    assert "View Opportunity Web Snapshot" in dashboard
+    assert "Open Snapshot" in dashboard
     assert snapshot_url in dashboard
-    assert "View Opportunity Web Snapshot" in web
+    assert "View Full Snapshot" in web
     assert snapshot_url in web

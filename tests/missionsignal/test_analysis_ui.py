@@ -61,13 +61,13 @@ def test_member_can_trigger_analysis_and_view_results(client, project):
     detail = client.get(response.url)
     content = detail.content.decode()
     assert detail.status_code == 200
-    assert "workforce development" in content
+    assert "Workforce Development" in content
     assert "youth" in content
     assert "Detroit" in content
     assert "Funding Criteria" in content
     assert "government, foundation, corporate" in content
     assert "program grant, general operating support" in content
-    assert "Outcomes and impact require supporting evidence" in content
+    assert "Outcomes and impact were not provided." in content
 
 
 def test_member_can_rerun_analysis_and_refresh_displayed_results(client, project):
@@ -91,7 +91,7 @@ def test_member_can_rerun_analysis_and_refresh_displayed_results(client, project
     content = detail.content.decode()
     assert criteria.source_analysis_run_id != first_run_id
     assert FundingCriteria.objects.filter(project=project).count() == 1
-    assert "food security" in content
+    assert "Food Security" in content
     assert "community outreach" in content
 
 

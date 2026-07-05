@@ -44,14 +44,17 @@ def test_project_member_can_view_government_dashboard(client, government_project
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Government Dashboard" in content
-    assert "Government Profile Completeness" in content
+    assert "Government" in content
+    assert "Profile completeness:" in content
+    assert "Government Summary" in content
     assert "Relevant Public-Sector Lanes" in content
     assert "Recommended Government Entity Types" in content
     assert "Government Engagement Checklist" in content
     assert "Recommended Government Actions" in content
-    assert reverse("project-mission-brief", kwargs={"pk": project.pk}) in content
+    # Government is now a tab of the Ecosystem cluster; navigation is the
+    # shared cluster tab strip rather than a Mission Brief back-link.
     assert reverse("project-funding", kwargs={"pk": project.pk}) in content
+    assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
     assert "placeholder" not in content.casefold()
 
 

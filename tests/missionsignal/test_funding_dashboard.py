@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from openoutreach.core.models import Organization, Project
+from openoutreach.funding.models import Opportunity
 from openoutreach.signals.analysis_service import analyze_project
 
 
@@ -46,11 +47,10 @@ def test_project_member_can_view_real_funding_dashboard(client, analyzed_project
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Funding Dashboard" in content
-    assert "Funding Profile Completeness" in content
-    assert "Funding Profile Completeness" in content
-    assert "Funding Themes" in content
-    assert "Recommended Funder Types" in content
+    assert "Funding Summary" in content
+    assert "Funding Score" in content
+    assert "Recommended Pathways" in content
+    assert "Live grant opportunities matched to your mission and geography" in content
     assert "Local Government Opportunity Snapshot" in content
     assert "Grant Readiness Checklist" in content
     assert "Recommended Funding Actions" in content
@@ -58,35 +58,30 @@ def test_project_member_can_view_real_funding_dashboard(client, analyzed_project
     assert "Discovery is not enabled yet." not in content
 
 
-def test_funding_dashboard_renders_deterministic_themes(client, analyzed_project):
+def test_funding_dashboard_recommended_pathways_show_matched_grants(client, analyzed_project):
+    """Recommended Pathways lists live project grants (relevance-ranked) with
+    workspace links, and shows an empty state until grants exist."""
     project, user = analyzed_project
     client.force_login(user)
 
-    response = client.get(reverse("project-funding", kwargs={"pk": project.pk}))
-    content = response.content.decode()
+    empty_content = client.get(reverse("project-funding", kwargs={"pk": project.pk})).content.decode()
+    assert "No grant pathways yet" in empty_content
 
-    assert "Workforce Development" in content
-    assert "Digital Equity" in content
-    assert "Youth Development" in content
-    assert "Career Readiness" in content
-    assert "Community Development" in content
+    grant = Opportunity.objects.create(
+        name="Youth Career Readiness Grant",
+        project=project,
+        opportunity_type=Opportunity.OpportunityType.GRANT,
+        focus_areas=["youth careers", "economic mobility"],
+        beneficiaries=["youth"],
+    )
 
-
-def test_funding_dashboard_shows_all_required_funder_types(client, analyzed_project):
-    project, user = analyzed_project
-    client.force_login(user)
-
-    response = client.get(reverse("project-funding", kwargs={"pk": project.pk}))
-    content = response.content.decode()
-
-    assert "Community Foundations" in content
-    assert "Corporate Foundations" in content
-    assert "Local Government" in content
-    assert "State Government" in content
-    assert "Federal Government" in content
-    assert "Workforce Development Boards" in content
-    assert "United Way Organizations" in content
-    assert "Family Foundations" in content
+    content = client.get(reverse("project-funding", kwargs={"pk": project.pk})).content.decode()
+    assert "Youth Career Readiness Grant" in content
+    assert reverse(
+        "project-opportunity-workspace",
+        kwargs={"pk": project.pk, "opportunity_id": grant.pk},
+    ) in content
+    assert "No grant pathways yet" not in content
 
 
 def test_funding_dashboard_explains_local_government_lane(client, analyzed_project):
@@ -182,5 +177,6 @@ def test_government_dashboard_link_from_funding_route_works(client, analyzed_pro
     member_content = member_response.content.decode()
 
     assert member_response.status_code == 200
-    assert "Government Dashboard" in member_content
-    assert "Government Profile Completeness" in member_content
+    assert "Government Summary" in member_content
+    assert "Government Score" in member_content
+    assert "Government Engagement Checklist" in member_content

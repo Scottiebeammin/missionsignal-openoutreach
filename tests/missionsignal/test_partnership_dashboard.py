@@ -44,8 +44,9 @@ def test_project_member_can_view_partnership_dashboard(client, partnership_proje
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Partnerships Dashboard" in content
-    assert "Partnership Readiness Score" in content
+    assert "Partnerships" in content
+    assert "Profile completeness:" in content
+    assert "Partnership Summary" in content
     assert "Partnership Categories" in content
     assert "Recommended Partner Types" in content
     assert "Partnership Readiness Checklist" in content
@@ -126,8 +127,10 @@ def test_partnership_dashboard_snapshot_and_navigation_render(client, partnershi
     content = response.content.decode()
 
     assert "expand reach, credibility, referral pathways, service delivery capacity, funding competitiveness, program sustainability, and community trust" in content
-    assert reverse("project-mission-brief", kwargs={"pk": project.pk}) in content
+    # Partnerships is now a tab of the Ecosystem cluster; navigation is the
+    # shared cluster tab strip rather than a Mission Brief back-link.
     assert reverse("project-funding", kwargs={"pk": project.pk}) in content
     assert reverse("project-government", kwargs={"pk": project.pk}) in content
     assert reverse("project-resources", kwargs={"pk": project.pk}) in content
+    assert reverse("project-relationships", kwargs={"pk": project.pk}) in content
     assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content

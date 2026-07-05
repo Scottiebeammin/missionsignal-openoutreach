@@ -14,36 +14,37 @@ def ux_project(db):
     return project, user
 
 
-def test_primary_navigation_is_workflow_based(client, ux_project):
+def test_primary_navigation_is_journey_based(client, ux_project):
+    """Sidebar is the 7-door journey: Today/Home, Understand/Snapshot+Ecosystem,
+    Act/Opportunities+Pipeline, Grow/Readiness+Organization."""
     project, user = ux_project
     client.force_login(user)
 
     response = client.get(reverse("project-dashboard", kwargs={"pk": project.pk}))
 
     content = response.content.decode()
-    assert "Executive" in content
-    assert "Action" in content
-    assert "Prepare" in content
-    assert "Connect" in content
-    assert "Workspace" in content
-    assert "Dashboard" in content
-    assert "Strategic Pathways" in content
-    assert "Discovery" in content
-    assert "Matches" in content
-    assert "Readiness" in content
-    assert "Relationships" in content
-    assert "Documents" in content
-    assert "Evidence" in content
-    assert "Celebrations" in content
-    assert "Settings" in content
-    assert reverse("project-organization", kwargs={"pk": project.pk}) in content
+    # Journey group labels
+    assert '<span class="nav-label">Today</span>' in content
+    assert '<span class="nav-label">Understand</span>' in content
+    assert '<span class="nav-label">Act</span>' in content
+    assert '<span class="nav-label">Grow</span>' in content
+    # The seven doors with their guidance subtitles
+    assert "Home <span>Your next move</span>" in content
+    assert "Snapshot" in content
+    assert "Ecosystem" in content
+    assert "Opportunities <span>Choose what to chase</span>" in content
+    assert "Pipeline <span>Track your pursuits</span>" in content
+    assert "Readiness <span>Close your gaps</span>" in content
+    assert "Organization" in content
+    assert reverse("project-dashboard", kwargs={"pk": project.pk}) in content
+    assert reverse("project-snapshot", kwargs={"pk": project.pk}) in content
+    assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
     assert reverse("project-opportunities", kwargs={"pk": project.pk}) in content
+    assert reverse("project-pipeline", kwargs={"pk": project.pk}) in content
     assert reverse("project-readiness", kwargs={"pk": project.pk}) in content
+    assert reverse("project-organization", kwargs={"pk": project.pk}) in content
     assert reverse("project-relationships", kwargs={"pk": project.pk}) in content
-    assert reverse("project-documents", kwargs={"pk": project.pk}) in content
-    assert reverse("project-evidence", kwargs={"pk": project.pk}) in content
     assert reverse("project-celebrations", kwargs={"pk": project.pk}) in content
-    assert reverse("project-analysis-detail", kwargs={"pk": project.pk}) in content
 
 
 def test_organization_workspace_groups_profile_work(client, ux_project):
@@ -55,8 +56,11 @@ def test_organization_workspace_groups_profile_work(client, ux_project):
     assert response.status_code == 200
     content = response.content.decode()
     assert "Manage your organization workspace." in content
-    assert "Celebrations" in content
+    assert 'aria-label="Organization workspace tabs"' in content
+    assert "Wins" in content
     assert "Settings" in content
+    assert reverse("project-celebrations", kwargs={"pk": project.pk}) in content
+    assert reverse("project-analysis-detail", kwargs={"pk": project.pk}) in content
     assert "Mission Brief" in content
     assert "Programs" in content
     assert "Outcomes" in content
@@ -74,16 +78,14 @@ def test_opportunities_workspace_connects_discovery_matching_and_pipeline(client
     content = response.content.decode()
     assert "Strategic Pathways" in content
     assert "Choose what is worth pursuing." in content
+    # Opportunities cluster tab strip: Top Picks / All Matches / Discovery
+    assert 'aria-label="Opportunities tabs"' in content
+    assert "Top Picks" in content
+    assert "All Matches" in content
     assert "Discovery" in content
-    assert "Matches" in content
     assert "Pipeline" in content
-    assert "Top Opportunities" in content
-    assert "View All Opportunities" in content
-    assert "Show More" in content
+    assert "Top 10 Recommended Opportunities" in content
     assert "Opportunity Categories" in content
-    assert "More Categories" in content
-    assert "Show All Categories" in content
-    assert "Collapse Categories" in content
     assert "Opportunity Health" in content
     assert "Upcoming Deadlines" in content
     assert "Opportunity Pipeline Summary" in content
@@ -91,7 +93,8 @@ def test_opportunities_workspace_connects_discovery_matching_and_pipeline(client
     assert "Pipeline Health" in content
     assert "Active Lifecycle Opportunities" in content
     assert "Highest Priority Active" in content
-    assert "Advanced Match Health" in content
+    assert "Lifecycle Pipeline Preview" in content
+    assert "Match Health by Category" in content
     assert reverse("project-discovery", kwargs={"pk": project.pk}) in content
     assert reverse("project-matches", kwargs={"pk": project.pk}) in content
     assert reverse("project-pipeline", kwargs={"pk": project.pk}) in content
@@ -114,9 +117,13 @@ def test_ecosystem_workspace_tabs_group_signal_modules(client, ux_project):
     response = client.get(reverse("project-funding", kwargs={"pk": project.pk}))
 
     content = response.content.decode()
-    assert "Ecosystem workspace tabs" in content
+    # Shared ecosystem cluster tab strip: Overview/Funding/Government/Resources/Partnerships/Relationships
+    assert 'aria-label="Ecosystem tabs"' in content
+    assert "Overview" in content
+    assert "Partnerships" in content
     assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content
     assert reverse("project-funding", kwargs={"pk": project.pk}) in content
     assert reverse("project-government", kwargs={"pk": project.pk}) in content
     assert reverse("project-resources", kwargs={"pk": project.pk}) in content
     assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content
+    assert reverse("project-relationships", kwargs={"pk": project.pk}) in content

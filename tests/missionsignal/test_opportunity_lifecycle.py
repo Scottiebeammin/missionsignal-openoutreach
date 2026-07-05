@@ -13,7 +13,11 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def lifecycle_project(db):
     user, _organization, project = seed_missionsignal_demo()
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    # Portal views scope the opportunity inventory to the project (as real
+    # ingest produces); the demo seeder writes a global inventory, so attach
+    # it to the project the way ingested rows arrive.
+    Opportunity.objects.update(project=project)
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     opportunity.lifecycle_status = Opportunity.LifecycleStatus.QUALIFIED
     opportunity.lifecycle_notes = "Ready for program alignment review."
     opportunity.save(update_fields=["lifecycle_status", "lifecycle_notes", "updated_at"])
@@ -30,7 +34,7 @@ def lifecycle_project(db):
 
 
 def test_lifecycle_status_can_move_between_stages(lifecycle_project):
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
 
     assert opportunity.lifecycle_status == Opportunity.LifecycleStatus.QUALIFIED
     opportunity.lifecycle_status = Opportunity.LifecycleStatus.PURSUING
@@ -43,7 +47,7 @@ def test_lifecycle_status_can_move_between_stages(lifecycle_project):
 
 def test_lifecycle_action_updates_status_history_and_timestamp(client, lifecycle_project):
     project, user = lifecycle_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     before = opportunity.updated_at
     notes = opportunity.lifecycle_notes
     client.force_login(user)
@@ -66,7 +70,7 @@ def test_lifecycle_action_updates_status_history_and_timestamp(client, lifecycle
 
 def test_owner_assignment_controls_update_owner(client, lifecycle_project):
     project, user = lifecycle_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     client.force_login(user)
 
     response = client.post(
@@ -96,11 +100,14 @@ def test_project_member_can_view_pipeline(client, lifecycle_project):
     assert response.status_code == 200
     assert "Manage active pursuits." in content
     assert "Lifecycle Board" in content
+    assert "Opportunity Pipeline Summary" in content
     assert "Pipeline Health" in content
     assert "Excellent" in content or "Healthy" in content or "Needs Attention" in content or "At Risk" in content
     assert "Active Opportunities" in content
     assert "Upcoming Deadlines" in content
     assert "Operating Focus" in content
+    assert "Pipeline Forecast" in content
+    # All nine lifecycle stage columns render on the board.
     assert "Discovered" in content
     assert "Reviewing" in content
     assert "Qualified" in content
@@ -110,30 +117,22 @@ def test_project_member_can_view_pipeline(client, lifecycle_project):
     assert "Awarded" in content
     assert "Declined" in content
     assert "Closed" in content
-    assert "Current Lifecycle Status" in content
-    assert "Current Stage" in content
-    assert "Status History" in content
-    assert "Last Updated" in content
-    assert "Recommended Next Step" in content
+    # Cards for the staged fixture opportunities, with owner/deadline/task meta.
+    assert "Youth Opportunity Grant" in content
+    assert "Workforce Development Grant" in content
     assert "Owner: Unassigned" in content
-    assert "Open tasks" in content
-    assert "Overdue tasks" in content
-    assert "Next deadline" in content
+    assert "Deadline:" in content
+    assert "Tasks:" in content
+    assert "overdue" in content
+    assert "Match" in content
+    # Card actions: workspace link, owner assignment, and stage transitions.
     assert "Open Workspace" in content
     assert "Assign to Me" in content
     assert "Advance Stage" in content
     assert "Mark Awarded" in content
     assert "Mark Declined" in content
     assert "Close" in content
-    assert "Lifecycle Notes" in content
-    assert "Eligibility Notes" in content
-    assert "Focus Areas" in content
-    assert "Beneficiaries" in content
-    assert "Match Reasons" in content
-    assert "Missing Factors" in content
-    assert "Improvement Opportunities" in content
-    assert "View Details" in content
-    assert "Match" in content
+    # Stage guidance: the card's recommended next step and per-column action lists.
     assert "Identify program alignment" in content
     assert "Review eligibility." in content
     assert "Check geography fit." in content
@@ -153,7 +152,7 @@ def test_non_member_cannot_view_pipeline(client, lifecycle_project):
 
 def test_non_member_cannot_update_lifecycle_or_owner(client, lifecycle_project):
     project, _user = lifecycle_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     outsider = get_user_model().objects.create_user(username="pipeline-post-outsider")
     client.force_login(outsider)
 

@@ -23,11 +23,11 @@ def test_project_member_can_view_executive_dashboard(client, dashboard_project):
     assert response.status_code == 200
     content = response.content.decode()
     assert "Anansi Atlas" in content
-    assert "Executive Command Center" in content
-    assert "Forecast Value" in content
+    assert "What To Do Next" in content
+    assert "Weighted forecast" in content
     assert "Top 3 Strategic Moves" in content
     assert "Single highest-leverage action for leadership attention." in content
-    assert "Opportunity To Watch" in content
+    assert "Top Opportunity" in content
     assert "Start Here" in content
     assert "Readiness" in content
     assert "Relationships" in content
@@ -69,7 +69,7 @@ def test_executive_dashboard_renders_kpi_bar(client, dashboard_project):
     assert "Readiness" in content
     assert "Relationship Health" in content
     assert "Pathway Health" in content
-    assert "Forecast Value" in content
+    assert "Opportunities Found" in content
 
 
 def test_executive_dashboard_renders_intelligence_grid(client, dashboard_project):
@@ -117,12 +117,15 @@ def test_executive_dashboard_workspace_nav_links(client, dashboard_project):
     assert reverse("project-celebrations", kwargs={"pk": project.pk}) in content
 
 
-def test_executive_dashboard_no_accordion_elements(client, dashboard_project):
+def test_executive_dashboard_single_workspace_nav_accordion(client, dashboard_project):
+    """Dashboard content stays flat: the only collapsible element is the
+    intentional All Workspaces navigation panel."""
     project, user = dashboard_project
     client.force_login(user)
 
     response = client.get(reverse("project-dashboard", kwargs={"pk": project.pk}))
 
     content = response.content.decode()
-    assert "<details" not in content
-    assert "<summary>" not in content
+    assert content.count("<details") == 1
+    assert 'aria-label="Workspace navigation"' in content
+    assert "All Workspaces" in content

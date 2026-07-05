@@ -44,13 +44,15 @@ def test_project_member_can_view_resource_dashboard(client, resource_project):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Resources Dashboard" in content
-    assert "Resource Profile Completeness" in content
+    assert "Resources" in content
+    assert "Profile completeness:" in content
+    assert "Resource Summary" in content
     assert "Resource Opportunity Categories" in content
     assert "Resource Types Worth Exploring" in content
     assert "Resource Readiness Checklist" in content
     assert "Recommended Resource Actions" in content
     assert "Resource Ecosystem Snapshot" in content
+    assert "Free &amp; Low-Cost Resources" in content
     assert "placeholder" not in content.casefold()
 
 
@@ -129,7 +131,11 @@ def test_resource_dashboard_snapshot_and_navigation_render(client, resource_proj
     content = response.content.decode()
 
     assert "training, technical assistance, volunteers, technology, facilities, equipment, capacity-building programs, and shared services" in content
-    assert reverse("project-mission-brief", kwargs={"pk": project.pk}) in content
+    # Resources is now a tab of the Ecosystem cluster; navigation is the
+    # shared cluster tab strip (Overview/Funding/Government/Resources/
+    # Partnerships/Relationships) rather than a Mission Brief back-link.
     assert reverse("project-funding", kwargs={"pk": project.pk}) in content
     assert reverse("project-government", kwargs={"pk": project.pk}) in content
+    assert reverse("project-partnerships", kwargs={"pk": project.pk}) in content
+    assert reverse("project-relationships", kwargs={"pk": project.pk}) in content
     assert reverse("project-ecosystem", kwargs={"pk": project.pk}) in content

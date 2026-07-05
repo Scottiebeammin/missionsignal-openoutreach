@@ -28,7 +28,9 @@ DEMO_ORGANIZATION_NAME = "Bright Future Youth Collective"
 DEMO_WEBSITE = "https://brightfutureyouth.example.org"
 
 
-def _seed_opportunity_database():
+def _seed_opportunity_database(project):
+    # Every client surface filters Opportunity by project, so the demo inventory
+    # must belong to the demo project — orphan rows are invisible everywhere.
     reviewed_at = timezone.now()
     funders = [
         {
@@ -842,7 +844,7 @@ def _seed_opportunity_database():
         opportunity["source_notes"] = f"Reviewed deterministic opportunity record for {name}."
         opportunity["verification_status"] = Opportunity.VerificationStatus.REVIEWED
         opportunity["last_reviewed_at"] = reviewed_at
-        Opportunity.objects.update_or_create(name=name, defaults=opportunity)
+        Opportunity.objects.update_or_create(name=name, project=project, defaults=opportunity)
 
 
 def _seed_document_and_evidence_data(project):
@@ -976,7 +978,7 @@ def _seed_document_and_evidence_data(project):
         title = evidence.pop("title")
         EvidenceLibraryItem.objects.update_or_create(project=project, title=title, defaults=evidence)
 
-    for opportunity in Opportunity.objects.all():
+    for opportunity in Opportunity.objects.filter(project=project):
         ensure_opportunity_document_requirements(project, opportunity)
 
 
@@ -1250,7 +1252,7 @@ def seed_missionsignal_demo(*, password=None):
         )
 
     analyze_project(project, mode="deterministic")
-    _seed_opportunity_database()
+    _seed_opportunity_database(project)
     _seed_document_and_evidence_data(project)
     _seed_relationship_data(project)
     _seed_celebrations(project)

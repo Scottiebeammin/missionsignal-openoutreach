@@ -15,7 +15,11 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def forecast_project(db):
     user, _organization, project = seed_missionsignal_demo()
-    Opportunity.objects.filter(name="Digital Equity Grant").update(
+    # The demo seed builds a global inventory (project=None); project pages read
+    # project-scoped rows, so adopt the inventory into the project like a real
+    # discovery run would.
+    Opportunity.objects.filter(project__isnull=True).update(project=project)
+    Opportunity.objects.filter(name="Youth Opportunity Grant").update(
         lifecycle_status=Opportunity.LifecycleStatus.QUALIFIED,
     )
     Opportunity.objects.filter(name="Youth Technology Initiative").update(
@@ -46,7 +50,7 @@ def test_opportunity_estimated_value_model_behavior():
 
 
 def test_forecast_calculation_helper_uses_lifecycle_weights(forecast_project):
-    grant = Opportunity.objects.get(name="Digital Equity Grant")
+    grant = Opportunity.objects.get(name="Youth Opportunity Grant")
     contract = Opportunity.objects.get(name="Youth Technology Initiative")
     equipment = Opportunity.objects.get(name="Technology Equipment Donation Round")
 
@@ -91,30 +95,29 @@ def test_dashboard_pipeline_workspace_and_ecosystem_render_forecast(client, fore
     pipeline = client.get(reverse("project-pipeline", kwargs={"pk": project.pk})).content.decode()
     ecosystem = client.get(reverse("project-ecosystem", kwargs={"pk": project.pk})).content.decode()
 
-    assert "Forecast Summary" in dashboard
-    assert "Total Pipeline Value" in dashboard
-    assert "Weighted Forecast Value" in dashboard
-    assert "Highest Value Opportunity" in dashboard
-    assert "Highest Confidence Opportunity" in dashboard
+    assert "<h2>Forecast</h2>" in dashboard
+    assert "Weighted forecast" in dashboard
+    assert "Total pipeline" in dashboard
+    assert "Submitted value" in dashboard
+    assert "Awarded value" in dashboard
     assert "Pipeline Forecast" in pipeline
     assert "Total Value" in pipeline
     assert "Weighted Value" in pipeline
+    assert "Submitted Value" in pipeline
+    assert "Awarded Value" in pipeline
     assert "Upcoming Deadline Value" in pipeline
+    assert "Lifecycle Board" in pipeline
     assert "Forecast Health" in ecosystem
     assert "Forecast Confidence" in ecosystem
     assert "Funding Forecast Breakdown" in ecosystem
     assert "Forecast Health Transparency" in ecosystem
     assert "Score Contributors" in ecosystem
     assert "Score Gaps" in ecosystem
-    assert "Forecast Score Transparency" in pipeline
-    assert "Submitted Opportunities" in pipeline
-    assert "Pursuing Opportunities" in pipeline
-    assert "Qualified Opportunities" in pipeline
 
 
 def test_opportunity_workspace_discovery_and_matching_render_forecast(client, forecast_project):
     project, user = forecast_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     client.force_login(user)
 
     workspace = client.get(
@@ -124,9 +127,9 @@ def test_opportunity_workspace_discovery_and_matching_render_forecast(client, fo
     matching = client.get(reverse("project-matches", kwargs={"pk": project.pk})).content.decode()
 
     assert "Estimated Value" in workspace
-    assert "Value Confidence" in workspace
+    assert "High Confidence" in workspace
     assert "Weighted Forecast Contribution" in workspace
-    assert "Forecast Notes" in workspace
+    assert "stage weight" in workspace
     assert "Estimated Value" in discovery
     assert "Value $" in discovery
     assert "Estimated Value:" in matching
@@ -135,7 +138,7 @@ def test_opportunity_workspace_discovery_and_matching_render_forecast(client, fo
 
 def test_non_member_forecast_pages_remain_protected(client, forecast_project):
     project, _user = forecast_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     outsider = get_user_model().objects.create_user(username="forecast-outsider")
     client.force_login(outsider)
 

@@ -2,6 +2,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
+from openoutreach.funding.models import Opportunity
 from openoutreach.signals.demo import seed_missionsignal_demo
 from openoutreach.signals.discovery import build_discovery_overview
 from openoutreach.signals.opportunity_web import build_opportunity_web
@@ -13,6 +14,10 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def opportunity_web_project(db):
     user, _organization, project = seed_missionsignal_demo()
+    # The demo seed builds a global inventory (project=None); project pages read
+    # project-scoped rows, so adopt the inventory into the project like a real
+    # discovery run would.
+    Opportunity.objects.filter(project__isnull=True).update(project=project)
     return project, user
 
 
@@ -58,34 +63,27 @@ def test_project_member_can_view_opportunity_web_page(client, opportunity_web_pr
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Opportunity Web V2" in content
+    assert "<h1>Opportunity Web</h1>" in content
     assert "The Web of Opportunity" in content
-    assert "Executive Ecosystem Summary" in content
+    assert "What is the Opportunity Web?" in content
+    assert "Ecosystem Summary" in content
     assert "Ecosystem Health" in content
     assert "Strongest Asset" in content
     assert "Biggest Constraint" in content
-    assert "Highest Leverage Relationship" in content
-    assert "Highest Leverage Opportunity" in content
-    assert "Web of Opportunity Story" in content
-    assert "Mission creates the center" in content
-    assert "Top 3 Strategic Moves" in content
-    assert "Opportunity Web Insights" in content
+    assert "Top Move Right Now" in content
+    assert "Highest-leverage relationship:" in content
+    assert "Highest-leverage opportunity:" in content
+    assert "Strategic Moves" in content
     assert "Opportunity Insight" in content
     assert "Relationship Insight" in content
     assert "Readiness Insight" in content
     assert "Ecosystem Insight" in content
-    assert "Snapshot is the executive interpretation of this web" in content
-    assert "Connected Ecosystem Detail" in content
-    assert "Mission Node" in content
-    assert "Funders Node" in content
-    assert "Partners Node" in content
-    assert "Contacts Node" in content
-    assert "Resources Node" in content
-    assert "Opportunities Node" in content
-    assert "Outcomes Node" in content
+    assert "Open Full Snapshot" in content
+    assert "Ecosystem Breakdown" in content
+    assert "Strengths" in content
+    assert "Gaps to close" in content
     assert "Opportunity Gaps" in content
-    assert "Highest Leverage Actions" in content
-    assert "Relationship Health" in content
+    assert "Relationship health" in content
     assert "Active opportunities" in content
     assert "Forecast value" in content
     assert "Evidence indicators" in content
@@ -109,8 +107,8 @@ def test_dashboard_and_ecosystem_link_to_opportunity_web(client, opportunity_web
     ecosystem = client.get(reverse("project-ecosystem", kwargs={"pk": project.pk})).content.decode()
 
     web_url = reverse("project-opportunity-web", kwargs={"pk": project.pk})
-    assert "Opportunity Web Summary" in dashboard
-    assert "View Opportunity Web" in dashboard
+    assert "Opportunity Web" in dashboard
+    assert "Full ecosystem map" in dashboard
     assert web_url in dashboard
     assert "Opportunity Web" in ecosystem
     assert "View Opportunity Web" in ecosystem

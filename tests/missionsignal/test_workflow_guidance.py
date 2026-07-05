@@ -49,24 +49,62 @@ def test_dashboard_renders_workflow_progress(client, workflow_project):
     assert "Recommended Next Action" in content
 
 
+JOURNEY_DOORS = (
+    "project-dashboard",
+    "project-snapshot",
+    "project-ecosystem",
+    "project-opportunities",
+    "project-pipeline",
+    "project-readiness",
+    "project-organization",
+)
+
+
 @pytest.mark.parametrize(
-    ("route_name", "stage_text", "next_route_name"),
+    ("route_name", "hero_text", "door_route", "tab_route"),
     [
-        ("project-opportunity-web", "Understand the ecosystem around your mission.", "project-opportunities"),
-        ("project-snapshot", "Understand the ecosystem around your mission.", "project-opportunities"),
-        ("project-opportunities", "Choose what is worth pursuing next.", "project-readiness"),
-        ("project-readiness", "Prepare your organization to compete for the right opportunities.", "project-relationships"),
-        ("project-relationships", "Strengthen the relationships that support your mission.", "project-pipeline"),
-        ("project-pipeline", "Manage active pursuits and execution.", "project-snapshot"),
-        ("project-discovery", "Choose what is worth pursuing next.", "project-readiness"),
-        ("project-matches", "Choose what is worth pursuing next.", "project-readiness"),
-        ("project-documents", "Prepare your organization to compete for the right opportunities.", "project-relationships"),
-        ("project-evidence", "Prepare your organization to compete for the right opportunities.", "project-relationships"),
+        ("project-opportunity-web", "<h1>Opportunity Web</h1>", "project-snapshot", "project-opportunity-web"),
+        ("project-snapshot", "Opportunity Web Snapshot", "project-snapshot", "project-snapshot"),
+        ("project-opportunities", "Choose what is worth pursuing.", "project-opportunities", "project-opportunities"),
+        ("project-readiness", "Prepare to compete.", "project-readiness", "project-readiness"),
+        ("project-relationships", "Strengthen the connections that support your mission.", "project-ecosystem", "project-relationships"),
+        ("project-pipeline", "Manage active pursuits.", "project-pipeline", None),
+        ("project-discovery", "Opportunity Inventory", "project-opportunities", "project-discovery"),
+        ("project-matches", "Review pathway fit.", "project-opportunities", "project-matches"),
+        ("project-documents", ">Documents</h1>", "project-readiness", "project-documents"),
+        ("project-evidence", ">Evidence</h1>", "project-readiness", "project-evidence"),
     ],
 )
-def test_workflow_pages_render_orientation_and_next_links(
-    client, workflow_project, route_name, stage_text, next_route_name,
+def test_journey_pages_render_orientation_and_door_navigation(
+    client, workflow_project, route_name, hero_text, door_route, tab_route,
 ):
+    """Each journey page orients the user with its hero copy, the active door
+    in the 7-door journey sidebar, and (on cluster pages) the active cluster
+    tab — and renders every sidebar door for onward navigation. The per-page
+    Workflow Progress panel now lives only on the executive dashboard and the
+    supporting tools (discovery/matches)."""
+    project, user = workflow_project
+    client.force_login(user)
+
+    response = client.get(reverse(route_name, kwargs={"pk": project.pk}))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert hero_text in content
+    # The journey sidebar marks this page's door as active...
+    door_url = reverse(door_route, kwargs={"pk": project.pk})
+    assert f'class="active" href="{door_url}"' in content
+    # ...and renders every door for onward navigation.
+    for door in JOURNEY_DOORS:
+        assert reverse(door, kwargs={"pk": project.pk}) in content
+    # Cluster pages mark the current tab (pipeline is a standalone door).
+    if tab_route:
+        tab_url = reverse(tab_route, kwargs={"pk": project.pk})
+        assert f'aria-current="page" href="{tab_url}"' in content
+
+
+@pytest.mark.parametrize("route_name", ["project-discovery", "project-matches"])
+def test_supporting_tools_render_workflow_progress_panel(client, workflow_project, route_name):
     project, user = workflow_project
     client.force_login(user)
 
@@ -75,5 +113,5 @@ def test_workflow_pages_render_orientation_and_next_links(
 
     assert response.status_code == 200
     assert "Workflow Progress" in content
-    assert stage_text in content
-    assert reverse(next_route_name, kwargs={"pk": project.pk}) in content
+    assert "Choose what is worth pursuing next." in content
+    assert reverse("project-readiness", kwargs={"pk": project.pk}) in content

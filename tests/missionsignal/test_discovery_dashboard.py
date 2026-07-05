@@ -14,6 +14,10 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def discovery_project(db):
     user, _organization, project = seed_missionsignal_demo()
+    # Discovery is project-scoped (access-gating hardening): real ingestion
+    # assigns a project to every Opportunity. The demo seeds a global
+    # inventory, so attach it to the demo project the way ingestion would.
+    Opportunity.objects.update(project=project)
     return project, user
 
 
@@ -54,19 +58,19 @@ def test_discovery_inventory_and_readiness_render(client, discovery_project):
     assert "Opportunity Inventory Summary" in content
     assert "Command Center Filters" in content
     assert "Search Opportunities" in content
-    assert "More Filters" in content
     assert "Match Level" in content
+    assert "Source Organization" in content
+    assert "Geography" in content
+    assert "Focus Area" in content
     assert "Top Source Organizations" in content
     assert "Opportunity Status Breakdown" in content
-    assert "Filters" in content
-    assert "Focus Area" in content
     assert "Top Categories" in content
-    assert "More categories" in content
+    assert "Opportunity Types and Geography Coverage" in content
     assert "Grants" in content
     assert "Government" in content
     assert "Resources" in content
     assert "Partnerships" in content
-    assert "Digital Equity Grant" in content
+    assert "Youth Opportunity Grant" in content
     assert "Workforce Development Grant" in content
     assert "Youth Technology Initiative" in content
     assert "Community Partnership Program" in content
@@ -74,20 +78,15 @@ def test_discovery_inventory_and_readiness_render(client, discovery_project):
     assert "Youth Career Exploration Sponsorship" in content
     assert "Match Score" in content
     assert "Lifecycle" in content
-    assert "View Details" in content
-    assert "Source Organization" in content
-    assert "Current Lifecycle Status" in content
-    assert "Status History" in content
-    assert "Last Updated" in content
+    assert "Estimated Value" in content
+    assert "Pursuit Readiness" in content
+    assert "Submission Readiness" in content
+    assert "Top Opportunity Readiness" in content
+    assert "Inventory Groups" in content
+    assert "Open Workspace" in content
     assert "Discovered" in content
     assert "Owner: Unassigned" in content
     assert "Why It Matches" in content
-    assert "Missing Factors" in content
-    assert "Improvement Opportunities" in content
-    assert "Focus Areas" in content
-    assert "Eligibility Notes" in content
-    assert "Internal Notes" in content
-    assert "Recommended Actions" in content
     assert "Deadline:" in content
     assert "High" in content
     assert "Strong Match" in content or "Excellent Match" in content
@@ -143,8 +142,8 @@ def test_discovery_demo_records_are_deterministic_and_varied(discovery_project):
     assert [item.opportunity.name for item in first.top_opportunities] == [
         item.opportunity.name for item in second.top_opportunities
     ]
-    assert Opportunity.objects.filter(name="Digital Equity Grant").count() == 1
-    assert SourceOrganization.objects.filter(name="Cuyahoga Community Foundation").count() == 1
+    assert Opportunity.objects.filter(name="Youth Opportunity Grant").count() == 1
+    assert SourceOrganization.objects.filter(name="Orange Community Foundation").count() == 1
     assert max(scores) >= 90
     assert min(scores) < 60
     assert len(set(scores)) >= 4

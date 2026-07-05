@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 import pytest
@@ -20,7 +21,11 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def workspace_project(db):
     user, _organization, project = seed_missionsignal_demo()
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    # Portal views scope the opportunity inventory to the project (as real
+    # ingest produces); the demo seeder writes a global inventory, so attach
+    # it to the project the way ingested rows arrive.
+    Opportunity.objects.update(project=project)
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     return project, user, opportunity
 
 
@@ -146,9 +151,13 @@ def test_dashboard_pipeline_discovery_and_matching_link_to_workspaces(client, wo
 
     assert workspace_url in discovery
     assert workspace_url in pipeline
+    # The matches page shows the top-scored workspaces (top 4 by match score),
+    # so assert the section renders and links into an opportunity workspace.
     assert "Opportunity Workspaces" in matching
-    assert workspace_url in matching
-    assert "Opportunity Work Summary" in dashboard
-    assert "Open Tasks" in dashboard
-    assert "Overdue Tasks" in dashboard
-    assert "Next Critical Deadline" in dashboard
+    assert "Open Workspace" in matching
+    assert re.search(rf"/projects/{project.pk}/opportunities/\d+/", matching)
+    # The executive dashboard surfaces opportunity work through the deadline
+    # card and the pipeline overview.
+    assert "Upcoming Deadlines" in dashboard
+    assert "Active Pipeline" in dashboard
+    assert "Top Opportunity" in dashboard

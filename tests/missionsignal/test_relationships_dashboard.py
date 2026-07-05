@@ -17,6 +17,10 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def relationship_project(db):
     user, _organization, project = seed_missionsignal_demo()
+    # The demo seed builds a global inventory (project=None); project pages read
+    # project-scoped rows, so adopt the inventory into the project like a real
+    # discovery run would.
+    Opportunity.objects.filter(project__isnull=True).update(project=project)
     return project, user
 
 
@@ -79,10 +83,9 @@ def test_project_member_can_view_relationship_dashboard(client, relationship_pro
     assert response.status_code == 200
     assert "Strengthen the connections that support your mission." in content
     assert "Relationship Health" in content
-    assert "Relationship Health Transparency" in content
-    assert "Score Contributors" in content
-    assert "Score Gaps" in content
-    assert "Highest Leverage Action" in content
+    assert "Who Matters Next" in content
+    assert "Biggest Gap" in content
+    assert "Next Contact Action" in content
     assert "Total Contacts" in content
     assert "Total Partners" in content
     assert "Strong Relationships" in content
@@ -98,7 +101,7 @@ def test_project_member_can_view_relationship_dashboard(client, relationship_pro
     assert "High Impact" in content
     assert "Potential outcomes" in content
     assert "Maya Thompson" in content
-    assert "Neighborhood Digital Inclusion Coalition" in content
+    assert "Neighborhood Youth Inclusion Coalition" in content
 
 
 def test_non_member_cannot_view_relationship_dashboard(client, relationship_project):
@@ -113,7 +116,7 @@ def test_non_member_cannot_view_relationship_dashboard(client, relationship_proj
 
 def test_dashboard_ecosystem_workspace_and_pipeline_show_relationship_context(client, relationship_project):
     project, user = relationship_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
     client.force_login(user)
 
     dashboard = client.get(reverse("project-dashboard", kwargs={"pk": project.pk})).content.decode()
@@ -123,7 +126,7 @@ def test_dashboard_ecosystem_workspace_and_pipeline_show_relationship_context(cl
     ).content.decode()
     pipeline = client.get(reverse("project-pipeline", kwargs={"pk": project.pk})).content.decode()
 
-    assert "Relationship Snapshot" in dashboard
+    assert "Partners &amp; Sponsorship" in dashboard
     assert "Relationship Health" in dashboard
     assert reverse("project-relationships", kwargs={"pk": project.pk}) in dashboard
     assert "Relationship Health" in ecosystem
@@ -137,7 +140,7 @@ def test_dashboard_ecosystem_workspace_and_pipeline_show_relationship_context(cl
 
 def test_opportunity_relationship_context_uses_known_relationships(relationship_project):
     project, _user = relationship_project
-    opportunity = Opportunity.objects.get(name="Digital Equity Grant")
+    opportunity = Opportunity.objects.get(name="Youth Opportunity Grant")
 
     context = build_opportunity_relationship_context(project, opportunity)
 

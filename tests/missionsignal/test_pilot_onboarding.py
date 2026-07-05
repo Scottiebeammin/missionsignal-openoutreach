@@ -36,7 +36,9 @@ def test_pilot_models_have_expected_defaults_and_admin_registration(pilot_projec
     assert profile.snapshot_link == ""
     assert profile.walkthrough_status == PilotProfile.WalkthroughStatus.NOT_SCHEDULED
     assert PilotProfile in admin.site._registry
-    assert PilotFeedback in admin.site._registry
+    # PilotFeedback is intentionally hidden from the curated operator admin
+    # (unregistered by AnansiAdminConfig in openoutreach/admin_config.py).
+    assert PilotFeedback not in admin.site._registry
     pilot_admin = admin.site._registry[PilotProfile]
     assert "lifecycle_status" in pilot_admin.list_filter
     assert PilotOperationalFilter in pilot_admin.list_filter
@@ -286,7 +288,9 @@ def test_dashboard_shows_pilot_banner_for_pilot_project(client, pilot_project):
     content = response.content.decode()
 
     assert response.status_code == 200
+    # The dashboard pilot panel is now compact: title + the stage's
+    # recommended next step + a link into the partner workspace.
     assert "Founding Atlas Partner" in content
-    assert "Snapshot In Progress" in content
-    assert "Open Partner Workspace" in content
+    assert "Schedule the founder walkthrough." in content
+    assert "View Partner Details" in content
     assert reverse("project-pilot-workspace", kwargs={"pk": project.pk}) in content
