@@ -65,6 +65,9 @@ def create_organization_intake(
             "contact_position": contact_position,
             "contact_email": contact_email,
             "role": OrganizationMember.Role.OWNER,
+            # The intake seat is the account admin — can edit profile settings
+            # (areas of support) and anchors the org's seat authority.
+            "is_admin": True,
         },
     )
 

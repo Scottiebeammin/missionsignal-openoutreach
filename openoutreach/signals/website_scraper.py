@@ -25,7 +25,7 @@ def _strip_tags(html: str) -> str:
     return html.strip()
 
 
-def scrape_website_text(url: str) -> str:
+def scrape_website_text(url: str, *, max_chars: int = 8_000) -> str:
     """Return cleaned text from the website homepage. Returns '' on failure."""
     if not url or not url.startswith(("http://", "https://")):
         url = f"https://{url}" if url else ""
@@ -44,6 +44,6 @@ def scrape_website_text(url: str) -> str:
             response = client.get(url, headers=headers)
             response.raise_for_status()
             content = response.text[:_MAX_BYTES]
-        return _strip_tags(content)[:8_000]  # cap at 8k chars for the analyzer
+        return _strip_tags(content)[:max_chars]  # analyzer default 8k; verification scans deeper
     except Exception:
         return ""

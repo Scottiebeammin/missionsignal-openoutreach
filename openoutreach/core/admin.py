@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib import messages
 from unfold.admin import ModelAdmin as UnfoldModelAdmin
 
-from openoutreach.core.models import Campaign, Organization, Project, SiteConfig, Task
+from openoutreach.core.models import Campaign, Organization, OrganizationMember, Project, SiteConfig, Task
 from openoutreach.signals.analysis_service import analyze_project
 
 
@@ -88,3 +88,12 @@ class TaskAdmin(UnfoldModelAdmin):
         "created_at", "started_at", "completed_at",
     )
     date_hierarchy = "scheduled_at"
+
+
+@admin.register(OrganizationMember)
+class OrganizationMemberAdmin(UnfoldModelAdmin):
+    """Seat management: flip is_admin to hand account authority to another seat."""
+    list_display = ("user", "project", "role", "is_admin", "contact_email", "last_seen_at", "page_views")
+    list_editable = ("is_admin",)
+    list_filter = ("is_admin", "role")
+    search_fields = ("user__username", "user__email", "contact_name", "contact_email", "project__name")

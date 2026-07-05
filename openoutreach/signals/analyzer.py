@@ -24,6 +24,7 @@ class OrganizationAnalyzerInput(BaseModel):
     intake_notes: str = ""     # free-text "how can we help" from intake form
     focus_area_selections: list[str] = Field(default_factory=list)   # checkbox picks at intake
     beneficiary_selections: list[str] = Field(default_factory=list)  # checkbox picks at intake
+    excluded_focus_areas: list[str] = Field(default_factory=list)    # client removed in Settings — never re-infer
 
 
 class FundingCriteriaAnalysis(BaseModel):
@@ -193,6 +194,12 @@ def analyze_deterministically(data: OrganizationAnalyzerInput) -> OrganizationAn
     else:
         raw = _matches(combined, _FOCUS_RULES)
         focus_areas = _canonical_focus(raw)
+
+    # Client-removed areas stay removed: text inference must not resurrect
+    # anything the account admin explicitly took out in Settings.
+    excluded = {e.casefold() for e in data.excluded_focus_areas}
+    if excluded:
+        focus_areas = [a for a in focus_areas if a.casefold() not in excluded]
 
     # Beneficiaries: explicit selections win, then infer
     if data.beneficiary_selections:

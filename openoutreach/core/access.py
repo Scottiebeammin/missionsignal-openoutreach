@@ -32,3 +32,15 @@ def user_is_verified(user) -> bool:
     if user.groups.filter(name=FOUNDING_PARTNERS_GROUP).exists():
         return True
     return user.missionsignal_projects.exists()
+
+
+def user_is_project_admin(user, project) -> bool:
+    """Seat authority: staff, or the member flagged is_admin on this project.
+
+    The first seat on a project is the admin (intake owner, or the first
+    invite accepted); admins can edit profile settings like areas of support.
+    """
+    if user.is_staff:
+        return True
+    from openoutreach.core.models import OrganizationMember
+    return OrganizationMember.objects.filter(project=project, user=user, is_admin=True).exists()

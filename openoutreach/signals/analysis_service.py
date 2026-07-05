@@ -42,6 +42,7 @@ def analyze_project(project, *, mode="deterministic"):
         intake_notes=intake_notes,
         focus_area_selections=list(organization.focus_areas or []),
         beneficiary_selections=list(organization.beneficiaries or []),
+        excluded_focus_areas=list(organization.excluded_focus_areas or []),
     )
     run = (
         OrganizationAnalysisRun.objects.filter(

@@ -96,6 +96,9 @@ class Organization(models.Model):
     existing_partnerships = models.JSONField(default=list, blank=True)
     service_geographies = models.JSONField(default=list, blank=True)
     focus_areas = models.JSONField(default=list, blank=True)
+    # Areas a client explicitly removed in Settings — the analyzer must never
+    # re-infer these from mission/website text on later runs.
+    excluded_focus_areas = models.JSONField(default=list, blank=True)
     beneficiaries = models.JSONField(default=list, blank=True)
     capabilities = models.JSONField(default=list, blank=True)
     outcomes_and_impact = models.JSONField(default=list, blank=True)
@@ -109,6 +112,9 @@ class Organization(models.Model):
     analysis_warnings = models.JSONField(default=list, blank=True)
     analyzer_version = models.CharField(max_length=100, blank=True, default="")
     last_analyzed_at = models.DateTimeField(null=True, blank=True)
+    # Last website verification report: claimed programs/areas checked against
+    # the live site text ({checked_at, url, status, found[], missing[]}).
+    website_check = models.JSONField(null=True, blank=True)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -158,6 +164,9 @@ class OrganizationMember(models.Model):
         related_name="members",
     )
     role = models.CharField(max_length=30, choices=Role.choices, default=Role.STAFF)
+    # Account admin for this organization's seats: can edit profile settings
+    # (areas of support). The first seat on a project is the admin by default.
+    is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Contact info (collected at intake)

@@ -70,6 +70,24 @@
     </header>
 
     <section class="panel">
+      <h2>Team &amp; Seats</h2>
+      <p class="muted">Everyone with access to this workspace. Your account admin manages profile settings like areas of support.</p>
+      <ul style="list-style:none; margin:10px 0 0; padding:0; display:grid; gap:8px;">
+        {% for member in members %}
+          <li style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
+            <strong>{{ member.contact_name|default:member.user.get_full_name|default:member.user.username }}</strong>
+            {% if member.is_admin %}<span style="padding:2px 8px; border-radius:999px; background:var(--gold-soft); border:1px solid var(--gold); color:var(--gold); font-weight:800; font-size:12px;">Admin</span>{% endif %}
+            <span class="muted">{{ member.get_role_display }}</span>
+            {% if member.contact_email %}<span class="muted">{{ member.contact_email }}</span>{% endif %}
+            {% if member.last_seen_at %}<span class="muted">Last seen {{ member.last_seen_at|date:"M j" }}</span>{% endif %}
+          </li>
+        {% empty %}
+          <li class="muted">No seats yet.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="panel">
       <h2>Organization Profile</h2>
       <div class="metrics">
         <div class="metric"><span class="muted">Type</span><strong>{{ organization.organization_type|default:"Not provided" }}</strong></div>

@@ -3,15 +3,17 @@ import time
 
 import stripe
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from openoutreach.core.models import Project
+from openoutreach.core.access import user_is_project_admin
+from openoutreach.core.models import OrganizationMember, Project
 from openoutreach.funding.models import Opportunity, OpportunityTask
 from openoutreach.funding.readiness import build_funding_readiness
 from openoutreach.signals.demo_guard import exclude_demo
 from openoutreach.signals.analysis_service import analyze_project
+from openoutreach.signals.categories import OPPORTUNITY_FOCUS_CATEGORIES
 from openoutreach.signals.celebrations import build_celebration_overview
 from openoutreach.signals.dashboard import build_executive_dashboard
 from openoutreach.signals.discovery import build_discovery_overview
@@ -271,8 +273,59 @@ def project_analysis_detail(request, pk):
             "project": project,
             "organization": project.organization,
             "funding_criteria": getattr(project, "funding_criteria", None),
+            "is_account_admin": user_is_project_admin(request.user, project),
+            "focus_category_options": OPPORTUNITY_FOCUS_CATEGORIES,
+            "website_check": project.organization.website_check,
         },
     )
+
+
+@login_required
+@require_POST
+def project_focus_area_update(request, pk):
+    """Add or remove an area of support from Settings.
+
+    Seat-authority gated (account admin or staff) — these areas drive
+    opportunity matching. Removals are remembered as exclusions so the
+    analyzer never re-infers them from mission/website text, then the
+    deterministic analysis re-runs so matches reflect the change immediately.
+    """
+    project = client_project(request, pk)
+    if not user_is_project_admin(request.user, project):
+        return HttpResponseForbidden("Only your account admin can edit areas of support.")
+    action = request.POST.get("action", "")
+    value = request.POST.get("value", "").strip()[:100]
+    if value and action in {"add", "remove"}:
+        organization = project.organization
+        canonical = next(
+            (c for c in OPPORTUNITY_FOCUS_CATEGORIES if c.casefold() == value.casefold()), value,
+        )
+        focus = list(organization.focus_areas or [])
+        excluded = list(organization.excluded_focus_areas or [])
+        if action == "add":
+            if canonical.casefold() not in {f.casefold() for f in focus}:
+                focus.append(canonical)
+            excluded = [e for e in excluded if e.casefold() != canonical.casefold()]
+        else:
+            focus = [f for f in focus if f.casefold() != canonical.casefold()]
+            if canonical.casefold() not in {e.casefold() for e in excluded}:
+                excluded.append(canonical)
+        organization.focus_areas = focus
+        organization.excluded_focus_areas = excluded
+        organization.save(update_fields=["focus_areas", "excluded_focus_areas"])
+        analyze_project(project, mode="deterministic")
+    return redirect("project-analysis-detail", pk=pk)
+
+
+@login_required
+@require_POST
+def project_website_scan(request, pk):
+    """Scan the org website and flag profile claims not visible on the site."""
+    from openoutreach.signals.website_verification import verify_website_claims
+
+    project = client_project(request, pk)
+    verify_website_claims(project.organization, project)
+    return redirect("project-analysis-detail", pk=pk)
 
 
 @login_required
@@ -306,6 +359,11 @@ def project_organization_workspace(request, pk):
     project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     next_steps = recommended_next_steps(project.organization, funding_criteria)
+    members = (
+        OrganizationMember.objects.filter(project=project)
+        .select_related("user")
+        .order_by("-is_admin", "created_at")
+    )
     return render(
         request,
         "signals/project_organization_workspace.html",
@@ -314,6 +372,8 @@ def project_organization_workspace(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "recommended_next_steps": next_steps[:5],
+            "members": members,
+            "is_account_admin": user_is_project_admin(request.user, project),
         },
     )
 

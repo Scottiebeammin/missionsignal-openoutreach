@@ -54,6 +54,76 @@
     </nav>
 
     <section class="panel">
+      <h2>Areas of Support</h2>
+      <p class="muted">These areas drive your opportunity matching. Add the work you do; remove anything that doesn't fit — removed areas stay removed, even after re-analysis.</p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin:12px 0;">
+        {% for area in organization.focus_areas %}
+          <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:var(--accent-soft); font-weight:600;">
+            {{ area }}
+            {% if is_account_admin %}
+              <form method="post" action="{% url 'project-focus-areas' project.pk %}" style="margin:0; display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="value" value="{{ area }}">
+                <button type="submit" title="Remove {{ area }}" aria-label="Remove {{ area }}" style="min-height:auto; padding:0 6px; border:none; background:transparent; color:var(--muted); font-weight:800; cursor:pointer;">&times;</button>
+              </form>
+            {% endif %}
+          </span>
+        {% empty %}
+          <span class="muted">No areas of support yet — add the first one below.</span>
+        {% endfor %}
+      </div>
+      {% if is_account_admin %}
+        <form method="post" action="{% url 'project-focus-areas' project.pk %}" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add">
+          <input type="text" name="value" list="focus-category-options" required maxlength="100" placeholder="Add an area of support…" style="min-height:36px; padding:8px 10px; border:1px solid var(--line); border-radius:6px; font:inherit; min-width:240px;">
+          <datalist id="focus-category-options">
+            {% for option in focus_category_options %}<option value="{{ option }}">{% endfor %}
+          </datalist>
+          <button type="submit">Add area</button>
+        </form>
+        {% if organization.excluded_focus_areas %}
+          <p class="muted" style="margin-top:10px;">Removed (won't be re-suggested): {{ organization.excluded_focus_areas|join:", " }}</p>
+        {% endif %}
+      {% else %}
+        <p class="muted">Only your account admin can change areas of support.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>Website Check</h2>
+      <p class="muted">We scan your website and flag anything in your profile that visitors (and funders) can't see on your site.</p>
+      <form method="post" action="{% url 'project-website-scan' project.pk %}" style="margin:10px 0;">
+        {% csrf_token %}
+        <button type="submit">Scan our website</button>
+      </form>
+      {% if website_check %}
+        {% if website_check.status == "no_website" %}
+          <p class="muted">No website is on file for your organization — add one so we can verify your programs.</p>
+        {% elif website_check.status == "unreachable" %}
+          <p class="muted">We couldn't reach {{ website_check.url }} on the last scan. Check the address and try again.</p>
+        {% else %}
+          {% if website_check.missing %}
+            <div style="border:1px solid var(--gold); border-radius:8px; background:var(--gold-soft); padding:12px; margin-bottom:10px;">
+              <strong>Not visible on your website:</strong>
+              <ul style="margin-top:6px;">
+                {% for item in website_check.missing %}
+                  <li>{{ item.claim }} <span class="muted">({{ item.kind }})</span> — funders checking your site won't see this. Add it to the site, or adjust your profile.</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% else %}
+            <p><strong>Everything in your profile is visible on your website.</strong></p>
+          {% endif %}
+          {% if website_check.found %}
+            <p class="muted">Confirmed on the site: {% for item in website_check.found %}{{ item.claim }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+          {% endif %}
+        {% endif %}
+      {% endif %}
+    </section>
+
+    <section class="panel">
       <h2>Organization Profile Data</h2>
       <div class="grid">
         <article class="setting-card">

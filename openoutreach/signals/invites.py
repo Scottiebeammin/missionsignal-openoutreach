@@ -18,7 +18,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core import signing
 from django.shortcuts import redirect, render
 
-from openoutreach.core.models import Project
+from openoutreach.core.models import OrganizationMember, Project
 from openoutreach.signals.notifications import ANANSI_ATLAS_OPERATOR_EMAIL, logger
 
 INVITE_SALT = "anansi-project-invite"
@@ -88,6 +88,18 @@ def accept_invite(request, token):
             user.set_password(form.cleaned_data["password1"])
             user.save()
             project.users.add(user)
+            # Every seat gets a member record (activity tracking + seat list).
+            # The first seat on a project becomes the account admin; later
+            # invited seats join as regular members.
+            OrganizationMember.objects.get_or_create(
+                user=user,
+                project=project,
+                defaults={
+                    "contact_name": f"{user.first_name} {user.last_name}".strip(),
+                    "contact_email": user.email,
+                    "is_admin": not OrganizationMember.objects.filter(project=project, is_admin=True).exists(),
+                },
+            )
             logger.info("Invite accepted: %s joined project %s (%s)", email, project.pk, project.organization.name)
             login(request, user)
             return redirect("project-dashboard", pk=project.pk)
