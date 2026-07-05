@@ -68,6 +68,28 @@ class TestRenderSystemPrompt:
         # Renders without crashing and shows the empty placeholders.
         assert "(none yet)" in prompt
         assert "No recent messages." in prompt
+        # No company intel on the lead → the whole section is absent.
+        assert "Their Company" not in prompt
+
+    def test_company_intel_section_appears_when_present(self, db, fake_session):
+        from openoutreach.core.agents.follow_up import _render_system_prompt
+
+        lead = LeadFactory(public_identifier="carol", company_intel={
+            "domain": "acme.com",
+            "company_name": "Acme Robotics",
+            "industry_signals": ["AI/ML"],
+            "company_size_signals": {"funding_stage": "Series B"},
+            "has_job_postings": True,
+        })
+        deal = DealFactory(lead=lead, campaign=fake_session.campaign)
+        fake_session.self_profile = {"first_name": "Bob", "last_name": "Builder", "urn": "urn:li:fsd_profile:SELF"}
+
+        prompt = _render_system_prompt(fake_session, deal, [])
+
+        assert "Their Company (from their website)" in prompt
+        assert "Acme Robotics (acme.com)" in prompt
+        assert "Series B" in prompt
+        assert "Actively hiring" in prompt
 
 
 class TestLoadRecentMessages:

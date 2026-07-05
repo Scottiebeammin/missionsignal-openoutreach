@@ -129,6 +129,13 @@ def _save_qualification_result(session, qualifier: BayesianQualifier, lead_id: i
         #          usable hits).
         if deal.lead.resolve_api_email() is True:
             set_profile_state(session, public_id, DealState.READY_TO_EMAIL)
+        # Firmographic enrichment: best-effort, non-fatal, and independent of
+        # the email/connect fork above — the company domain is derived from the
+        # resolved work email, so this runs after resolve_api_email. It only
+        # annotates Lead.company_intel; it never changes the Deal's state.
+        if deal.lead.resolve_company_intel() is True and isinstance(deal.lead.company_intel, dict):
+            signals = deal.lead.company_intel.get("industry_signals") or []
+            logger.info("%s company intel: %s", public_id, ", ".join(signals) or "no signals")
     else:
         create_disqualified_deal(session, public_id, reason=reason)
 

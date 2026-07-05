@@ -107,3 +107,33 @@ class TestContactCaptureOnConnect:
             patcher.stop()
 
         assert _alice().contact_info is None
+
+    def test_connected_resolves_company_intel_from_overlay(self, fake_session):
+        """The CONNECTED hook chains capture → company intel: the overlay's work
+        email (alice@acme.com) yields the domain the finder never resolved."""
+        _promote_alice(fake_session)
+        intel = {"domain": "acme.com", "industry_signals": ["SaaS"]}
+        patcher, _ = _patch_api()
+        try:
+            with patch("openoutreach.emails.company_intel.analyze_company",
+                       return_value=intel) as mock_analyze:
+                set_profile_state(fake_session, "alice", ProfileState.CONNECTED.value)
+        finally:
+            patcher.stop()
+
+        mock_analyze.assert_called_once_with("acme.com")
+        assert _alice().company_intel == intel
+
+    def test_capture_failure_still_attempts_intel_but_finds_no_domain(self, fake_session):
+        """A failed overlay scrape leaves contact_info null → no domain → intel
+        resolution is a clean no-op (None), and the transition still lands."""
+        _promote_alice(fake_session)
+        patcher, _ = _patch_api(side_effect=ProfileInaccessibleError("private"))
+        try:
+            with patch("openoutreach.emails.company_intel.analyze_company") as mock_analyze:
+                set_profile_state(fake_session, "alice", ProfileState.CONNECTED.value)
+        finally:
+            patcher.stop()
+
+        mock_analyze.assert_not_called()
+        assert _alice().company_intel is None

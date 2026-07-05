@@ -135,6 +135,11 @@ def set_profile_state(session, public_identifier: str, new_state: str, reason: s
 
     if state_changed and ps == DealState.CONNECTED:
         _capture_contact_info(deal.lead, session)
+        # Connect leg's second chance at firmographics: the overlay captured
+        # above may expose a work email whose domain the finder never resolved.
+        # Annotation-only (never touches Deal state) and internally best-effort
+        # — network/parse failures degrade to empty data, never an exception.
+        deal.lead.resolve_company_intel()
 
 
 # ── State queries ──

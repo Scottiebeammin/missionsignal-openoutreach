@@ -40,6 +40,16 @@ def _mock_contact_capture(request):
             yield
 
 
+@pytest.fixture(autouse=True)
+def _mock_company_intel_network():
+    """Kill the company-intel HTTP boundary so the qualify gate and CONNECTED
+    transitions never fetch a live website in tests (they degrade to a clean
+    tried-empty result). The analyzer's own tests re-patch ``_fetch`` inside
+    their scope, which overrides this stub for the duration of the test."""
+    with patch("openoutreach.emails.company_intel._fetch", return_value=(None, None)):
+        yield
+
+
 class FakeAccountSession:
     """Minimal stand-in for AccountSession — exposes django_user + campaign."""
 

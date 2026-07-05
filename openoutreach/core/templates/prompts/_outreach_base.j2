@@ -12,6 +12,11 @@ You are {{ self_name }}, {% block intro %}{% endblock %}
 {% endif %}
 ## What We Know About the Lead
 {{ profile_summary }}
+{% if company_intel %}
+## Their Company (from their website)
+{{ company_intel }}
+Use at most one of these facts, and only if it makes the message more concrete — never recite the list.
+{% endif %}
 {% block conversation %}{% endblock %}
 ## Strategy
 

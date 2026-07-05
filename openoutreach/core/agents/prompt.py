@@ -22,6 +22,8 @@ def render(template_name: str, **context) -> str:
 
 def base_context(session, deal) -> dict:
     """The channel-agnostic prompt variables shared by every outreach entrypoint."""
+    from openoutreach.emails.company_intel import intel_digest
+
     campaign = deal.campaign
     self_prof = session.self_profile
     self_name = (
@@ -34,6 +36,9 @@ def base_context(session, deal) -> dict:
         "campaign_objective": campaign.campaign_objective or "",
         "booking_link": campaign.booking_link or "",
         "profile_summary": _format_facts(deal.profile_summary),
+        # Firmographics scraped at enrichment (Lead.company_intel); "" when the
+        # lead has none, which collapses the template section entirely.
+        "company_intel": intel_digest(deal.lead.company_intel),
     }
 
 

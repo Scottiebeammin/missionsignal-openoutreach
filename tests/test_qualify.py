@@ -99,6 +99,22 @@ class TestQualifyAutoDecisions:
             run_qualification(session, qualifier)
             mock_promote.return_value.lead.resolve_api_email.assert_called_once_with()
 
+    def test_qualified_lead_resolves_company_intel(self, db):
+        """The QUALIFIED gate also fires firmographic enrichment, non-fatally."""
+        qualifier = _make_trained_qualifier()
+        session = MagicMock()
+        _create_lead_with_embedding(1, "alice")
+
+        with (
+            patch("openoutreach.linkedin.db.leads.get_leads_for_qualification", return_value=_fake_leads()),
+            patch("openoutreach.linkedin.pipeline.qualify._fetch_profile_text", return_value="engineer at acme"),
+            patch("openoutreach.linkedin.ml.qualifier.qualify_with_llm", return_value=(1, "Good fit")),
+            patch.object(qualifier, "update"),
+            patch("openoutreach.linkedin.db.leads.promote_lead_to_deal") as mock_promote,
+        ):
+            run_qualification(session, qualifier)
+            mock_promote.return_value.lead.resolve_company_intel.assert_called_once_with()
+
     def test_finder_hit_routes_to_ready_to_email(self, db):
         """A finder hit (True) routes the Deal QUALIFIED → READY_TO_EMAIL."""
         from openoutreach.crm.models import DealState

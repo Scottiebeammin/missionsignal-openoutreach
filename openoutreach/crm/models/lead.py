@@ -24,6 +24,12 @@ class Lead(models.Model):
     #                  finder slice (p1-e3). null = not found.
     contact_info = models.JSONField(null=True, blank=True, default=None)
     api_email = models.EmailField(null=True, blank=True, default=None)
+    # Firmographic company intelligence (industry, tech stack, size/funding,
+    # socials, team, hiring) scraped from the prospect's company website at the
+    # QUALIFIED gate — see emails/company_intel.py. Domain is derived from
+    # api_email, so this runs after the finder. null = never resolved
+    # (idempotency flag); {} = tried but the site yielded nothing.
+    company_intel = models.JSONField(null=True, blank=True, default=None)
     disqualified = models.BooleanField(default=False)
     creation_date = models.DateTimeField(default=timezone.now)
     update_date = models.DateTimeField(auto_now=True)
@@ -116,6 +122,63 @@ class Lead(models.Model):
             self.save(update_fields=["api_email"])
             return True
         return False
+
+    def _company_domain(self) -> str | None:
+        """Company domain from the best available email source, or None.
+
+        Prefers ``api_email`` (a finder-verified work address); falls back to
+        the LinkedIn contact-info overlay captured at CONNECTED. Overlay
+        addresses are often personal — free-mail domains yield None and are
+        skipped, so a gmail-only overlay produces no domain.
+        """
+        from openoutreach.emails.company_intel import domain_from_email
+
+        domain = domain_from_email(self.api_email)
+        if domain:
+            return domain
+        overlay = self.contact_info if isinstance(self.contact_info, dict) else {}
+        for email in (overlay.get("email"), *(overlay.get("emails") or [])):
+            domain = domain_from_email(email)
+            if domain:
+                return domain
+        return None
+
+    def resolve_company_intel(self) -> bool | None:
+        """Resolve + persist firmographic company intel for a qualified lead.
+
+        Mirrors ``resolve_api_email``'s tri-state, best-effort contract:
+        - True  — intel scraped and persisted (``company_intel`` set).
+        - False — ran but the company site yielded nothing; ``company_intel``
+                  is stamped ``{}`` so we don't re-scrape a dead site.
+        - None  — could not run (feature disabled, or no company domain
+                  derivable from any email source). Nothing is persisted, so a
+                  later email capture can trigger a real attempt.
+
+        Idempotent: a non-null ``company_intel`` short-circuits. The company
+        domain comes from ``_company_domain()`` — ``api_email`` first (so on
+        the email leg this runs right after ``resolve_api_email``), falling
+        back to the CONNECTED contact-info overlay (the connect leg's second
+        chance — see ``set_profile_state``).
+        """
+        if self.company_intel is not None:
+            return True
+        from openoutreach.core import conf
+        from openoutreach.emails.company_intel import analyze_company
+
+        if not getattr(conf, "COMPANY_INTEL_ENABLED", True):
+            return None
+        domain = self._company_domain()
+        if not domain:
+            return None
+
+        intel = analyze_company(domain)
+        if not intel:
+            self.company_intel = {}
+            self.save(update_fields=["company_intel"])
+            return False
+        self.company_intel = intel
+        self.save(update_fields=["company_intel"])
+        return True
 
     def get_urn(self, session) -> str:
         """LinkedIn URN. Reads cached column; falls back to a live scrape."""

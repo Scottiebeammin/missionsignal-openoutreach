@@ -40,6 +40,15 @@ DEFAULT_FOLLOW_UP_DAILY_LIMIT = 25
 DEFAULT_EMAIL_DAILY_LIMIT = 30
 
 # ----------------------------------------------------------------------
+# Company intelligence (firmographic enrichment at the QUALIFIED gate)
+# When True, a qualified lead with a resolved work email has its company
+# website scraped for firmographics (see emails/company_intel.py) and the
+# result stored on Lead.company_intel. Best-effort and non-fatal; set False to
+# disable the extra outbound scrape.
+# ----------------------------------------------------------------------
+COMPANY_INTEL_ENABLED = True
+
+# ----------------------------------------------------------------------
 # Active-hours schedule (daemon pauses outside this window)
 # Set to False to run 24/7. Working hours are a single contiguous window;
 # weekends are no longer special-cased (humans use LinkedIn 7 days a week).
