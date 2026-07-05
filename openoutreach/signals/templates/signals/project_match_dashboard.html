@@ -29,6 +29,8 @@
     .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding: 12px; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .button { display: inline-flex; align-items: center; min-height: 38px; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 6px; background: white; color: var(--accent); font-weight: 700; text-decoration: none; }
+    button.notfit-btn { cursor: pointer; font: inherit; border-color: var(--line); color: var(--muted); }
+    button.notfit-btn:hover { border-color: #b3423a; color: #b3423a; }
     .hero { margin-bottom: 14px; padding: 24px; }
     .eyebrow { margin-bottom: 6px; color: var(--accent); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
     .subtitle, .muted { color: var(--muted); }
@@ -145,7 +147,7 @@
     <section class="panel">
       <h2>Top Recommended Opportunities</h2>
       <div class="match-grid">
-        {% for match in match_overview.top_recommended %}
+        {% for match, feedback_kind in top_recommended_cards %}
           <article class="match-card">
             <div class="match-header">
               <h3>{{ match.name }}</h3>
@@ -160,12 +162,19 @@
             <p><strong>Current Lifecycle Status:</strong> {{ match.current_lifecycle_status }}</p>
             <p><strong>Owner:</strong> {{ match.owner_label }} <strong>Suggested Next Action:</strong> {{ match.suggested_next_action }}</p>
             <p><strong>Primary Recommendation:</strong> {{ match.improvement_suggestions.0|default:"Review fit and confirm owner before pursuing." }}</p>
-            <p>
+            <p style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
               {% if match.website %}
                 <a class="button" href="{{ match.website }}" target="_blank" rel="noopener">Visit their website →</a>
               {% else %}
                 <a class="button" href="https://www.google.com/search?q={{ match.name|urlencode }}" target="_blank" rel="noopener">Find this organization →</a>
               {% endif %}
+              <form method="post" action="{% url 'project-match-feedback' project.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="kind" value="{{ feedback_kind }}">
+                <input type="hidden" name="target_key" value="{{ match.name }}">
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="button notfit-btn" title="Not relevant to us — remove it from these recommendations">Not a fit ✕</button>
+              </form>
             </p>
             <div class="factor-block">
               <p class="factor-title">Why It Matches</p>

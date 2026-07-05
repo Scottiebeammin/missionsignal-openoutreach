@@ -373,8 +373,14 @@ def derive_foundation_funders(min_grants=3):
     Foundations with >= ``min_grants`` stored (Florida-relevant) grants become
     verified ``Funder`` records — provably traced to IRS filings, the same
     standard as grants.gov rows. Existing funders (matched by irs-ein external
-    id, else exact name) are never clobbered: blanks are filled and the
-    990-PF-derived note is appended/refreshed, nothing else is touched.
+    id, else exact name) are never clobbered: blanks are filled, the
+    990-PF-derived note is appended/refreshed, and the grounded giving stats
+    (``grant_count``, ``grants_total_amount``) are refreshed — nothing else is
+    touched. ``is_derived`` marks rows this derivation *created* (recognized on
+    re-runs by notes that start with the derived-note prefix); curated funders
+    that derivation merely enriches keep ``is_derived=False`` so the matching
+    pool always scores them. Re-running is therefore also the backfill path
+    for the quality fields (``pull_990pf_grants --skip-pull --derive-funders``).
 
     Returns {"created": n, "updated": n, "considered": n}.
     """
@@ -409,14 +415,25 @@ def derive_foundation_funders(min_grants=3):
                 verification_status=Funder.VerificationStatus.VERIFIED,
                 last_reviewed_at=timezone.now(),
                 active=True,
+                grant_count=stats["count"],
+                grants_total_amount=stats["total"],
+                is_derived=True,
             )
             ein_index[ein] = funder
             name_index.setdefault(funder.name.casefold().strip(), funder)
             created += 1
             continue
 
-        # Existing funder: fill blanks + append/refresh the derived note only.
-        # Human-edited name/type/geography/focus areas are never overwritten.
+        # Existing funder: fill blanks + append/refresh the derived note and
+        # the grounded giving stats. Human-edited name/type/geography/focus
+        # areas are never overwritten. A row whose notes START with the
+        # derived-note prefix was created by an earlier derivation run — flag
+        # it is_derived so re-running doubles as the backfill; curated rows
+        # (human notes first, note appended after) stay is_derived=False.
+        if (funder.notes or "").lstrip().startswith(_DERIVED_NOTE_PREFIX):
+            funder.is_derived = True
+        funder.grant_count = stats["count"]
+        funder.grants_total_amount = stats["total"]
         if not funder.geography:
             funder.geography = stats["geography"]
         if not funder.focus_areas:

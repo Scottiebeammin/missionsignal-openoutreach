@@ -53,9 +53,17 @@ def operator_dashboard(request):
         "closed": SalesLead.objects.filter(status=SalesLead.Status.CLOSED).count(),
     }
 
+    # Orgs with any member seen in the last 7 days (ClientActivityTracker stamps).
+    from datetime import timedelta
+    week_ago = timezone.now() - timedelta(days=7)
+    active_orgs_week = (
+        Project.objects.filter(members__last_seen_at__gte=week_ago).distinct().count()
+    )
+
     ctx = {
         "pipeline_summary": pipeline_summary,
         "total_projects": total_projects,
+        "active_orgs_week": active_orgs_week,
         "total_signups": total_signups,
         "total_funders": Funder.objects.filter(active=True).count(),
         "total_opportunities": Opportunity.objects.count(),
@@ -68,13 +76,22 @@ def operator_dashboard(request):
 
 @_operator_required
 def operator_organizations(request):
-    from openoutreach.core.models import Project
-    from django.db.models import Count
+    from openoutreach.core.models import OrganizationMember, Project
+    from django.db.models import Count, Max, OuterRef, Subquery, Sum
 
+    # Member activity via subqueries — joining members alongside the opportunity
+    # Count would cross-multiply rows and inflate the Sum.
+    member_activity = (
+        OrganizationMember.objects.filter(project=OuterRef("pk"))
+        .values("project")
+        .annotate(last_seen=Max("last_seen_at"), views=Sum("page_views"))
+    )
     projects = (
         Project.objects.select_related("organization")
         .annotate(
             opp_count=Count("opportunities", distinct=True),
+            last_seen=Subquery(member_activity.values("last_seen")[:1]),
+            total_page_views=Subquery(member_activity.values("views")[:1]),
         )
         .order_by("-created_at")
     )

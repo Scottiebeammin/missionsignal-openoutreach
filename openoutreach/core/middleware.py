@@ -1,11 +1,24 @@
-"""View-as-client banner middleware.
+"""Portal middleware: view-as-client banner + client activity tracking.
 
-When a staff operator opens a client's project portal (any `project-*` route) for a
-project they don't personally belong to, inject a sticky banner so the "view as
-client" mode is unmistakable and one click exits back to the operator dashboard.
-Universal across all client templates — no per-template edits required.
+ViewAsClientBanner — when a staff operator opens a client's project portal (any
+`project-*` route) for a project they don't personally belong to, inject a sticky
+banner so the "view as client" mode is unmistakable and one click exits back to
+the operator dashboard. Universal across all client templates — no per-template
+edits required.
+
+ClientActivityTracker — lightweight usage instrumentation for real clients:
+authenticated non-staff hits on /projects/<pk>/ paths stamp the matching
+OrganizationMember row's ``last_seen_at`` and bump ``page_views``, throttled to
+one write per 10-minute active window (the throttle lives in the UPDATE's WHERE
+clause, so it costs a single query and is race-safe).
 """
-from openoutreach.core.models import Project
+import re
+from datetime import timedelta
+
+from django.db.models import F, Q
+from django.utils import timezone
+
+from openoutreach.core.models import OrganizationMember, Project
 
 _BANNER = (
     '<div style="position:sticky;top:0;z-index:99999;background:#0b1730;color:#fff;'
@@ -53,3 +66,38 @@ class ViewAsClientBanner:
         except Exception:
             pass  # a banner failure must never break the page
         return response
+
+
+# One activity "window": at most one last_seen_at write (and one page_views
+# increment) per member per window, no matter how many pages they click through.
+ACTIVITY_THROTTLE = timedelta(minutes=10)
+
+_PROJECT_PATH = re.compile(r"^/projects/(\d+)/")
+
+
+class ClientActivityTracker:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        try:
+            self._track(request)
+        except Exception:
+            pass  # instrumentation must never break the page
+        return response
+
+    @staticmethod
+    def _track(request):
+        user = getattr(request, "user", None)
+        if not (user and user.is_authenticated) or user.is_staff:
+            return
+        match = _PROJECT_PATH.match(request.path)
+        if not match:
+            return
+        now = timezone.now()
+        OrganizationMember.objects.filter(
+            user=user, project_id=int(match.group(1)),
+        ).filter(
+            Q(last_seen_at__isnull=True) | Q(last_seen_at__lt=now - ACTIVITY_THROTTLE)
+        ).update(last_seen_at=now, page_views=F("page_views") + 1)

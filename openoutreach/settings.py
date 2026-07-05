@@ -109,6 +109,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "openoutreach.core.middleware.ViewAsClientBanner",
+    "openoutreach.core.middleware.ClientActivityTracker",
 ]
 
 ROOT_URLCONF = "openoutreach.urls"

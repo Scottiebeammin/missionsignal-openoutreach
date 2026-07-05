@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
 
@@ -492,6 +493,47 @@ class OrganizationContact(models.Model):
         if self.organization:
             return f"{self.name} — {self.organization}"
         return self.name
+
+
+class MatchFeedback(models.Model):
+    """Client verdict on a recommended match ("not a fit" for now).
+
+    ``target_key`` is the Opportunity pk as a string for kind=opportunity, or the
+    record name for reference matches (funder/partner/resource/government), since
+    those surface as name-keyed score dataclasses rather than per-project rows.
+    Suppression happens at the view layer — see openoutreach/signals/feedback.py.
+    """
+
+    class Kind(models.TextChoices):
+        OPPORTUNITY = "opportunity", "Opportunity"
+        FUNDER = "funder", "Funder"
+        PARTNER = "partner", "Partner"
+        RESOURCE = "resource", "Resource"
+        GOVERNMENT = "government", "Government"
+
+    class Verdict(models.TextChoices):
+        NOT_A_FIT = "not_a_fit", "Not a fit"
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="match_feedback")
+    kind = models.CharField(max_length=20, choices=Kind.choices)
+    target_key = models.CharField(max_length=300, db_index=True)
+    verdict = models.CharField(max_length=20, choices=Verdict.choices, default=Verdict.NOT_A_FIT)
+    note = models.TextField(blank=True, default="")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="match_feedback",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("project", "kind", "target_key"), name="unique_project_match_feedback",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.project_id} — {self.kind}:{self.target_key} ({self.verdict})"
 
 
 class PartnerOrganization(models.Model):

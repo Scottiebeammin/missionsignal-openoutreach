@@ -204,13 +204,21 @@ def test_derive_foundation_funders_creates_verified_funder():
     assert "Education" in funder.focus_areas
     assert "Derived from IRS 990-PF filings: 3 grants, $60,000 total, years 2022-2024." in funder.notes
     assert "Recipient 2" in funder.notes  # top recipient by amount
+    # Quality fields for the two-tier matching pool.
+    assert funder.is_derived is True
+    assert funder.grant_count == 3
+    assert funder.grants_total_amount == 60_000
 
     # Idempotent: a second derivation refreshes, never duplicates.
     summary = derive_foundation_funders()
     assert summary == {"created": 0, "updated": 1, "considered": 1}
     assert Funder.objects.filter(name="Sunshine Family Foundation").count() == 1
-    assert Funder.objects.get(name="Sunshine Family Foundation").notes.count(
-        "Derived from IRS 990-PF filings:") == 1
+    funder.refresh_from_db()
+    assert funder.notes.count("Derived from IRS 990-PF filings:") == 1
+    # The re-run keeps the derived flag and refreshes the giving stats.
+    assert funder.is_derived is True
+    assert funder.grant_count == 3
+    assert funder.grants_total_amount == 60_000
 
 
 def test_derive_foundation_funders_never_clobbers_existing():
@@ -239,6 +247,34 @@ def test_derive_foundation_funders_never_clobbers_existing():
     assert "Derived from IRS 990-PF filings: 3 grants" in existing.notes
     assert {"system": "irs-ein", "id": "012345678"} in existing.external_ids
     assert BUNDLE_URL in existing.source_urls
+    # Grounded giving stats refreshed, but a curated funder is NEVER flagged
+    # derived — it must stay in the always-scored tier of the matching pool.
+    assert existing.grant_count == 3
+    assert existing.grants_total_amount == 60_000
+    assert existing.is_derived is False
+
+
+def test_derivation_backfills_is_derived_on_legacy_derived_rows():
+    """Rows created by derivation before the quality fields existed are
+    recognized on re-run (notes start with the derived prefix) and backfilled:
+    ``pull_990pf_grants --skip-pull --derive-funders`` is the backfill path."""
+    _seed_foundation()
+    legacy = Funder.objects.create(
+        name="Sunshine Family Foundation",
+        funder_type=Funder.FunderType.FAMILY_FOUNDATION,
+        notes="Derived from IRS 990-PF filings: 3 grants, $60,000 total, years 2022-2024. Top recipients: n/a.",
+        external_ids=[{"system": "irs-ein", "id": "012345678"}],
+        verification_status=Funder.VerificationStatus.VERIFIED,
+    )
+    assert legacy.is_derived is False and legacy.grant_count == 0
+
+    summary = derive_foundation_funders()
+    assert summary == {"created": 0, "updated": 1, "considered": 1}
+
+    legacy.refresh_from_db()
+    assert legacy.is_derived is True
+    assert legacy.grant_count == 3
+    assert legacy.grants_total_amount == 60_000
 
 
 def test_focus_areas_from_purposes_word_boundaries():

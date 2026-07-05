@@ -92,6 +92,14 @@ class Funder(models.Model):
     )
     active = models.BooleanField(default=True)
     external_ids = models.JSONField(default=dict, blank=True)
+    # 990-PF giving-history quality signals, populated by
+    # foundation_intel.derive_foundation_funders. is_derived marks rows the
+    # derivation CREATED (curated funders it merely enriches stay False) — the
+    # matching pool always scores curated funders but prefilters + caps the
+    # 13k+ derived foundations (see signals.matching.funder_matching_pool).
+    grant_count = models.PositiveIntegerField(default=0, db_index=True)
+    grants_total_amount = models.BigIntegerField(default=0)
+    is_derived = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

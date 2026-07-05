@@ -1,6 +1,8 @@
 import re
 from dataclasses import dataclass, field
 
+from django.db.models import Q
+
 from openoutreach.funding.grants_gov import US_STATES
 from openoutreach.funding.models import (
     Funder,
@@ -74,6 +76,46 @@ _FOCUS_PARTIAL_HITS = 1   # ~50% of focus weight
 # 12 = 501(c)(3) nonprofits, 13 = non-501(c)(3) nonprofits,
 # 25 = "Others", 99 = "Unrestricted".
 _NONPROFIT_COMPATIBLE_APPLICANT_IDS = {"12", "13", "25", "99"}
+
+# Two-tier Funder scoring pool. Tier A: curated (is_derived=False) funders are
+# ALWAYS scored — back-compat with the pre-990-PF pool. Tier B: the 13k+
+# IRS-derived foundations are prefiltered to those whose focus areas overlap
+# the org's focus terms, then capped at the largest givers, so client pages
+# never score the whole derived universe per request. Pool selection only —
+# _score_record and the 0-100 semantics are unchanged.
+DERIVED_FUNDER_SCORING_CAP = 300
+DERIVED_FUNDER_FOCUS_TERM_LIMIT = 8
+
+
+def funder_matching_pool(focus_terms, *, base=None) -> list[Funder]:
+    """Funders worth scoring for one org: every funder in ``base`` that is not
+    990-PF-derived, plus the derived foundations whose ``focus_areas`` overlap
+    ``focus_terms`` (``icontains`` per term, OR'd, term list capped), ordered
+    by ``-grant_count`` and cut at ``DERIVED_FUNDER_SCORING_CAP``.
+
+    ``focus_areas__icontains`` is text containment on the serialized JSON —
+    portable across SQLite and Postgres (JSONField ``__contains`` is not
+    supported on SQLite). ``base`` defaults to all active funders.
+    """
+    if base is None:
+        base = Funder.objects.filter(active=True)
+    terms, seen = [], set()
+    for term in focus_terms or []:
+        term = str(term).strip()
+        key = term.casefold()
+        if len(term) >= 3 and key not in seen:
+            seen.add(key)
+            terms.append(term)
+        if len(terms) >= DERIVED_FUNDER_FOCUS_TERM_LIMIT:
+            break
+    derived = base.filter(is_derived=True)
+    if terms:
+        overlap = Q()
+        for term in terms:
+            overlap |= Q(focus_areas__icontains=term)
+        derived = derived.filter(overlap)
+    derived = derived.order_by("-grant_count", "name")[:DERIVED_FUNDER_SCORING_CAP]
+    return list(base.filter(is_derived=False)) + list(derived)
 
 
 def applicant_types_allow_nonprofits(applicant_types) -> bool | None:
@@ -869,7 +911,7 @@ def build_opportunity_matches(project, funding_criteria=None) -> MatchOverview:
             verification_status=funder.verification_status,
             website=funder.website,
         )
-        for funder in Funder.objects.filter(active=True)
+        for funder in funder_matching_pool(profile["focus_areas"])
     ])
     government_matches = _sort_matches([
         _score_record(

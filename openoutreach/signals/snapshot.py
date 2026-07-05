@@ -611,12 +611,20 @@ def _funder_source_indicators(funder, score: int, context: dict) -> list[str]:
 
 def _named_funder_fit_insights(project, sector: dict, context: dict) -> list[SnapshotFunderFit]:
     from openoutreach.funding.models import Funder
+    from openoutreach.signals.matching import funder_matching_pool
 
     sector_terms = sector.get("terms", []) + context["focus"] + context["beneficiaries"]
+    # Same two-tier pool as the match dashboard: every curated funder, plus the
+    # focus-relevant largest 990-PF-derived foundations (capped) — never the
+    # whole 13k+ derived universe per request.
+    pool = funder_matching_pool(
+        sector_terms,
+        base=Funder.objects.filter(active=True).exclude(
+            intelligence_status=Funder.IntelligenceStatus.ARCHIVED,
+        ),
+    )
     candidates = []
-    for funder in Funder.objects.filter(active=True).exclude(
-        intelligence_status=Funder.IntelligenceStatus.ARCHIVED,
-    ):
+    for funder in pool:
         score = 70
         score += min(_overlap_count(funder.focus_areas, sector_terms) * 6, 18)
         score += min(_overlap_count(funder.beneficiaries, context["beneficiaries"] + sector_terms) * 5, 12)

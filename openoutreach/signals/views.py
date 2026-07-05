@@ -22,6 +22,13 @@ from openoutreach.signals.documents import (
     build_opportunity_document_summary,
 )
 from openoutreach.signals.ecosystem import build_ecosystem_overview
+from openoutreach.signals.feedback import (
+    flag_opportunities,
+    kind_for_category,
+    not_a_fit_map,
+    suppress_top_recommended,
+    toggle_feedback,
+)
 from openoutreach.signals.forms import (
     InterestSignupForm,
     OrganizationIntakeForm,
@@ -43,7 +50,7 @@ from openoutreach.signals.lifecycle import (
 )
 from openoutreach.signals.matching import build_opportunity_matches
 from openoutreach.signals.mission_brief import recommended_next_steps
-from openoutreach.signals.models import InterestSignup, PilotProfile
+from openoutreach.signals.models import InterestSignup, MatchFeedback, PilotProfile
 from openoutreach.signals.opportunity_work import build_opportunity_workspace, ensure_default_tasks
 from openoutreach.signals.opportunity_web import build_opportunity_web
 from openoutreach.signals.partnerships import build_partnership_readiness
@@ -685,6 +692,13 @@ def project_match_dashboard(request, pk):
     project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     match_overview = build_opportunity_matches(project, funding_criteria)
+    # Drop reference matches the org marked "not a fit" from the recommendation
+    # shelf (category inventories below stay complete), then pair each surviving
+    # match with its feedback kind so the card button can post the right key.
+    suppress_top_recommended(match_overview, not_a_fit_map(project))
+    top_recommended_cards = [
+        (match, kind_for_category(match.category)) for match in match_overview.top_recommended
+    ]
     discovery = build_discovery_overview(project, funding_criteria)
     funding_readiness = build_funding_readiness(project, funding_criteria)
     government_readiness = build_government_readiness(project, funding_criteria)
@@ -701,6 +715,7 @@ def project_match_dashboard(request, pk):
             "organization": project.organization,
             "funding_criteria": funding_criteria,
             "match_overview": match_overview,
+            "top_recommended_cards": top_recommended_cards,
             "show_all": request.GET.get("all") == "1",
             "match_limit": ":1000" if request.GET.get("all") == "1" else ":10",
             "discovery": discovery,
@@ -765,10 +780,16 @@ def project_opportunities_workspace(request, pk):
         o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords)
     ranked.sort(key=lambda o: (-o.relevance, _prio.get(o.priority_level, 3), o.deadline or _date.max, o.name))
 
+    # "Not a fit" feedback: flagged opportunities never make the top-10 shelf (the
+    # next best match refills the slot) but stay in "see all" with a muted tag.
+    feedback_map = not_a_fit_map(project)
+    flag_opportunities(ranked, feedback_map)
+
     # Top 10 = most relevant matches only (relevance > 0). Off-topic ones still live
     # in "see all" but never masquerade as recommendations.
     relevant = [o for o in ranked if o.relevance > 0]
-    top = relevant[:10] or ranked[:10]
+    top_pool = [o for o in relevant if not o.not_a_fit] or [o for o in ranked if not o.not_a_fit]
+    top = top_pool[:10]
 
     return render(
         request,
@@ -894,6 +915,33 @@ def toggle_opportunity_interest(request, pk, opportunity_id):
         opportunity.interest_marked_at = timezone.now()
     opportunity.save(update_fields=["is_interested", "interest_marked_at", "updated_at"])
     return redirect(request.META.get("HTTP_REFERER") or "/projects/%s/opportunities/" % pk)
+
+
+@login_required
+@require_POST
+def project_match_feedback(request, pk):
+    """Toggle a 'not a fit' verdict on a recommended match.
+
+    Same staff-or-member gate as every project view (client_project). POSTing the
+    same (kind, target_key) twice lifts the flag again. Redirects back to the
+    posting page via the hidden ``next`` field (querystring preserved).
+    """
+    from django.utils.http import url_has_allowed_host_and_scheme
+
+    project = client_project(request, pk)
+    kind = request.POST.get("kind", "")
+    target_key = request.POST.get("target_key", "").strip()[:300]
+    if kind in MatchFeedback.Kind.values and target_key:
+        toggle_feedback(
+            project, kind, target_key, user=request.user,
+            note=request.POST.get("note", "").strip(),
+        )
+    next_url = request.POST.get("next", "")
+    if next_url and url_has_allowed_host_and_scheme(
+        next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure(),
+    ):
+        return redirect(next_url)
+    return redirect("project-opportunities", pk=pk)
 
 
 @login_required

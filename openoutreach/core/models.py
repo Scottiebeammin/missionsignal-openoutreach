@@ -169,6 +169,11 @@ class OrganizationMember(models.Model):
     has_toured = models.BooleanField(default=False)
     visited_pages = models.JSONField(default=list, blank=True)
 
+    # Usage instrumentation (written by core.middleware.ClientActivityTracker,
+    # throttled to one write per 10-minute active window).
+    last_seen_at = models.DateTimeField(null=True, blank=True)
+    page_views = models.PositiveIntegerField(default=0)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=("user", "project"), name="unique_user_project_member"),
