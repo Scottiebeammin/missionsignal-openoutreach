@@ -203,7 +203,7 @@ def test_website_scan_points_out_missing_programs(client, workspace):
 
     site_text = "We run the Digital Skills Lab for youth development across Orlando."
     client.force_login(user)
-    with patch("openoutreach.signals.website_verification.scrape_website_text", return_value=site_text):
+    with patch("openoutreach.signals.website_verification.scrape_site_text", return_value=site_text):
         response = client.post(reverse("project-website-scan", kwargs={"pk": project.pk}))
     assert response.status_code == 302
 
@@ -224,7 +224,7 @@ def test_website_scan_points_out_missing_programs(client, workspace):
 def test_website_scan_handles_unreachable_and_missing_site(client, workspace):
     user, organization, project = workspace
     client.force_login(user)
-    with patch("openoutreach.signals.website_verification.scrape_website_text", return_value=""):
+    with patch("openoutreach.signals.website_verification.scrape_site_text", return_value=""):
         client.post(reverse("project-website-scan", kwargs={"pk": project.pk}))
     organization.refresh_from_db()
     assert organization.website_check["status"] == "unreachable"

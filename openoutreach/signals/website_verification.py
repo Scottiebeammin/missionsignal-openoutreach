@@ -13,7 +13,7 @@ import re
 
 from django.utils import timezone
 
-from openoutreach.signals.website_scraper import scrape_website_text
+from openoutreach.signals.website_scraper import scrape_site_text
 
 _STOPWORDS = {
     "and", "or", "the", "for", "of", "to", "in", "with", "our", "your",
@@ -62,7 +62,7 @@ def verify_website_claims(organization, project) -> dict:
     if not url:
         report = {"checked_at": checked_at, "url": "", "status": "no_website", "found": [], "missing": []}
     else:
-        text = " ".join(scrape_website_text(url, max_chars=_SCAN_CHARS).casefold().split())
+        text = " ".join(scrape_site_text(url, max_chars=_SCAN_CHARS).casefold().split())
         if not text:
             report = {"checked_at": checked_at, "url": url, "status": "unreachable", "found": [], "missing": []}
         else:

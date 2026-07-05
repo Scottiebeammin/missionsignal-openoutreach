@@ -189,6 +189,46 @@ def send_opportunity_alert(user, project, new_matches, deadline_items) -> bool:
     return True
 
 
+def send_website_drift_nudge(user, project, missing_items) -> bool:
+    """Email a project owner when the monthly rescan finds profile claims that
+    are no longer visible on their website. `missing_items` = list of dicts
+    with 'claim' and 'kind'."""
+    first = user.first_name or (user.email.split("@")[0] if user.email else "there")
+    org = project.organization.name
+    lines = [
+        f"Hi {first},",
+        "",
+        f"During this month's website check for {org}, a few things in your Anansi Atlas "
+        "profile weren't visible on your website. Funders often check your site, so it "
+        "helps when the two line up:",
+        "",
+    ]
+    for item in missing_items:
+        lines.append(f"  - {item['claim']} ({item['kind']})")
+    lines += [
+        "",
+        "Either add these to your website, or adjust your profile in Settings — your call.",
+        f"Review it here: https://anansiatlas.com/projects/{project.pk}/analysis/",
+        "",
+        "— The Anansi Atlas Team",
+        "info@anansiatlas.com",
+    ]
+    try:
+        send_mail(
+            subject=f"{org}: {len(missing_items)} profile item"
+                    + ("" if len(missing_items) == 1 else "s")
+                    + " not visible on your website",
+            message="\n".join(lines),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+    except Exception:
+        logger.exception("Website drift nudge failed for user=%s project=%s", user.pk, project.pk)
+        return False
+    return True
+
+
 def send_interest_reminder(user, project, tracked_items) -> bool:
     """Weekly reminder of the opportunities the org is TRACKING (interested, not yet
     applied). `tracked_items` = list of (opportunity, days_until_deadline_or_None)."""

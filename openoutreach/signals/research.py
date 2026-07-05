@@ -116,6 +116,14 @@ def auto_ingest_for_new_project(project) -> None:
     except Exception:
         logger.exception("research_project auto-ingest failed for project %s", project.pk)
 
+    # 3. Verify the profile against the live website so drift is flagged from
+    #    day one (best-effort; never blocks or fails the ingest).
+    try:
+        from openoutreach.signals.website_verification import verify_website_claims
+        verify_website_claims(project.organization, project)
+    except Exception:
+        logger.exception("website verification auto-run failed for project %s", project.pk)
+
 
 def research_project(project) -> dict:
     """
