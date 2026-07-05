@@ -48,6 +48,13 @@ def _focus_post(client, project, action, value):
     )
 
 
+def _beneficiary_post(client, project, action, value):
+    return client.post(
+        reverse("project-beneficiaries", kwargs={"pk": project.pk}),
+        {"action": action, "value": value},
+    )
+
+
 # ── Seat authority ────────────────────────────────────────────────────────────
 
 def test_first_invite_seat_becomes_admin_second_does_not(db):
@@ -120,6 +127,42 @@ def test_re_adding_lifts_the_exclusion(client, workspace):
     organization.refresh_from_db()
     assert "Education" in organization.focus_areas
     assert "Education" not in organization.excluded_focus_areas
+
+
+def test_admin_adds_beneficiary_by_label_and_stores_canonical_value(client, workspace):
+    user, organization, project = workspace
+    client.force_login(user)
+    # Add by the display label — must store the canonical value ("seniors").
+    response = _beneficiary_post(client, project, "add", "Seniors & Older Adults")
+    assert response.status_code == 302
+    organization.refresh_from_db()
+    assert "seniors" in organization.beneficiaries
+
+
+def test_non_admin_cannot_edit_beneficiaries(client, workspace, second_seat):
+    _user, organization, project = workspace
+    before = list(organization.beneficiaries)
+    client.force_login(second_seat)
+    response = _beneficiary_post(client, project, "add", "veterans")
+    assert response.status_code == 403
+    organization.refresh_from_db()
+    assert organization.beneficiaries == before
+
+
+def test_removed_beneficiary_stays_removed_after_reanalysis(client, workspace):
+    user, organization, project = workspace
+    client.force_login(user)
+    assert organization.beneficiaries  # demo seeds some
+    target = organization.beneficiaries[0]
+    _beneficiary_post(client, project, "remove", target)
+    organization.refresh_from_db()
+    assert target not in organization.beneficiaries
+    assert target in organization.excluded_beneficiaries
+
+    from openoutreach.signals.analysis_service import analyze_project
+    analyze_project(project, mode="deterministic")
+    organization.refresh_from_db()
+    assert target not in organization.beneficiaries
 
 
 def test_settings_page_shows_editor_to_admin_and_note_to_member(client, workspace, second_seat):

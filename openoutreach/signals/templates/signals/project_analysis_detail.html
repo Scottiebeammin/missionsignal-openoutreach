@@ -92,6 +92,44 @@
     </section>
 
     <section class="panel">
+      <h2>Who You Serve</h2>
+      <p class="muted">The groups your programs serve. These sharpen your funder and opportunity matches alongside your areas of support.</p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin:12px 0;">
+        {% for group in organization.beneficiaries %}
+          <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:var(--blue-soft); font-weight:600;">
+            {{ group }}
+            {% if is_account_admin %}
+              <form method="post" action="{% url 'project-beneficiaries' project.pk %}" style="margin:0; display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="value" value="{{ group }}">
+                <button type="submit" title="Remove {{ group }}" aria-label="Remove {{ group }}" style="min-height:auto; padding:0 6px; border:none; background:transparent; color:var(--muted); font-weight:800; cursor:pointer;">&times;</button>
+              </form>
+            {% endif %}
+          </span>
+        {% empty %}
+          <span class="muted">No groups listed yet — add the first one below.</span>
+        {% endfor %}
+      </div>
+      {% if is_account_admin %}
+        <form method="post" action="{% url 'project-beneficiaries' project.pk %}" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="add">
+          <input type="text" name="value" list="beneficiary-options" required maxlength="100" placeholder="Add a group you serve…" style="min-height:36px; padding:8px 10px; border:1px solid var(--line); border-radius:6px; font:inherit; min-width:240px;">
+          <datalist id="beneficiary-options">
+            {% for option in beneficiary_options %}<option value="{{ option }}">{% endfor %}
+          </datalist>
+          <button type="submit">Add group</button>
+        </form>
+        {% if organization.excluded_beneficiaries %}
+          <p class="muted" style="margin-top:10px;">Removed (won't be re-suggested): {{ organization.excluded_beneficiaries|join:", " }}</p>
+        {% endif %}
+      {% else %}
+        <p class="muted">Only your account admin can change who you serve.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel">
       <h2>Website Check</h2>
       <p class="muted">We scan your website and flag anything in your profile that visitors (and funders) can't see on your site.</p>
       <form method="post" action="{% url 'project-website-scan' project.pk %}" style="margin:10px 0;">

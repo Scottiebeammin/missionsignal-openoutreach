@@ -100,6 +100,8 @@ class Organization(models.Model):
     # re-infer these from mission/website text on later runs.
     excluded_focus_areas = models.JSONField(default=list, blank=True)
     beneficiaries = models.JSONField(default=list, blank=True)
+    # Same rule for beneficiary groups a client removed in Settings.
+    excluded_beneficiaries = models.JSONField(default=list, blank=True)
     capabilities = models.JSONField(default=list, blank=True)
     outcomes_and_impact = models.JSONField(default=list, blank=True)
     aliases = models.JSONField(default=list, blank=True)

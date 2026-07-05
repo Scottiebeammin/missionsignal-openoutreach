@@ -55,6 +55,7 @@ urlpatterns = [
     path("projects/<int:pk>/analysis/", views.project_analysis_detail, name="project-analysis-detail"),
     path("projects/<int:pk>/analysis/run/", views.run_project_analysis, name="run-project-analysis"),
     path("projects/<int:pk>/settings/focus-areas/", views.project_focus_area_update, name="project-focus-areas"),
+    path("projects/<int:pk>/settings/beneficiaries/", views.project_beneficiary_update, name="project-beneficiaries"),
     path("projects/<int:pk>/settings/website-scan/", views.project_website_scan, name="project-website-scan"),
     path("projects/<int:pk>/dashboard/", views.project_executive_dashboard, name="project-dashboard"),
     path("projects/<int:pk>/readiness/", views.project_readiness_dashboard, name="project-readiness"),

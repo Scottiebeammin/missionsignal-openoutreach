@@ -263,6 +263,11 @@ def project_intake_success(request, pk):
     return render(request, "signals/project_intake_success.html", {"project": project})
 
 
+def _beneficiary_choices():
+    from openoutreach.signals.forms import BENEFICIARY_CHOICES
+    return BENEFICIARY_CHOICES
+
+
 @login_required
 def project_analysis_detail(request, pk):
     project = client_project(request, pk)
@@ -275,6 +280,7 @@ def project_analysis_detail(request, pk):
             "funding_criteria": getattr(project, "funding_criteria", None),
             "is_account_admin": user_is_project_admin(request.user, project),
             "focus_category_options": OPPORTUNITY_FOCUS_CATEGORIES,
+            "beneficiary_options": [label for _val, label in _beneficiary_choices()],
             "website_check": project.organization.website_check,
         },
     )
@@ -313,6 +319,45 @@ def project_focus_area_update(request, pk):
         organization.focus_areas = focus
         organization.excluded_focus_areas = excluded
         organization.save(update_fields=["focus_areas", "excluded_focus_areas"])
+        analyze_project(project, mode="deterministic")
+    return redirect("project-analysis-detail", pk=pk)
+
+
+@login_required
+@require_POST
+def project_beneficiary_update(request, pk):
+    """Add or remove a beneficiary group from Settings — mirrors the areas-of-
+    support editor. Removals persist as exclusions so the analyzer never
+    re-infers them; re-runs analysis so matching reflects the change."""
+    from openoutreach.signals.forms import BENEFICIARY_CHOICES
+
+    project = client_project(request, pk)
+    if not user_is_project_admin(request.user, project):
+        return HttpResponseForbidden("Only your account admin can edit who you serve.")
+    action = request.POST.get("action", "")
+    value = request.POST.get("value", "").strip()[:100]
+    if value and action in {"add", "remove"}:
+        organization = project.organization
+        # Accept either the stored value ("youth") or the display label
+        # ("Youth & Young People") and always store the canonical value.
+        canonical = next(
+            (val for val, label in BENEFICIARY_CHOICES
+             if value.casefold() in (val.casefold(), label.casefold())),
+            value,
+        )
+        beneficiaries = list(organization.beneficiaries or [])
+        excluded = list(organization.excluded_beneficiaries or [])
+        if action == "add":
+            if canonical.casefold() not in {b.casefold() for b in beneficiaries}:
+                beneficiaries.append(canonical)
+            excluded = [e for e in excluded if e.casefold() != canonical.casefold()]
+        else:
+            beneficiaries = [b for b in beneficiaries if b.casefold() != canonical.casefold()]
+            if canonical.casefold() not in {e.casefold() for e in excluded}:
+                excluded.append(canonical)
+        organization.beneficiaries = beneficiaries
+        organization.excluded_beneficiaries = excluded
+        organization.save(update_fields=["beneficiaries", "excluded_beneficiaries"])
         analyze_project(project, mode="deterministic")
     return redirect("project-analysis-detail", pk=pk)
 

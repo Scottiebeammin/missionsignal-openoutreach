@@ -25,6 +25,7 @@ class OrganizationAnalyzerInput(BaseModel):
     focus_area_selections: list[str] = Field(default_factory=list)   # checkbox picks at intake
     beneficiary_selections: list[str] = Field(default_factory=list)  # checkbox picks at intake
     excluded_focus_areas: list[str] = Field(default_factory=list)    # client removed in Settings — never re-infer
+    excluded_beneficiaries: list[str] = Field(default_factory=list)  # client removed in Settings — never re-infer
 
 
 class FundingCriteriaAnalysis(BaseModel):
@@ -212,6 +213,10 @@ def analyze_deterministically(data: OrganizationAnalyzerInput) -> OrganizationAn
                 existing.add(b.casefold())
     else:
         beneficiaries = _matches(combined, _BENEFICIARY_RULES)
+
+    excluded_b = {e.casefold() for e in data.excluded_beneficiaries}
+    if excluded_b:
+        beneficiaries = [b for b in beneficiaries if b.casefold() not in excluded_b]
 
     capabilities = _matches(combined, _CAPABILITY_RULES)
     geographies = _unique([data.city, data.county, data.state, data.service_area_notes])
