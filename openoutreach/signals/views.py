@@ -318,6 +318,72 @@ def project_focus_area_update(request, pk):
 
 
 @login_required
+def project_foundation_dashboard(request, pk):
+    """Ecosystem → Foundations: IRS-grounded private-foundation intelligence.
+
+    Same build-out as the Funding page — matched foundations as pathway cards
+    (trackable into the opportunity pipeline) plus the verified grant receipts
+    to organizations like this one.
+    """
+    from openoutreach.signals.foundations import build_foundation_overview
+
+    project = client_project(request, pk)
+    overview = build_foundation_overview(project)
+    return render(
+        request,
+        "signals/project_foundation_dashboard.html",
+        {
+            "project": project,
+            "organization": project.organization,
+            "overview": overview,
+        },
+    )
+
+
+@login_required
+@require_POST
+def project_foundation_track(request, pk, funder_id):
+    """Wire a foundation back into the opportunity field: idempotently create
+    the project-scoped Opportunity for this funder and open its workspace."""
+    from openoutreach.funding.models import Funder
+
+    project = client_project(request, pk)
+    funder = get_object_or_404(Funder, pk=funder_id, active=True)
+    external_id = f"funder:{funder.pk}"
+    opportunity = Opportunity.objects.filter(project=project, external_id=external_id).first()
+    if opportunity is None:
+        from django.utils import timezone as _tz
+
+        opportunity = Opportunity.objects.create(
+            project=project,
+            name=f"{funder.name} — Foundation Grant",
+            opportunity_type=Opportunity.OpportunityType.GRANT,
+            source_type=Opportunity.SourceType.FUNDER,
+            source_name=funder.name,
+            external_id=external_id,
+            geography=list(funder.geography or []),
+            focus_areas=list(funder.focus_areas or []),
+            beneficiaries=list(funder.beneficiaries or []),
+            eligibility_notes=funder.eligibility_notes,
+            source_urls=list(funder.source_urls or ([funder.website] if funder.website else [])),
+            verification_status=funder.verification_status,
+            notes="Pursued from the Foundations tab.",
+            # The client chose to pursue — land it on the Pipeline board's
+            # active column, with an honest history entry for the jump.
+            lifecycle_status=Opportunity.LifecycleStatus.PURSUING,
+            lifecycle_status_history=[{
+                "from": "",
+                "to": Opportunity.LifecycleStatus.PURSUING.value,
+                "actor": request.user.username,
+                "updated_at": _tz.now().isoformat(),
+                "note": "Pursued from the Foundations tab.",
+            }],
+        )
+        ensure_default_tasks(opportunity)
+    return redirect("project-pipeline", pk=project.pk)
+
+
+@login_required
 @require_POST
 def project_website_scan(request, pk):
     """Scan the org website and flag profile claims not visible on the site."""

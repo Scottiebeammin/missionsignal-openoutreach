@@ -1,7 +1,7 @@
 {% comment %}
 Shared cluster tab strip. Context contract:
   cluster: "ecosystem" | "readiness" | "snapshot" | "opportunities"
-  active:  tab key — ecosystem: overview|funding|government|resources|partnerships|relationships
+  active:  tab key — ecosystem: overview|funding|foundations|government|resources|partnerships|relationships
                      readiness: overview|documents|evidence
                      snapshot: overview|web
                      opportunities: top|matches|discovery
@@ -19,6 +19,7 @@ Usage: {% include "signals/_cluster_tabs.html" with cluster="ecosystem" active="
 <nav class="cluster-tabs" aria-label="Ecosystem tabs">
   <a {% if active == "overview" %}class="active" aria-current="page"{% endif %} href="{% url 'project-ecosystem' project.pk %}">Overview</a>
   <a {% if active == "funding" %}class="active" aria-current="page"{% endif %} href="{% url 'project-funding' project.pk %}">Funding</a>
+  <a {% if active == "foundations" %}class="active" aria-current="page"{% endif %} href="{% url 'project-foundations' project.pk %}">Foundations</a>
   <a {% if active == "government" %}class="active" aria-current="page"{% endif %} href="{% url 'project-government' project.pk %}">Government</a>
   <a {% if active == "resources" %}class="active" aria-current="page"{% endif %} href="{% url 'project-resources' project.pk %}">Resources</a>
   <a {% if active == "partnerships" %}class="active" aria-current="page"{% endif %} href="{% url 'project-partnerships' project.pk %}">Partnerships</a>

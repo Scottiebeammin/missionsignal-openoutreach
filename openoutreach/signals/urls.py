@@ -76,6 +76,16 @@ urlpatterns = [
         name="project-programs",
     ),
     path(
+        "projects/<int:pk>/foundations/",
+        views.project_foundation_dashboard,
+        name="project-foundations",
+    ),
+    path(
+        "projects/<int:pk>/foundations/<int:funder_id>/track/",
+        views.project_foundation_track,
+        name="project-foundation-track",
+    ),
+    path(
         "projects/<int:pk>/funding/",
         views.project_funding_dashboard,
         name="project-funding",

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Foundations - {{ organization.name }}</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #192a3a;
+      --muted: #667789;
+      --line: #d9e2e8;
+      --panel: #f6f8fa;
+      --accent: #0f766e;
+      --accent-soft: #e8f5f2;
+      --blue: #235789;
+      --blue-soft: #edf5fb;
+      --gold: #8a5b00;
+      --gold-soft: #fff7df;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef3f6; color: var(--ink); font: 15px/1.45 system-ui, sans-serif; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 24px auto; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 4px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05; }
+    h2 { margin-bottom: 12px; font-size: 1rem; letter-spacing: .06em; text-transform: uppercase; }
+    h3 { margin-bottom: 6px; font-size: 1rem; }
+    a { color: inherit; }
+    .hero, .panel, .funder-card { border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .hero { margin-bottom: 14px; padding: 24px; }
+    .muted { color: var(--muted); }
+    .panel { margin-bottom: 14px; padding: 18px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .summary-card strong { display: block; font-size: 1.6rem; }
+    .funder-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .funder-card { padding: 14px; }
+    .funder-card header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .badge { padding: 2px 8px; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: 12px; white-space: nowrap; }
+    .badge.gold { border-color: var(--gold); background: var(--gold-soft); color: var(--gold); }
+    .button, button.button { display: inline-flex; align-items: center; min-height: 36px; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 6px; background: var(--accent); color: white; font: inherit; font-weight: 800; text-decoration: none; cursor: pointer; }
+    .button.secondary { background: white; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: .8rem; letter-spacing: .05em; text-transform: uppercase; }
+    td.amount { font-weight: 800; white-space: nowrap; }
+    .table-wrap { overflow-x: auto; }
+    @media (max-width: 900px) { .summary-grid, .funder-grid { grid-template-columns: 1fr; } }
+  </style>
+{% include "signals/_app_shell_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="ecosystem" %}
+  <main>
+    {% include "signals/_cluster_tabs.html" with cluster="ecosystem" active="foundations" %}
+
+    <header class="hero" style="padding:16px 24px;">
+      <h1 style="font-size:1.4rem;">Private Foundations</h1>
+      <p class="muted" style="margin:0;">Foundation funders verified from IRS 990-PF filings — matched to your areas of support, with the actual grants they reported paying. Pursue one and it lands on your Pipeline board.</p>
+    </header>
+
+    <section class="panel">
+      <h2>Foundation Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card"><strong>{{ overview.matches|length }}</strong><span class="muted">Matched Foundations</span><p class="muted">Aligned with your areas of support.</p></div>
+        <div class="summary-card"><strong>{{ overview.receipt_count }}</strong><span class="muted">Verified Grants Nearby</span><p class="muted">{% if overview.receipt_total_display %}{{ overview.receipt_total_display }} to organizations like yours{% if overview.county %} in {{ overview.county }} County{% endif %}.{% else %}Reported grants to organizations like yours.{% endif %}</p></div>
+        <div class="summary-card"><strong>{{ overview.receipt_foundation_count }}</strong><span class="muted">Foundations That Gave</span><p class="muted">Distinct foundations behind those grants.</p></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Recommended Pathways — Private Foundations</h2>
+      <p class="muted">Ranked by alignment with your areas of support, then by verified grantmaking volume. "Pursue" adds the foundation to your Pipeline.</p>
+      <div class="funder-grid">
+        {% for match in overview.matches %}
+          <article class="funder-card">
+            <header>
+              <h3>{{ match.funder.name }}</h3>
+              {% if match.funder.is_derived %}<span class="badge">IRS-verified</span>{% else %}<span class="badge gold">Curated</span>{% endif %}
+            </header>
+            <p class="muted">{{ match.funder.get_funder_type_display }}{% if match.funder.grant_count %} · {{ match.funder.grant_count }} reported grants{% if match.total_display %} · {{ match.total_display }} total{% endif %}{% endif %}</p>
+            {% if match.overlap %}<p><strong>Aligned:</strong> {{ match.overlap|join:", " }}</p>{% endif %}
+            {% if match.funder.website %}<p class="muted"><a href="{{ match.funder.website }}" rel="noopener noreferrer">Visit their website</a></p>{% endif %}
+            {% if match.tracked_opportunity_id %}
+              <p><span class="badge">In your pipeline</span>
+                 <a class="button secondary" style="margin-left:8px;" href="{% url 'project-opportunity-workspace' project.pk match.tracked_opportunity_id %}">Open workspace →</a></p>
+            {% else %}
+              <form method="post" action="{% url 'project-foundation-track' project.pk match.funder.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <button type="submit" class="button">Pursue — add to Pipeline</button>
+              </form>
+            {% endif %}
+          </article>
+        {% empty %}
+          <p class="muted">No matched foundations yet. Add areas of support in Settings to unlock foundation matching.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Foundations Funding Organizations Like Yours</h2>
+      {% if overview.receipts %}
+        <p class="muted">Actual grants reported on IRS 990-PF filings to {% if overview.county %}{{ overview.county }} County {% endif %}organizations in your service areas ({{ overview.service_areas|join:", " }}). Exact-name matches only — a floor, not a ceiling.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Foundation</th><th>Gave To</th><th>Amount</th><th>Year</th><th>Purpose</th></tr></thead>
+            <tbody>
+              {% for receipt in overview.receipts %}
+                <tr>
+                  <td>{{ receipt.filer_name }}</td>
+                  <td>{{ receipt.recipient_name }}</td>
+                  <td class="amount">{{ receipt.amount_display }}</td>
+                  <td>{{ receipt.tax_year|default:"—" }}</td>
+                  <td class="muted">{{ receipt.purpose|default:"—" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% elif overview.service_areas %}
+        <p class="muted">No exact-name grant matches yet for {{ overview.service_areas|join:", " }}{% if overview.county %} in {{ overview.county }} County{% endif %}. The quarterly IRS refresh adds new filings automatically.</p>
+      {% else %}
+        <p class="muted">Add areas of support in Settings and we'll surface the foundations funding organizations like yours.</p>
+      {% endif %}
+    </section>
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>
