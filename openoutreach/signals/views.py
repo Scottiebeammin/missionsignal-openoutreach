@@ -678,9 +678,11 @@ def project_executive_dashboard(request, pk):
     is_founding = request.user.groups.filter(name="Founding Partners").exists()
     founding_welcome = None
     if is_founding or pilot:
+        from openoutreach.signals.foundations import build_foundation_overview
         member = OrganizationMember.objects.filter(user=request.user, project=project).first()
         first = (member.contact_name.split(" ")[0] if member and member.contact_name
                  else request.user.first_name) or "there"
+        foundations = build_foundation_overview(project)
         founding_welcome = {
             "first_name": first,
             "org_name": dashboard.organization_name,
@@ -688,6 +690,11 @@ def project_executive_dashboard(request, pk):
             "excellent": dashboard.match_health.excellent_matches,
             "readiness": dashboard.readiness.overall_score,
             "readiness_level": dashboard.readiness.level,
+            # The proof: real 990-PF grants to orgs like this one.
+            "grant_total": foundations.receipt_total_display,
+            "grant_count": f"{foundations.receipt_count:,}" if foundations.receipt_count else 0,
+            "funder_count": foundations.receipt_foundation_count,
+            "county": foundations.county,
         }
     return render(
         request,

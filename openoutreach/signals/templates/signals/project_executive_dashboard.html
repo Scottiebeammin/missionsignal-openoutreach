@@ -39,6 +39,10 @@
     .fw-stats { display: flex; gap: 28px; flex-wrap: wrap; margin: 18px 0 16px; }
     .fw-stat strong { display: block; font-size: 2rem; line-height: 1; color: var(--gold); }
     .fw-stat span { display: block; margin-top: 4px; font-size: .78rem; color: #b9c3d8; }
+    .fw-proof { margin: 0 0 16px; padding: 12px 16px; border-radius: 10px; background: rgba(212,160,23,.12);
+      border: 1px solid rgba(212,160,23,.35); color: #eef2fb; font-size: .95rem; line-height: 1.5; }
+    .fw-proof strong { color: #fff; }
+    .fw-proof-amt { font-size: 1.35rem; font-weight: 900; color: var(--gold); vertical-align: -1px; }
     .fw-cta { display: flex; gap: 10px; flex-wrap: wrap; }
     .fw-cta .button { background: var(--gold); color: #171007; border: 0; font-weight: 800; padding: 9px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; }
     .fw-cta .button.ghost { background: transparent; color: #ffe9a8; border: 1px solid rgba(212,160,23,.5); }
@@ -207,6 +211,12 @@
           <div class="fw-stat"><strong>{{ founding_welcome.excellent }}</strong><span>strong matches</span></div>
           <div class="fw-stat"><strong>{{ founding_welcome.readiness }}</strong><span>readiness · {{ founding_welcome.readiness_level }}</span></div>
         </div>
+        {% if founding_welcome.grant_count %}
+        <div class="fw-proof">
+          <span class="fw-proof-amt">{{ founding_welcome.grant_total }}</span>
+          in verified foundation grants has gone to <strong>{{ founding_welcome.funder_count }}</strong> {% if founding_welcome.county %}{{ founding_welcome.county }} County {% endif %}organizations like yours — <strong>{{ founding_welcome.grant_count }}</strong> real grants, straight from IRS filings. That's your proof of where to look.
+        </div>
+        {% endif %}
         <div class="fw-cta">
           <a class="button" href="{% url 'project-snapshot' project.pk %}">Open your Snapshot →</a>
           <a class="button ghost" href="{% url 'project-foundations' project.pk %}">See foundations funding orgs like yours →</a>
