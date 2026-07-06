@@ -47,6 +47,34 @@ def test_draft_for_shows_the_loaded_email_over_template(tmp_path):
     assert "It's Marcus" not in body
 
 
+def test_restores_addressee_name_to_original_contact(tmp_path):
+    # The old CSV import stored a different/garbled name; the draft carries the
+    # contact Marcus actually wrote to. Import restores it (email stays put).
+    lead = SalesLead.objects.create(
+        name="Trip Snelson", organization="4 Roots Farm",
+        email="mwoodard@4rootsfarm.org", list_segment="warm", warmth="warm",
+    )
+    data = _write(tmp_path, [{"org": "4 Roots Farm", "contact": "Madison Woodard",
+                              "email": "mwoodard@4rootsfarm.org", "subject": "S",
+                              "body": "Hi Madison,\n\nIt's Marcus."}])
+    call_command("import_warm_drafts", "--data", data)
+    lead.refresh_from_db()
+    assert lead.name == "Madison Woodard"                 # addressee restored
+    assert lead.email == "mwoodard@4rootsfarm.org"        # email untouched
+
+
+def test_blank_draft_contact_leaves_name_untouched(tmp_path):
+    lead = SalesLead.objects.create(
+        name="WOTR Executive Director", organization="Women On The Rise",
+        email="info@wotr.org", list_segment="warm", warmth="warm",
+    )
+    data = _write(tmp_path, [{"org": "Women On The Rise", "contact": "",
+                              "email": "info@wotr.org", "subject": "S", "body": "B"}])
+    call_command("import_warm_drafts", "--data", data)
+    lead.refresh_from_db()
+    assert lead.name == "WOTR Executive Director"         # no blank-over
+
+
 def test_unmatched_email_is_not_loaded_and_no_lead_created(tmp_path):
     SalesLead.objects.create(name="A", organization="Org A", email="a@org.org",
                              list_segment="warm", warmth="warm")
