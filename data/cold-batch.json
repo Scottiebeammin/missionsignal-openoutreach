@@ -1,19 +1,6 @@
 {
  "emailable": [
   {
-   "organization": "Alachua County Coalition for the Homeless & Hungry",
-   "email": "hello@gracemarketplace.org",
-   "name": "Darius Williams",
-   "role": "",
-   "phone": "(352) 792-0800",
-   "focus_area": "human services",
-   "why_fit": "",
-   "subject_line": "",
-   "outreach_draft": "",
-   "list_segment": "cold_florida_crm",
-   "source": "cold"
-  },
-  {
    "organization": "Alachua Learning Center",
    "email": "info@ourala.org",
    "name": "Krishna Rivera",
@@ -85,6 +72,19 @@
    "role": "",
    "phone": "(352) 334-1470",
    "focus_area": "youth development",
+   "why_fit": "",
+   "subject_line": "",
+   "outreach_draft": "",
+   "list_segment": "cold_florida_crm",
+   "source": "cold"
+  },
+  {
+   "organization": "GRACE Marketplace",
+   "email": "hello@gracemarketplace.org",
+   "name": "Darius Williams",
+   "role": "",
+   "phone": "(352) 792-0800",
+   "focus_area": "human services",
    "why_fit": "",
    "subject_line": "",
    "outreach_draft": "",
