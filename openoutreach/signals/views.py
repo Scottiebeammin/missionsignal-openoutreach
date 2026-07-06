@@ -673,6 +673,22 @@ def project_executive_dashboard(request, pk):
         pilot = build_pilot_context(project.pilot_profile)
     except PilotProfile.DoesNotExist:
         pilot = None
+    # Founding-partner welcome: a warm, branded moment on the dashboard for
+    # founding partners (and pilots). Reuses the numbers already on the page.
+    is_founding = request.user.groups.filter(name="Founding Partners").exists()
+    founding_welcome = None
+    if is_founding or pilot:
+        member = OrganizationMember.objects.filter(user=request.user, project=project).first()
+        first = (member.contact_name.split(" ")[0] if member and member.contact_name
+                 else request.user.first_name) or "there"
+        founding_welcome = {
+            "first_name": first,
+            "org_name": dashboard.organization_name,
+            "opportunities": dashboard.match_health.total_matches,
+            "excellent": dashboard.match_health.excellent_matches,
+            "readiness": dashboard.readiness.overall_score,
+            "readiness_level": dashboard.readiness.level,
+        }
     return render(
         request,
         "signals/project_executive_dashboard.html",
@@ -682,6 +698,7 @@ def project_executive_dashboard(request, pk):
             "dashboard": dashboard,
             "opportunity_web": opportunity_web,
             "pilot": pilot,
+            "founding_welcome": founding_welcome,
             "score_transparency": {
                 "readiness": explain_readiness(dashboard.readiness),
                 "completeness": explain_organization_completeness(dashboard.readiness.organization_completeness),
