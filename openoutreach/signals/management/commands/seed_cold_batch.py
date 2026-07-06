@@ -61,13 +61,27 @@ class Command(BaseCommand):
         self.stdout.write(f"Cleaned {cleaned:,} junk emails.")
 
         emailed = kept = missing = already = 0
-        for ein, label in ((e, "email") for e in EMAILABLE_EINS):
+        for ein in EMAILABLE_EINS:
             org = FloridaOrg.objects.filter(ein=ein).first()
             if not org:
                 self.stdout.write(self.style.WARNING(f"  missing EIN {ein}"))
                 missing += 1
                 continue
-            _lead, created = promote_org_to_pipeline(org)
+            lead, created = promote_org_to_pipeline(org)
+            # Enrich for a polished draft: greet the contact person by name and
+            # give the cold opener a sector hook (idempotent — refresh each run).
+            updates = []
+            officer = (org.principal_officer or "").strip()
+            if officer and " " in officer and not officer.isupper() and lead.name != officer:
+                lead.name = officer
+                updates.append("name")
+            sector = (org.service_area or "").strip()
+            hook = sector.lower().replace(" & ", " and ") if sector and sector.lower() != "unknown" else ""
+            if hook and lead.focus_area != hook:
+                lead.focus_area = hook
+                updates.append("focus_area")
+            if updates:
+                lead.save(update_fields=updates + ["updated_at"])
             emailed += 1 if created else 0
             already += 0 if created else 1
         for ein in PHONE_KEEPER_EINS:

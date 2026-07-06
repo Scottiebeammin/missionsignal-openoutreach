@@ -37,10 +37,33 @@ def _links():
     }
 
 
+_LEGAL_SUFFIXES = (" incorporated", " inc.", " inc", " corp.", " corp", " llc", " co.", " ltd.", " ltd")
+
+
+def _display_org(name: str) -> str:
+    """Drop trailing legal suffixes so 'Arnette House Inc' reads as 'Arnette House'."""
+    n = (name or "").strip().rstrip(".,")
+    low = n.lower()
+    for suffix in _LEGAL_SUFFIXES:
+        if low.endswith(suffix):
+            return n[: len(n) - len(suffix)].rstrip(" ,.").strip() or "your organization"
+    return n or "your organization"
+
+
+def _greeting_first(lead) -> str:
+    """First name to greet with — only when the lead's name is a real contact
+    person (not just the org name repeated), otherwise a neutral 'there'."""
+    name = (lead.name or "").strip()
+    org = (lead.organization or "").strip()
+    if name and name.casefold() != org.casefold():
+        return name.split(" ")[0]
+    return "there"
+
+
 def compose_outreach_email(lead) -> tuple[str, str]:
     """Return (subject, body) for a lead — the editable starting draft."""
-    first = (lead.name or "").split(" ")[0] or "there"
-    org = lead.organization or "your organization"
+    first = _greeting_first(lead)
+    org = _display_org(lead.organization)
     warm = lead.list_segment == "warm"
     links = _links()
 
@@ -50,14 +73,20 @@ def compose_outreach_email(lead) -> tuple[str, str]:
             if lead.why_fit else
             f"Hi {first},\n\nIt's Marcus — it's been a minute."
         )
+        angle = f"\n\n{lead.focus_area.strip()}" if lead.focus_area else ""
     else:
-        reason = lead.why_fit.strip() if lead.why_fit else f"{org} sits right in the middle of the work we map"
+        if lead.why_fit:
+            reason = lead.why_fit.strip()
+        elif lead.focus_area:
+            reason = (f"{org}'s work in {lead.focus_area.strip()} is exactly the kind of "
+                      "mission our funder map is built around")
+        else:
+            reason = f"{org} is exactly the kind of Central Florida nonprofit our funder map is built for"
         opening = (
             f"Hi {first},\n\nI'm Marcus Scott, founder of Anansi Atlas here in Central Florida. "
             f"I'm reaching out because {reason}."
         )
-
-    angle = f"\n\n{lead.focus_area.strip()}" if lead.focus_area else ""
+        angle = ""  # the cold hook is folded into the opening reason
 
     lines = [
         f"{opening}{angle}",
