@@ -515,7 +515,8 @@ def operator_outreach(request):
     cards = []
     for lead in queue:
         subject, body = draft_for(lead)
-        cards.append({"lead": lead, "subject": subject, "body": body})
+        cards.append({"lead": lead, "subject": subject, "body": body,
+                      "own_draft": bool(lead.outreach_draft)})
     sent_count = SalesLead.objects.filter(email_status="sent").count()
     return render(request, "signals/operator/outreach.html", {
         "cards": cards,

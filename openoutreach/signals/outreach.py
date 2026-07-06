@@ -18,9 +18,12 @@ _WARMTH_RANK = {"hot": 0, "warm": 1, "reconnect": 2, "cold": 3}
 
 
 def outreach_queue():
-    """Leads still to email, hottest first (warm segment, then warmth, then org)."""
+    """Leads still to email. Marcus's hand-written drafts surface first (so the
+    cockpit opens on his real emails, not auto-composed ones), then by segment
+    (warm before cold), warmth, and org."""
     leads = list(SalesLead.objects.filter(email_status="not_sent").exclude(email=""))
     leads.sort(key=lambda l: (
+        0 if l.outreach_draft else 1,          # hand-written drafts first
         0 if l.list_segment == "warm" else 1,
         _WARMTH_RANK.get(l.warmth, 9),
         (l.organization or "").casefold(),

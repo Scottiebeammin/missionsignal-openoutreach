@@ -36,6 +36,7 @@
     <div class="oc-head">
       <span class="oc-name">{{ card.lead.name|default:"(no name)" }}</span>
       {% if card.lead.list_segment == "warm" %}<span class="badge warm">🔥 {{ card.lead.warmth|default:"warm" }}</span>{% else %}<span class="badge cold">🌴 cold</span>{% endif %}
+      {% if card.own_draft %}<span class="badge" style="background:#eef7ee;color:#2f7d32;border:1px solid #a9d3ab;">✎ Your draft</span>{% else %}<span class="badge" style="background:#f4f6f8;color:#8a94a0;border:1px solid #d9e0e6;">auto-draft</span>{% endif %}
       <span class="oc-meta">{{ card.lead.organization }}{% if card.lead.role %} · {{ card.lead.role }}{% endif %} · &lt;{{ card.lead.email }}&gt;</span>
     </div>
     <form method="post" action="{% url 'operator-outreach-send' card.lead.pk %}" onsubmit="return confirm('Send this email to {{ card.lead.name|escapejs }} <{{ card.lead.email|escapejs }}>?');">
