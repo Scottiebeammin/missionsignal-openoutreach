@@ -145,6 +145,9 @@ class SalesLead(models.Model):
     name = models.CharField(max_length=300)
     organization = models.CharField(max_length=300, blank=True, default="")
     email = models.EmailField(blank=True, default="")
+    # Additional people to add to the email thread (comma-separated). CC'd on
+    # every outreach send to this lead.
+    cc_emails = models.CharField(max_length=500, blank=True, default="")
     phone = models.CharField(max_length=50, blank=True, default="")
     role = models.CharField(max_length=200, blank=True, default="")
     linkedin_url = models.URLField(max_length=500, blank=True, default="")

@@ -516,7 +516,7 @@ def operator_outreach(request):
     for lead in queue:
         subject, body = draft_for(lead)
         cards.append({"lead": lead, "subject": subject, "body": body,
-                      "own_draft": bool(lead.outreach_draft)})
+                      "own_draft": bool(lead.outreach_draft), "cc": lead.cc_emails})
     sent_count = SalesLead.objects.filter(email_status="sent").count()
     return render(request, "signals/operator/outreach.html", {
         "cards": cards,
@@ -530,10 +530,12 @@ def operator_outreach(request):
 def operator_outreach_save(request, pk):
     """Save the operator's edited subject/body for a lead (no send)."""
     from openoutreach.signals.models import SalesLead
+    from openoutreach.signals.outreach import parse_cc
     lead = get_object_or_404(SalesLead, pk=pk)
     lead.subject_line = request.POST.get("subject", "").strip()[:255]
     lead.outreach_draft = request.POST.get("body", "")
-    lead.save(update_fields=["subject_line", "outreach_draft", "updated_at"])
+    lead.cc_emails = ", ".join(parse_cc(request.POST.get("cc", "")))[:500]
+    lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "updated_at"])
     messages.success(request, f"Draft saved for {lead.name}.")
     return redirect("operator-outreach")
 
@@ -554,9 +556,11 @@ def operator_outreach_send(request, pk):
         return redirect("operator-outreach")
     subject = request.POST.get("subject", "").strip()
     body = request.POST.get("body", "")
+    cc = request.POST.get("cc", "").strip()
     try:
-        send_outreach_email(lead, subject, body)
-        messages.success(request, f"Sent to {lead.name} <{lead.email}>.")
+        send_outreach_email(lead, subject, body, cc=cc)
+        cc_note = f" (cc: {lead.cc_emails})" if lead.cc_emails else ""
+        messages.success(request, f"Sent to {lead.name} <{lead.email}>{cc_note}.")
     except Exception as exc:
         messages.error(request, f"Send failed for {lead.name}: {exc}")
     return redirect("operator-outreach")

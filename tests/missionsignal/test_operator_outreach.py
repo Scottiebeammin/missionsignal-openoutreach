@@ -116,6 +116,27 @@ def test_warm_sends_from_marcus_cold_from_mail(client, staff, settings):
     assert by_to["sam@cold.org"].from_email == "mail@anansiatlas.com"
 
 
+def test_cc_adds_recipients_to_the_thread(client, staff):
+    lead = _lead(email="dana@brightpaths.org")
+    client.force_login(staff)
+    client.post(reverse("operator-outreach-send", kwargs={"pk": lead.pk}),
+                {"subject": "hi", "body": "b", "cc": "board@brightpaths.org, ceo@brightpaths.org"})
+    msg = mail.outbox[0]
+    assert msg.to == ["dana@brightpaths.org"]
+    assert msg.cc == ["board@brightpaths.org", "ceo@brightpaths.org"]
+    lead.refresh_from_db()
+    assert lead.cc_emails == "board@brightpaths.org, ceo@brightpaths.org"
+
+
+def test_cc_dedupes_the_primary_recipient(client, staff):
+    lead = _lead(email="dana@brightpaths.org")
+    client.force_login(staff)
+    client.post(reverse("operator-outreach-send", kwargs={"pk": lead.pk}),
+                {"subject": "hi", "body": "b", "cc": "dana@brightpaths.org, board@brightpaths.org"})
+    msg = mail.outbox[0]
+    assert msg.cc == ["board@brightpaths.org"]  # primary not CC'd twice
+
+
 def test_send_is_idempotent_no_double_send(client, staff):
     lead = _lead(email_status="sent")
     client.force_login(staff)

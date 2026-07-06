@@ -7,6 +7,7 @@ retired n8n composer's warm/cold template — sales walkthrough video, offer, an
 a soft CTA — but lives on the server so review-edit-send happens in one place.
 """
 import os
+import re
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -173,21 +174,30 @@ def from_address_for(lead) -> str:
     return settings.DEFAULT_FROM_EMAIL
 
 
-def send_outreach_email(lead, subject: str, body: str) -> None:
-    """Send one outreach email to the lead and mark it sent. Warm → from
-    marcus@, cold → from mail@ (see from_address_for). Reply-To (marcus@) is
-    stamped by the email backend. Raises on SMTP failure so the caller can
-    surface it — the lead is only marked sent on success.
+def parse_cc(cc_emails: str) -> list[str]:
+    """Split a comma/semicolon/space-separated CC string into clean addresses."""
+    parts = re.split(r"[,;\s]+", (cc_emails or "").strip())
+    return [p for p in (x.strip() for x in parts) if "@" in p]
+
+
+def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
+    """Send one outreach email to the lead (plus any CC) and mark it sent. Warm →
+    from marcus@, cold → from mail@ (see from_address_for). Reply-To (marcus@) is
+    stamped by the email backend. Raises on SMTP failure so the caller can surface
+    it — the lead is only marked sent on success.
     """
+    cc_list = [a for a in parse_cc(cc) if a.lower() != (lead.email or "").lower()]
     message = EmailMessage(
         subject=subject.strip() or f"A note about {lead.organization or 'your work'}",
         body=body,
         from_email=from_address_for(lead),
         to=[lead.email],
+        cc=cc_list or None,
     )
     message.send(fail_silently=False)
     lead.subject_line = subject.strip()[:255]
     lead.outreach_draft = body
+    lead.cc_emails = ", ".join(cc_list)[:500]
     lead.email_status = "sent"
     lead.updated_at = timezone.now()
-    lead.save(update_fields=["subject_line", "outreach_draft", "email_status", "updated_at"])
+    lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status", "updated_at"])

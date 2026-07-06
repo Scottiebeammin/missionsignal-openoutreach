@@ -41,6 +41,8 @@
     </div>
     <form method="post" action="{% url 'operator-outreach-send' card.lead.pk %}" onsubmit="return confirm('Send this email to {{ card.lead.name|escapejs }} <{{ card.lead.email|escapejs }}>?');">
       {% csrf_token %}
+      <label for="cc-{{ card.lead.pk }}">CC (add people to this thread — comma-separated)</label>
+      <input type="text" id="cc-{{ card.lead.pk }}" name="cc" value="{{ card.cc }}" placeholder="board@org.org, ceo@org.org">
       <label for="subject-{{ card.lead.pk }}">Subject</label>
       <input type="text" id="subject-{{ card.lead.pk }}" name="subject" value="{{ card.subject }}" maxlength="255">
       <label for="body-{{ card.lead.pk }}">Email</label>
