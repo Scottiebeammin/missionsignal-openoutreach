@@ -1,0 +1,57 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}Outreach{% endblock %}
+{% block page_title %}Outreach{% endblock %}
+{% block nav_outreach %}active{% endblock %}
+
+{% block content %}
+<style>
+  .outreach-intro { color: var(--muted, #667789); margin-bottom: 18px; }
+  .stat-grid { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .oc-card { border: 1px solid var(--line, #d9e2e8); border-radius: 10px; background: white; padding: 16px; margin-bottom: 14px; }
+  .oc-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .oc-name { font-weight: 800; font-size: 1.05rem; }
+  .oc-meta { color: var(--muted, #667789); font-size: .9rem; }
+  .badge { padding: 2px 8px; border-radius: 999px; font-weight: 800; font-size: 12px; }
+  .badge.warm { background: #fff2e0; color: #b45309; border: 1px solid #f0b160; }
+  .badge.cold { background: #eef3f6; color: #557; border: 1px solid #cfd8df; }
+  .oc-card label { display: block; font-weight: 700; font-size: .8rem; color: var(--muted, #667789); margin: 8px 0 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .oc-card input[type=text], .oc-card textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line, #d9e2e8); border-radius: 7px; font: inherit; }
+  .oc-card textarea { min-height: 230px; resize: vertical; line-height: 1.5; }
+  .oc-actions { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; min-height: 38px; padding: 9px 16px; border-radius: 7px; font: inherit; font-weight: 800; cursor: pointer; text-decoration: none; border: 1px solid; }
+  .btn-send { background: #0f766e; color: white; border-color: #0f766e; }
+  .btn-save { background: white; color: #235789; border-color: #235789; }
+  .empty { padding: 40px; text-align: center; color: var(--muted, #667789); border: 1px dashed var(--line, #d9e2e8); border-radius: 10px; }
+</style>
+
+<p class="outreach-intro">Review each drafted email, edit it however you like, and hit <strong>Send</strong> — it goes out from <code>mail@anansiatlas.com</code>, replies come to marcus@, and the lead is marked sent. Hottest leads first. Nothing sends until you click.</p>
+
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-label">To Send</div><div class="stat-value">{{ queue_count }}</div></div>
+  <div class="stat-card"><div class="stat-label">Already Sent</div><div class="stat-value">{{ sent_count }}</div></div>
+</div>
+
+{% for card in cards %}
+  <div class="oc-card">
+    <div class="oc-head">
+      <span class="oc-name">{{ card.lead.name|default:"(no name)" }}</span>
+      {% if card.lead.list_segment == "warm" %}<span class="badge warm">🔥 {{ card.lead.warmth|default:"warm" }}</span>{% else %}<span class="badge cold">🌴 cold</span>{% endif %}
+      <span class="oc-meta">{{ card.lead.organization }}{% if card.lead.role %} · {{ card.lead.role }}{% endif %} · &lt;{{ card.lead.email }}&gt;</span>
+    </div>
+    <form method="post" action="{% url 'operator-outreach-send' card.lead.pk %}" onsubmit="return confirm('Send this email to {{ card.lead.name|escapejs }} <{{ card.lead.email|escapejs }}>?');">
+      {% csrf_token %}
+      <label for="subject-{{ card.lead.pk }}">Subject</label>
+      <input type="text" id="subject-{{ card.lead.pk }}" name="subject" value="{{ card.subject }}" maxlength="255">
+      <label for="body-{{ card.lead.pk }}">Email</label>
+      <textarea id="body-{{ card.lead.pk }}" name="body">{{ card.body }}</textarea>
+      <div class="oc-actions">
+        <button type="submit" class="btn btn-send">Send →</button>
+        <button type="submit" class="btn btn-save" formaction="{% url 'operator-outreach-save' card.lead.pk %}" formnovalidate>Save draft</button>
+        <span class="oc-meta">{{ card.lead.why_fit|truncatewords:14 }}</span>
+      </div>
+    </form>
+  </div>
+{% empty %}
+  <div class="empty"><strong>Inbox zero on outreach.</strong><br>Every lead with an email has been contacted. Add more leads in the Pipeline, or promote orgs from the Florida Market.</div>
+{% endfor %}
+{% endblock %}

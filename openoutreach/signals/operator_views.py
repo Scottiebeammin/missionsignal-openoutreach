@@ -495,6 +495,64 @@ def operator_pipeline_delete(request, pk):
 
 
 @_operator_required
+def operator_outreach(request):
+    """Outreach cockpit: review, edit, and send the drafted email for each
+    lead still to contact — hottest first. Replaces the local n8n digest;
+    every send is a deliberate per-lead click, never an automated blast."""
+    from openoutreach.signals.models import SalesLead
+    from openoutreach.signals.outreach import draft_for, outreach_queue
+
+    queue = outreach_queue()
+    cards = []
+    for lead in queue:
+        subject, body = draft_for(lead)
+        cards.append({"lead": lead, "subject": subject, "body": body})
+    sent_count = SalesLead.objects.filter(email_status="sent").count()
+    return render(request, "signals/operator/outreach.html", {
+        "cards": cards,
+        "queue_count": len(cards),
+        "sent_count": sent_count,
+    })
+
+
+@_operator_required
+@require_POST
+def operator_outreach_save(request, pk):
+    """Save the operator's edited subject/body for a lead (no send)."""
+    from openoutreach.signals.models import SalesLead
+    lead = get_object_or_404(SalesLead, pk=pk)
+    lead.subject_line = request.POST.get("subject", "").strip()[:255]
+    lead.outreach_draft = request.POST.get("body", "")
+    lead.save(update_fields=["subject_line", "outreach_draft", "updated_at"])
+    messages.success(request, f"Draft saved for {lead.name}.")
+    return redirect("operator-outreach")
+
+
+@_operator_required
+@require_POST
+def operator_outreach_send(request, pk):
+    """Send the (possibly edited) email to one lead and mark it sent."""
+    from openoutreach.signals.models import SalesLead
+    from openoutreach.signals.outreach import send_outreach_email
+
+    lead = get_object_or_404(SalesLead, pk=pk)
+    if lead.email_status == "sent":
+        messages.info(request, f"{lead.name} was already emailed.")
+        return redirect("operator-outreach")
+    if not lead.email:
+        messages.error(request, f"{lead.name} has no email address.")
+        return redirect("operator-outreach")
+    subject = request.POST.get("subject", "").strip()
+    body = request.POST.get("body", "")
+    try:
+        send_outreach_email(lead, subject, body)
+        messages.success(request, f"Sent to {lead.name} <{lead.email}>.")
+    except Exception as exc:
+        messages.error(request, f"Send failed for {lead.name}: {exc}")
+    return redirect("operator-outreach")
+
+
+@_operator_required
 def operator_market(request):
     """Florida Market browser — the 114k-org prospect universe."""
     from django.core.paginator import Paginator
