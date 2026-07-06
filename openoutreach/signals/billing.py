@@ -177,8 +177,8 @@ def stripe_webhook(request):
         status=SalesLead.Status.CLOSED
     ).update(status=SalesLead.Status.CLOSED)
 
-    scheduling_url = os.getenv("SCHEDULING_URL", "")
-    _send_seat_welcome(user, scheduling_url)
+    from openoutreach.signals.notifications import scheduling_url as _scheduling_url
+    _send_seat_welcome(user, _scheduling_url())
     _notify_operator_seat(email, full_name, user, created, converted)
     logger.info(
         "Provisioned founding seat: email=%s created=%s signups_converted=%s",

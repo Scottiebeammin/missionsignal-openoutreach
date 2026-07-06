@@ -13,10 +13,14 @@ MARCUS_EMAIL = "marcus@anansiatlas.com"
 OPERATOR_RECIPIENTS = [ANANSI_ATLAS_OPERATOR_EMAIL, MARCUS_EMAIL]
 
 
+DEFAULT_SCHEDULING_URL = "https://cal.com/marcus-scott-br7maf/founder-walkthrough"
+
+
 def scheduling_url() -> str:
-    """Cal.com booking link for the Founder Walkthrough (SCHEDULING_URL env var).
-    Empty string = not configured; emails fall back to 'we'll reach out' copy."""
-    return os.getenv("SCHEDULING_URL", "")
+    """Cal.com booking link for the Founder Walkthrough. Defaults to Marcus's
+    live Cal link so every email offers self-serve booking; SCHEDULING_URL env
+    overrides it. Set SCHEDULING_URL="" to suppress and use 'we'll reach out' copy."""
+    return os.getenv("SCHEDULING_URL", DEFAULT_SCHEDULING_URL)
 
 logger = logging.getLogger(__name__)
 
