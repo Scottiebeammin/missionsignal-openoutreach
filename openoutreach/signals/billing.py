@@ -79,6 +79,9 @@ def _send_seat_welcome(user, scheduling_url: str) -> bool:
         f"  2. Sign in at {SITE_BASE_URL}/accounts/login/",
         "  3. Complete the short organization intake — your Opportunity Web "
         "Snapshot starts building the moment you finish.",
+        "",
+        "Once you're in, here's a 3-minute tour of your dashboard so you know "
+        f"where everything lives: {os.getenv('ONBOARDING_VIDEO_URL', 'https://youtu.be/AL7wfKWrlAk')}",
     ]
     if scheduling_url:
         lines += [

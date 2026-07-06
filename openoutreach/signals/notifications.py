@@ -372,3 +372,54 @@ def notify_new_intake(user, project) -> bool:
         logger.exception("Operator intake notification failed for project=%s", project.pk)
         return False
     return True
+
+
+WHO_WE_ARE_VIDEO = "https://youtu.be/FBvLg9c35Qo"  # "WhoWeAre & Walkthrough" explainer
+
+
+def build_who_we_are_email(first_name: str, org_name: str) -> str:
+    """The 'who we are & walkthrough' email — the explainer touch with the
+    WhoWeAre video. Companion to the seat-welcome (which carries the join links
+    + the dashboard walkthrough). Warm outreach, so it sends from marcus@."""
+    video = os.getenv("WHO_WE_ARE_VIDEO_URL", WHO_WE_ARE_VIDEO)
+    return "\n".join([
+        f"Hi {first_name or 'there'},",
+        "",
+        "Now that you're set up, I wanted to share the story behind what you're "
+        "stepping into — who we are and how Anansi Atlas actually works.",
+        "",
+        "Every mission has an opportunity ecosystem around it: aligned funders, "
+        "strategic partners, government pathways, and free resources. Most of it "
+        "stays invisible because no one has time to map it. Anansi Atlas maps it "
+        f"for you — for {org_name}, that's your funders, partners, and pathways in "
+        "one clear picture, with a readiness read and a 30-day plan.",
+        "",
+        f"Here's a 3-minute look at who we are and how it works: {video}",
+        "",
+        "You can jump into your workspace any time, and I'd genuinely love to walk "
+        "it through with you live whenever works — just reply and we'll find a time.",
+        "",
+        "So glad to have you as a founding partner.",
+        "",
+        "— Marcus Scott",
+        "Founder, Anansi Atlas · The Web of Opportunity",
+    ])
+
+
+def send_who_we_are_email(user, project) -> bool:
+    """Send the who-we-are & walkthrough email to a client. Warm → from marcus@."""
+    org = project.organization
+    first = user.first_name or (user.email.split("@")[0] if user.email else "there")
+    from django.core.mail import EmailMessage
+    msg = EmailMessage(
+        subject=f"Who we are — the story behind Anansi Atlas, for {org.name}",
+        body=build_who_we_are_email(first, org.name),
+        from_email=os.getenv("WARM_FROM_EMAIL", MARCUS_EMAIL),
+        to=[user.email],
+    )
+    try:
+        msg.send(fail_silently=False)
+    except Exception:
+        logger.exception("Who-we-are email failed for user=%s", user.pk)
+        return False
+    return True
