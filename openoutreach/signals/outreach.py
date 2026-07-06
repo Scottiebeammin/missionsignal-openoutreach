@@ -36,7 +36,7 @@ def _links():
     return {
         "video": os.getenv("WALKTHROUGH_VIDEO_URL", "https://youtu.be/FBvLg9c35Qo"),
         "signup": os.getenv("STRIPE_MONTHLY_URL", "https://anansiatlas.com/anansi-atlas/"),
-        "annual": os.getenv("STRIPE_ANNUAL_URL", ""),
+        "annual": os.getenv("STRIPE_ANNUAL_URL", "https://buy.stripe.com/eVqdR86XU4XwfZB2ANbV604"),
         "cal": os.getenv("SCHEDULING_URL", "https://cal.com/marcus-scott-br7maf/founder-walkthrough"),
     }
 
@@ -77,44 +77,43 @@ def compose_outreach_email(lead) -> tuple[str, str]:
             if lead.why_fit else
             f"Hi {first},\n\nIt's Marcus — it's been a minute."
         )
-        angle = f"\n\n{lead.focus_area.strip()}" if lead.focus_area else ""
+        if lead.focus_area:
+            opening += f"\n\n{lead.focus_area.strip()}"
     else:
-        if lead.why_fit:
-            reason = lead.why_fit.strip()
-        elif lead.focus_area:
-            reason = (f"{org}'s work in {lead.focus_area.strip()} is exactly the kind of "
-                      "mission our funder map is built around")
-        else:
-            reason = f"{org} is exactly the kind of Central Florida nonprofit our funder map is built for"
         opening = (
-            f"Hi {first},\n\nI'm Marcus Scott, founder of Anansi Atlas here in Central Florida. "
-            f"I'm reaching out because {reason}."
+            f"Hi {first},\n\n"
+            f"I'm Marcus Scott, founder of Anansi Atlas here in Central Florida. I'm reaching out "
+            f"because {org} is doing meaningful work in the community, and I wanted to show you some "
+            f"of the opportunities that may already be surrounding your mission — the kind that can "
+            f"keep pushing it forward."
         )
-        angle = ""  # the cold hook is folded into the opening reason
 
     lines = [
-        f"{opening}{angle}",
+        opening,
         "",
-        "I've built Anansi Atlas: it maps the web of opportunity around a nonprofit's "
-        "mission — aligned funders, partners, government pathways, and free capacity-"
-        "building resources — into one clear brief with a readiness read and a 30-day "
-        "action plan.",
+        "Anansi Atlas was built to support organizations like yours: it maps the full web of "
+        "opportunity around your mission — aligned funders, strategic partners, government pathways, "
+        "and free capacity-building resources — and turns it into a clear brief with a readiness read "
+        "and a practical 30-day action plan.",
         "",
-        "Here's a 3-minute look at the actual platform (no pitch deck, the real thing):",
+        "Here's a quick 3-minute look at the actual platform — not a pitch deck, the real thing:",
         links["video"],
         "",
+        "If it feels like a fit, you can claim a founding seat here:",
+        links["signup"],
+        "",
+        "The founding seat is $150/month, locked in for life.",
     ]
-    offer = f"If it clicks, you can claim a founding seat ($150/mo, locked for life): {links['signup']}"
     if links["annual"]:
-        offer += f"\nAnnual option ($1,440/yr — save 20%): {links['annual']}"
-    lines.append(offer)
+        lines += ["There's also an annual option at $1,440/year, which saves 20%:", links["annual"]]
     if links["cal"]:
-        lines.append(f"Or grab 45 minutes with me first: {links['cal']}")
+        lines += ["", "Or, if you'd rather walk through it first, grab 45 minutes with me here:", links["cal"]]
     lines += [
         "",
-        f"Either way — glad {org} is out there doing this work.",
+        f"Either way, I appreciate the work {org} is doing in the community.",
         "",
-        "— Marcus",
+        "Best,",
+        "Marcus Scott",
         "Anansi Atlas · The Web of Opportunity",
         f"{OUTREACH_WEBSITE} · {OUTREACH_LINKEDIN}",
     ]

@@ -1,7 +1,7 @@
 {
  "emailable": [
   {
-   "organization": "Alachua County Coalition For The Homeless And Hungry Inc",
+   "organization": "Alachua County Coalition for the Homeless & Hungry",
    "email": "hello@gracemarketplace.org",
    "name": "Darius Williams",
    "role": "",
@@ -14,7 +14,7 @@
    "source": "cold"
   },
   {
-   "organization": "Alachua Learning Center Inc",
+   "organization": "Alachua Learning Center",
    "email": "info@ourala.org",
    "name": "Krishna Rivera",
    "role": "",
@@ -27,7 +27,7 @@
    "source": "cold"
   },
   {
-   "organization": "Ambleside School Of Ocala Inc",
+   "organization": "Ambleside School of Ocala",
    "email": "office@amblesideocala.com",
    "name": "Tyler Emmons",
    "role": "",
@@ -40,7 +40,7 @@
    "source": "cold"
   },
   {
-   "organization": "Arnette House Inc",
+   "organization": "Arnette House",
    "email": "info@arnettehouse.org",
    "name": "Cheri Pettitt",
    "role": "",
@@ -53,7 +53,7 @@
    "source": "cold"
   },
   {
-   "organization": "Don Garlits Museum Of Drag Racing Inc",
+   "organization": "Don Garlits Museum of Drag Racing",
    "email": "chuck@garlits.com",
    "name": "Don Garlits",
    "role": "",
@@ -66,7 +66,7 @@
    "source": "cold"
   },
   {
-   "organization": "Early Learning Coalition Of Alachua County Inc",
+   "organization": "Early Learning Coalition of Alachua County",
    "email": "info@elcalachua.org",
    "name": "Xaviera White",
    "role": "",
@@ -79,20 +79,7 @@
    "source": "cold"
   },
   {
-   "organization": "Education For Life Inc Womens Pregnancy Center",
-   "email": "info@wpcocala.com",
-   "name": "Valerie Reed",
-   "role": "",
-   "phone": "(352) 351-1294",
-   "focus_area": "health and mental health",
-   "why_fit": "",
-   "subject_line": "",
-   "outreach_draft": "",
-   "list_segment": "cold_florida_crm",
-   "source": "cold"
-  },
-  {
-   "organization": "Florida Camp For Children And Youth With Diabetes Inc",
+   "organization": "Florida Camp for Children & Youth with Diabetes",
    "email": "info@floridadiabetescamp.org",
    "name": "Prescott Cowles",
    "role": "",
@@ -105,7 +92,7 @@
    "source": "cold"
   },
   {
-   "organization": "Garden Worship Center Inc",
+   "organization": "Garden Worship Center",
    "email": "normanls@earthlink.net",
    "name": "Norman L Schaffer",
    "role": "",
@@ -118,7 +105,7 @@
    "source": "cold"
   },
   {
-   "organization": "Habitat For Humanity International Inc",
+   "organization": "Habitat for Humanity of Ocala",
    "email": "llewis@habitatocala.org",
    "name": "Melissa Badge",
    "role": "",
@@ -131,7 +118,7 @@
    "source": "cold"
   },
   {
-   "organization": "Harvest International Inc",
+   "organization": "Harvest International",
    "email": "rdwray@harvestinternational.org",
    "name": "Roderick W Wray",
    "role": "",
@@ -144,7 +131,7 @@
    "source": "cold"
   },
   {
-   "organization": "Healthy Start Of North Central Florida Inc",
+   "organization": "Healthy Start of North Central Florida",
    "email": "info@wellflorida.org",
    "name": "Jeff Feller",
    "role": "",
@@ -157,7 +144,7 @@
    "source": "cold"
   },
   {
-   "organization": "Kennys Place Of Marion County Inc",
+   "organization": "Kenny's Place of Marion County",
    "email": "kennysplacenursery@centurylink.net",
    "name": "Christopher S Weichens",
    "role": "",
@@ -170,7 +157,7 @@
    "source": "cold"
   },
   {
-   "organization": "Marion County Childrens Advocacy Center Inc",
+   "organization": "Marion County Children's Advocacy Center",
    "email": "info@kimberlyscenter.org",
    "name": "Dawn Westgate",
    "role": "",
@@ -183,7 +170,7 @@
    "source": "cold"
   },
   {
-   "organization": "Marion County Literacy Council Inc",
+   "organization": "Marion County Literacy Council",
    "email": "info@marionliteracy.org",
    "name": "Yamila Acosta",
    "role": "",
@@ -196,7 +183,7 @@
    "source": "cold"
   },
   {
-   "organization": "Night Runners Mobile Crisis Services Inc",
+   "organization": "Night Runners Mobile Crisis Services",
    "email": "crisishelp@nightrunners.net",
    "name": "Gilbert Abrueo",
    "role": "",
@@ -209,7 +196,7 @@
    "source": "cold"
   },
   {
-   "organization": "Project Hope Of Marion County Inc",
+   "organization": "Project Hope of Marion County",
    "email": "admin@projecthopeocala.org",
    "name": "Michael Bianculli",
    "role": "",
@@ -222,7 +209,7 @@
    "source": "cold"
   },
   {
-   "organization": "The Arc Of Alachua County Inc",
+   "organization": "The Arc of Alachua County",
    "email": "jross@arcalachua.org",
    "name": "Mark Swain",
    "role": "",
@@ -235,7 +222,7 @@
    "source": "cold"
   },
   {
-   "organization": "Veterans Of Foreign Wars Of The United States Dept Of Florida",
+   "organization": "VFW Post 4209 (Ocala)",
    "email": "vfw4209@embarqmail.com",
    "name": "Donald Dixon",
    "role": "",
@@ -248,7 +235,20 @@
    "source": "cold"
   },
   {
-   "organization": "Zero Hour Life Center Inc",
+   "organization": "Women's Pregnancy Center of Ocala",
+   "email": "info@wpcocala.com",
+   "name": "Valerie Reed",
+   "role": "",
+   "phone": "(352) 351-1294",
+   "focus_area": "health and mental health",
+   "why_fit": "",
+   "subject_line": "",
+   "outreach_draft": "",
+   "list_segment": "cold_florida_crm",
+   "source": "cold"
+  },
+  {
+   "organization": "Zero Hour Life Center",
    "email": "recovery@zerohourlifecenter.org",
    "name": "Mary Jensen",
    "role": "",
