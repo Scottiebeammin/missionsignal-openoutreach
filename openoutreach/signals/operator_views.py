@@ -49,8 +49,16 @@ def operator_dashboard(request):
         "cold_florida": SalesLead.objects.filter(
             list_segment=SalesLead.Segment.COLD_FLORIDA_CRM
         ).count(),
+        "call_list": SalesLead.objects.filter(
+            list_segment=SalesLead.Segment.COLD_CALL_LIST
+        ).count(),
         "due_today": SalesLead.objects.filter(next_follow_up__lte=today).count(),
         "closed": SalesLead.objects.filter(status=SalesLead.Status.CLOSED).count(),
+    }
+    # Outreach cockpit status: emailable leads still to send vs already sent.
+    outreach_summary = {
+        "to_send": SalesLead.objects.filter(email_status="not_sent").exclude(email="").count(),
+        "sent": SalesLead.objects.filter(email_status="sent").count(),
     }
 
     # Orgs with any member seen in the last 7 days (ClientActivityTracker stamps).
@@ -62,6 +70,7 @@ def operator_dashboard(request):
 
     ctx = {
         "pipeline_summary": pipeline_summary,
+        "outreach_summary": outreach_summary,
         "total_projects": total_projects,
         "active_orgs_week": active_orgs_week,
         "total_signups": total_signups,
