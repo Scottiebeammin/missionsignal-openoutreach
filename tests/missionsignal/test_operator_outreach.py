@@ -79,6 +79,67 @@ def test_cockpit_requires_staff(client):
     assert response.status_code in (302, 403)  # staff_member_required bounces
 
 
+# ── tabs: warm / cold / call ──────────────────────────────────────────────────
+
+def test_tabs_partition_leads_by_segment(client, staff):
+    _lead(name="Warm Wanda", organization="Warm Org", email="w@w.org",
+          list_segment="warm", warmth="hot")
+    _lead(name="Cold Carl", organization="Cold Org", email="c@c.org",
+          list_segment="cold_florida_crm", warmth="cold")
+    _lead(name="Call Cathy", organization="Phone Org", email="",
+          list_segment="cold_call_list", phone="(352) 555-0100",
+          outreach_draft="Hi, this is Marcus from Anansi Atlas...")
+    client.force_login(staff)
+
+    warm = client.get(reverse("operator-outreach") + "?tab=warm").content.decode()
+    assert "Warm Wanda" in warm and "Cold Carl" not in warm and "Call Cathy" not in warm
+
+    cold = client.get(reverse("operator-outreach") + "?tab=cold").content.decode()
+    assert "Cold Carl" in cold and "Warm Wanda" not in cold
+
+    call = client.get(reverse("operator-outreach") + "?tab=call").content.decode()
+    assert "Phone Org" in call
+    assert "(352) 555-0100" in call
+    assert "Hi, this is Marcus from Anansi Atlas..." in call  # script shown
+    assert "Mark contacted" in call
+
+
+def test_default_tab_is_warm(client, staff):
+    _lead(name="Warm Wanda", organization="Warm Org", email="w@w.org", list_segment="warm")
+    _lead(name="Cold Carl", organization="Cold Org", email="c@c.org",
+          list_segment="cold_florida_crm", warmth="cold")
+    client.force_login(staff)
+    body = client.get(reverse("operator-outreach")).content.decode()
+    assert "Warm Wanda" in body and "Cold Carl" not in body
+
+
+def test_email_tab_caps_at_twenty_with_show_all(client, staff):
+    for i in range(25):
+        _lead(name=f"Warm {i:02d}", organization=f"Org {i:02d}",
+              email=f"w{i:02d}@w.org", list_segment="warm", warmth="warm")
+    client.force_login(staff)
+
+    capped = client.get(reverse("operator-outreach") + "?tab=warm").content.decode()
+    assert capped.count('class="oc-card"') == 20
+    assert "Show all 25" in capped
+
+    everything = client.get(reverse("operator-outreach") + "?tab=warm&all=1").content.decode()
+    assert everything.count('class="oc-card"') == 25
+
+
+def test_mark_contacted_drops_call_lead_off_the_list(client, staff):
+    lead = _lead(name="Call Cathy", organization="Phone Org", email="",
+                 list_segment="cold_call_list", phone="(352) 555-0100")
+    client.force_login(staff)
+    response = client.post(reverse("operator-outreach-contacted", kwargs={"pk": lead.pk}))
+    assert response.status_code == 302
+    assert len(mail.outbox) == 0  # calling never sends email
+    lead.refresh_from_db()
+    assert lead.email_status == "sent"
+    call = client.get(reverse("operator-outreach") + "?tab=call").content.decode()
+    assert "Phone Org" not in call
+
+
 # ── send + save ───────────────────────────────────────────────────────────────
 
 def test_send_emails_lead_marks_sent(client, staff, settings):

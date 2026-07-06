@@ -7,6 +7,11 @@
 <style>
   .outreach-intro { color: var(--muted, #667789); margin-bottom: 18px; }
   .stat-grid { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .oc-tabs { display: flex; gap: 6px; border-bottom: 2px solid var(--line, #d9e2e8); margin-bottom: 18px; flex-wrap: wrap; }
+  .oc-tab { display: inline-flex; align-items: center; gap: 7px; padding: 10px 16px; border: 1px solid transparent; border-bottom: none; border-radius: 9px 9px 0 0; text-decoration: none; color: var(--muted, #667789); font-weight: 800; margin-bottom: -2px; }
+  .oc-tab .cnt { background: #eef3f6; color: #557; border-radius: 999px; padding: 1px 8px; font-size: 12px; }
+  .oc-tab.active { color: #0f3d5c; background: white; border-color: var(--line, #d9e2e8); border-bottom: 2px solid white; }
+  .oc-tab.active .cnt { background: #0f766e; color: white; }
   .oc-card { border: 1px solid var(--line, #d9e2e8); border-radius: 10px; background: white; padding: 16px; margin-bottom: 14px; }
   .oc-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 10px; }
   .oc-name { font-weight: 800; font-size: 1.05rem; }
@@ -14,6 +19,7 @@
   .badge { padding: 2px 8px; border-radius: 999px; font-weight: 800; font-size: 12px; }
   .badge.warm { background: #fff2e0; color: #b45309; border: 1px solid #f0b160; }
   .badge.cold { background: #eef3f6; color: #557; border: 1px solid #cfd8df; }
+  .badge.phone { background: #ecf3ff; color: #2451b3; border: 1px solid #b7cdf5; }
   .oc-card label { display: block; font-weight: 700; font-size: .8rem; color: var(--muted, #667789); margin: 8px 0 4px; text-transform: uppercase; letter-spacing: .04em; }
   .oc-card input[type=text], .oc-card textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line, #d9e2e8); border-radius: 7px; font: inherit; }
   .oc-card textarea { min-height: 230px; resize: vertical; line-height: 1.5; }
@@ -21,40 +27,91 @@
   .btn { display: inline-flex; align-items: center; min-height: 38px; padding: 9px 16px; border-radius: 7px; font: inherit; font-weight: 800; cursor: pointer; text-decoration: none; border: 1px solid; }
   .btn-send { background: #0f766e; color: white; border-color: #0f766e; }
   .btn-save { background: white; color: #235789; border-color: #235789; }
+  .btn-contacted { background: #235789; color: white; border-color: #235789; }
+  .call-phone { font-size: 1.3rem; font-weight: 800; color: #0f3d5c; letter-spacing: .02em; }
+  .call-script { white-space: pre-wrap; background: #f8fafb; border: 1px solid var(--line, #d9e2e8); border-radius: 8px; padding: 14px; line-height: 1.55; margin-top: 6px; }
   .empty { padding: 40px; text-align: center; color: var(--muted, #667789); border: 1px dashed var(--line, #d9e2e8); border-radius: 10px; }
+  .showall { display: block; text-align: center; padding: 12px; margin-bottom: 14px; border: 1px dashed var(--line, #d9e2e8); border-radius: 10px; text-decoration: none; font-weight: 800; color: #235789; }
 </style>
 
-<p class="outreach-intro">Review each drafted email, edit it however you like, and hit <strong>Send</strong> — <strong>warm</strong> sends from <code>marcus@</code>, <strong>cold</strong> from <code>mail@</code>, replies come to marcus@, and the lead is marked sent. Hottest leads first. Nothing sends until you click.</p>
+{% if tab == "call" %}
+  <p class="outreach-intro">Phone-only orgs — no email on file. Call each one using the script below, then hit <strong>Mark contacted</strong> to clear it off the list.</p>
+{% else %}
+  <p class="outreach-intro">Review each drafted email, edit it however you like, and hit <strong>Send</strong> — <strong>warm</strong> sends from <code>marcus@</code>, <strong>cold</strong> from <code>mail@</code>, replies come to marcus@, and the lead is marked sent. Hottest leads first. Nothing sends until you click.</p>
+{% endif %}
+
+<div class="oc-tabs">
+  <a class="oc-tab {% if tab == 'warm' %}active{% endif %}" href="?tab=warm">🔥 Warm <span class="cnt">{{ counts.warm }}</span></a>
+  <a class="oc-tab {% if tab == 'cold' %}active{% endif %}" href="?tab=cold">🌴 Cold <span class="cnt">{{ counts.cold }}</span></a>
+  <a class="oc-tab {% if tab == 'call' %}active{% endif %}" href="?tab=call">📞 Call List <span class="cnt">{{ counts.call }}</span></a>
+</div>
 
 <div class="stat-grid">
-  <div class="stat-card"><div class="stat-label">To Send</div><div class="stat-value">{{ queue_count }}</div></div>
+  {% if tab == "call" %}
+    <div class="stat-card"><div class="stat-label">To Call</div><div class="stat-value">{{ total_count }}</div></div>
+  {% else %}
+    <div class="stat-card"><div class="stat-label">Showing</div><div class="stat-value">{{ shown_count }}{% if not show_all and total_count > limit %} of {{ total_count }}{% endif %}</div></div>
+  {% endif %}
   <div class="stat-card"><div class="stat-label">Already Sent</div><div class="stat-value">{{ sent_count }}</div></div>
 </div>
 
-{% for card in cards %}
-  <div class="oc-card">
-    <div class="oc-head">
-      <span class="oc-name">{{ card.lead.name|default:"(no name)" }}</span>
-      {% if card.lead.list_segment == "warm" %}<span class="badge warm">🔥 {{ card.lead.warmth|default:"warm" }}</span>{% else %}<span class="badge cold">🌴 cold</span>{% endif %}
-      {% if card.own_draft %}<span class="badge" style="background:#eef7ee;color:#2f7d32;border:1px solid #a9d3ab;">✎ Your draft</span>{% else %}<span class="badge" style="background:#f4f6f8;color:#8a94a0;border:1px solid #d9e0e6;">auto-draft</span>{% endif %}
-      <span class="oc-meta">{{ card.lead.organization }}{% if card.lead.role %} · {{ card.lead.role }}{% endif %} · &lt;{{ card.lead.email }}&gt;</span>
-    </div>
-    <form method="post" action="{% url 'operator-outreach-send' card.lead.pk %}" onsubmit="return confirm('Send this email to {{ card.lead.name|escapejs }} <{{ card.lead.email|escapejs }}>?');">
-      {% csrf_token %}
-      <label for="cc-{{ card.lead.pk }}">CC (add people to this thread — comma-separated)</label>
-      <input type="text" id="cc-{{ card.lead.pk }}" name="cc" value="{{ card.cc }}" placeholder="board@org.org, ceo@org.org">
-      <label for="subject-{{ card.lead.pk }}">Subject</label>
-      <input type="text" id="subject-{{ card.lead.pk }}" name="subject" value="{{ card.subject }}" maxlength="255">
-      <label for="body-{{ card.lead.pk }}">Email</label>
-      <textarea id="body-{{ card.lead.pk }}" name="body">{{ card.body }}</textarea>
+{% if tab == "call" %}
+  {% for card in cards %}
+    <div class="oc-card">
+      <div class="oc-head">
+        <span class="oc-name">{{ card.lead.organization|default:"(org)" }}</span>
+        <span class="badge phone">📞 call</span>
+        {% if card.lead.name %}<span class="oc-meta">{{ card.lead.name }}{% if card.lead.role %} · {{ card.lead.role }}{% endif %}</span>{% endif %}
+      </div>
+      {% if card.phone %}<div class="call-phone">📞 {{ card.phone }}</div>{% else %}<div class="oc-meta">No phone on file — look up on their site.</div>{% endif %}
+      {% if card.script %}
+        <label>Call script</label>
+        <div class="call-script">{{ card.script }}</div>
+      {% else %}
+        <div class="oc-meta" style="margin-top:8px;">No script yet — run <code>seed_cold_batch</code> to generate one.</div>
+      {% endif %}
       <div class="oc-actions">
-        <button type="submit" class="btn btn-send">Send →</button>
-        <button type="submit" class="btn btn-save" formaction="{% url 'operator-outreach-save' card.lead.pk %}" formnovalidate>Save draft</button>
+        <form method="post" action="{% url 'operator-outreach-contacted' card.lead.pk %}" onsubmit="return confirm('Mark {{ card.lead.organization|escapejs }} as contacted? It drops off the call list.');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-contacted">✓ Mark contacted</button>
+        </form>
         <span class="oc-meta">{{ card.lead.why_fit|truncatewords:14 }}</span>
       </div>
-    </form>
-  </div>
-{% empty %}
-  <div class="empty"><strong>Inbox zero on outreach.</strong><br>Every lead with an email has been contacted. Add more leads in the Pipeline, or promote orgs from the Florida Market.</div>
-{% endfor %}
+    </div>
+  {% empty %}
+    <div class="empty"><strong>No calls queued.</strong><br>Phone-only orgs land here when you run <code>seed_cold_batch</code>.</div>
+  {% endfor %}
+{% else %}
+  {% for card in cards %}
+    <div class="oc-card">
+      <div class="oc-head">
+        <span class="oc-name">{{ card.lead.name|default:"(no name)" }}</span>
+        {% if card.lead.list_segment == "warm" %}<span class="badge warm">🔥 {{ card.lead.warmth|default:"warm" }}</span>{% else %}<span class="badge cold">🌴 cold</span>{% endif %}
+        {% if card.own_draft %}<span class="badge" style="background:#eef7ee;color:#2f7d32;border:1px solid #a9d3ab;">✎ Your draft</span>{% else %}<span class="badge" style="background:#f4f6f8;color:#8a94a0;border:1px solid #d9e0e6;">auto-draft</span>{% endif %}
+        <span class="oc-meta">{{ card.lead.organization }}{% if card.lead.role %} · {{ card.lead.role }}{% endif %} · &lt;{{ card.lead.email }}&gt;</span>
+      </div>
+      <form method="post" action="{% url 'operator-outreach-send' card.lead.pk %}" onsubmit="return confirm('Send this email to {{ card.lead.name|escapejs }} <{{ card.lead.email|escapejs }}>?');">
+        {% csrf_token %}
+        <label for="cc-{{ card.lead.pk }}">CC (add people to this thread — comma-separated)</label>
+        <input type="text" id="cc-{{ card.lead.pk }}" name="cc" value="{{ card.cc }}" placeholder="board@org.org, ceo@org.org">
+        <label for="subject-{{ card.lead.pk }}">Subject</label>
+        <input type="text" id="subject-{{ card.lead.pk }}" name="subject" value="{{ card.subject }}" maxlength="255">
+        <label for="body-{{ card.lead.pk }}">Email</label>
+        <textarea id="body-{{ card.lead.pk }}" name="body">{{ card.body }}</textarea>
+        <div class="oc-actions">
+          <button type="submit" class="btn btn-send">Send →</button>
+          <button type="submit" class="btn btn-save" formaction="{% url 'operator-outreach-save' card.lead.pk %}" formnovalidate>Save draft</button>
+          <span class="oc-meta">{{ card.lead.why_fit|truncatewords:14 }}</span>
+        </div>
+      </form>
+    </div>
+  {% empty %}
+    <div class="empty"><strong>Inbox zero on this tab.</strong><br>Every {{ tab }} lead with an email has been contacted. Add more leads in the Pipeline, or promote orgs from the Florida Market.</div>
+  {% endfor %}
+  {% if not show_all and total_count > limit %}
+    <a class="showall" href="?tab={{ tab }}&all=1">Show all {{ total_count }} {{ tab }} leads →</a>
+  {% elif show_all and total_count > limit %}
+    <a class="showall" href="?tab={{ tab }}">Show top {{ limit }} only</a>
+  {% endif %}
+{% endif %}
 {% endblock %}

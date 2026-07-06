@@ -503,26 +503,73 @@ def operator_pipeline_delete(request, pk):
     return redirect("operator-pipeline")
 
 
+_OUTREACH_WARMTH = {"hot": 0, "warm": 1, "reconnect": 2, "cold": 3}
+_OUTREACH_LIMIT = 20  # "top 20" per email tab by default
+
+
 @_operator_required
 def operator_outreach(request):
-    """Outreach cockpit: review, edit, and send the drafted email for each
-    lead still to contact — hottest first. Replaces the local n8n digest;
-    every send is a deliberate per-lead click, never an automated blast."""
+    """Outreach cockpit, three tabs: Warm (top 20 email), Cold (top 20 email),
+    and a Call List (phone-only orgs with their call script). Every email send
+    is a deliberate per-lead click; the call tab is a to-call worklist."""
     from openoutreach.signals.models import SalesLead
-    from openoutreach.signals.outreach import draft_for, outreach_queue
+    from openoutreach.signals.outreach import draft_for
 
-    queue = outreach_queue()
+    tab = request.GET.get("tab", "warm")
+    if tab not in ("warm", "cold", "call"):
+        tab = "warm"
+    show_all = request.GET.get("all") == "1"
+
+    def email_leads(segment):
+        leads = list(SalesLead.objects.filter(list_segment=segment, email_status="not_sent").exclude(email=""))
+        leads.sort(key=lambda l: (
+            0 if l.outreach_draft else 1,               # hand-written drafts first
+            _OUTREACH_WARMTH.get(l.warmth, 9),
+            (l.organization or "").casefold(),
+        ))
+        return leads
+
+    warm_all = email_leads(SalesLead.Segment.WARM)
+    cold_all = email_leads(SalesLead.Segment.COLD_FLORIDA_CRM)
+    call_all = list(
+        SalesLead.objects.filter(list_segment=SalesLead.Segment.COLD_CALL_LIST, email_status="not_sent")
+        .order_by("organization")
+    )
+    counts = {"warm": len(warm_all), "cold": len(cold_all), "call": len(call_all)}
+
+    source = {"warm": warm_all, "cold": cold_all, "call": call_all}[tab]
+    total = len(source)
+    shown = source if (show_all or tab == "call") else source[:_OUTREACH_LIMIT]
+
     cards = []
-    for lead in queue:
-        subject, body = draft_for(lead)
-        cards.append({"lead": lead, "subject": subject, "body": body,
-                      "own_draft": bool(lead.outreach_draft), "cc": lead.cc_emails})
-    sent_count = SalesLead.objects.filter(email_status="sent").count()
+    if tab == "call":
+        for lead in shown:
+            cards.append({"lead": lead, "script": lead.outreach_draft or "", "phone": lead.phone})
+    else:
+        for lead in shown:
+            subject, body = draft_for(lead)
+            cards.append({"lead": lead, "subject": subject, "body": body,
+                          "own_draft": bool(lead.outreach_draft), "cc": lead.cc_emails})
+
     return render(request, "signals/operator/outreach.html", {
-        "cards": cards,
-        "queue_count": len(cards),
-        "sent_count": sent_count,
+        "tab": tab, "cards": cards, "counts": counts,
+        "shown_count": len(shown), "total_count": total, "show_all": show_all,
+        "limit": _OUTREACH_LIMIT,
+        "sent_count": SalesLead.objects.filter(email_status="sent").count(),
     })
+
+
+@_operator_required
+@require_POST
+def operator_outreach_contacted(request, pk):
+    """Mark a Call List lead as contacted — drops it off the to-call worklist."""
+    from django.urls import reverse
+    from openoutreach.signals.models import SalesLead
+    lead = get_object_or_404(SalesLead, pk=pk)
+    lead.email_status = "sent"
+    lead.save(update_fields=["email_status", "updated_at"])
+    messages.success(request, f"Marked {lead.name} as contacted.")
+    return redirect(f"{reverse('operator-outreach')}?tab=call")
 
 
 @_operator_required
