@@ -32,3 +32,4 @@ data/florida-crm-staging/
 !data/florida-market-snapshot.csv.gz
 !data/florida-county-rollout-snapshot.csv
 !data/foundation-grants-snapshot.csv.gz
+!data/warm-email-drafts.json
