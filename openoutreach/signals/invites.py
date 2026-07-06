@@ -25,28 +25,17 @@ INVITE_SALT = "anansi-project-invite"
 INVITE_MAX_AGE_DAYS = 14
 
 
-def make_invite_token(project_id: int, is_admin: bool | None = None) -> str:
-    """Signed invite token for a project. Pass is_admin=True/False to pin the
-    seat's role (an admin link vs a member link) regardless of click order;
-    leave None for the default 'first seat becomes admin' behavior."""
-    payload = {"project_id": project_id}
-    if is_admin is not None:
-        payload["is_admin"] = bool(is_admin)
-    return signing.dumps(payload, salt=INVITE_SALT)
-
-
-def read_invite_payload(token: str) -> dict | None:
-    """Return the token payload {project_id, is_admin?}, or None if invalid/expired."""
-    try:
-        return signing.loads(token, salt=INVITE_SALT, max_age=INVITE_MAX_AGE_DAYS * 86400)
-    except signing.BadSignature:
-        return None
+def make_invite_token(project_id: int) -> str:
+    return signing.dumps({"project_id": project_id}, salt=INVITE_SALT)
 
 
 def read_invite_token(token: str) -> int | None:
     """Return the project id, or None if the token is invalid/expired."""
-    data = read_invite_payload(token)
-    return data.get("project_id") if data else None
+    try:
+        data = signing.loads(token, salt=INVITE_SALT, max_age=INVITE_MAX_AGE_DAYS * 86400)
+    except signing.BadSignature:
+        return None
+    return data.get("project_id")
 
 
 class InviteAcceptForm(forms.Form):
@@ -77,9 +66,7 @@ class InviteAcceptForm(forms.Form):
 
 
 def accept_invite(request, token):
-    payload = read_invite_payload(token)
-    project_id = payload.get("project_id") if payload else None
-    role_admin = payload.get("is_admin") if payload else None  # pinned role, or None
+    project_id = read_invite_token(token)
     project = Project.objects.filter(pk=project_id).select_related("organization").first() if project_id else None
     if project is None:
         return render(request, "signals/invite_invalid.html", status=410)
@@ -104,16 +91,17 @@ def accept_invite(request, token):
             # Every seat gets a member record (activity tracking + seat list).
             # The first seat on a project becomes the account admin; later
             # invited seats join as regular members.
-            # Role: an admin/member link pins it; otherwise first seat = admin.
-            is_admin = (role_admin if role_admin is not None
-                        else not OrganizationMember.objects.filter(project=project, is_admin=True).exists())
+            # Every seat gets a member record (activity tracking + seat list).
+            # The first seat on a project becomes the account admin; later
+            # invited seats join as regular members. Switch the admin any time
+            # from Django Admin → OrganizationMember (is_admin is editable).
             OrganizationMember.objects.get_or_create(
                 user=user,
                 project=project,
                 defaults={
                     "contact_name": f"{user.first_name} {user.last_name}".strip(),
                     "contact_email": user.email,
-                    "is_admin": is_admin,
+                    "is_admin": not OrganizationMember.objects.filter(project=project, is_admin=True).exists(),
                 },
             )
             logger.info("Invite accepted: %s joined project %s (%s)", email, project.pk, project.organization.name)

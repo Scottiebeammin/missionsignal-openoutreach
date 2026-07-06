@@ -47,17 +47,14 @@ class Command(BaseCommand):
                 user.groups.add(group)
                 promoted += 1
 
-        base = options["base_url"].rstrip("/")
-        admin_url = f"{base}/invite/{make_invite_token(project.pk, is_admin=True)}/"
-        member_url = f"{base}/invite/{make_invite_token(project.pk, is_admin=False)}/"
+        token = make_invite_token(project.pk)
+        url = f"{options['base_url'].rstrip('/')}/invite/{token}/"
 
         self.stdout.write(self.style.SUCCESS("Empowered Girls Inc. — 2 founding seats"))
         self.stdout.write(
             f"  Existing seats: {project.users.count()} ({promoted} added to Founding Partners)\n"
-            f"\n  TWO invite links (valid {INVITE_MAX_AGE_DAYS} days) — send one to each person.\n"
-            f"  The role is pinned to the link, so it doesn't matter who clicks first.\n"
-            f"\n  Seat 1 — Executive Director (ADMIN):\n  {admin_url}\n"
-            f"\n  Seat 2 — Program Lead (member):\n  {member_url}\n"
-            f"\n  (If the ED already has the founding seat via Stripe, they're admin — "
-            f"just send the Seat 2 link to the program lead.)"
+            f"\n  Invite link (valid {INVITE_MAX_AGE_DAYS} days) — send to both the ED and the program lead:\n  {url}\n"
+            f"\n  The first person to open it becomes the account admin; the next is a teammate seat.\n"
+            f"  Need to change who's admin later? Django Admin → OrganizationMember → tick/untick is_admin.\n"
+            f"  (If the ED already has the founding seat via Stripe, they're the admin — just send this to the program lead.)"
         )
