@@ -164,13 +164,16 @@ def compose_call_script(lead, contact_name: str = "") -> str:
     ])
 
 
+OUTREACH_BCC = os.getenv("OUTREACH_BCC_EMAIL", "marcus@anansiatlas.com")
+
+
 def from_address_for(lead) -> str:
-    """All outreach — warm, cold, and call follow-ups — sends from Marcus's
-    address, so every thread lives in one mailbox: sent copies in marcus@'s Sent
-    folder (when SMTP authenticates as marcus@) and replies in marcus@'s inbox
-    (via the Reply-To the backend stamps). @anansiatlas.com, so DKIM-signed.
-    Env-override OUTREACH_FROM_EMAIL."""
-    return os.getenv("OUTREACH_FROM_EMAIL", os.getenv("WARM_FROM_EMAIL", "marcus@anansiatlas.com"))
+    """All outreach sends from the main sending mailbox (DEFAULT_FROM_EMAIL, mail@,
+    DKIM-signed). Every send is BCC'd to marcus@ (a copy lands in Marcus's inbox)
+    and Reply-To is marcus@ (replies come back there), so marcus@ is the single
+    pane for the whole trail without being the send-from address. Env-override
+    OUTREACH_FROM_EMAIL."""
+    return os.getenv("OUTREACH_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL)
 
 
 def parse_cc(cc_emails: str) -> list[str]:
@@ -180,19 +183,22 @@ def parse_cc(cc_emails: str) -> list[str]:
 
 
 def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
-    """Send one outreach email to the lead (plus any CC) and mark it sent. All
-    outreach sends from marcus@ (see from_address_for) and Reply-To (marcus@) is
-    stamped by the email backend, so the whole trail lives in one mailbox. Raises
-    on SMTP failure so the caller can surface it — the lead is only marked sent on
+    """Send one outreach email to the lead (plus any CC) and mark it sent. Sends
+    from the main mailbox (see from_address_for), BCC'd to marcus@ so a copy lands
+    in Marcus's inbox, with Reply-To (marcus@) stamped by the email backend so
+    replies come back there too — the whole trail lives in one mailbox. Raises on
+    SMTP failure so the caller can surface it — the lead is only marked sent on
     success.
     """
     cc_list = [a for a in parse_cc(cc) if a.lower() != (lead.email or "").lower()]
+    bcc_list = [OUTREACH_BCC] if OUTREACH_BCC and OUTREACH_BCC.lower() != (lead.email or "").lower() else None
     message = EmailMessage(
         subject=subject.strip() or f"A note about {lead.organization or 'your work'}",
         body=body,
         from_email=from_address_for(lead),
         to=[lead.email],
         cc=cc_list or None,
+        bcc=bcc_list,
     )
     message.send(fail_silently=False)
     lead.subject_line = subject.strip()[:255]

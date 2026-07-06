@@ -23,7 +23,7 @@ import stripe
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage, send_mail
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.urls import reverse
 from django.utils.encoding import force_bytes
@@ -33,7 +33,11 @@ from django.views.decorators.http import require_POST
 
 from openoutreach.core.access import founding_partners_group
 from openoutreach.signals.models import InterestSignup, SalesLead
-from openoutreach.signals.notifications import OPERATOR_RECIPIENTS
+from openoutreach.signals.notifications import (
+    ANANSI_ATLAS_OPERATOR_EMAIL,
+    MARCUS_EMAIL,
+    OPERATOR_RECIPIENTS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -103,14 +107,17 @@ def _send_seat_welcome(user, scheduling_url: str) -> bool:
         "Anansi Atlas · Scott Foundry Group LLC",
         "info@anansiatlas.com",
     ]
+    # Seat email sends from info@ and is BCC'd to marcus@ so a copy lands in
+    # Marcus's inbox; the backend stamps Reply-To marcus@ so replies come there too.
     try:
-        send_mail(
+        message = EmailMessage(
             subject="Your Anansi Atlas founding seat is confirmed — portal access inside",
-            message="\n".join(lines),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
+            body="\n".join(lines),
+            from_email=ANANSI_ATLAS_OPERATOR_EMAIL,
+            to=[user.email],
+            bcc=[MARCUS_EMAIL] if MARCUS_EMAIL.lower() != (user.email or "").lower() else None,
         )
+        message.send(fail_silently=False)
     except Exception:
         logger.exception("Seat welcome email failed for user=%s", user.pk)
         return False

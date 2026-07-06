@@ -14,10 +14,13 @@ def test_seat_welcome_carries_dashboard_walkthrough_video():
     from openoutreach.signals.billing import _send_seat_welcome
     user = get_user_model().objects.create_user(username="ed@egi.org", email="ed@egi.org", first_name="Dana")
     _send_seat_welcome(user, scheduling_url="https://cal.com/marcus/x")
-    body = mail.outbox[0].body
+    msg = mail.outbox[0]
+    body = msg.body
     assert "AL7wfKWrlAk" in body            # the Dashboard Walkthrough
     assert "FBvLg9c35Qo" not in body        # NOT the who-we-are video
     assert "Set your password" in body      # the join links
+    assert msg.from_email == "info@anansiatlas.com"      # seat email sends from info@
+    assert msg.bcc == ["marcus@anansiatlas.com"]         # copy lands in Marcus's inbox
 
 
 def test_who_we_are_email_carries_explainer_and_from_marcus():
