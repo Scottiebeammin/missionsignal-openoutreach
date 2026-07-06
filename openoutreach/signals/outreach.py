@@ -115,7 +115,8 @@ def compose_outreach_email(lead) -> tuple[str, str]:
         f"Either way — glad {org} is out there doing this work.",
         "",
         "— Marcus",
-        "Anansi Atlas · The Web of Opportunity · anansiatlas.com",
+        "Anansi Atlas · The Web of Opportunity",
+        f"{OUTREACH_WEBSITE} · {OUTREACH_LINKEDIN}",
     ]
 
     subject = lead.subject_line.strip() if lead.subject_line else f"Thought of {org} while building this"
@@ -165,6 +166,8 @@ def compose_call_script(lead, contact_name: str = "") -> str:
 
 
 OUTREACH_BCC = os.getenv("OUTREACH_BCC_EMAIL", "marcus@anansiatlas.com")
+OUTREACH_WEBSITE = os.getenv("OUTREACH_WEBSITE", "anansiatlas.com")
+OUTREACH_LINKEDIN = os.getenv("OUTREACH_LINKEDIN_URL", "linkedin.com/company/anansi-atlas")
 
 
 def from_address_for(lead) -> str:

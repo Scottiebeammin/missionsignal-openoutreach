@@ -40,6 +40,8 @@ def test_compose_warm_vs_cold_and_video():
                  list_segment="cold_florida_crm", warmth="cold")
     _s, cold_body = compose_outreach_email(cold)
     assert "founder of Anansi Atlas" in cold_body  # cold opener
+    assert "anansiatlas.com" in cold_body                         # website in signature
+    assert "linkedin.com/company/anansi-atlas" in cold_body       # LinkedIn in signature
 
 
 def test_saved_edit_used_over_fresh_compose():
