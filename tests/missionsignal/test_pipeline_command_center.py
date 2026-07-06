@@ -139,7 +139,7 @@ def test_pipeline_segment_filter_and_counts(client):
                              warmth="cold", region="Orlando")
     resp = client.get(reverse("operator-pipeline"), HTTP_HOST="localhost")
     assert resp.status_code == 200
-    assert resp.context["segment_counts"] == {"warm": 1, "cold_florida_crm": 1}
+    assert resp.context["segment_counts"] == {"warm": 1, "cold_florida_crm": 1, "cold_call_list": 0}
 
     resp = client.get(reverse("operator-pipeline") + "?segment=cold_florida_crm",
                       HTTP_HOST="localhost")

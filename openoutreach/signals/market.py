@@ -262,12 +262,14 @@ def build_provenance_notes(org: FloridaOrg) -> str:
     return notes
 
 
-def promote_org_to_pipeline(org: FloridaOrg):
-    """Create a cold_florida_crm SalesLead for this org, exactly once.
+def promote_org_to_pipeline(org: FloridaOrg, *, segment=None):
+    """Create a cold SalesLead for this org, exactly once.
 
-    Returns (lead, created). A second call is a no-op returning the existing
-    lead — the promoted_lead FK is the idempotency guard.
+    ``segment`` defaults to COLD_FLORIDA_CRM; pass COLD_CALL_LIST for phone/form
+    orgs with no email so they land in their own pipeline. Returns
+    (lead, created); a second call is a no-op (the promoted_lead FK guards it).
     """
+    segment = segment or SalesLead.Segment.COLD_FLORIDA_CRM
     with transaction.atomic():
         org = FloridaOrg.objects.select_for_update().get(pk=org.pk)
         if org.promoted_lead_id is not None:
@@ -277,7 +279,7 @@ def promote_org_to_pipeline(org: FloridaOrg):
             organization=org.name,
             source=SalesLead.Source.COLD,
             status=SalesLead.Status.NEW,
-            list_segment=SalesLead.Segment.COLD_FLORIDA_CRM,
+            list_segment=segment,
             warmth=SalesLead.Warmth.COLD,
             region=org.county,
             phone=org.phone,

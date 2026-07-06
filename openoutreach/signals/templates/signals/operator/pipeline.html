@@ -16,6 +16,9 @@
   <a href="?segment=cold_florida_crm" class="segment-tab {% if segment_filter == 'cold_florida_crm' %}segment-tab-active{% endif %}">
     🌴 Cold — Florida CRM <span class="segment-count">{{ segment_counts.cold_florida_crm|default:0 }}</span>
   </a>
+  <a href="?segment=cold_call_list" class="segment-tab {% if segment_filter == 'cold_call_list' %}segment-tab-active{% endif %}">
+    📞 Cold — Call List <span class="segment-count">{{ segment_counts.cold_call_list|default:0 }}</span>
+  </a>
 </div>
 
 <!-- Stats row (current segment) -->

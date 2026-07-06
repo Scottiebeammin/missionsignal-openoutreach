@@ -54,8 +54,8 @@ def test_seed_cold_batch_splits_email_vs_phone_keepers():
     assert emailable.email == "info@arnettehouse.org"      # → shows in cockpit
 
     keeper = SalesLead.objects.get(organization="Interfaith Emergency Services Inc")
-    assert keeper.list_segment == "cold_florida_crm"
-    assert keeper.email == ""                               # junk cleaned → pipeline only
+    assert keeper.list_segment == "cold_call_list"         # its own Call List pipeline
+    assert keeper.email == ""                               # junk cleaned → no email
     assert keeper.phone == "(352) 629-8868"                # still reachable by phone
 
     # Idempotent — a second run promotes nothing new.

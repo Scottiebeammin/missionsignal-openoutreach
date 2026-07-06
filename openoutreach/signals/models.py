@@ -134,6 +134,7 @@ class SalesLead(models.Model):
     class Segment(models.TextChoices):
         WARM = "warm", "Warm Network"
         COLD_FLORIDA_CRM = "cold_florida_crm", "Cold — Florida CRM"
+        COLD_CALL_LIST = "cold_call_list", "Cold — Call List"  # phone/website, no email
 
     class Warmth(models.TextChoices):
         HOT = "hot", "Hot"
