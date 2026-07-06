@@ -100,6 +100,22 @@ def test_send_emails_lead_marks_sent(client, staff, settings):
     assert lead.outreach_draft == "Edited body here."
 
 
+def test_warm_sends_from_marcus_cold_from_mail(client, staff, settings):
+    settings.DEFAULT_FROM_EMAIL = "mail@anansiatlas.com"
+    warm = _lead(name="Pat Warm", organization="Warm Org", email="pat@warm.org",
+                 list_segment="warm", warmth="hot")
+    cold = _lead(name="Sam Cold", organization="Cold Org", email="sam@cold.org",
+                 list_segment="cold_florida_crm", warmth="cold")
+    client.force_login(staff)
+    client.post(reverse("operator-outreach-send", kwargs={"pk": warm.pk}),
+                {"subject": "hi", "body": "b"})
+    client.post(reverse("operator-outreach-send", kwargs={"pk": cold.pk}),
+                {"subject": "hi", "body": "b"})
+    by_to = {m.to[0]: m for m in mail.outbox}
+    assert by_to["pat@warm.org"].from_email == "marcus@anansiatlas.com"
+    assert by_to["sam@cold.org"].from_email == "mail@anansiatlas.com"
+
+
 def test_send_is_idempotent_no_double_send(client, staff):
     lead = _lead(email_status="sent")
     client.force_login(staff)
