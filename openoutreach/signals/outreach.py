@@ -165,13 +165,12 @@ def compose_call_script(lead, contact_name: str = "") -> str:
 
 
 def from_address_for(lead) -> str:
-    """Warm outreach sends from Marcus's personal address (authentic to people
-    who know him); cold outreach sends from the dedicated mail@ account (keeps
-    the personal address's reputation off cold-send risk). Both @anansiatlas.com,
-    so both are DKIM-signed. Overridable via WARM_FROM_EMAIL."""
-    if lead.list_segment == SalesLead.Segment.WARM:
-        return os.getenv("WARM_FROM_EMAIL", "marcus@anansiatlas.com")
-    return settings.DEFAULT_FROM_EMAIL
+    """All outreach — warm, cold, and call follow-ups — sends from Marcus's
+    address, so every thread lives in one mailbox: sent copies in marcus@'s Sent
+    folder (when SMTP authenticates as marcus@) and replies in marcus@'s inbox
+    (via the Reply-To the backend stamps). @anansiatlas.com, so DKIM-signed.
+    Env-override OUTREACH_FROM_EMAIL."""
+    return os.getenv("OUTREACH_FROM_EMAIL", os.getenv("WARM_FROM_EMAIL", "marcus@anansiatlas.com"))
 
 
 def parse_cc(cc_emails: str) -> list[str]:
@@ -181,10 +180,11 @@ def parse_cc(cc_emails: str) -> list[str]:
 
 
 def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
-    """Send one outreach email to the lead (plus any CC) and mark it sent. Warm →
-    from marcus@, cold → from mail@ (see from_address_for). Reply-To (marcus@) is
-    stamped by the email backend. Raises on SMTP failure so the caller can surface
-    it — the lead is only marked sent on success.
+    """Send one outreach email to the lead (plus any CC) and mark it sent. All
+    outreach sends from marcus@ (see from_address_for) and Reply-To (marcus@) is
+    stamped by the email backend, so the whole trail lives in one mailbox. Raises
+    on SMTP failure so the caller can surface it — the lead is only marked sent on
+    success.
     """
     cc_list = [a for a in parse_cc(cc) if a.lower() != (lead.email or "").lower()]
     message = EmailMessage(

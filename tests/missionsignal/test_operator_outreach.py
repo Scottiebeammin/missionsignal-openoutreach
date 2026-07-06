@@ -161,7 +161,8 @@ def test_send_emails_lead_marks_sent(client, staff, settings):
     assert lead.outreach_draft == "Edited body here."
 
 
-def test_warm_sends_from_marcus_cold_from_mail(client, staff, settings):
+def test_all_outreach_sends_from_marcus(client, staff, settings):
+    # Warm and cold both send from marcus@ so the whole trail lives in one mailbox.
     settings.DEFAULT_FROM_EMAIL = "mail@anansiatlas.com"
     warm = _lead(name="Pat Warm", organization="Warm Org", email="pat@warm.org",
                  list_segment="warm", warmth="hot")
@@ -174,7 +175,7 @@ def test_warm_sends_from_marcus_cold_from_mail(client, staff, settings):
                 {"subject": "hi", "body": "b"})
     by_to = {m.to[0]: m for m in mail.outbox}
     assert by_to["pat@warm.org"].from_email == "marcus@anansiatlas.com"
-    assert by_to["sam@cold.org"].from_email == "mail@anansiatlas.com"
+    assert by_to["sam@cold.org"].from_email == "marcus@anansiatlas.com"
 
 
 def test_cc_adds_recipients_to_the_thread(client, staff):
