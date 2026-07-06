@@ -190,6 +190,12 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@localhost")
 SERVER_EMAIL = os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 EMAIL_SUBJECT_PREFIX = "CRM: "
 
+# Public base URL used to build absolute links in outbound emails (password-set,
+# sign-in, admin, snapshot). The live app is served on the APEX; the `app.`
+# subdomain is not configured (it 404s), so links must never point there.
+# Env-overridable so a future `app.` cutover is a config change, not a code edit.
+SITE_BASE_URL = os.getenv("SITE_BASE_URL", "https://anansiatlas.com").rstrip("/")
+
 LANGUAGE_CODE = "en"
 LANGUAGES = [("en", "English")]
 TIME_ZONE = "UTC"

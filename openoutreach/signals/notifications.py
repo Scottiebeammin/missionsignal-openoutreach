@@ -288,7 +288,7 @@ def send_intake_welcome(user, project) -> bool:
     """
     first_name = user.first_name or user.email.split("@")[0]
     org_name = project.organization.name
-    snapshot_url = f"https://app.anansiatlas.com/projects/{project.pk}/snapshot/"
+    snapshot_url = f"{settings.SITE_BASE_URL}/projects/{project.pk}/snapshot/"
     body = "\n".join([
         f"Hi {first_name},",
         "",
@@ -322,7 +322,7 @@ def send_intake_welcome(user, project) -> bool:
         "info@anansiatlas.com",
     ])
     from openoutreach.signals.email_renderer import render_email
-    snapshot_url = f"https://app.anansiatlas.com/projects/{project.pk}/snapshot/"
+    snapshot_url = f"{settings.SITE_BASE_URL}/projects/{project.pk}/snapshot/"
     try:
         send_mail(
             subject=f"Welcome to Anansi Atlas — your Snapshot is ready, {first_name}",
@@ -357,8 +357,8 @@ def notify_new_intake(user, project) -> bool:
         f"Focus Areas: {org.focus_areas or 'Not provided'}",
         f"Project ID: {project.pk}",
         "",
-        f"Admin: https://app.anansiatlas.com/admin/core/project/{project.pk}/change/",
-        f"Operator: https://app.anansiatlas.com/operator/organizations/{project.pk}/",
+        f"Admin: {settings.SITE_BASE_URL}/admin/core/project/{project.pk}/change/",
+        f"Operator: {settings.SITE_BASE_URL}/operator/organizations/{project.pk}/",
     ])
     try:
         send_mail(

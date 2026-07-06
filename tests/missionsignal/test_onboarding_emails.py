@@ -21,6 +21,9 @@ def test_seat_welcome_carries_dashboard_walkthrough_video():
     assert "Set your password" in body      # the join links
     assert msg.from_email == "info@anansiatlas.com"      # seat email sends from info@
     assert msg.bcc == ["marcus@anansiatlas.com"]         # copy lands in Marcus's inbox
+    # Links must point at the live apex, never the dead app. subdomain (404s).
+    assert "app.anansiatlas.com" not in body
+    assert "https://anansiatlas.com/accounts/login/" in body
 
 
 def test_who_we_are_email_carries_explainer_and_from_marcus():

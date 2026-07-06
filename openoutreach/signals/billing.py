@@ -41,7 +41,7 @@ from openoutreach.signals.notifications import (
 
 logger = logging.getLogger(__name__)
 
-SITE_BASE_URL = "https://app.anansiatlas.com"
+SITE_BASE_URL = settings.SITE_BASE_URL  # live apex; see settings.SITE_BASE_URL
 
 
 def _password_set_url(user) -> str:
