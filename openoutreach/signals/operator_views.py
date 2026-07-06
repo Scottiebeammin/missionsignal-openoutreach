@@ -459,8 +459,7 @@ Return only the ad copy."""
 @require_POST
 def operator_pipeline_draft(request, pk):
     from openoutreach.signals.models import SalesLead
-    from pydantic_ai import Agent
-    from openoutreach.core.llm import get_llm_model, run_agent_sync
+    from openoutreach.signals.outreach import compose_outreach_email
 
     lead = get_object_or_404(SalesLead, pk=pk)
     source_label = lead.get_source_display()
@@ -481,14 +480,26 @@ Goal: get them on a 45-minute founder walkthrough call.
 Do not mention pricing unless they asked. End with a soft CTA — "would love to show you what it looks like for [org name]" style.
 Return only the email body text."""
 
+    # Prefer the AI writer when an LLM key is configured; otherwise (or on any
+    # LLM error) fall back to the deterministic template composer so the button
+    # always produces a usable draft — no scary "Draft failed" for the common
+    # no-LLM-key setup. The cockpit's Cold/Warm tabs use the same composer.
     try:
+        from pydantic_ai import Agent
+        from openoutreach.core.llm import get_llm_model, run_agent_sync
         agent = Agent(get_llm_model(), model_settings={"temperature": 0.7, "timeout": 60})
-        draft = run_agent_sync(agent.run(prompt)).output.strip()
-        lead.outreach_draft = draft
+        lead.outreach_draft = run_agent_sync(agent.run(prompt)).output.strip()
         lead.save(update_fields=["outreach_draft", "updated_at"])
-        messages.success(request, f"Draft generated for {lead.name}.")
-    except Exception as e:
-        messages.error(request, f"Draft failed: {e}")
+        messages.success(request, f"AI draft generated for {lead.name}.")
+    except Exception:
+        _subject, body = compose_outreach_email(lead)
+        lead.outreach_draft = body
+        lead.save(update_fields=["outreach_draft", "updated_at"])
+        messages.success(
+            request,
+            f"Draft ready for {lead.name} (from the built-in template — add an LLM key in "
+            f"Site Config if you want AI-written drafts).",
+        )
     return redirect("operator-pipeline")
 
 

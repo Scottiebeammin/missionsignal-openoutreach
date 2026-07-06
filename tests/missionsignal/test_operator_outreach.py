@@ -72,6 +72,19 @@ def test_cockpit_lists_leads_for_staff(client, staff):
     assert "Send" in body
 
 
+def test_pipeline_draft_button_falls_back_to_template_without_llm_key(client, staff):
+    # No LLM key configured (the common setup) → the Pipeline "Draft" button must
+    # NOT error; it falls back to the deterministic composer and produces a draft.
+    lead = _lead(name="Cold Carl", organization="Metro Coalition", email="c@metro.org",
+                 list_segment="cold_florida_crm", warmth="cold", source="cold")
+    client.force_login(staff)
+    response = client.post(reverse("operator-pipeline-draft", kwargs={"pk": lead.pk}))
+    assert response.status_code == 302
+    lead.refresh_from_db()
+    assert lead.outreach_draft                         # a draft was produced, not an error
+    assert "founder of Anansi Atlas" in lead.outreach_draft   # the cold template body
+
+
 def test_cockpit_requires_staff(client):
     user = get_user_model().objects.create_user(username="notstaff", password="x")
     client.force_login(user)
