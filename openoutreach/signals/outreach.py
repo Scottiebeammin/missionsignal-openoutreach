@@ -33,7 +33,7 @@ def _links():
         "video": os.getenv("WALKTHROUGH_VIDEO_URL", "https://youtu.be/FBvLg9c35Qo"),
         "signup": os.getenv("STRIPE_MONTHLY_URL", "https://anansiatlas.com/anansi-atlas/"),
         "annual": os.getenv("STRIPE_ANNUAL_URL", ""),
-        "cal": os.getenv("SCHEDULING_URL", ""),
+        "cal": os.getenv("SCHEDULING_URL", "https://cal.com/marcus-scott-br7maf/founder-walkthrough"),
     }
 
 

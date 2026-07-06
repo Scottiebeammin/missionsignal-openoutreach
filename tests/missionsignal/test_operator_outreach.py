@@ -33,6 +33,7 @@ def test_compose_warm_vs_cold_and_video():
     assert "Dana" in body
     assert "we worked together at Aeras" in body
     assert "youtu.be/FBvLg9c35Qo" in body  # sales walkthrough always present
+    assert "cal.com/marcus-scott-br7maf/founder-walkthrough" in body  # calendar booking link
     assert "Bright Paths" in subject
 
     cold = _lead(name="Sam Cole", organization="Metro Coalition", email="s@metro.org",
