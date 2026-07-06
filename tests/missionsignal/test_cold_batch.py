@@ -57,6 +57,10 @@ def test_seed_cold_batch_splits_email_vs_phone_keepers():
     assert keeper.list_segment == "cold_call_list"         # its own Call List pipeline
     assert keeper.email == ""                               # junk cleaned → no email
     assert keeper.phone == "(352) 629-8868"                # still reachable by phone
+    # Personalized call script is on the lead (shows in the pipeline card).
+    assert "CALL SCRIPT" in keeper.outreach_draft
+    assert "VOICEMAIL" in keeper.outreach_draft
+    assert "Interfaith Emergency Services Inc" in keeper.outreach_draft
 
     # Idempotent — a second run promotes nothing new.
     before = SalesLead.objects.count()

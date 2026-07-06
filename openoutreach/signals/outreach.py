@@ -98,6 +98,39 @@ def draft_for(lead) -> tuple[str, str]:
     return subject, body
 
 
+def compose_call_script(lead, contact_name: str = "") -> str:
+    """Short, personalized phone script (opener + voicemail) for a Call List
+    lead — stored on the lead so it's right there when the operator dials.
+    Full playbook: anansi-atlas-sales-playbook/CALL-SCRIPT.md."""
+    org = lead.organization or "your organization"
+    county = (lead.region or "").strip()
+    where = f"{county} County" if county else "your area"
+    first = (contact_name or "").split(" ")[0].strip()
+    greet = first or "there"
+    cal = os.getenv("SCHEDULING_URL", "https://cal.com/marcus-scott-br7maf/founder-walkthrough")
+    who = contact_name.strip() if contact_name else "ask for whoever handles grants & funding"
+    return "\n".join([
+        f"📞 CALL SCRIPT — {org}",
+        f"Contact: {who}   ·   Book: {cal}",
+        "",
+        "LIVE OPENER (~20 sec, then LISTEN):",
+        f'"Hi {greet}, this is Marcus Scott — founder of Anansi Atlas, here in '
+        f"Central Florida, and I'll be quick. I built a platform that maps the "
+        f"funders, partners, and free resources already aligned with a nonprofit's "
+        f"mission. I came across {org} while mapping {where} and thought of you all. "
+        f'Is finding aligned funders something on your plate right now?"',
+        "",
+        "VOICEMAIL (~30 sec — no price, no callback ask):",
+        f'"Hi {greet}, this is Marcus Scott, founder of Anansi Atlas here in Central '
+        f"Florida. I came across {org} while mapping the funders aligned with missions "
+        f"like yours in {where}, and thought it'd be genuinely useful. No pitch — I'd "
+        f'just love to show you a 3-minute look. I\'m at anansiatlas.com. Thanks for what you do."',
+        "",
+        "IF INTERESTED → get their email + book the 15-min walkthrough.",
+        "RULE: Atlas *maps & surfaces* funders — never \"gets you grants.\" Snapshot isn't free.",
+    ])
+
+
 def send_outreach_email(lead, subject: str, body: str) -> None:
     """Send one outreach email from the platform sender to the lead, and mark it
     sent. Reply-To (marcus@) is stamped by the email backend. Raises on SMTP

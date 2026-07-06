@@ -15,6 +15,7 @@ from django.core.management.base import BaseCommand
 from openoutreach.signals.email_hygiene import clean_junk_emails
 from openoutreach.signals.market import promote_org_to_pipeline
 from openoutreach.signals.models import FloridaOrg, SalesLead
+from openoutreach.signals.outreach import compose_call_script
 
 # 20 with a valid direct email → the Outreach Cockpit.
 EMAILABLE_EINS = [
@@ -75,7 +76,11 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING(f"  missing EIN {ein}"))
                 missing += 1
                 continue
-            _lead, created = promote_org_to_pipeline(org, segment=SalesLead.Segment.COLD_CALL_LIST)
+            lead, created = promote_org_to_pipeline(org, segment=SalesLead.Segment.COLD_CALL_LIST)
+            # Drop the personalized call script onto the lead so it's right there
+            # in the pipeline card when Marcus dials (refresh even if pre-promoted).
+            lead.outreach_draft = compose_call_script(lead, contact_name=org.principal_officer)
+            lead.save(update_fields=["outreach_draft", "updated_at"])
             kept += 1 if created else 0
             already += 0 if created else 1
 
