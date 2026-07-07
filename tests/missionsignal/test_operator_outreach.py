@@ -243,6 +243,43 @@ def test_cc_dedupes_the_primary_recipient(client, staff):
     assert msg.cc == ["board@brightpaths.org"]  # primary not CC'd twice
 
 
+def test_send_advances_pipeline_stage_to_reached_out(client, staff, settings):
+    settings.DEFAULT_FROM_EMAIL = "mail@anansiatlas.com"
+    lead = _lead(email="dana@brightpaths.org")
+    assert lead.status == "new"
+    client.force_login(staff)
+    client.post(reverse("operator-outreach-send", kwargs={"pk": lead.pk}),
+                {"subject": "hi", "body": "b", "tab": "warm"})
+    lead.refresh_from_db()
+    assert lead.status == "reached_out"                # pipeline stage advanced
+
+
+def test_send_does_not_knock_back_an_advanced_lead(client, staff, settings):
+    settings.DEFAULT_FROM_EMAIL = "mail@anansiatlas.com"
+    lead = _lead(email="dana@brightpaths.org", status="closed")
+    client.force_login(staff)
+    client.post(reverse("operator-outreach-send", kwargs={"pk": lead.pk}),
+                {"subject": "hi", "body": "b", "tab": "warm"})
+    lead.refresh_from_db()
+    assert lead.status == "closed"                     # not knocked backward to reached_out
+
+
+def test_mark_sent_also_advances_stage_to_reached_out(client, staff):
+    lead = _lead(email="w@w.org", list_segment="warm")
+    client.force_login(staff)
+    client.post(reverse("operator-outreach-mark-sent", kwargs={"pk": lead.pk}), {"tab": "warm"})
+    lead.refresh_from_db()
+    assert lead.status == "reached_out"
+
+
+def test_remove_passes_lead_in_pipeline(client, staff):
+    lead = _lead(email="c@metro.org", list_segment="cold_florida_crm", warmth="cold")
+    client.force_login(staff)
+    client.post(reverse("operator-outreach-remove", kwargs={"pk": lead.pk}), {"tab": "cold"})
+    lead.refresh_from_db()
+    assert lead.email_status == "skipped" and lead.status == "passed"
+
+
 def test_send_is_idempotent_no_double_send(client, staff):
     lead = _lead(email_status="sent")
     client.force_login(staff)

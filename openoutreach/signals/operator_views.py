@@ -573,12 +573,15 @@ def operator_outreach(request):
 @_operator_required
 @require_POST
 def operator_outreach_contacted(request, pk):
-    """Mark a Call List lead as contacted — drops it off the to-call worklist."""
+    """Mark a Call List lead as contacted — drops it off the to-call worklist and
+    advances its pipeline stage to Contacted."""
     from django.urls import reverse
     from openoutreach.signals.models import SalesLead
+    from openoutreach.signals.outreach import advance_to_contacted
     lead = get_object_or_404(SalesLead, pk=pk)
     lead.email_status = "sent"
-    lead.save(update_fields=["email_status", "updated_at"])
+    advance_to_contacted(lead)
+    lead.save(update_fields=["email_status", "status", "updated_at"])
     messages.success(request, f"Marked {lead.name} as contacted.")
     return redirect(f"{reverse('operator-outreach')}?tab=call")
 
@@ -638,11 +641,14 @@ def operator_outreach_send(request, pk):
 @require_POST
 def operator_outreach_mark_sent(request, pk):
     """Mark a lead as already sent WITHOUT sending — for emails you sent by hand
-    (e.g. from Gmail). Clears it off the queue so it can't be double-sent."""
+    (e.g. from Gmail). Clears it off the queue so it can't be double-sent, and
+    advances its pipeline stage to Contacted."""
     from openoutreach.signals.models import SalesLead
+    from openoutreach.signals.outreach import advance_to_contacted
     lead = get_object_or_404(SalesLead, pk=pk)
     lead.email_status = "sent"
-    lead.save(update_fields=["email_status", "updated_at"])
+    advance_to_contacted(lead)
+    lead.save(update_fields=["email_status", "status", "updated_at"])
     messages.success(request, f"Marked {lead.name or lead.organization} as already sent.")
     return _outreach_redirect(request)
 
@@ -651,11 +657,13 @@ def operator_outreach_mark_sent(request, pk):
 @require_POST
 def operator_outreach_remove(request, pk):
     """Remove a lead from the outreach queue — a soft skip (hidden from the
-    cockpit, kept in the database and recoverable via Django Admin)."""
+    cockpit, kept in the database and recoverable via Django Admin) that also
+    archives it in the pipeline."""
     from openoutreach.signals.models import SalesLead
     lead = get_object_or_404(SalesLead, pk=pk)
     lead.email_status = "skipped"
-    lead.save(update_fields=["email_status", "updated_at"])
+    lead.status = SalesLead.Status.PASSED
+    lead.save(update_fields=["email_status", "status", "updated_at"])
     messages.success(request, f"Removed {lead.name or lead.organization} from the list.")
     return _outreach_redirect(request)
 

@@ -184,13 +184,22 @@ def parse_cc(cc_emails: str) -> list[str]:
     return [p for p in (x.strip() for x in parts) if "@" in p]
 
 
+def advance_to_contacted(lead) -> None:
+    """Move a brand-new lead's pipeline stage to Reached Out when we contact them.
+    Only advances from NEW, so it never knocks back a lead already further along
+    (call scheduled/done, closed, nurturing) or intentionally set aside (passed).
+    Mutates in place; the caller saves with "status" in update_fields."""
+    if lead.status == SalesLead.Status.NEW:
+        lead.status = SalesLead.Status.REACHED_OUT
+
+
 def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
-    """Send one outreach email to the lead (plus any CC) and mark it sent. Sends
-    from the main mailbox (see from_address_for), BCC'd to marcus@ so a copy lands
-    in Marcus's inbox, with Reply-To (marcus@) stamped by the email backend so
-    replies come back there too — the whole trail lives in one mailbox. Raises on
-    SMTP failure so the caller can surface it — the lead is only marked sent on
-    success.
+    """Send one outreach email to the lead (plus any CC), mark it sent, and
+    advance its pipeline stage to Contacted. Sends from the main mailbox (see
+    from_address_for), BCC'd to marcus@ so a copy lands in Marcus's inbox, with
+    Reply-To (marcus@) stamped by the email backend so replies come back there
+    too — the whole trail lives in one mailbox. Raises on SMTP failure so the
+    caller can surface it — the lead is only marked sent on success.
     """
     cc_list = [a for a in parse_cc(cc) if a.lower() != (lead.email or "").lower()]
     bcc_list = [OUTREACH_BCC] if OUTREACH_BCC and OUTREACH_BCC.lower() != (lead.email or "").lower() else None
@@ -207,5 +216,6 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
     lead.outreach_draft = body
     lead.cc_emails = ", ".join(cc_list)[:500]
     lead.email_status = "sent"
+    advance_to_contacted(lead)
     lead.updated_at = timezone.now()
-    lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status", "updated_at"])
+    lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status", "status", "updated_at"])
