@@ -142,6 +142,32 @@ def test_email_tab_caps_at_twenty_with_show_all(client, staff):
     assert everything.count('class="oc-card"') == 25
 
 
+def test_mark_sent_clears_lead_without_sending(client, staff):
+    # For emails sent by hand: mark as sent, no email goes out, drops off the tab.
+    lead = _lead(name="Warm Wanda", organization="WO", email="w@w.org", list_segment="warm")
+    client.force_login(staff)
+    resp = client.post(reverse("operator-outreach-mark-sent", kwargs={"pk": lead.pk}), {"tab": "warm"})
+    assert resp.status_code == 302 and resp.url.endswith("?tab=warm")
+    assert len(mail.outbox) == 0                        # nothing was sent
+    lead.refresh_from_db()
+    assert lead.email_status == "sent"
+    body = client.get(reverse("operator-outreach") + "?tab=warm").content.decode()
+    assert "w@w.org" not in body                        # off the list (email only shows in cards)
+
+
+def test_remove_soft_hides_lead_from_the_tab(client, staff):
+    lead = _lead(name="Cold Carl", organization="Metro Coalition", email="c@metro.org",
+                 list_segment="cold_florida_crm", warmth="cold")
+    client.force_login(staff)
+    resp = client.post(reverse("operator-outreach-remove", kwargs={"pk": lead.pk}), {"tab": "cold"})
+    assert resp.status_code == 302 and resp.url.endswith("?tab=cold")
+    lead.refresh_from_db()
+    assert lead.email_status == "skipped"               # soft-removed, still in DB
+    assert SalesLead.objects.filter(pk=lead.pk).exists()
+    body = client.get(reverse("operator-outreach") + "?tab=cold").content.decode()
+    assert "Metro Coalition" not in body                # hidden from the cockpit
+
+
 def test_mark_contacted_drops_call_lead_off_the_list(client, staff):
     lead = _lead(name="Call Cathy", organization="Phone Org", email="",
                  list_segment="cold_call_list", phone="(352) 555-0100")

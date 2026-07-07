@@ -28,6 +28,10 @@
   .btn-send { background: #0f766e; color: white; border-color: #0f766e; }
   .btn-save { background: white; color: #235789; border-color: #235789; }
   .btn-contacted { background: #235789; color: white; border-color: #235789; }
+  .btn-mark { background: white; color: #0f766e; border-color: #bfe0da; }
+  .btn-mark:hover { background: #e6f2f0; }
+  .btn-remove { background: white; color: #9a3b3b; border-color: #e3c4c4; }
+  .btn-remove:hover { background: #fbeaea; }
   .call-phone { font-size: 1.3rem; font-weight: 800; color: #0f3d5c; letter-spacing: .02em; }
   .call-script { white-space: pre-wrap; background: #f8fafb; border: 1px solid var(--line, #d9e2e8); border-radius: 8px; padding: 14px; line-height: 1.55; margin-top: 6px; }
   .empty { padding: 40px; text-align: center; color: var(--muted, #667789); border: 1px dashed var(--line, #d9e2e8); border-radius: 10px; }
@@ -75,6 +79,11 @@
           {% csrf_token %}
           <button type="submit" class="btn btn-contacted">✓ Mark contacted</button>
         </form>
+        <form method="post" action="{% url 'operator-outreach-remove' card.lead.pk %}" onsubmit="return confirm('Remove {{ card.lead.organization|escapejs }} from the call list? It stays in the database — just hidden here.');">
+          {% csrf_token %}
+          <input type="hidden" name="tab" value="call">
+          <button type="submit" class="btn btn-remove">✕ Remove</button>
+        </form>
         <span class="oc-meta">{{ card.lead.why_fit|truncatewords:14 }}</span>
       </div>
     </div>
@@ -90,7 +99,7 @@
         {% if card.own_draft %}<span class="badge" style="background:#eef7ee;color:#2f7d32;border:1px solid #a9d3ab;">✎ Your draft</span>{% else %}<span class="badge" style="background:#f4f6f8;color:#8a94a0;border:1px solid #d9e0e6;">auto-draft</span>{% endif %}
         <span class="oc-meta">{{ card.lead.organization }}{% if card.lead.role %} · {{ card.lead.role }}{% endif %} · &lt;{{ card.lead.email }}&gt;</span>
       </div>
-      <form method="post" action="{% url 'operator-outreach-send' card.lead.pk %}" onsubmit="return confirm('Send this email to {{ card.lead.name|escapejs }} <{{ card.lead.email|escapejs }}>?');">
+      <form method="post" action="{% url 'operator-outreach-send' card.lead.pk %}">
         {% csrf_token %}
         <input type="hidden" name="tab" value="{{ tab }}">
 
@@ -101,8 +110,10 @@
         <label for="body-{{ card.lead.pk }}">Email</label>
         <textarea id="body-{{ card.lead.pk }}" name="body">{{ card.body }}</textarea>
         <div class="oc-actions">
-          <button type="submit" class="btn btn-send">Send →</button>
+          <button type="submit" class="btn btn-send" onclick="return confirm('Send this email to {{ card.lead.name|escapejs }} <{{ card.lead.email|escapejs }}>?');">Send →</button>
           <button type="submit" class="btn btn-save" formaction="{% url 'operator-outreach-save' card.lead.pk %}" formnovalidate>Save draft</button>
+          <button type="submit" class="btn btn-mark" formaction="{% url 'operator-outreach-mark-sent' card.lead.pk %}" formnovalidate onclick="return confirm('Mark {{ card.lead.name|escapejs }} as already sent? No email goes out — this just clears it off the list (use it for ones you sent by hand).');">✓ Already sent</button>
+          <button type="submit" class="btn btn-remove" formaction="{% url 'operator-outreach-remove' card.lead.pk %}" formnovalidate onclick="return confirm('Remove {{ card.lead.organization|escapejs }} from the list? It stays in the database — just hidden here.');">✕ Remove</button>
           <span class="oc-meta">{{ card.lead.why_fit|truncatewords:14 }}</span>
         </div>
       </form>

@@ -635,6 +635,32 @@ def operator_outreach_send(request, pk):
 
 
 @_operator_required
+@require_POST
+def operator_outreach_mark_sent(request, pk):
+    """Mark a lead as already sent WITHOUT sending — for emails you sent by hand
+    (e.g. from Gmail). Clears it off the queue so it can't be double-sent."""
+    from openoutreach.signals.models import SalesLead
+    lead = get_object_or_404(SalesLead, pk=pk)
+    lead.email_status = "sent"
+    lead.save(update_fields=["email_status", "updated_at"])
+    messages.success(request, f"Marked {lead.name or lead.organization} as already sent.")
+    return _outreach_redirect(request)
+
+
+@_operator_required
+@require_POST
+def operator_outreach_remove(request, pk):
+    """Remove a lead from the outreach queue — a soft skip (hidden from the
+    cockpit, kept in the database and recoverable via Django Admin)."""
+    from openoutreach.signals.models import SalesLead
+    lead = get_object_or_404(SalesLead, pk=pk)
+    lead.email_status = "skipped"
+    lead.save(update_fields=["email_status", "updated_at"])
+    messages.success(request, f"Removed {lead.name or lead.organization} from the list.")
+    return _outreach_redirect(request)
+
+
+@_operator_required
 def operator_market(request):
     """Florida Market browser — the 114k-org prospect universe."""
     from django.core.paginator import Paginator
