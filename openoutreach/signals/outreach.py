@@ -178,6 +178,30 @@ def from_address_for(lead) -> str:
     return os.getenv("OUTREACH_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL)
 
 
+_FREEMAIL = {
+    "gmail.com", "yahoo.com", "aol.com", "hotmail.com", "outlook.com", "icloud.com",
+    "me.com", "msn.com", "earthlink.net", "centurylink.net", "embarqmail.com",
+    "att.net", "comcast.net", "bellsouth.net", "verizon.net", "sbcglobal.net",
+}
+
+
+def org_website(lead):
+    """Best-effort organization website for a lead so the operator can eyeball
+    the org before sending. Uses the email's domain (e.g. info@arnettehouse.org
+    → arnettehouse.org); for a personal/free-mail address (or no email) it falls
+    back to a web search for the org name. Returns a dict {url, label, search} or
+    None. Best-effort — a link to verify, not a verified claim."""
+    from urllib.parse import quote_plus
+    email = (lead.email or "").strip()
+    org = (lead.organization or "").strip()
+    domain = email.split("@")[-1].lower() if "@" in email else ""
+    if domain and domain not in _FREEMAIL:
+        return {"url": f"https://{domain}", "label": domain, "search": False}
+    if org:
+        return {"url": f"https://www.google.com/search?q={quote_plus(org)}", "label": "search the web", "search": True}
+    return None
+
+
 def parse_cc(cc_emails: str) -> list[str]:
     """Split a comma/semicolon/space-separated CC string into clean addresses."""
     parts = re.split(r"[,;\s]+", (cc_emails or "").strip())

@@ -32,6 +32,10 @@
   .btn-mark:hover { background: #e6f2f0; }
   .btn-remove { background: white; color: #9a3b3b; border-color: #e3c4c4; }
   .btn-remove:hover { background: #fbeaea; }
+  .oc-site { font-size: .86rem; color: var(--muted, #667789); margin: -4px 0 12px; }
+  .oc-site a { color: #26506e; font-weight: 700; text-decoration: none; word-break: break-all; }
+  .oc-site a:hover { text-decoration: underline; }
+  .oc-site-note { color: #98a4b0; font-weight: 500; font-size: .82rem; }
   .call-phone { font-size: 1.3rem; font-weight: 800; color: #0f3d5c; letter-spacing: .02em; }
   .call-script { white-space: pre-wrap; background: #f8fafb; border: 1px solid var(--line, #d9e2e8); border-radius: 8px; padding: 14px; line-height: 1.55; margin-top: 6px; }
   .empty { padding: 40px; text-align: center; color: var(--muted, #667789); border: 1px dashed var(--line, #d9e2e8); border-radius: 10px; }
@@ -68,6 +72,11 @@
         {% if card.lead.name %}<span class="oc-meta">{{ card.lead.name }}{% if card.lead.role %} · {{ card.lead.role }}{% endif %}</span>{% endif %}
       </div>
       {% if card.phone %}<div class="call-phone">📞 {{ card.phone }}</div>{% else %}<div class="oc-meta">No phone on file — look up on their site.</div>{% endif %}
+      {% if card.website %}
+        <div class="oc-site">🌐 Website:
+          {% if card.website.search %}<a href="{{ card.website.url }}" target="_blank" rel="noopener">search the web for “{{ card.lead.organization }}” ↗</a>{% else %}<a href="{{ card.website.url }}" target="_blank" rel="noopener">{{ card.website.label }} ↗</a>{% endif %}
+        </div>
+      {% endif %}
       {% if card.script %}
         <label>Call script</label>
         <div class="call-script">{{ card.script }}</div>
@@ -99,6 +108,11 @@
         {% if card.own_draft %}<span class="badge" style="background:#eef7ee;color:#2f7d32;border:1px solid #a9d3ab;">✎ Your draft</span>{% else %}<span class="badge" style="background:#f4f6f8;color:#8a94a0;border:1px solid #d9e0e6;">auto-draft</span>{% endif %}
         <span class="oc-meta">{{ card.lead.organization }}{% if card.lead.role %} · {{ card.lead.role }}{% endif %} · &lt;{{ card.lead.email }}&gt;</span>
       </div>
+      {% if card.website %}
+        <div class="oc-site">🌐 Website:
+          {% if card.website.search %}<a href="{{ card.website.url }}" target="_blank" rel="noopener">no site on file — search the web for “{{ card.lead.organization }}” ↗</a>{% else %}<a href="{{ card.website.url }}" target="_blank" rel="noopener">{{ card.website.label }} ↗</a> <span class="oc-site-note">(from their email — open to verify)</span>{% endif %}
+        </div>
+      {% endif %}
       <form method="post" action="{% url 'operator-outreach-send' card.lead.pk %}">
         {% csrf_token %}
         <input type="hidden" name="tab" value="{{ tab }}">

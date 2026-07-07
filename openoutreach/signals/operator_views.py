@@ -552,15 +552,18 @@ def operator_outreach(request):
     total = len(source)
     shown = source if (show_all or tab == "call") else source[:_OUTREACH_LIMIT]
 
+    from openoutreach.signals.outreach import org_website
     cards = []
     if tab == "call":
         for lead in shown:
-            cards.append({"lead": lead, "script": lead.outreach_draft or "", "phone": lead.phone})
+            cards.append({"lead": lead, "script": lead.outreach_draft or "", "phone": lead.phone,
+                          "website": org_website(lead)})
     else:
         for lead in shown:
             subject, body = draft_for(lead)
             cards.append({"lead": lead, "subject": subject, "body": body,
-                          "own_draft": bool(lead.outreach_draft), "cc": lead.cc_emails})
+                          "own_draft": bool(lead.outreach_draft), "cc": lead.cc_emails,
+                          "website": org_website(lead)})
 
     return render(request, "signals/operator/outreach.html", {
         "tab": tab, "cards": cards, "counts": counts,

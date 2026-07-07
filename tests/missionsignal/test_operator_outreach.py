@@ -87,6 +87,28 @@ def test_pipeline_draft_button_falls_back_to_template_without_llm_key(client, st
     assert "founder of Anansi Atlas" in lead.outreach_draft   # the cold template body
 
 
+def test_org_website_from_email_domain():
+    from openoutreach.signals.outreach import org_website
+    w = org_website(_lead(email="info@arnettehouse.org", organization="Arnette House"))
+    assert w["url"] == "https://arnettehouse.org" and w["search"] is False
+
+
+def test_org_website_falls_back_to_search_for_freemail():
+    from openoutreach.signals.outreach import org_website
+    w = org_website(_lead(email="normanls@earthlink.net", organization="Garden Worship Center"))
+    assert w["search"] is True
+    assert "google.com/search" in w["url"] and "Garden" in w["url"]
+
+
+def test_cockpit_shows_the_org_website_link(client, staff):
+    _lead(email="info@arnettehouse.org", organization="Arnette House",
+          list_segment="cold_florida_crm", warmth="cold")
+    client.force_login(staff)
+    body = client.get(reverse("operator-outreach") + "?tab=cold").content.decode()
+    assert "https://arnettehouse.org" in body          # a real clickable website link
+    assert "Website" in body
+
+
 def test_cockpit_requires_staff(client):
     user = get_user_model().objects.create_user(username="notstaff", password="x")
     client.force_login(user)
