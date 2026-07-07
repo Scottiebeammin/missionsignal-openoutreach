@@ -583,6 +583,16 @@ def operator_outreach_contacted(request, pk):
     return redirect(f"{reverse('operator-outreach')}?tab=call")
 
 
+def _outreach_redirect(request):
+    """After a save/send, return to the tab the operator was working on
+    (warm/cold/call) instead of dumping them back on the default Warm tab."""
+    from django.urls import reverse
+    tab = request.POST.get("tab", "warm")
+    if tab not in ("warm", "cold", "call"):
+        tab = "warm"
+    return redirect(f"{reverse('operator-outreach')}?tab={tab}")
+
+
 @_operator_required
 @require_POST
 def operator_outreach_save(request, pk):
@@ -595,7 +605,7 @@ def operator_outreach_save(request, pk):
     lead.cc_emails = ", ".join(parse_cc(request.POST.get("cc", "")))[:500]
     lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "updated_at"])
     messages.success(request, f"Draft saved for {lead.name}.")
-    return redirect("operator-outreach")
+    return _outreach_redirect(request)
 
 
 @_operator_required
@@ -608,10 +618,10 @@ def operator_outreach_send(request, pk):
     lead = get_object_or_404(SalesLead, pk=pk)
     if lead.email_status == "sent":
         messages.info(request, f"{lead.name} was already emailed.")
-        return redirect("operator-outreach")
+        return _outreach_redirect(request)
     if not lead.email:
         messages.error(request, f"{lead.name} has no email address.")
-        return redirect("operator-outreach")
+        return _outreach_redirect(request)
     subject = request.POST.get("subject", "").strip()
     body = request.POST.get("body", "")
     cc = request.POST.get("cc", "").strip()
@@ -621,7 +631,7 @@ def operator_outreach_send(request, pk):
         messages.success(request, f"Sent to {lead.name} <{lead.email}>{cc_note}.")
     except Exception as exc:
         messages.error(request, f"Send failed for {lead.name}: {exc}")
-    return redirect("operator-outreach")
+    return _outreach_redirect(request)
 
 
 @_operator_required

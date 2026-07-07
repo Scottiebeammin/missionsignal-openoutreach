@@ -225,6 +225,38 @@ def test_send_is_idempotent_no_double_send(client, staff):
     assert len(mail.outbox) == 0  # already sent → skipped
 
 
+def test_save_returns_to_the_tab_you_were_on(client, staff):
+    # Editing a cold email and saving must keep you on the Cold tab, not bounce
+    # to the default Warm tab (that made edits look like they didn't work).
+    lead = _lead(name="Cold Carl", organization="Metro", email="c@metro.org",
+                 list_segment="cold_florida_crm", warmth="cold")
+    client.force_login(staff)
+    resp = client.post(reverse("operator-outreach-save", kwargs={"pk": lead.pk}),
+                       {"subject": "s", "body": "edited body", "tab": "cold"})
+    assert resp.status_code == 302
+    assert resp.url.endswith("?tab=cold")
+    lead.refresh_from_db()
+    assert lead.outreach_draft == "edited body"      # and the edit persisted
+
+
+def test_send_returns_to_the_tab_you_were_on(client, staff):
+    lead = _lead(name="Cold Carl", organization="Metro", email="c@metro.org",
+                 list_segment="cold_florida_crm", warmth="cold")
+    client.force_login(staff)
+    resp = client.post(reverse("operator-outreach-send", kwargs={"pk": lead.pk}),
+                       {"subject": "s", "body": "b", "tab": "cold"})
+    assert resp.status_code == 302
+    assert resp.url.endswith("?tab=cold")
+
+
+def test_outreach_redirect_defaults_to_warm_for_bad_tab(client, staff):
+    lead = _lead(email="d@d.org")
+    client.force_login(staff)
+    resp = client.post(reverse("operator-outreach-save", kwargs={"pk": lead.pk}),
+                       {"subject": "s", "body": "b", "tab": "bogus"})
+    assert resp.url.endswith("?tab=warm")            # invalid tab falls back safely
+
+
 def test_save_draft_persists_without_sending(client, staff):
     lead = _lead()
     client.force_login(staff)
