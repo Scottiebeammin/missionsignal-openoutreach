@@ -34,3 +34,4 @@ data/florida-crm-staging/
 !data/foundation-grants-snapshot.csv.gz
 !data/warm-email-drafts.json
 !data/cold-batch.json
+!data/warm-batch.json
