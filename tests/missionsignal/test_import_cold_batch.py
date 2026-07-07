@@ -52,6 +52,17 @@ def test_idempotent_no_duplicates(tmp_path):
     assert SalesLead.objects.filter(list_segment="cold_call_list").count() == 1
 
 
+def test_reimport_refreshes_a_cleaned_org_name(tmp_path):
+    # An existing lead created with an old/raw name picks up the cleaned name on
+    # re-import (so name fixes in the file reach production).
+    SalesLead.objects.create(organization="Arnette House Inc", email="info@arnettehouse.org",
+                             list_segment="cold_florida_crm", email_status="not_sent")
+    call_command("import_cold_batch", "--data", _write(tmp_path, BATCH))  # BATCH org = "Arnette House Inc"
+    clean = {"emailable": [{**BATCH["emailable"][0], "organization": "Arnette House"}], "call_list": []}
+    call_command("import_cold_batch", "--data", _write(tmp_path, clean))
+    assert SalesLead.objects.get(email="info@arnettehouse.org").organization == "Arnette House"
+
+
 def test_never_overwrites_a_sent_lead(tmp_path):
     SalesLead.objects.create(organization="Arnette House Inc", email="info@arnettehouse.org",
                              list_segment="cold_florida_crm", name="Original",

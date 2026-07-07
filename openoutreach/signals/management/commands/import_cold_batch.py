@@ -21,9 +21,11 @@ from openoutreach.signals.models import SalesLead
 
 DATA = "data/cold-batch.json"
 
-# Fields carried from the snapshot onto each lead (email/organization are the
-# match keys and set on create only).
-_FIELDS = ("name", "role", "phone", "focus_area", "why_fit", "subject_line", "outreach_draft", "source")
+# Fields carried from the snapshot onto each lead on create AND refreshed on
+# re-import (so a cleaned org name in the file lands on existing prod leads).
+# email is the match key; list_segment/email_status are set on create only.
+_FIELDS = ("organization", "name", "role", "phone", "focus_area", "why_fit",
+           "subject_line", "outreach_draft", "source")
 
 
 class Command(BaseCommand):
@@ -51,11 +53,10 @@ class Command(BaseCommand):
             if lead is None:
                 if not dry:
                     lead = SalesLead.objects.create(
-                        organization=rec.get("organization", ""),
                         email=rec.get("email", ""),
                         list_segment=rec["list_segment"],
                         email_status="not_sent",
-                        **{f: rec.get(f, "") for f in _FIELDS},
+                        **{f: rec.get(f, "") for f in _FIELDS},   # includes organization
                     )
                 created += 1
             else:
