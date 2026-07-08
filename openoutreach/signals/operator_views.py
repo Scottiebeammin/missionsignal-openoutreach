@@ -783,22 +783,21 @@ def operator_market(request):
 @_operator_required
 @require_POST
 def operator_market_promote(request, pk):
+    """Promote a Florida org into the pipeline and jump straight to its editable
+    draft in the Outreach cockpit (Cold tab), scrolled to that org's card."""
+    from django.http import HttpResponseRedirect
+    from django.urls import reverse
     from openoutreach.signals.market import promote_org_to_pipeline
-    from openoutreach.signals.models import FloridaOrg
+    from openoutreach.signals.models import FloridaOrg, SalesLead
 
     org = get_object_or_404(FloridaOrg, pk=pk)
     lead, created = promote_org_to_pipeline(org)
     if created:
-        messages.success(request, f"Added {org.name} to the pipeline (Cold — Florida CRM).")
+        messages.success(request, f"Added {org.name} — edit the draft below and send when you're ready.")
     else:
-        messages.warning(request, f"{org.name} is already in the pipeline.")
-    from django.http import HttpResponseRedirect
-    from django.urls import reverse
-    url = reverse("operator-market")
-    next_qs = request.POST.get("next", "")
-    if next_qs:
-        url += f"?{next_qs}"
-    return HttpResponseRedirect(url)
+        messages.info(request, f"{org.name} is already in your pipeline — here's its draft.")
+    tab = "call" if lead.list_segment == SalesLead.Segment.COLD_CALL_LIST else "cold"
+    return HttpResponseRedirect(f"{reverse('operator-outreach')}?tab={tab}&all=1#lead-{lead.pk}")
 
 
 @_operator_required

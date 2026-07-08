@@ -12,7 +12,8 @@
   .oc-tab .cnt { background: #eef3f6; color: #557; border-radius: 999px; padding: 1px 8px; font-size: 12px; }
   .oc-tab.active { color: #0f3d5c; background: white; border-color: var(--line, #d9e2e8); border-bottom: 2px solid white; }
   .oc-tab.active .cnt { background: #0f766e; color: white; }
-  .oc-card { border: 1px solid var(--line, #d9e2e8); border-radius: 10px; background: white; padding: 16px; margin-bottom: 14px; }
+  .oc-card { border: 1px solid var(--line, #d9e2e8); border-radius: 10px; background: white; padding: 16px; margin-bottom: 14px; scroll-margin-top: 20px; }
+  .oc-card:target { outline: 3px solid #d99b3c; outline-offset: 3px; box-shadow: 0 0 0 6px rgba(217,155,60,.15); }
   .oc-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 10px; }
   .oc-name { font-weight: 800; font-size: 1.05rem; }
   .oc-meta { color: var(--muted, #667789); font-size: .9rem; }
@@ -101,7 +102,7 @@
   {% endfor %}
 {% else %}
   {% for card in cards %}
-    <div class="oc-card">
+    <div class="oc-card" id="lead-{{ card.lead.pk }}">
       <div class="oc-head">
         <span class="oc-name">{{ card.lead.name|default:"(no name)" }}</span>
         {% if card.lead.list_segment == "warm" %}<span class="badge warm">🔥 {{ card.lead.warmth|default:"warm" }}</span>{% else %}<span class="badge cold">🌴 cold</span>{% endif %}

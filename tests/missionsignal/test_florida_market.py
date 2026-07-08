@@ -137,6 +137,8 @@ def test_promote_creates_segmented_lead_once(tmp_path, client):
     org.refresh_from_db()
     lead = org.promoted_lead
     assert lead is not None
+    # Promote jumps straight to the org's editable draft in the cockpit Cold tab.
+    assert resp["Location"] == f"/operator/outreach/?tab=cold&all=1#lead-{lead.pk}"
     assert lead.name == "Sunshine Youth Org"
     assert lead.organization == "Sunshine Youth Org"
     assert lead.source == SalesLead.Source.COLD
