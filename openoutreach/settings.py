@@ -57,6 +57,14 @@ if not DEBUG and SECRET_KEY == _DEFAULT_SECRET:
         "SECRET_KEY is set to the default development value and DEBUG is False. "
         "Set the SECRET_KEY environment variable before running in production."
     )
+
+# Keep the operator signed in while they're working: a 30-day session that slides
+# forward on every request (so it only expires after 30 days of NO activity), and
+# survives closing the browser. Prevents the "operator room is down" surprise that
+# was really just a mid-session logout.
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30          # 30 days
+SESSION_SAVE_EVERY_REQUEST = True               # refresh expiry on each request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 CSRF_TRUSTED_ORIGINS = _env_list("CSRF_TRUSTED_ORIGINS", [])
 
 # ── Production security hardening (only active when DEBUG is off, so local HTTP dev
