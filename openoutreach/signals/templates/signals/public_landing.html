@@ -1874,6 +1874,10 @@
               <form action="{% url 'anansi-atlas-landing' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="interest_type" value="founding_atlas_partners">
+                <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;">
+                  <label>Company website (leave this blank)</label>
+                  <input type="text" name="company_website" tabindex="-1" autocomplete="off" value="">
+                </div>
                 <div>
                   <label for="wl-name">Your name</label>
                   <input id="wl-name" name="name" type="text" placeholder="Jane Smith" value="{{ form.name.value|default:'' }}" required autocomplete="name">
@@ -2061,6 +2065,10 @@
             {% endif %}
             <form action="{% url 'ask-question' %}" method="post">
               {% csrf_token %}
+              <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;">
+                <label>Company website (leave this blank)</label>
+                <input type="text" name="company_website" tabindex="-1" autocomplete="off" value="">
+              </div>
               <div>
                 <label for="q-name">Your name</label>
                 <input id="q-name" name="name" type="text" placeholder="Jane Smith" value="{{ question_form.name.value|default:'' }}" required autocomplete="name">

@@ -199,6 +199,20 @@ def operator_waitlist_status(request, pk):
 
 
 @_operator_required
+@require_POST
+def operator_waitlist_delete(request, pk):
+    """Permanently remove a waitlist entry — for spam/junk signups. Hard delete
+    (these carry no value to keep); use the Archived status instead to hide a
+    real signup you might revisit."""
+    from openoutreach.signals.models import InterestSignup
+    signup = get_object_or_404(InterestSignup, pk=pk)
+    label = signup.name or signup.email or f"entry #{signup.pk}"
+    signup.delete()
+    messages.success(request, f"Removed {label} from the waitlist.")
+    return redirect("operator-waitlist")
+
+
+@_operator_required
 def operator_funders(request):
     from openoutreach.funding.models import Funder
     status_filter = request.GET.get("status", "")

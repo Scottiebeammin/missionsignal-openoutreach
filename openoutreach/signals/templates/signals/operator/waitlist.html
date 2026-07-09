@@ -88,6 +88,10 @@
                   <button type="submit" class="btn btn-ghost btn-sm" style="color:#a78bfa;border-color:rgba(167,139,250,.3);font-size:.72rem;" title="Enrich with AI research">⚡ Enrich</button>
                 </form>
               {% endif %}
+              <form method="post" action="{% url 'operator-waitlist-delete' signup.pk %}" onsubmit="return confirm('Permanently remove {{ signup.name|default:signup.email|escapejs }} from the waitlist? This can&#39;t be undone.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-sm" style="color:#e88;border-color:rgba(230,120,120,.35);font-size:.72rem;" title="Delete (for spam/junk)">🗑 Delete</button>
+              </form>
             </div>
             {% if signup.research_brief %}
             <div id="brief-{{ signup.pk }}" style="display:none;margin-top:8px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:10px 12px;font-size:.76rem;color:rgba(255,255,255,.65);line-height:1.5;">

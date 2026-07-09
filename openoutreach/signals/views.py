@@ -123,9 +123,18 @@ def client_project(request, pk):
     return get_object_or_404(qs, pk=pk, users=request.user)
 
 
+def _honeypot_tripped(request) -> bool:
+    """True when the hidden anti-spam field was filled in — a bot did it, since
+    real users never see the field. Named 'company_website' to look tempting."""
+    return bool((request.POST.get("company_website") or "").strip())
+
+
 def public_landing_page(request):
     signup_failed = False
     if request.method == "POST":
+        if _honeypot_tripped(request):
+            # Silently accept so the bot moves on; nothing is saved.
+            return redirect("anansi-atlas-thanks")
         form = InterestSignupForm(request.POST)
         if form.is_valid():
             signup = form.save()
@@ -160,6 +169,8 @@ def ask_question(request):
     """
     if request.method != "POST":
         return redirect("/#ask")
+    if _honeypot_tripped(request):
+        return redirect("anansi-atlas-question-thanks")   # silently drop the bot
     form = QuestionForm(request.POST)
     if form.is_valid():
         signup = form.save(commit=False)

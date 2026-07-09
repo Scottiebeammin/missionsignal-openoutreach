@@ -33,6 +33,7 @@ urlpatterns = [
     path("operator/funders/<int:pk>/research/", operator_views.operator_research_funder, name="operator-funder-research"),
     path("operator/waitlist/", operator_views.operator_waitlist, name="operator-waitlist"),
     path("operator/waitlist/<int:pk>/status/", operator_views.operator_waitlist_status, name="operator-waitlist-status"),
+    path("operator/waitlist/<int:pk>/delete/", operator_views.operator_waitlist_delete, name="operator-waitlist-delete"),
     path("operator/waitlist/<int:pk>/enrich/", operator_views.operator_enrich_signup, name="operator-waitlist-enrich"),
     # Resources hub + SEO content pages
     path("resources/", views.resources_hub, name="resources-hub"),
