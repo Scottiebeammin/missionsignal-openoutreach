@@ -54,7 +54,7 @@
           <div class="funder-meta">
             <span>{{ funder.get_funder_type_display }}</span>
             {% if funder.geography %}· <span>{{ funder.geography|join:", " }}</span>{% endif %}
-            {% if funder.website %} · <a href="{{ funder.website }}" target="_blank" rel="noopener" style="color:var(--gold-lt);">website ↗</a>{% endif %}
+            {% with link=funder.website_or_search %}{% if link %} · <a href="{{ link.url }}" target="_blank" rel="noopener" style="color:var(--gold-lt);">{% if link.search %}look up ↗{% else %}website ↗{% endif %}</a>{% endif %}{% endwith %}
           </div>
           {% if funder.focus_areas %}
           <div class="funder-tags">

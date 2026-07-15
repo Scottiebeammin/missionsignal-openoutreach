@@ -79,7 +79,7 @@
             </header>
             <p class="muted">{{ match.funder.get_funder_type_display }}{% if match.funder.grant_count %} · {{ match.funder.grant_count }} reported grants{% if match.total_display %} · {{ match.total_display }} total{% endif %}{% endif %}</p>
             {% if match.overlap %}<p><strong>Aligned:</strong> {{ match.overlap|join:", " }}</p>{% endif %}
-            {% if match.funder.website %}<p class="muted"><a href="{{ match.funder.website }}" rel="noopener noreferrer">Visit their website</a></p>{% endif %}
+            {% with link=match.funder.website_or_search %}{% if link %}<p class="muted"><a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{% if link.search %}Look them up ↗{% else %}Visit their website ↗{% endif %}</a></p>{% endif %}{% endwith %}
             {% if match.tracked_opportunity_id %}
               <p><span class="badge">In your pipeline</span>
                  <a class="button secondary" style="margin-left:8px;" href="{% url 'project-opportunity-workspace' project.pk match.tracked_opportunity_id %}">Open workspace →</a></p>

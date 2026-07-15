@@ -106,6 +106,20 @@ class Funder(models.Model):
     def __str__(self):
         return self.name
 
+    def website_or_search(self):
+        """A clickable way to reach this funder, so none is a dead end: its real
+        website when we have one, otherwise a web search for the name. Returns
+        {url, search} — search=True means it's a lookup, not the funder's own site.
+        Never fabricates a URL (placeholder/example links are ignored)."""
+        from urllib.parse import quote_plus
+        site = (self.website or "").strip()
+        if site.lower().startswith(("http://", "https://")) and "example." not in site.lower():
+            return {"url": site, "search": False}
+        name = (self.name or "").strip()
+        if name:
+            return {"url": f"https://www.google.com/search?q={quote_plus(name + ' foundation grants')}", "search": True}
+        return None
+
 
 class GovernmentEntity(models.Model):
     class EntityType(models.TextChoices):
