@@ -25,6 +25,7 @@ urlpatterns = [
     path("operator/outreach/<int:pk>/contacted/", operator_views.operator_outreach_contacted, name="operator-outreach-contacted"),
     path("operator/outreach/<int:pk>/mark-sent/", operator_views.operator_outreach_mark_sent, name="operator-outreach-mark-sent"),
     path("operator/outreach/<int:pk>/remove/", operator_views.operator_outreach_remove, name="operator-outreach-remove"),
+    path("operator/outreach/<int:pk>/outcome/", operator_views.operator_outreach_outcome, name="operator-outreach-outcome"),
     path("operator/market/", operator_views.operator_market, name="operator-market"),
     path("operator/market/counties/", operator_views.operator_market_counties, name="operator-market-counties"),
     path("operator/market/<int:pk>/promote/", operator_views.operator_market_promote, name="operator-market-promote"),

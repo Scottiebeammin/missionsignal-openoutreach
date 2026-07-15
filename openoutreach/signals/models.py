@@ -142,6 +142,15 @@ class SalesLead(models.Model):
         RECONNECT = "reconnect", "Reconnect"
         COLD = "cold", "Cold"
 
+    class Outcome(models.TextChoices):
+        # What happened AFTER an outreach email went out. Blank = not sent yet.
+        AWAITING = "awaiting", "Awaiting reply"
+        REPLIED = "replied", "Replied"
+        INTERESTED = "interested", "Interested"
+        MEETING = "meeting", "Meeting booked"
+        NOT_INTERESTED = "not_interested", "Not interested"
+        BOUNCED = "bounced", "Bounced / bad email"
+
     name = models.CharField(max_length=300)
     organization = models.CharField(max_length=300, blank=True, default="")
     email = models.EmailField(blank=True, default="")
@@ -160,6 +169,9 @@ class SalesLead(models.Model):
     why_fit = models.TextField(blank=True, default="")
     subject_line = models.CharField(max_length=300, blank=True, default="")
     email_status = models.CharField(max_length=30, blank=True, default="not_sent")
+    # Reply/response tracking — set to AWAITING on send, then the operator logs
+    # what came back. Blank until the lead is contacted.
+    outreach_outcome = models.CharField(max_length=20, choices=Outcome.choices, blank=True, default="")
     notes = models.TextField(blank=True, default="")
     outreach_draft = models.TextField(blank=True, default="")
     next_follow_up = models.DateField(null=True, blank=True)

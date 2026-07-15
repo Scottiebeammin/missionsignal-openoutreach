@@ -560,7 +560,7 @@ def operator_outreach(request):
     from openoutreach.signals.outreach import draft_for
 
     tab = request.GET.get("tab", "warm")
-    if tab not in ("warm", "cold", "call"):
+    if tab not in ("warm", "cold", "call", "sent"):
         tab = "warm"
     show_all = request.GET.get("all") == "1"
 
@@ -579,9 +579,26 @@ def operator_outreach(request):
         SalesLead.objects.filter(list_segment=SalesLead.Segment.COLD_CALL_LIST, email_status="not_sent")
         .order_by("organization")
     )
-    counts = {"warm": len(warm_all), "cold": len(cold_all), "call": len(call_all)}
+    # Sent = everyone contacted; un-logged ("awaiting") surface first so replies get logged.
+    _out_order = {"awaiting": 0, "": 0, "replied": 1, "interested": 1, "meeting": 1, "not_interested": 2, "bounced": 2}
+    sent_all = sorted(
+        SalesLead.objects.filter(email_status="sent"),
+        key=lambda l: (_out_order.get(l.outreach_outcome, 3), -(l.updated_at.timestamp() if l.updated_at else 0)),
+    )
+    counts = {"warm": len(warm_all), "cold": len(cold_all), "call": len(call_all), "sent": len(sent_all)}
 
-    source = {"warm": warm_all, "cold": cold_all, "call": call_all}[tab]
+    # Response-rate summary across everything sent.
+    O = SalesLead.Outcome
+    responded = sum(1 for l in sent_all if l.outreach_outcome in (O.REPLIED, O.INTERESTED, O.MEETING, O.NOT_INTERESTED))
+    stats = {
+        "sent": len(sent_all),
+        "awaiting": sum(1 for l in sent_all if l.outreach_outcome in ("", O.AWAITING)),
+        "responded": responded,
+        "interested": sum(1 for l in sent_all if l.outreach_outcome in (O.INTERESTED, O.MEETING)),
+        "rate": round(100 * responded / len(sent_all)) if sent_all else 0,
+    }
+
+    source = {"warm": warm_all, "cold": cold_all, "call": call_all, "sent": sent_all}[tab]
     total = len(source)
     shown = source if (show_all or tab == "call") else source[:_OUTREACH_LIMIT]
 
@@ -591,6 +608,9 @@ def operator_outreach(request):
         for lead in shown:
             cards.append({"lead": lead, "script": lead.outreach_draft or "", "phone": lead.phone,
                           "website": org_website(lead)})
+    elif tab == "sent":
+        for lead in shown:
+            cards.append({"lead": lead})
     else:
         for lead in shown:
             subject, body = draft_for(lead)
@@ -601,8 +621,9 @@ def operator_outreach(request):
     return render(request, "signals/operator/outreach.html", {
         "tab": tab, "cards": cards, "counts": counts,
         "shown_count": len(shown), "total_count": total, "show_all": show_all,
-        "limit": _OUTREACH_LIMIT,
-        "sent_count": SalesLead.objects.filter(email_status="sent").count(),
+        "limit": _OUTREACH_LIMIT, "stats": stats,
+        "outcomes": SalesLead.Outcome.choices,
+        "sent_count": counts["sent"],
     })
 
 
@@ -616,8 +637,9 @@ def operator_outreach_contacted(request, pk):
     from openoutreach.signals.outreach import advance_to_contacted
     lead = get_object_or_404(SalesLead, pk=pk)
     lead.email_status = "sent"
+    lead.outreach_outcome = SalesLead.Outcome.AWAITING
     advance_to_contacted(lead)
-    lead.save(update_fields=["email_status", "status", "updated_at"])
+    lead.save(update_fields=["email_status", "outreach_outcome", "status", "updated_at"])
     messages.success(request, f"Marked {lead.name} as contacted.")
     return redirect(f"{reverse('operator-outreach')}?tab=call")
 
@@ -683,8 +705,9 @@ def operator_outreach_mark_sent(request, pk):
     from openoutreach.signals.outreach import advance_to_contacted
     lead = get_object_or_404(SalesLead, pk=pk)
     lead.email_status = "sent"
+    lead.outreach_outcome = SalesLead.Outcome.AWAITING
     advance_to_contacted(lead)
-    lead.save(update_fields=["email_status", "status", "updated_at"])
+    lead.save(update_fields=["email_status", "outreach_outcome", "status", "updated_at"])
     messages.success(request, f"Marked {lead.name or lead.organization} as already sent.")
     return _outreach_redirect(request)
 
@@ -701,6 +724,28 @@ def operator_outreach_remove(request, pk):
     lead.status = SalesLead.Status.PASSED
     lead.save(update_fields=["email_status", "status", "updated_at"])
     messages.success(request, f"Removed {lead.name or lead.organization} from the list.")
+    return _outreach_redirect(request)
+
+
+@_operator_required
+@require_POST
+def operator_outreach_outcome(request, pk):
+    """Log what came back after an outreach send (replied / interested / meeting /
+    not interested / bounced) — so outreach is tracked, not fire-and-forget. A
+    booked meeting also nudges the pipeline stage to Call Scheduled."""
+    from openoutreach.signals.models import SalesLead
+    lead = get_object_or_404(SalesLead, pk=pk)
+    outcome = request.POST.get("outcome", "").strip()
+    if outcome not in SalesLead.Outcome.values:
+        messages.error(request, "Unknown outcome.")
+        return _outreach_redirect(request)
+    lead.outreach_outcome = outcome
+    fields = ["outreach_outcome", "updated_at"]
+    if outcome == SalesLead.Outcome.MEETING and lead.status in (SalesLead.Status.NEW, SalesLead.Status.REACHED_OUT):
+        lead.status = SalesLead.Status.CALL_SCHEDULED
+        fields.append("status")
+    lead.save(update_fields=fields)
+    messages.success(request, f"Logged: {lead.name or lead.organization} — {lead.get_outreach_outcome_display()}.")
     return _outreach_redirect(request)
 
 

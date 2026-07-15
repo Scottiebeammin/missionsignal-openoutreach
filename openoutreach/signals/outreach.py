@@ -240,6 +240,8 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
     lead.outreach_draft = body
     lead.cc_emails = ", ".join(cc_list)[:500]
     lead.email_status = "sent"
+    lead.outreach_outcome = SalesLead.Outcome.AWAITING
     advance_to_contacted(lead)
     lead.updated_at = timezone.now()
-    lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status", "status", "updated_at"])
+    lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status",
+                             "outreach_outcome", "status", "updated_at"])

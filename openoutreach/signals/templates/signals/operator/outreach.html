@@ -37,6 +37,11 @@
   .oc-site a { color: #26506e; font-weight: 700; text-decoration: none; word-break: break-all; }
   .oc-site a:hover { text-decoration: underline; }
   .oc-site-note { color: #98a4b0; font-weight: 500; font-size: .82rem; }
+  .oc-outcomes { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .oc-outcome-label { font-size: .8rem; color: var(--muted, #667789); font-weight: 700; margin-right: 4px; }
+  .btn-outcome { appearance: none; border: 1px solid var(--line, #d9e2e8); background: #fff; color: #40506a; border-radius: 7px; padding: 6px 12px; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
+  .btn-outcome:hover { background: #f6f8fa; }
+  .btn-outcome.active { background: #0f3d5c; color: #fff; border-color: #0f3d5c; }
   .call-phone { font-size: 1.3rem; font-weight: 800; color: #0f3d5c; letter-spacing: .02em; }
   .call-script { white-space: pre-wrap; background: #f8fafb; border: 1px solid var(--line, #d9e2e8); border-radius: 8px; padding: 14px; line-height: 1.55; margin-top: 6px; }
   .empty { padding: 40px; text-align: center; color: var(--muted, #667789); border: 1px dashed var(--line, #d9e2e8); border-radius: 10px; }
@@ -45,6 +50,8 @@
 
 {% if tab == "call" %}
   <p class="outreach-intro">Phone-only orgs — no email on file. Call each one using the script below, then hit <strong>Mark contacted</strong> to clear it off the list.</p>
+{% elif tab == "sent" %}
+  <p class="outreach-intro">Everyone you've contacted. When a reply lands in <code>marcus@</code>, log it here (<strong>Replied</strong>, <strong>Interested</strong>, <strong>Meeting</strong>, etc.) so you can track response rate and follow up. Un-logged ones surface first.</p>
 {% else %}
   <p class="outreach-intro">Review each drafted email, edit it however you like, and hit <strong>Send</strong> — sends from <code>mail@</code>, BCC'd to <code>marcus@</code> so a copy lands in your inbox, and replies come back to <code>marcus@</code>. One mailbox, whole trail in one place. Hottest leads first. Nothing sends until you click.</p>
 {% endif %}
@@ -53,16 +60,27 @@
   <a class="oc-tab {% if tab == 'warm' %}active{% endif %}" href="?tab=warm">🔥 Warm <span class="cnt">{{ counts.warm }}</span></a>
   <a class="oc-tab {% if tab == 'cold' %}active{% endif %}" href="?tab=cold">🌴 Cold <span class="cnt">{{ counts.cold }}</span></a>
   <a class="oc-tab {% if tab == 'call' %}active{% endif %}" href="?tab=call">📞 Call List <span class="cnt">{{ counts.call }}</span></a>
+  <a class="oc-tab {% if tab == 'sent' %}active{% endif %}" href="?tab=sent">📤 Sent <span class="cnt">{{ counts.sent }}</span></a>
 </div>
 
-<div class="stat-grid">
-  {% if tab == "call" %}
-    <div class="stat-card"><div class="stat-label">To Call</div><div class="stat-value">{{ total_count }}</div></div>
-  {% else %}
-    <div class="stat-card"><div class="stat-label">Showing</div><div class="stat-value">{{ shown_count }}{% if not show_all and total_count > limit %} of {{ total_count }}{% endif %}</div></div>
-  {% endif %}
-  <div class="stat-card"><div class="stat-label">Already Sent</div><div class="stat-value">{{ sent_count }}</div></div>
-</div>
+{% if tab == "sent" %}
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Sent</div><div class="stat-value">{{ stats.sent }}</div></div>
+    <div class="stat-card"><div class="stat-label">Awaiting reply</div><div class="stat-value">{{ stats.awaiting }}</div></div>
+    <div class="stat-card"><div class="stat-label">Responded</div><div class="stat-value">{{ stats.responded }}</div></div>
+    <div class="stat-card"><div class="stat-label">Interested</div><div class="stat-value" style="color:#0f766e;">{{ stats.interested }}</div></div>
+    <div class="stat-card"><div class="stat-label">Response rate</div><div class="stat-value">{{ stats.rate }}%</div></div>
+  </div>
+{% else %}
+  <div class="stat-grid">
+    {% if tab == "call" %}
+      <div class="stat-card"><div class="stat-label">To Call</div><div class="stat-value">{{ total_count }}</div></div>
+    {% else %}
+      <div class="stat-card"><div class="stat-label">Showing</div><div class="stat-value">{{ shown_count }}{% if not show_all and total_count > limit %} of {{ total_count }}{% endif %}</div></div>
+    {% endif %}
+    <div class="stat-card"><div class="stat-label">Already Sent</div><div class="stat-value">{{ sent_count }}</div></div>
+  </div>
+{% endif %}
 
 {% if tab == "call" %}
   {% for card in cards %}
@@ -100,6 +118,32 @@
   {% empty %}
     <div class="empty"><strong>No calls queued.</strong><br>Phone-only orgs land here when you run <code>seed_cold_batch</code>.</div>
   {% endfor %}
+{% elif tab == "sent" %}
+  {% for card in cards %}
+    <div class="oc-card">
+      <div class="oc-head">
+        <span class="oc-name">{{ card.lead.name|default:card.lead.organization|default:"(no name)" }}</span>
+        {% if card.lead.list_segment == "warm" %}<span class="badge warm">🔥 warm</span>{% elif card.lead.list_segment == "cold_call_list" %}<span class="badge phone">📞 call</span>{% else %}<span class="badge cold">🌴 cold</span>{% endif %}
+        {% if card.lead.outreach_outcome == "interested" or card.lead.outreach_outcome == "meeting" %}<span class="badge" style="background:#e6f2f0;color:#0f766e;border:1px solid #bfe0da;">✓ {{ card.lead.get_outreach_outcome_display }}</span>
+        {% elif card.lead.outreach_outcome == "replied" %}<span class="badge" style="background:#eef4f8;color:#31536e;border:1px solid #d6e3ee;">{{ card.lead.get_outreach_outcome_display }}</span>
+        {% elif card.lead.outreach_outcome == "not_interested" or card.lead.outreach_outcome == "bounced" %}<span class="badge" style="background:#f4f6f8;color:#8a94a0;border:1px solid #d9e0e6;">{{ card.lead.get_outreach_outcome_display }}</span>
+        {% else %}<span class="badge" style="background:#fdf3e3;color:#b45309;border:1px solid #f0cd93;">⏳ Awaiting reply</span>{% endif %}
+        <span class="oc-meta">{{ card.lead.organization }}{% if card.lead.email %} · &lt;{{ card.lead.email }}&gt;{% endif %}</span>
+      </div>
+      <div class="oc-outcomes">
+        <span class="oc-outcome-label">Log reply:</span>
+        {% for val, label in outcomes %}{% if val != "awaiting" %}
+          <form method="post" action="{% url 'operator-outreach-outcome' card.lead.pk %}" style="display:inline;">
+            {% csrf_token %}<input type="hidden" name="tab" value="sent"><input type="hidden" name="outcome" value="{{ val }}">
+            <button type="submit" class="btn-outcome {% if card.lead.outreach_outcome == val %}active{% endif %}">{{ label }}</button>
+          </form>
+        {% endif %}{% endfor %}
+      </div>
+    </div>
+  {% empty %}
+    <div class="empty"><strong>Nothing sent yet.</strong><br>Emails you Send from the Warm/Cold tabs land here so you can track replies.</div>
+  {% endfor %}
+  {% if not show_all and total_count > limit %}<a class="showall" href="?tab=sent&all=1">Show all {{ total_count }} sent →</a>{% endif %}
 {% else %}
   {% for card in cards %}
     <div class="oc-card" id="lead-{{ card.lead.pk }}">
