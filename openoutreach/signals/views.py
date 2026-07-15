@@ -684,6 +684,13 @@ def project_executive_dashboard(request, pk):
         pilot = build_pilot_context(project.pilot_profile)
     except PilotProfile.DoesNotExist:
         pilot = None
+    # Verified grants matched to THIS org — the confirmed, source-linked ones a
+    # client can act on with confidence. Leads the dashboard: trust over volume.
+    from openoutreach.funding.models import Opportunity as _Opp
+    _active_opps = _Opp.objects.filter(project=project).exclude(
+        status__in=[_Opp.Status.EXPIRED, _Opp.Status.ARCHIVED]
+    )
+    verified_grants_count = sum(1 for o in _active_opps if o.is_confirmed)
     # Founding-partner welcome: a warm, branded moment on the dashboard for
     # founding partners (and pilots). Reuses the numbers already on the page.
     is_founding = request.user.groups.filter(name="Founding Partners").exists()
@@ -697,6 +704,7 @@ def project_executive_dashboard(request, pk):
         founding_welcome = {
             "first_name": first,
             "org_name": dashboard.organization_name,
+            "verified_grants": verified_grants_count,
             "opportunities": dashboard.match_health.total_matches,
             "excellent": dashboard.match_health.excellent_matches,
             "readiness": dashboard.readiness.overall_score,
@@ -717,6 +725,7 @@ def project_executive_dashboard(request, pk):
             "opportunity_web": opportunity_web,
             "pilot": pilot,
             "founding_welcome": founding_welcome,
+            "verified_grants_count": verified_grants_count,
             "score_transparency": {
                 "readiness": explain_readiness(dashboard.readiness),
                 "completeness": explain_organization_completeness(dashboard.readiness.organization_completeness),

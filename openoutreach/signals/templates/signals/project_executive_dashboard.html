@@ -39,6 +39,8 @@
     .fw-stats { display: flex; gap: 28px; flex-wrap: wrap; margin: 18px 0 16px; }
     .fw-stat strong { display: block; font-size: 2rem; line-height: 1; color: var(--gold); }
     .fw-stat span { display: block; margin-top: 4px; font-size: .78rem; color: #b9c3d8; }
+    .fw-stat-verified strong { color: #4ade80; }
+    .fw-stat-verified span { color: #a7e8bf; }
     .fw-proof { margin: 0 0 16px; padding: 12px 16px; border-radius: 10px; background: rgba(212,160,23,.12);
       border: 1px solid rgba(212,160,23,.35); color: #eef2fb; font-size: .95rem; line-height: 1.5; }
     .fw-proof strong { color: #fff; }
@@ -207,6 +209,7 @@
         <h2 class="fw-title">Welcome, {{ founding_welcome.first_name }} — this is {{ founding_welcome.org_name }}'s opportunity map.</h2>
         <p class="fw-sub">You're one of our first 20 founding partners. Here's your mission's landscape, built and ready — the funders, partners, and pathways aligned to your work, all in one place.</p>
         <div class="fw-stats">
+          <div class="fw-stat fw-stat-verified"><strong>{{ founding_welcome.verified_grants }}</strong><span>✓ verified grants matched to you</span></div>
           <div class="fw-stat"><strong>{{ founding_welcome.opportunities }}</strong><span>opportunities mapped</span></div>
           <div class="fw-stat"><strong>{{ founding_welcome.excellent }}</strong><span>strong matches</span></div>
           <div class="fw-stat"><strong>{{ founding_welcome.readiness }}</strong><span>readiness · {{ founding_welcome.readiness_level }}</span></div>
@@ -230,6 +233,9 @@
           <div>
             <h1>{{ dashboard.organization_name }}</h1>
             <p class="muted">Your full opportunity landscape — funders, partners, government pathways, and readiness all in one place.</p>
+            {% if verified_grants_count and not founding_welcome %}
+            <p style="margin-top:8px;font-weight:700;color:#1a8f5e;">✓ {{ verified_grants_count }} verified grant{{ verified_grants_count|pluralize }} matched to your mission — confirmed and ready to act on.</p>
+            {% endif %}
           </div>
         </section>
       </header>
