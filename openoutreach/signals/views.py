@@ -1023,7 +1023,11 @@ def project_opportunities_workspace(request, pk):
         # Foreign/overseas grants are disqualified outright (relevance 0), even if the
         # topic overlaps — a Central Florida nonprofit can't use a "...in Brazil" grant.
         o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords)
-    ranked.sort(key=lambda o: (-o.relevance, _prio.get(o.priority_level, 3), o.deadline or _date.max, o.name))
+        # Trust tier: confirmed = human-verified AND backed by a real source link.
+        o.confirmed = o.is_confirmed
+        o.source_url = o.real_source_url()
+    # Verified-with-source opportunities rank above AI-suggested ones at equal relevance.
+    ranked.sort(key=lambda o: (-o.relevance, 0 if o.confirmed else 1, _prio.get(o.priority_level, 3), o.deadline or _date.max, o.name))
 
     # "Not a fit" feedback: flagged opportunities never make the top-10 shelf (the
     # next best match refills the slot) but stay in "see all" with a muted tag.
@@ -1051,6 +1055,7 @@ def project_opportunities_workspace(request, pk):
             "all_opportunities": ranked,
             "opportunity_total": len(ranked),
             "relevant_total": len(relevant),
+            "confirmed_total": sum(1 for o in ranked if o.confirmed),
             **_workflow_context(project, "prioritize", actions[:2]),
         },
     )

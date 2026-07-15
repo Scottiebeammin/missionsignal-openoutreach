@@ -106,7 +106,7 @@
     <a href="{% url 'project-opportunities' project.pk %}" class="section-card-link" target="_blank">View in platform →</a>
   </div>
   <table class="data-table">
-    <thead><tr><th>Name</th><th>Type</th><th>Source</th><th>Deadline</th><th>Priority</th></tr></thead>
+    <thead><tr><th>Name</th><th>Type</th><th>Source</th><th>Deadline</th><th>Priority</th><th>Trust</th></tr></thead>
     <tbody>
       {% for opp in opportunities %}
       <tr>
@@ -124,6 +124,19 @@
           {% if opp.priority_level == "high" %}<span class="badge badge-gold">High</span>
           {% elif opp.priority_level == "medium" %}<span class="badge badge-muted">Medium</span>
           {% else %}<span class="badge badge-muted">Low</span>{% endif %}
+        </td>
+        <td style="white-space:nowrap;font-size:0.78rem;">
+          {% with src=opp.real_source_url %}
+          {% if src %}<a href="{{ src }}" target="_blank" rel="noopener" style="color:#8ab4f8;">source ↗</a>{% else %}<span style="color:#e0a94e;" title="No real source link — add one before verifying">no source</span>{% endif %}
+          {% if opp.is_confirmed %}
+            <span class="badge badge-green" style="margin-left:6px;">✓ Verified</span>
+          {% else %}
+            <form method="post" action="{% url 'operator-opportunity-verify' opp.pk %}" style="display:inline;margin-left:6px;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:.7rem;padding:2px 8px;" {% if not src %}title="Verifying without a real source won't make it Confirmed for clients"{% endif %}>Verify</button>
+            </form>
+          {% endif %}
+          {% endwith %}
         </td>
       </tr>
       {% endfor %}

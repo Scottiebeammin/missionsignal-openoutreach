@@ -213,6 +213,25 @@ def operator_waitlist_delete(request, pk):
 
 
 @_operator_required
+@require_POST
+def operator_opportunity_verify(request, pk):
+    """Mark an opportunity human-verified. It only becomes client-facing
+    'Confirmed' if it ALSO has a real (non-placeholder) source link — so a
+    verified opp with no real source is flagged for the operator to add one."""
+    from django.utils import timezone
+    from openoutreach.funding.models import Opportunity
+    opp = get_object_or_404(Opportunity, pk=pk)
+    opp.verification_status = Opportunity.VerificationStatus.VERIFIED
+    opp.last_reviewed_at = timezone.now()
+    opp.save(update_fields=["verification_status", "last_reviewed_at", "updated_at"])
+    if opp.real_source_url():
+        messages.success(request, f"Verified “{opp.name}” — it's now Confirmed for clients.")
+    else:
+        messages.warning(request, f"Marked “{opp.name}” verified, but it has no real source link — it stays 'Verify first' for clients until you add one.")
+    return redirect(request.META.get("HTTP_REFERER") or "operator-dashboard")
+
+
+@_operator_required
 def operator_funders(request):
     from openoutreach.funding.models import Funder
     status_filter = request.GET.get("status", "")

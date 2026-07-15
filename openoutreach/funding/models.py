@@ -386,6 +386,10 @@ class Opportunity(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # URL fragments that mark a demo/placeholder source (not a real link a client
+    # can open to verify the opportunity actually exists).
+    SOURCE_PLACEHOLDER_MARKERS = ("example.org", "example.com", "example.net", "placeholder", "localhost")
+
     def __str__(self):
         return self.name
 
@@ -398,6 +402,27 @@ class Opportunity(models.Model):
                 self.LifecycleStatus.SUBMITTED, self.LifecycleStatus.AWARDED,
                 self.LifecycleStatus.DECLINED, self.LifecycleStatus.CLOSED,
             }
+        )
+
+    def real_source_url(self):
+        """The first source URL that's a genuine, clickable link — skipping demo/
+        placeholder URLs (…example.org) — so a client can actually open it and
+        verify the opportunity is real. None when there's nothing real to point at."""
+        for raw in (self.source_urls or []):
+            url = (raw or "").strip()
+            low = url.lower()
+            if low.startswith(("http://", "https://")) and not any(m in low for m in self.SOURCE_PLACEHOLDER_MARKERS):
+                return url
+        return None
+
+    @property
+    def is_confirmed(self):
+        """Trustworthy enough to show a client as fact: human-verified AND backed
+        by a real (non-placeholder) source link. Everything else is an engine/AI
+        suggestion that must be verified before it's relied on."""
+        return (
+            self.verification_status == self.VerificationStatus.VERIFIED
+            and self.real_source_url() is not None
         )
 
 
