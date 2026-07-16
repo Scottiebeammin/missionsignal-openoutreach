@@ -6,17 +6,25 @@ import { PilotSignup } from "./ads/PilotSignup";
 import { PilotSeatsReveal, PILOT_SEATS_REVEAL_TOTAL } from "./ads/PilotSeatsReveal";
 import { Jul10SnapshotClip } from "./ads/Jul10SnapshotClip";
 import { Jul17EndorsementOutro } from "./ads/Jul17EndorsementOutro";
-import { Jul24ListVsMap } from "./ads/Jul24ListVsMap";
-import { Jul25SnapshotScroll } from "./ads/Jul25SnapshotScroll";
+import { Jul24ListVsMap, WALK_TOTAL as JUL24_TOTAL } from "./ads/Jul24ListVsMap";
+import { Jul25SnapshotScroll, WALK_TOTAL as JUL25_TOTAL } from "./ads/Jul25SnapshotScroll";
 import { Jul31ClosingOutro } from "./ads/Jul31ClosingOutro";
 import { PremiumShowcase } from "./oneoffs/PremiumShowcase";
 import { FullExplainer } from "./oneoffs/FullExplainer";
 import { ProductWalkthrough, WALK_TOTAL } from "./oneoffs/ProductWalkthrough";
+import { DashboardWalkthrough, WALK_TOTAL as DASHBOARD_WALK_TOTAL } from "./oneoffs/DashboardWalkthrough";
+import { Jul08PlatformWalkthrough, WALK_TOTAL as JUL08_WALK_TOTAL } from "./oneoffs/Jul08PlatformWalkthrough";
+import { Jul08PlatformWalkthroughWide } from "./oneoffs/Jul08PlatformWalkthroughWide";
+import { WhoWeAreWalkthrough, WALK_TOTAL as WHOWEARE_TOTAL } from "./oneoffs/WhoWeAreWalkthrough";
+import { WhoWeAreWalkthroughWide } from "./oneoffs/WhoWeAreWalkthroughWide";
+import { Jul08Thumbnails } from "./oneoffs/Jul08Thumbnails";
+import { Jul02Carousel } from "./oneoffs/Jul02Carousel";
 import { CapabilityTest } from "./oneoffs/CapabilityTest";
 import { CapabilityTest2 } from "./oneoffs/CapabilityTest2";
 import { CapabilityTest3, CAPABILITY_TEST_3_TOTAL } from "./oneoffs/CapabilityTest3";
 import { EarthWebTest, EARTH_WEB_TEST_TOTAL } from "./oneoffs/EarthWebTest";
 import { WebOfOpportunityFilm, WebOfOpportunityFilmWide, FILM_TOTAL } from "./oneoffs/WebOfOpportunityFilm";
+import { BamOrlandoPresentation, BamOrlandoPresentationWide, BAM_TOTAL } from "./oneoffs/BamOrlandoPresentation";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -55,51 +63,52 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{ audioSrc: "pilot-seats-reveal-vo.mp3" as string | null }}
       />
 
-      {/* July calendar's remaining voice-needed clips */}
+      {/* July calendar's remaining voice-needed clips — restyled (laptop mockup / logo-mark),
+          timing corrected to match the now-generated VO (see each file's header comment). */}
       <Composition
         id="Jul10-SnapshotClip"
         component={Jul10SnapshotClip}
-        durationInFrames={360}
+        durationInFrames={269}
         fps={FPS}
         width={SIZE}
         height={SIZE}
-        defaultProps={{ audioSrc: null as string | null }}
+        defaultProps={{ audioSrc: "jul10-siren.mp3" as string | null }}
       />
       <Composition
         id="Jul17-EndorsementOutro"
         component={Jul17EndorsementOutro}
-        durationInFrames={240}
+        durationInFrames={304}
         fps={FPS}
         width={SIZE}
         height={SIZE}
-        defaultProps={{ audioSrc: null as string | null }}
+        defaultProps={{ audioSrc: "jul17-jackson.mp3" as string | null }}
       />
       <Composition
         id="Jul24-ListVsMap"
         component={Jul24ListVsMap}
-        durationInFrames={450}
+        durationInFrames={JUL24_TOTAL}
         fps={FPS}
         width={SIZE}
         height={SIZE}
-        defaultProps={{ audioSrc: null as string | null }}
+        defaultProps={{ audioSrc: "jul24-siren.mp3" as string | null }}
       />
       <Composition
         id="Jul25-SnapshotScroll"
         component={Jul25SnapshotScroll}
-        durationInFrames={450}
+        durationInFrames={JUL25_TOTAL}
         fps={FPS}
         width={VERT_W}
         height={VERT_H}
-        defaultProps={{ audioSrc: null as string | null }}
+        defaultProps={{ audioSrc: "jul25-giselle.mp3" as string | null }}
       />
       <Composition
         id="Jul31-ClosingOutro"
         component={Jul31ClosingOutro}
-        durationInFrames={240}
+        durationInFrames={290}
         fps={FPS}
         width={SIZE}
         height={SIZE}
-        defaultProps={{ audioSrc: null as string | null }}
+        defaultProps={{ audioSrc: "jul31-jackson.mp3" as string | null }}
       />
 
       {/* ONE-OFFS — separate from the automated ads pipeline (see oneoffs/README.md) */}
@@ -139,6 +148,129 @@ export const RemotionRoot: React.FC = () => {
           problemBrollSrc: null as string | null, // e.g. "broll/hands-typing.mp4"
           officeEnvSrc: null as string | null, // e.g. "broll/laptop-office.mp4" or ".jpg"
         }}
+      />
+
+      {/* 📅 JULY CALENDAR — Wed Jul 8 hero "Platform Walkthrough". Dashboard -> Opportunity Web
+          -> Snapshot, closes on the founding-seat CTA. Voice: Giselle. */}
+      <Composition
+        id="Jul08-PlatformWalkthrough"
+        component={Jul08PlatformWalkthrough}
+        durationInFrames={JUL08_WALK_TOTAL}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ audioSrc: "jul08-platform-walkthrough-vo.mp3" as string | null }}
+      />
+
+      {/* 📅 JULY CALENDAR — Thu Jul 2 six-node Opportunity Web carousel (7 slides: cover + 1 per
+          node). Highest-reach format per the calendar — "seeds the whole month". Stills. */}
+      {Array.from({ length: 7 }, (_, i) => (
+        <Composition
+          key={`jul02-slide-${i}`}
+          id={`Jul02Carousel-Slide${i}`}
+          component={Jul02Carousel}
+          durationInFrames={30}
+          fps={FPS}
+          width={SIZE}
+          height={SIZE}
+          defaultProps={{ slideIndex: i }}
+        />
+      ))}
+
+      {/* 🌐 STANDALONE FLAGSHIP — "Who We Are" + product walkthrough combined. Square (LinkedIn)
+          + wide (YouTube) cuts. Voice: Giselle. */}
+      <Composition
+        id="WhoWeAreWalkthrough"
+        component={WhoWeAreWalkthrough}
+        durationInFrames={WHOWEARE_TOTAL}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ audioSrc: "who-we-are-walkthrough-vo.mp3" as string | null }}
+      />
+      <Composition
+        id="WhoWeAreWalkthroughWide"
+        component={WhoWeAreWalkthroughWide}
+        durationInFrames={WHOWEARE_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+        defaultProps={{ audioSrc: "who-we-are-walkthrough-vo.mp3" as string | null }}
+      />
+
+      {/* 🎯 PROSPECT PITCH — BAM Orlando board presentation. Org-specific: their
+          numbers, their peers, their ask. Facts live in data/bamOrlandoFacts.ts —
+          duplicate that file + this comp per prospect. Wide cut is the boardroom one. */}
+      <Composition
+        id="BamOrlandoPresentation"
+        component={BamOrlandoPresentation}
+        durationInFrames={BAM_TOTAL}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ audioSrc: null as string | null }}
+      />
+      <Composition
+        id="BamOrlandoPresentationWide"
+        component={BamOrlandoPresentationWide}
+        durationInFrames={BAM_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+        defaultProps={{ audioSrc: null as string | null }}
+      />
+
+      {/* 📺 YOUTUBE 16:9 — wide cut of the Jul 8 hero, square content centered in a full-width
+          backdrop so it doesn't pillarbox in a YouTube player. */}
+      <Composition
+        id="Jul08-PlatformWalkthroughWide"
+        component={Jul08PlatformWalkthroughWide}
+        durationInFrames={JUL08_WALK_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+        defaultProps={{ audioSrc: "jul08-platform-walkthrough-vo.mp3" as string | null }}
+      />
+
+      {/* 🖼️ Jul 8 hero — 3 thumbnail options (stills) to pick from. */}
+      <Composition
+        id="Jul08Thumb-Hook"
+        component={Jul08Thumbnails}
+        durationInFrames={30}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ variant: "hook" as const }}
+      />
+      <Composition
+        id="Jul08Thumb-Product"
+        component={Jul08Thumbnails}
+        durationInFrames={30}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ variant: "product" as const }}
+      />
+      <Composition
+        id="Jul08Thumb-CTA"
+        component={Jul08Thumbnails}
+        durationInFrames={30}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ variant: "cta" as const }}
+      />
+
+      {/* 🎓 ONBOARDING TUTORIAL — "Getting Started with Anansi Atlas" (profile creation -> full
+          dashboard tour). Instructional, no pilot CTA. Voice: Giselle. */}
+      <Composition
+        id="DashboardWalkthrough"
+        component={DashboardWalkthrough}
+        durationInFrames={DASHBOARD_WALK_TOTAL}
+        fps={FPS}
+        width={SIZE}
+        height={SIZE}
+        defaultProps={{ audioSrc: "dashboard-walkthrough-vo.mp3" as string | null }}
       />
 
       {/* ⚠️ THROWAWAY TEST — not part of the ads pipeline. GSAP capability showcase. */}
