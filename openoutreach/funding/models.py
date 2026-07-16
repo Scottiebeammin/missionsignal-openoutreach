@@ -690,17 +690,28 @@ class FoundationGrantPaid(models.Model):
             value = stripped
 
     @classmethod
-    def grants_to_orgs_like(cls, service_area, county=None):
+    def grants_to_orgs_like(cls, service_area, county=None, max_income=None):
         """Grants whose recipient matches a FloridaOrg with the given service area.
 
         Joins normalized-casefold recipient names to FloridaOrg names — powers
         "foundations that fund orgs like yours". Returns a chainable queryset.
+
+        ``max_income`` keeps "like yours" honest about SCALE: same sector isn't
+        the same thing as same size — a $350M university and a $29k all-volunteer
+        nonprofit are both "Education". Recipients whose reported income exceeds
+        the ceiling are dropped. Orgs with unknown income are KEPT (small orgs
+        commonly file 990-N and report none, so excluding them would gut the
+        real peer set).
         """
         from openoutreach.signals.models import FloridaOrg
 
         orgs = FloridaOrg.objects.filter(service_area=service_area)
         if county:
             orgs = orgs.filter(county=county)
+        if max_income:
+            orgs = orgs.filter(
+                models.Q(income_amount__isnull=True) | models.Q(income_amount__lt=max_income)
+            )
         targets = {cls.normalize_org_name(name) for name in orgs.values_list("name", flat=True)}
         targets.discard("")
         if not targets:

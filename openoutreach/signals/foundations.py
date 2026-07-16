@@ -91,6 +91,11 @@ _BUDGET_TARGET = [
     ("1m-5m", 400_000),
     ("250k - 1m", 100_000),
     ("250k-1m", 100_000),
+    # Micro-orgs (all-volunteer / community-donation funded) sit far below the
+    # under-250k band: a $25k ask is most of their year. Lead them with grants
+    # that a foundation actually writes to an org this size.
+    ("under_50k", 5_000),
+    ("under $50k", 5_000),
     ("under_250k", 25_000),
     ("under $250k", 25_000),
     ("250k", 25_000),
@@ -104,6 +109,33 @@ def budget_target_amount(budget_range: str) -> int | None:
     for needle, target in _BUDGET_TARGET:
         if needle in key:
             return target
+    return None
+
+
+# "Orgs like yours" has to mean like yours in SCALE, not just sector — a $350M
+# university and a $29k all-volunteer nonprofit are both tagged "Education".
+# Recipients reporting income above this ceiling are dropped from the receipts.
+# Unknown-income orgs are kept (small orgs file 990-N and report none).
+_PEER_INCOME_CEILING = [
+    ("under_50k", 1_000_000),
+    ("under $50k", 1_000_000),
+    ("under_250k", 5_000_000),
+    ("under $250k", 5_000_000),
+    ("250k - 1m", 20_000_000),
+    ("250k-1m", 20_000_000),
+    ("1m - 5m", 100_000_000),
+    ("1m-5m", 100_000_000),
+]
+
+
+def peer_income_ceiling(budget_range: str) -> int | None:
+    """Largest recipient income still credible as "an org like yours"."""
+    key = (budget_range or "").strip().casefold()
+    if not key:
+        return None
+    for needle, ceiling in _PEER_INCOME_CEILING:
+        if needle in key:
+            return ceiling
     return None
 
 
@@ -174,6 +206,12 @@ def build_foundation_overview(project, *, limit=12, grants_limit=15, sort="fit")
         org_names = FloridaOrg.objects.filter(service_area__in=service_areas)
         if county:
             org_names = org_names.filter(county=county)
+        # Keep "orgs like yours" honest about scale — drop the $350M universities
+        # that share a sector tag with a small community nonprofit.
+        ceiling = peer_income_ceiling(organization.budget_range)
+        if ceiling:
+            from django.db.models import Q as _Q
+            org_names = org_names.filter(_Q(income_amount__isnull=True) | _Q(income_amount__lt=ceiling))
         names = list(org_names.values_list("name", flat=True)[:2000])
         name_variants = {n for n in names} | {n.upper() for n in names}
         grants = (
