@@ -27,6 +27,7 @@ import os
 import sys
 import time
 import urllib.request
+import urllib.error
 
 API_BASE = "https://api.runcomfy.net/prod/v2"
 DONE_OK = {"completed", "succeeded"}
@@ -35,12 +36,33 @@ DONE_BAD = {"failed", "error", "cancelled", "canceled"}
 
 def api(url, token, method="GET", body=None):
     data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(url, data=data, method=method)
-    req.add_header("Authorization", f"Bearer {token}")
-    if data is not None:
-        req.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(req) as resp:
-        return json.loads(resp.read().decode())
+    # Retry transient 5xx / network errors on GETs only. Never retry a POST
+    # (submit) — retrying it could create a duplicate paid job.
+    attempts = 6 if method == "GET" else 1
+    last = None
+    for i in range(attempts):
+        try:
+            req = urllib.request.Request(url, data=data, method=method)
+            req.add_header("Authorization", f"Bearer {token}")
+            if data is not None:
+                req.add_header("Content-Type", "application/json")
+            with urllib.request.urlopen(req) as resp:
+                return json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            last = e
+            if method == "GET" and e.code in (500, 502, 503, 504):
+                print(f"   (transient {e.code}, retrying)")
+                time.sleep(6)
+                continue
+            raise
+        except urllib.error.URLError as e:
+            last = e
+            if method == "GET":
+                print("   (network blip, retrying)")
+                time.sleep(6)
+                continue
+            raise
+    raise last
 
 
 def as_image_input(path):
@@ -125,7 +147,10 @@ def main():
     out = os.path.abspath(args.out)
     os.makedirs(os.path.dirname(out), exist_ok=True)
     print(f"-> download {url}")
-    urllib.request.urlretrieve(url, out)
+    dl = urllib.request.Request(url)
+    dl.add_header("Authorization", f"Bearer {token}")  # storage URL needs auth
+    with urllib.request.urlopen(dl) as resp, open(out, "wb") as fh:
+        fh.write(resp.read())
     print(f"OK  saved {out}")
 
 
