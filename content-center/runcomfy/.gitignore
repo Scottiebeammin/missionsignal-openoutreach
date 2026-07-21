@@ -1,0 +1,7 @@
+# real config may carry a deployment id — keep it local
+runcomfy.config.json
+# downloaded clips / scratch
+*.mp4
+*.webm
+*.mov
+out/

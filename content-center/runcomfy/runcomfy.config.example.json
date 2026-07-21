@@ -1,0 +1,12 @@
+{
+  "_comment": "Copy this to runcomfy.config.json (gitignored) and fill in from your deployed workflow. Node IDs come from the workflow_api.json you deployed — send me that file and I'll fill them in.",
+  "deployment_id": "PASTE_DEPLOYMENT_ID",
+  "prompt_node": "6",
+  "prompt_input": "text",
+  "image_node": "189",
+  "image_input": "image",
+  "seed_node": null,
+  "seed_input": "seed",
+  "poll_seconds": 5,
+  "timeout_seconds": 900
+}
