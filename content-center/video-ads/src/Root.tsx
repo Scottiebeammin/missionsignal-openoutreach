@@ -25,6 +25,7 @@ import { CapabilityTest3, CAPABILITY_TEST_3_TOTAL } from "./oneoffs/CapabilityTe
 import { EarthWebTest, EARTH_WEB_TEST_TOTAL } from "./oneoffs/EarthWebTest";
 import { WebOfOpportunityFilm, WebOfOpportunityFilmWide, FILM_TOTAL } from "./oneoffs/WebOfOpportunityFilm";
 import { BamOrlandoPresentation, BamOrlandoPresentationWide, BAM_TOTAL } from "./oneoffs/BamOrlandoPresentation";
+import { LuckyMistake, LUCKY_MISTAKE_TOTAL } from "./oneoffs/LuckyMistake";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -332,6 +333,19 @@ export const RemotionRoot: React.FC = () => {
         fps={FPS}
         width={SIZE}
         height={SIZE}
+      />
+
+      {/* LUCKY MISTAKE — standalone 30s vertical romcom promo (TikTok). Two Seedance
+          clips cut back-to-back + end title card. musicSrc/voSrc default null until
+          the tracks are dropped into public/lucky-mistake/. */}
+      <Composition
+        id="LuckyMistake"
+        component={LuckyMistake}
+        durationInFrames={LUCKY_MISTAKE_TOTAL}
+        fps={FPS}
+        width={VERT_W}
+        height={VERT_H}
+        defaultProps={{ musicSrc: null as string | null, voSrc: null as string | null }}
       />
     </>
   );
