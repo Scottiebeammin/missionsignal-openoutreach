@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #000;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+      }
+      video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* ── text layers ─────────────────────────────────────────── */
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .scrim {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+      .scrim-radial {
+        background: radial-gradient(
+          60% 34% at 50% 50%,
+          rgba(6, 4, 8, 0.82) 0%,
+          rgba(6, 4, 8, 0) 100%
+        );
+      }
+      .scrim-bottom {
+        background: linear-gradient(
+          to top,
+          rgba(6, 4, 8, 0.95) 0%,
+          rgba(6, 4, 8, 0) 46%
+        );
+      }
+      .scrim-solid {
+        background: #08060a;
+      }
+
+      /* HOOK — "ONE BAD NIGHT" */
+      #hook-inner {
+        position: relative;
+        text-align: center;
+        padding: 0 60px;
+      }
+      .hookline {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.26em;
+        color: #f7efe2;
+        font-family: "EB Garamond", Georgia, serif;
+        font-weight: 700;
+        font-size: 104px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        line-height: 1.03;
+        text-shadow: 0 6px 44px rgba(0, 0, 0, 0.85);
+      }
+      .hw {
+        display: inline-block;
+        opacity: 0;
+        transform: scale(1.25);
+      }
+
+      /* TAGLINE */
+      #tag-inner {
+        position: relative;
+        width: 100%;
+        padding: 0 90px 300px;
+        text-align: center;
+        align-self: flex-end;
+      }
+      .tagline {
+        color: #f7efe2;
+        font-family: "EB Garamond", Georgia, serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: 50px;
+        line-height: 1.32;
+        letter-spacing: 0.5px;
+        text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+      }
+      .tagline .row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.28em;
+      }
+      .tw {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(26px);
+      }
+
+      /* END TITLE */
+      #title-group {
+        position: relative;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+      #title-main {
+        opacity: 0;
+        transform: scale(1.16);
+        color: #f7efe2;
+        font-family: "EB Garamond", Georgia, serif;
+        font-weight: 800;
+        font-size: 138px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        line-height: 0.99;
+        text-shadow: 0 6px 44px rgba(0, 0, 0, 0.6);
+      }
+      #sub-series {
+        opacity: 0;
+        color: #e0b64d;
+        font-family: "Inter", Helvetica, Arial, sans-serif;
+        font-weight: 600;
+        font-size: 36px;
+        letter-spacing: 10px;
+        text-transform: uppercase;
+      }
+      #coming-soon {
+        opacity: 0;
+        margin-top: 6px;
+        color: #f7efe2;
+        font-family: "Inter", Helvetica, Arial, sans-serif;
+        font-weight: 500;
+        font-size: 26px;
+        letter-spacing: 14px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="30.138"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- ── video clips (track 0) ── -->
+      <video
+        id="video-shot-1"
+        class="clip"
+        muted
+        playsinline
+        data-start="0"
+        data-duration="15.069"
+        data-track-index="0"
+        src="assets/shot-1.mp4"
+      ></video>
+      <video
+        id="video-shot-2"
+        class="clip"
+        muted
+        playsinline
+        data-start="15.069"
+        data-duration="15.069"
+        data-track-index="0"
+        src="assets/shot-2.mp4"
+      ></video>
+
+      <!-- ── HOOK over shot 1 (track 2) ── -->
+      <div
+        id="hook"
+        class="clip overlay"
+        data-start="8"
+        data-duration="6.9"
+        data-track-index="2"
+      >
+        <div id="hook-scrim" class="scrim scrim-radial"></div>
+        <div id="hook-inner">
+          <div class="hookline">
+            <span class="hw">One</span>
+            <span class="hw">Bad</span>
+            <span class="hw">Night</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAGLINE over shot 2 (track 3) ── -->
+      <div
+        id="tag"
+        class="clip overlay"
+        data-start="19.4"
+        data-duration="7.5"
+        data-track-index="3"
+      >
+        <div id="tag-scrim" class="scrim scrim-bottom"></div>
+        <div id="tag-inner">
+          <div class="tagline">
+            <div class="row">
+              <span class="tw">Sometimes</span>
+              <span class="tw">the</span>
+              <span class="tw">worst</span>
+              <span class="tw">decision</span>
+            </div>
+            <div class="row">
+              <span class="tw">leads</span>
+              <span class="tw">to</span>
+              <span class="tw">the</span>
+              <span class="tw">right</span>
+              <span class="tw">person</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── END TITLE (track 4) ── -->
+      <div
+        id="end-title"
+        class="clip overlay"
+        data-start="26.7"
+        data-duration="3.438"
+        data-track-index="4"
+      >
+        <div id="end-scrim" class="scrim scrim-solid"></div>
+        <div id="title-group">
+          <div id="title-main">
+            <div>Lucky</div>
+            <div>Mistake</div>
+          </div>
+          <div id="sub-series">A New Series</div>
+          <div id="coming-soon">Coming Soon</div>
+        </div>
+      </div>
+
+      <!-- ── music: fade envelope baked into the file (track 5) ── -->
+      <audio
+        id="music"
+        data-start="0"
+        data-duration="30.138"
+        data-track-index="5"
+        data-volume="1"
+        src="assets/music.mp3"
+      ></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ── HOOK — word-by-word slam (scale + opacity; blur dropped, not HF-safe) ──
+      tl.to("#hook-scrim", { opacity: 0.75, duration: 0.3, ease: "none" }, 8.2);
+      gsap.utils.toArray("#hook-inner .hw").forEach((w, i) => {
+        const t = 8.33 + i * 0.23;
+        tl.fromTo(w, { opacity: 0 }, { opacity: 1, duration: 0.18, ease: "none" }, t);
+        tl.fromTo(w, { scale: 1.25 }, { scale: 1, duration: 0.62, ease: "back.out(1.3)" }, t);
+      });
+      tl.fromTo("#hook-inner", { scale: 1 }, { scale: 1.035, duration: 6.2, ease: "none" }, 8.33);
+      tl.to("#hook-inner", { opacity: 0, duration: 1.0, ease: "none" }, 13.6);
+      tl.to("#hook-scrim", { opacity: 0, duration: 1.0, ease: "none" }, 13.6);
+
+      // ── TAGLINE — staggered rise ──
+      tl.to("#tag-scrim", { opacity: 0.8, duration: 0.3, ease: "none" }, 19.9);
+      gsap.utils.toArray("#tag-inner .tw").forEach((w, i) => {
+        const t = 19.95 + i * 0.09;
+        tl.fromTo(
+          w,
+          { opacity: 0, y: 26 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          t
+        );
+      });
+      tl.fromTo("#tag-inner", { scale: 1 }, { scale: 1.03, duration: 6.0, ease: "none" }, 19.95);
+      tl.to("#tag-inner", { opacity: 0, duration: 0.8, ease: "none" }, 25.8);
+      tl.to("#tag-scrim", { opacity: 0, duration: 0.8, ease: "none" }, 25.8);
+
+      // ── END TITLE — spring scale reveal (blur dropped, not HF-safe) ──
+      tl.to("#end-scrim", { opacity: 0.62, duration: 1.0, ease: "none" }, 27.0);
+      tl.fromTo(
+        "#title-main",
+        { opacity: 0, scale: 1.16 },
+        { opacity: 1, scale: 1, duration: 0.9, ease: "back.out(1.2)" },
+        27.13
+      );
+      tl.to("#sub-series", { opacity: 1, duration: 0.6, ease: "none" }, 28.13);
+      tl.to("#coming-soon", { opacity: 1, duration: 0.6, ease: "none" }, 28.5);
+      tl.fromTo("#title-group", { scale: 1 }, { scale: 1.02, duration: 2.4, ease: "none" }, 27.7);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
