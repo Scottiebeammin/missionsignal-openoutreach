@@ -117,7 +117,19 @@ export const LuckyMistake: React.FC<{
 
       <EndTitle />
 
-      {musicSrc ? <Audio src={staticFile(musicSrc)} volume={0.55} /> : null}
+      {musicSrc ? (
+        <Audio
+          src={staticFile(musicSrc)}
+          volume={(f) =>
+            interpolate(
+              f,
+              [0, 12, LUCKY_MISTAKE_TOTAL - 45, LUCKY_MISTAKE_TOTAL],
+              [0, 0.6, 0.6, 0],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+            )
+          }
+        />
+      ) : null}
       {voSrc ? <Audio src={staticFile(voSrc)} /> : null}
     </AbsoluteFill>
   );

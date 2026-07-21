@@ -345,7 +345,7 @@ export const RemotionRoot: React.FC = () => {
         fps={FPS}
         width={VERT_W}
         height={VERT_H}
-        defaultProps={{ musicSrc: null as string | null, voSrc: null as string | null }}
+        defaultProps={{ musicSrc: "lucky-mistake/music.mp3" as string | null, voSrc: null as string | null }}
       />
     </>
   );
