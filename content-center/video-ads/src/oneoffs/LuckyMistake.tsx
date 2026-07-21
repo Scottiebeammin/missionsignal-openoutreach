@@ -6,7 +6,9 @@ import {
   Sequence,
   staticFile,
   useCurrentFrame,
+  useVideoConfig,
   interpolate,
+  spring,
 } from "remotion";
 import { FPS } from "../brand";
 
@@ -35,10 +37,18 @@ const TITLE_IN_END = LUCKY_MISTAKE_TOTAL - 60;
 
 const EndTitle: React.FC = () => {
   const frame = useCurrentFrame();
-  const titleOpacity = interpolate(frame, [TITLE_IN_START, TITLE_IN_END], [0, 1], {
+  const { fps } = useVideoConfig();
+  const titleSpring = spring({
+    frame: frame - TITLE_IN_START,
+    fps,
+    config: { damping: 14, mass: 0.8, stiffness: 100 },
+  });
+  const titleOpacity = interpolate(frame, [TITLE_IN_START, TITLE_IN_START + 10], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  const titleScale = interpolate(titleSpring, [0, 1], [1.16, 1]);
+  const titleBlur = interpolate(titleSpring, [0, 1], [20, 0]);
   // Darken the footage behind the title as it rises.
   const scrim = interpolate(frame, [TITLE_IN_START, TITLE_IN_END], [0, 0.55], {
     extrapolateLeft: "clamp",
@@ -72,6 +82,8 @@ const EndTitle: React.FC = () => {
         <div
           style={{
             opacity: titleOpacity,
+            transform: `scale(${titleScale})`,
+            filter: titleBlur > 0.2 ? `blur(${titleBlur}px)` : "none",
             color: "#f7efe2",
             fontFamily: "Georgia, 'Times New Roman', serif",
             fontSize: 116,
@@ -119,26 +131,34 @@ const EndTitle: React.FC = () => {
   );
 };
 
-// Kinetic caption: fade+rise in, hold, fade out — timed to global frames.
-const Caption: React.FC<{
-  children: React.ReactNode;
+// Trailer-style animated text. `variant`:
+//   "slam" = each word springs in (scale + blur-clear punch) — for headlines
+//   "rise" = each word fades up smoothly — for the tagline
+// Words stagger by `stagger` frames; the whole block does a subtle continuous
+// "breathing" zoom while held, then fades out over outStart→outEnd.
+const AnimatedText: React.FC<{
+  lines: string[];
+  variant: "slam" | "rise";
   inStart: number;
-  inEnd: number;
   outStart: number;
   outEnd: number;
   place?: "center" | "lower";
+  stagger?: number;
   style?: React.CSSProperties;
-}> = ({ children, inStart, inEnd, outStart, outEnd, place = "center", style }) => {
+}> = ({ lines, variant, inStart, outStart, outEnd, place = "center", stagger = 5, style }) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [inStart, inEnd, outStart, outEnd], [0, 1, 1, 0], {
+  const { fps } = useVideoConfig();
+  const outOpacity = interpolate(frame, [outStart, outEnd], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  if (opacity <= 0) return null;
-  const rise = interpolate(frame, [inStart, inEnd], [16, 0], {
+  if (frame < inStart || outOpacity <= 0) return null;
+  // subtle continuous zoom while held (trailer "breathing")
+  const drift = interpolate(frame, [inStart, outEnd], [1, 1.035], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  let wordIndex = 0;
   return (
     <AbsoluteFill
       style={{
@@ -147,18 +167,63 @@ const Caption: React.FC<{
         padding: place === "lower" ? "0 70px 300px" : "0 60px",
       }}
     >
-      {/* legibility scrim tied to the caption's own fade */}
       <AbsoluteFill
         style={{
-          opacity: opacity * 0.55,
+          opacity: outOpacity * 0.55,
           background:
             place === "lower"
               ? "linear-gradient(to top, rgba(6,4,8,0.9) 0%, rgba(6,4,8,0) 42%)"
-              : "radial-gradient(60% 32% at 50% 50%, rgba(6,4,8,0.72) 0%, rgba(6,4,8,0) 100%)",
+              : "radial-gradient(60% 34% at 50% 50%, rgba(6,4,8,0.74) 0%, rgba(6,4,8,0) 100%)",
         }}
       />
-      <div style={{ opacity, transform: `translateY(${rise}px)`, textAlign: "center", ...style }}>
-        {children}
+      <div
+        style={{
+          opacity: outOpacity,
+          transform: `scale(${drift})`,
+          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          ...style,
+        }}
+      >
+        {lines.map((line, li) => (
+          <div
+            key={li}
+            style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.28em" }}
+          >
+            {line.split(" ").map((w) => {
+              const wStart = inStart + wordIndex * stagger;
+              wordIndex += 1;
+              const local = frame - wStart;
+              const s = spring({
+                frame: local,
+                fps,
+                config: { damping: 13, mass: 0.7, stiffness: 110 },
+              });
+              const op = interpolate(local, [0, 6], [0, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              });
+              const scale = variant === "slam" ? interpolate(s, [0, 1], [1.22, 1]) : 1;
+              const ty = variant === "rise" ? interpolate(s, [0, 1], [24, 0]) : 0;
+              const blur = variant === "slam" ? interpolate(s, [0, 1], [16, 0]) : 0;
+              return (
+                <span
+                  key={wStart}
+                  style={{
+                    display: "inline-block",
+                    opacity: op,
+                    transform: `translateY(${ty}px) scale(${scale})`,
+                    filter: blur > 0.2 ? `blur(${blur}px)` : "none",
+                  }}
+                >
+                  {w}
+                </span>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </AbsoluteFill>
   );
@@ -178,12 +243,14 @@ export const LuckyMistake: React.FC<{
         </Sequence>
       ))}
 
-      {/* Hook over Shot 1 */}
-      <Caption
+      {/* Hook over Shot 1 — word-by-word slam */}
+      <AnimatedText
+        lines={["One Bad Night"]}
+        variant="slam"
         inStart={250}
-        inEnd={270}
         outStart={410}
         outEnd={440}
+        stagger={7}
         style={{
           color: "#f7efe2",
           fontFamily: "Georgia, 'Times New Roman', serif",
@@ -194,17 +261,17 @@ export const LuckyMistake: React.FC<{
           lineHeight: 1.05,
           textShadow: "0 4px 40px rgba(0,0,0,0.85)",
         }}
-      >
-        One Bad Night
-      </Caption>
+      />
 
-      {/* Tagline over Shot 2 */}
-      <Caption
+      {/* Tagline over Shot 2 — staggered rise */}
+      <AnimatedText
+        lines={["Sometimes the worst decision", "leads to the right person"]}
+        variant="rise"
         inStart={598}
-        inEnd={622}
         outStart={774}
         outEnd={798}
         place="lower"
+        stagger={3}
         style={{
           color: "#f7efe2",
           fontFamily: "Georgia, 'Times New Roman', serif",
@@ -213,14 +280,10 @@ export const LuckyMistake: React.FC<{
           fontWeight: 500,
           lineHeight: 1.28,
           letterSpacing: 1,
-          maxWidth: 860,
+          maxWidth: 900,
           textShadow: "0 3px 30px rgba(0,0,0,0.9)",
         }}
-      >
-        Sometimes the worst decision
-        <br />
-        leads to the right person
-      </Caption>
+      />
 
       <EndTitle />
 
