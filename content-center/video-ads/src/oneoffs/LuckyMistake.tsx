@@ -48,6 +48,10 @@ const EndTitle: React.FC = () => {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  const soonOpacity = interpolate(frame, [TITLE_IN_END + 20, TITLE_IN_END + 38], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
   const rise = interpolate(frame, [TITLE_IN_START, TITLE_IN_END], [18, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -96,7 +100,66 @@ const EndTitle: React.FC = () => {
         >
           A New Series
         </div>
+        <div
+          style={{
+            opacity: soonOpacity,
+            marginTop: 10,
+            color: "#f7efe2",
+            fontFamily: "Helvetica, Arial, sans-serif",
+            fontSize: 22,
+            fontWeight: 500,
+            letterSpacing: 12,
+            textTransform: "uppercase",
+          }}
+        >
+          Coming Soon
+        </div>
       </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+// Kinetic caption: fade+rise in, hold, fade out — timed to global frames.
+const Caption: React.FC<{
+  children: React.ReactNode;
+  inStart: number;
+  inEnd: number;
+  outStart: number;
+  outEnd: number;
+  place?: "center" | "lower";
+  style?: React.CSSProperties;
+}> = ({ children, inStart, inEnd, outStart, outEnd, place = "center", style }) => {
+  const frame = useCurrentFrame();
+  const opacity = interpolate(frame, [inStart, inEnd, outStart, outEnd], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  if (opacity <= 0) return null;
+  const rise = interpolate(frame, [inStart, inEnd], [16, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: place === "lower" ? "flex-end" : "center",
+        alignItems: "center",
+        padding: place === "lower" ? "0 70px 300px" : "0 60px",
+      }}
+    >
+      {/* legibility scrim tied to the caption's own fade */}
+      <AbsoluteFill
+        style={{
+          opacity: opacity * 0.55,
+          background:
+            place === "lower"
+              ? "linear-gradient(to top, rgba(6,4,8,0.9) 0%, rgba(6,4,8,0) 42%)"
+              : "radial-gradient(60% 32% at 50% 50%, rgba(6,4,8,0.72) 0%, rgba(6,4,8,0) 100%)",
+        }}
+      />
+      <div style={{ opacity, transform: `translateY(${rise}px)`, textAlign: "center", ...style }}>
+        {children}
+      </div>
     </AbsoluteFill>
   );
 };
@@ -114,6 +177,50 @@ export const LuckyMistake: React.FC<{
           </AbsoluteFill>
         </Sequence>
       ))}
+
+      {/* Hook over Shot 1 */}
+      <Caption
+        inStart={250}
+        inEnd={270}
+        outStart={410}
+        outEnd={440}
+        style={{
+          color: "#f7efe2",
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontSize: 88,
+          fontWeight: 700,
+          letterSpacing: 5,
+          textTransform: "uppercase",
+          lineHeight: 1.05,
+          textShadow: "0 4px 40px rgba(0,0,0,0.85)",
+        }}
+      >
+        One Bad Night
+      </Caption>
+
+      {/* Tagline over Shot 2 */}
+      <Caption
+        inStart={598}
+        inEnd={622}
+        outStart={774}
+        outEnd={798}
+        place="lower"
+        style={{
+          color: "#f7efe2",
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontStyle: "italic",
+          fontSize: 42,
+          fontWeight: 500,
+          lineHeight: 1.28,
+          letterSpacing: 1,
+          maxWidth: 860,
+          textShadow: "0 3px 30px rgba(0,0,0,0.9)",
+        }}
+      >
+        Sometimes the worst decision
+        <br />
+        leads to the right person
+      </Caption>
 
       <EndTitle />
 
