@@ -1632,7 +1632,26 @@ export const UISpotlight: React.FC<{
   out?: number;
   vignette?: number;
   label?: string;
-}> = ({ x, y, w, h, at = 0, draw = 22, hold = 90, out = 18, vignette = 0.36, label }) => {
+  /** Which side of the box the label sits on. Below (default) is fine for a box in
+   *  the upper half; a box low in the frame, or one sitting on light UI, wants "above". */
+  labelPos?: "below" | "above";
+  /** Anchor edge. "right" keeps a long label from running off-frame when the box
+   *  is already near the right edge — which is where sort/filter controls live. */
+  labelAlign?: "left" | "right";
+}> = ({
+  x,
+  y,
+  w,
+  h,
+  at = 0,
+  draw = 22,
+  hold = 90,
+  out = 18,
+  vignette = 0.36,
+  label,
+  labelPos = "below",
+  labelAlign = "left",
+}) => {
   const frame = useCurrentFrame();
   const l = frame - at;
   if (l < 0 || l > draw + hold + out) return null;
@@ -1674,15 +1693,21 @@ export const UISpotlight: React.FC<{
         <div
           style={{
             position: "absolute",
-            left: `${x}%`,
-            top: `calc(${y + h}% + 14px)`,
+            ...(labelAlign === "right" ? { right: `${100 - (x + w)}%` } : { left: `${x}%` }),
+            ...(labelPos === "above"
+              ? { bottom: `calc(${100 - y}% + 14px)` }
+              : { top: `calc(${y + h}% + 14px)` }),
             opacity: on,
             fontFamily: SANS,
             fontWeight: 800,
             fontSize: 20,
             letterSpacing: "0.2em",
             textTransform: "uppercase",
+            whiteSpace: "nowrap",
             color: BRAND.goldLight,
+            // The label often sits over a light UI panel, where gold-on-white is
+            // unreadable. A dark halo keeps it legible without a solid plate.
+            textShadow: "0 2px 10px rgba(4,9,20,0.95), 0 0 22px rgba(4,9,20,0.9)",
           }}
         >
           {label}

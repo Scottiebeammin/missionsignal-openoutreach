@@ -26,6 +26,7 @@ import { EarthWebTest, EARTH_WEB_TEST_TOTAL } from "./oneoffs/EarthWebTest";
 import { WebOfOpportunityFilm, WebOfOpportunityFilmWide, FILM_TOTAL } from "./oneoffs/WebOfOpportunityFilm";
 import { AnansiVisionFilm, VISION_TOTAL } from "./oneoffs/AnansiVisionFilm";
 import { BamOrlandoPresentation, BamOrlandoPresentationWide, BAM_TOTAL } from "./oneoffs/BamOrlandoPresentation";
+import { BamOrlandoFilm, BAM_FILM_TOTAL } from "./oneoffs/BamOrlandoFilm";
 import { LuckyMistake, LUCKY_MISTAKE_TOTAL } from "./oneoffs/LuckyMistake";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
@@ -200,9 +201,40 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{ audioSrc: "who-we-are-walkthrough-vo.mp3" as string | null }}
       />
 
-      {/* 🎯 PROSPECT PITCH — BAM Orlando board presentation. Org-specific: their
-          numbers, their peers, their ask. Facts live in data/bamOrlandoFacts.ts —
-          duplicate that file + this comp per prospect. Wide cut is the boardroom one. */}
+      {/*
+        🎬 THE BOARD FILM — "The Ceiling Isn't This Room" (18 scenes, five acts).
+        BAM Orlando, at Vision Film scale: native 16:9, Christopher VO sliced off
+        the alignment JSON, and Act IV walks THEIR OWN workspace (project 18).
+
+        ⚠️ NOT A PUBLIC ASSET — it shows a real prospect's data on screen. Board
+        room only; do not post it. See the header of oneoffs/BamOrlandoFilm.tsx.
+
+        Render the master with --image-format=png: remotion.config.ts sets jpeg
+        globally, which bands the navy gradient over six minutes at 1080p.
+      */}
+      <Composition
+        id="BamOrlandoFilm"
+        component={BamOrlandoFilm}
+        durationInFrames={BAM_FILM_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+        defaultProps={{ audioSrc: "bam-orlando-film-vo.mp3" as string | null, captions: false, music: true }}
+      />
+      {/* Same film, baked captions — for a board member watching it back on mute. */}
+      <Composition
+        id="BamOrlandoFilmCaptioned"
+        component={BamOrlandoFilm}
+        durationInFrames={BAM_FILM_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+        defaultProps={{ audioSrc: "bam-orlando-film-vo.mp3" as string | null, captions: true, music: true }}
+      />
+
+      {/* 🎯 SUPERSEDED by BamOrlandoFilm above — the 2026-07-16 square/pillarboxed
+          cut, timed by word-count estimate and rendered silent (audioSrc null).
+          Kept registered so out/BamOrlandoPresentation-Wide.mp4 stays reproducible. */}
       <Composition
         id="BamOrlandoPresentation"
         component={BamOrlandoPresentation}
