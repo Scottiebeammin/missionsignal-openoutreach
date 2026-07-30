@@ -1,14 +1,17 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
-import { BubbleCard, Caption, Eyebrow, Headline, NavyBG, Rise, Subtitles } from "../components";
+import { Caption, Eyebrow, Headline, LaptopScreenshotPanel, NavyBG, Rise, Subtitles } from "../components";
 
 export type Props = { audioSrc?: string | null };
 
 // Voice: Siren — optional screen b-roll segment for the Fri Jul 10 talking-head short.
+// Timing derived from the measured VO (8.962902s @ 30fps = 268.9f -> 269f), split across the
+// 2 script lines proportional to word count (24 words total: 17 + 7).
+const L = [0, 191, 269];
+
 const CAPTIONS: Caption[] = [
-  { text: "The Opportunity Web Snapshot leads with a summary and a 30-day action plan…", from: 0, duration: 150 },
-  { text: "…not a search result.", from: 150, duration: 90 },
-  { text: "That's the difference between information and direction.", from: 240, duration: 120 },
+  { text: "The Opportunity Web Snapshot leads with a summary and a 30-day action plan — not a search result.", from: L[0], duration: L[1] - L[0] },
+  { text: "That's the difference between information and direction.", from: L[1], duration: L[2] - L[1] },
 ];
 
 const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 24 }) => (
@@ -22,21 +25,18 @@ export const Jul10SnapshotClip: React.FC<Props> = ({ audioSrc }) => {
     <NavyBG>
       {audioSrc ? <Audio src={staticFile(audioSrc)} /> : null}
 
-      <Sequence from={0} durationInFrames={150}>
-        <Center>
-          <Eyebrow>The Opportunity Web Snapshot</Eyebrow>
-          <Headline delay={8} size={64}>A 30-day plan. Not a search result.</Headline>
+      {/* real product proof — new style: laptop mockup, not an abstract card */}
+      <Sequence from={L[0]} durationInFrames={L[1] - L[0]}>
+        <Center gap={18}>
+          <Eyebrow delay={2}>The Opportunity Web Snapshot</Eyebrow>
+          <LaptopScreenshotPanel src={staticFile("screenshots/shot-snapshot3.png")} label="anansiatlas.com" durationInFrames={L[1] - L[0]} width={620} panY={[0, -10]} />
         </Center>
       </Sequence>
 
-      <Sequence from={150} durationInFrames={210}>
-        <Center gap={20}>
-          <BubbleCard delay={6} tone="teal" label="Strongest Asset" value="Deep community trust and a clear, fundable mission." />
-          <BubbleCard delay={20} tone="gold" label="Biggest Constraint" value="No named government funding relationships yet." />
-          <Rise delay={40}>
-            <div style={{ fontFamily: "inherit", fontSize: 34, fontWeight: 700, color: "#f3dd8c", textAlign: "center", marginTop: 8 }}>
-              Information vs. direction.
-            </div>
+      <Sequence from={L[1]} durationInFrames={L[2] - L[1]}>
+        <Center>
+          <Rise delay={2}>
+            <Headline delay={0} size={58}>Information vs. direction.</Headline>
           </Rise>
         </Center>
       </Sequence>

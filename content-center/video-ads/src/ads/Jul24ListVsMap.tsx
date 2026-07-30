@@ -1,15 +1,22 @@
 import React from "react";
-import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
+import { AbsoluteFill, Audio, Img, Sequence, staticFile } from "remotion";
 import { BRAND } from "../brand";
 import { Caption, CTAButton, Eyebrow, Headline, LogoLockup, NavyBG, Rise, SANS, Subtitles } from "../components";
 
 export type Props = { audioSrc?: string | null };
 
 // Voice: Siren — screen segment for the Fri Jul 24 "list vs. map" split-screen short.
+// Timing derived from the measured VO (10.774059s @ 30fps = 323.2f -> 323f), split across the 2
+// script lines proportional to word count (25 words total: 5 + 20). A 130f hold is added after
+// the VO ends so the CTA card lingers (matches the original ~15s total run time).
+const CTA_HOLD = 130;
+const L = [0, 65, 323];
+export const WALK_TOTAL = L[2] + CTA_HOLD;
+
 const CAPTIONS: Caption[] = [
-  { text: "One page. One clear move.", from: 0, duration: 150 },
-  { text: "Funders, partners, and government pathways — mapped around your mission…", from: 150, duration: 180 },
-  { text: "…with readiness scored and a single top move to make next.", from: 330, duration: 120 },
+  { text: "One page. One clear move.", from: L[0], duration: L[1] - L[0] },
+  { text: "Funders, partners, and government pathways — mapped around your mission…", from: L[1], duration: (L[2] - L[1]) / 2 },
+  { text: "…with readiness scored and a single top move to make next.", from: L[1] + (L[2] - L[1]) / 2, duration: (L[2] - L[1]) / 2 },
 ];
 
 const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 24 }) => (
@@ -93,7 +100,16 @@ export const Jul24ListVsMap: React.FC<Props> = ({ audioSrc }) => {
     <NavyBG>
       {audioSrc ? <Audio src={staticFile(audioSrc)} /> : null}
 
-      <Sequence from={0} durationInFrames={150}>
+      {/* the payoff line lands first in the VO — headline opens, then the list-vs-map visual
+          carries the longer explanatory line */}
+      <Sequence from={L[0]} durationInFrames={L[1] - L[0]}>
+        <Center>
+          <Eyebrow>The Opportunity Web</Eyebrow>
+          <Headline delay={4} size={58}>One page. One clear move.</Headline>
+        </Center>
+      </Sequence>
+
+      <Sequence from={L[1]} durationInFrames={L[2] - L[1]}>
         <AbsoluteFill style={{ flexDirection: "row" }}>
           <AbsoluteFill style={{ left: 0, width: "50%", alignItems: "center", justifyContent: "center" }}>
             <Rise>
@@ -118,17 +134,13 @@ export const Jul24ListVsMap: React.FC<Props> = ({ audioSrc }) => {
         </AbsoluteFill>
       </Sequence>
 
-      <Sequence from={150} durationInFrames={180}>
-        <Center>
-          <Eyebrow>The Opportunity Web</Eyebrow>
-          <Headline delay={8} size={58}>One page. One clear move.</Headline>
-        </Center>
-      </Sequence>
-
-      <Sequence from={330} durationInFrames={120}>
-        <Center gap={30}>
-          <LogoLockup />
-          <CTAButton delay={10}>Apply · $150/mo for life</CTAButton>
+      <Sequence from={L[2]} durationInFrames={WALK_TOTAL - L[2]}>
+        <Center gap={26}>
+          <Rise delay={0}>
+            <Img src={staticFile("logo-mark.png")} style={{ width: 68, height: 68 }} />
+          </Rise>
+          <LogoLockup delay={6} />
+          <CTAButton delay={16}>Apply · $150/mo for life</CTAButton>
         </Center>
       </Sequence>
 

@@ -1,14 +1,19 @@
 import React from "react";
-import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
+import { AbsoluteFill, Audio, Img, Sequence, staticFile } from "remotion";
 import { BRAND } from "../brand";
 import { Caption, CTAButton, Eyebrow, Headline, LogoLockup, NavyBG, Rise, SANS, Subtitles } from "../components";
 
 export type Props = { audioSrc?: string | null };
 
 // Voice: Jackson — optional outro card on the Fri Jul 31 founder-closing video.
+// Timing derived from the measured VO (9.659501s @ 30fps = 289.8f -> 290f), split across the 2
+// script lines proportional to word count (23 words total: 8 + 15). The original hardcoded 240f
+// (8s) ran shorter than the VO — narration would have been cut off; fixed here.
+const L = [0, 101, 290];
+
 const CAPTIONS: Caption[] = [
-  { text: "The Founding Atlas Partners pilot is nearly full.", from: 0, duration: 120 },
-  { text: "$150 / month, locked for life. Apply or message me today.", from: 120, duration: 120 },
+  { text: "The Founding Atlas Partners pilot is nearly full.", from: L[0], duration: L[1] - L[0] },
+  { text: "$150 / month, locked for life. Apply or message me today.", from: L[1], duration: L[2] - L[1] },
 ];
 
 const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 26 }) => (
@@ -22,7 +27,7 @@ export const Jul31ClosingOutro: React.FC<Props> = ({ audioSrc }) => {
     <NavyBG>
       {audioSrc ? <Audio src={staticFile(audioSrc)} /> : null}
 
-      <Sequence from={0} durationInFrames={110}>
+      <Sequence from={L[0]} durationInFrames={L[1] - L[0]}>
         <Center>
           <Eyebrow>Nearly Full</Eyebrow>
           <Headline delay={8} size={62}>Last few founding seats.</Headline>
@@ -34,10 +39,13 @@ export const Jul31ClosingOutro: React.FC<Props> = ({ audioSrc }) => {
         </Center>
       </Sequence>
 
-      <Sequence from={110} durationInFrames={130}>
-        <Center gap={34}>
-          <LogoLockup />
-          <CTAButton delay={10}>Apply or Message Me</CTAButton>
+      <Sequence from={L[1]} durationInFrames={L[2] - L[1]}>
+        <Center gap={26}>
+          <Rise delay={0}>
+            <Img src={staticFile("logo-mark.png")} style={{ width: 68, height: 68 }} />
+          </Rise>
+          <LogoLockup delay={6} />
+          <CTAButton delay={16}>Apply or Message Me</CTAButton>
         </Center>
       </Sequence>
 
