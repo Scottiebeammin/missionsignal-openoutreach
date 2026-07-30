@@ -13,6 +13,43 @@ Style direction: premium SaaS demo/explainer/brand-promo genre (the reference st
 | **PremiumShowcase** | ~85s | "This is our product, here's why you need it, join the family, click the link" — the premium brand commercial | **Christopher** |
 | **FullExplainer** | ~5:05 | Deep platform walkthrough that convinces a viewer this would revolutionize their work → **Register Now** | **Christopher** |
 
+### Later additions
+
+| Composition | Length | Purpose | Voice |
+|---|---|---|---|
+| **AnansiVisionFilm** | 6:19 | "The Whole Field" — executive vision film for Orange County FL government + Central Florida grantmakers. 18 scenes, five acts. Soft CTA, no price. | **Christopher** |
+| **BamOrlandoFilm** | 6:11 | "The Ceiling Isn't This Room" — board film for a single prospect (BAM Orlando). Same 18-scene / five-act spine as the vision film, but it closes on the offer. **⚠️ Board room only — see below.** | **Christopher** |
+
+#### ⚠️ BamOrlandoFilm is not a public asset
+
+Every other film here draws its screenshots from the Creative Display demo profile, which makes them ad-safe by construction. `BamOrlandoFilm` does not: Act IV walks **BAM Orlando's own workspace** (project 18), because the whole pitch is "this already exists and it's yours." Do not post it to LinkedIn, YouTube, or the site. It supersedes the older `BamOrlandoPresentation` (1080×1080 pillarboxed, timed by word-count estimate, and rendered **silent** — its `audioSrc` default was `null`), which stays registered only so the July 16 render remains reproducible.
+
+Its shots come from the same capture script, with a prefix:
+
+```bash
+python scripts/capture-hd-shots.py --session <sessionid> --project 18 --prefix bam-
+```
+
+#### `--hide` — dressing a prospect's screen without touching the product
+
+Some of what the app renders is true for a signed partner and not for a prospect. The dashboard's shot is therefore captured with four elements suppressed:
+
+```bash
+python scripts/capture-hd-shots.py --session <sid> --project 18 --prefix bam- \
+  --only dashboard --hide ".fw-badge,.fw-sub,.fw-stat-verified,.fw-title"
+```
+
+| Selector | What it is | Why it's hidden here |
+|---|---|---|
+| `.fw-badge` | "🕸️ Founding Atlas Partner" | Honest on project 14 (EGI really is partner #1); a presumption on a prospect who hasn't signed |
+| `.fw-sub` | "You're one of our first 20 founding partners…" | Same claim, in prose |
+| `.fw-stat-verified` | "**0** ✓ verified grants matched to you" | Accurate but useless on a workspace whose analysis has never run — and it fights a slide whose job is to show *potential* |
+| `.fw-title` | "Welcome, **there** — …" | Missing-contact-first-name fallback; reads as a bug on a projector. Set a contact first name on the org and this can come back for real |
+
+This is capture-time cosmetics, **not** a product change — the decision belongs to the shot, since the same markup is truthful on a different project. Two guardrails: `--hide` **fails the run** if a selector matches zero elements (a stale selector otherwise fails silently into a screenshot that still shows what you meant to drop), and hiding elements **shifts the layout**, so any `UISpotlight` / `Scrim` box over that page must be re-measured against the new capture.
+
+`--only <name,name>` re-captures a subset (names without the prefix), so fixing one shot doesn't redo all six.
+
 Both reuse the shared brand components (`../components.tsx`) and render at 1080×1080 (square) — swap `width`/`height` in `src/Root.tsx` if you want a 16:9 cut for YouTube.
 
 ## What's actually in these (real motion graphics, not static cards)
@@ -105,6 +142,30 @@ npx remotion render FullExplainer out/FullExplainer.mp4 --props='{"audioSrc":"fu
 ```
 
 **Timing:** if your VO runs long/short, adjust the `S.*` frame offsets at the top of `FullExplainer.tsx` (for PremiumShowcase, the `<Sequence>` `from`/`durationInFrames` values) and the matching `CAPTIONS` timings.
+
+### Timestamped VO — for films with silent passages
+
+`npm run vo` joins a script into ONE continuous MP3 and lays it flat across the timeline, which bulldozes any silent passage the film is built around (`AnansiVisionFilm` Sc01 is 20s of music alone; `BamOrlandoFilm` the same). Those two films instead generate **once with alignment** and slice the master per line with `<Audio startFrom endAt>`:
+
+```bash
+node scripts/gen-vo-timestamped.mjs BamOrlandoFilm   # -> public/*.mp3 + *.alignment.json
+node scripts/vo-line-slices.mjs     BamOrlandoFilm   # -> prints the LINE table to paste in
+```
+
+`vo-line-slices.mjs` reads the alignment JSON and prints the exact `LINE: [number, number][]` array, plus the inter-line gaps (useful for choosing each scene's `LEAD`). It refuses to run if the alignment is stale relative to the script in `ads.config.mjs`, so a rewritten line can't silently desync the film.
+
+For sub-line sync — landing a count-up or a wipe on a specific *phrase* — query the alignment for the phrase's character offset. Both films' scene docstrings record the measured offsets they were built against, so a re-generated VO can be re-measured against the same beats.
+
+**A script edit is never local.** Rewording one line changes its length, which moves every scene boundary after it. `AnansiVisionFilm` hardcodes its beat map `B`, so an edit there means re-deriving eighteen numbers by hand. `BamOrlandoFilm` instead **computes** `B` from `LEAD + line + TAIL`:
+
+```ts
+const B = LINE.reduce<number[]>(
+  (acc, [from, to], i) => [...acc, acc[acc.length - 1] + LEAD[i] + (to - from) + TAIL[i]],
+  [0, SILENT_LEAD],
+);
+```
+
+So a VO regen is: paste the new `LINE` table → re-measure the per-scene phrase offsets → done. When three lines were reworded to drop the word "money" (2026-07-30), speech went 262.0s → 271.5s and every one of the seventeen boundaries moved; only the phrase offsets needed touching by hand. Prefer this shape for any new timestamped film.
 
 ---
 

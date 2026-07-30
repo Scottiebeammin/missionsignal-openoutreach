@@ -90,23 +90,76 @@ export const ADS = [
     voice: "Christopher",
     audioOut: "anansi-vision-film-vo.mp3",
     script: [
-      "Every community already holds what it needs. The people. The institutions. The money. In Orange County, Florida, all of it is here right now. That has never really been the question. The question is quieter, and harder: can the organizations closest to the work actually see it?",
+      "Every community already holds what it needs. The people. The institutions. The opportunity. In Orange County, Florida, all of it is here right now. That has never really been the question. The question is quieter, and harder: can the organizations closest to the work actually see it?",
       "A youth program in Pine Hills. A food pantry in Apopka. A workforce nonprofit two blocks from a foundation that funds exactly the kind of work they do — and neither one has any idea the other exists. Not because anyone failed. Because nobody ever drew the map.",
       "Every mission has more opportunities than it can see. That is not a criticism. It's just true, everywhere, all the time.",
       "The opportunity already exists. It's just scattered. So we went looking for it.",
       "So we built the count. Three hundred and ten thousand I.R.S. returns, read line by line. Three hundred twenty-six thousand grant records relevant to Florida. From those, thirteen thousand five hundred fifty-four verified funders. And one hundred fourteen thousand exempt organizations in the Florida database — the full field, not a sample of it.",
-      "Then we pointed it at one real organization here in Orange County. What came back was sixty-three point six million dollars in verified foundation grants, going to four hundred seventy-four Orange County organizations. One thousand nine hundred and twelve individual grants. Every one of them traceable back to a filing you can open yourself.",
+      "Then we pointed it at Orange County itself. What came back was sixty-three point six million dollars in verified foundation grants, reaching four hundred seventy-four organizations across this county. One thousand nine hundred and twelve individual grants. Every one of them traceable back to a filing you can open yourself.",
       "That last part matters more than the number. Every opportunity carries a real source, or it never enters the system at all. Verified, or verify-first. There is no third category.",
       "Funders. Partners. Government. Resources. Readiness. Pathways. This is what we mean by a web.",
       "Here is the platform, at the pace you'd actually use it on a Tuesday morning. A mission sits at the center of the screen. Around it, the funders. The partners. The government pathways. The resources. And an honest read on how ready that organization is to compete for any of it — including where it isn't.",
       "Nothing here was invented. Every node is drawn from public filings, public notices, and public records — the same information anyone could gather, if anyone had ten thousand hours. What the platform does is hold it all in one shape, so a single person can look at the whole thing at once.",
-      "Watch one control. Sort by peer size. The top of the list stops being a five-million-dollar gift to a university, and becomes twenty-five-thousand-dollar grants to organizations the same size, in the same county, doing the same work. Nothing was added. Nothing was removed. The lens changed — and suddenly the list is about you.",
-      "That's the whole idea. We don't get anyone funded. We don't promise a dollar. We map what is already there — and we show you where to look.",
+      "Watch one control. Sort by peer size. The top of the list stops being a million-dollar research grant to a university, and becomes twenty-five-thousand-dollar grants to organizations the same size, in the same county, doing the same work. Nothing was added. Nothing was removed. The lens changed — and suddenly the list is about you.",
+      "That's the whole idea. We don't get anyone funded. We don't promise a dollar. We map what is already there — and we show you where to look. That's Anansi Atlas.",
       "Now — everything after this line is unbuilt. Not a beta. Not a roadmap promise. It's a question we'd like to ask out loud, in a room like this one.",
       "What if a funder could see the same map from the other side? Not who applied this cycle — who is actually out there. Which organizations in a county are doing the work, at what scale, with what capacity. And where a portfolio has a hole in it that nobody has named yet.",
       "What if a county could look at one sector — youth development, housing, workforce — and see the entire field at once? Where the dollars land. Where they don't. Who is carrying weight without support. None of that exists today. We're showing it to you in wireframe, on purpose, because whether it should exist isn't ours to decide alone.",
       "What does exist is this. Empowered Girls, right here in Orange County, works with girls ages nine to eighteen — and today they are live in production as our first founding partner. One organization is not a movement. It is, however, a beginning.",
       "So we're not here to sell you software. We're here to ask a question. Whether the way this county sees its own nonprofit sector could be clearer than it is today. Whether the organizations already doing the work deserve to see the whole field they're standing in. We think they do. Reveal. Connect. Clarify. Empower. Act. Anansi Atlas. See the whole web. Call us, or visit anansiatlas.com, to learn more.",
+    ],
+  },
+  {
+    // THE BOARD FILM — "The Ceiling Isn't This Room". Black Architects in the Making
+    // (BAM) Orlando. 18 scenes, five acts, ~5:55. oneOff. Voice: Christopher.
+    //
+    // Generate with `node scripts/gen-vo-timestamped.mjs BamOrlandoFilm` (NOT `npm run vo`) —
+    // same reason as AnansiVisionFilm: the film has silent passages and needs the
+    // alignment JSON to slice the master MP3 per line.
+    //
+    // Scene 01 is silent by design and has no line here; the array starts at Scene 02.
+    //
+    // ⚠️ NOT A PUBLIC ASSET. Act IV shows BAM's OWN workspace (project 18), not the
+    // Creative Display demo profile the public ads use. That is deliberate — the whole
+    // pitch is "this already exists and it's yours" — but it means this film is for
+    // the BAM board only. Do not post it to LinkedIn/YouTube.
+    //
+    // Every figure traces to src/data/bamOrlandoFacts.ts, which sources them to
+    // bamorlando.org, their LinkedIn, and IRS 990-PF filings for Orange County.
+    // The $20.6M / 229 / 994 trio is corroborated on screen by their own dashboard.
+    // Deliberately NOT narrated: the dashboard's "418 opportunities mapped" and "317
+    // strong matches" — those are computed against reference tables, not stored
+    // matched records, and the same screen reads "0 verified grants matched to you".
+    // Claiming 418 in the VO while a 0 sits on screen loses the room.
+    // VOCABULARY (Scott, 2026-07-30): this film never says "money". The brand word
+    // is opportunity — "The opportunity exists", "the opportunity stays exactly
+    // where it has always been". Sc07's question became "who actually gives to an
+    // organization like yours" rather than forcing the noun in a third time.
+    // Dollar AMOUNTS stay ($56.0M, $20.6M, $5,000, $150/month, $29,480): those are
+    // the receipts the whole film rests on, and they are not the word "money".
+    id: "BamOrlandoFilm",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "bam-orlando-film-vo.mp3",
+    script: [
+      "This is Black Architects in the Making. The Orlando chapter. Founded in twenty eighteen, and run on volunteers every day since. You take students of color into architecture firms, into design studios, into real buildings — and you show them a career nobody ever told them was theirs.",
+      "Three hundred students since you started. A hundred and thirty-five this year alone. Fourteen workshops. Eighty-seven volunteers. Twenty-nine thousand, four hundred and eighty dollars raised last year — and every dollar of it came from your own community.",
+      "None of that came from a form I asked you to fill out. I built this from your website, your public tax filings, and the record you have already made in this county. Nothing you are about to see is a guess.",
+      "So you already know the problem. You are doing the work. The opportunity exists. But finding out who actually funds architecture pathways for students of color in Orange County means nights of searching, after the workshops, after the day job — and you do not have a grant writer.",
+      "So the opportunity stays exactly where it has always been. Not missing. Invisible. That distinction is the entire reason this exists.",
+      "So we built the count. Three hundred and ten thousand I.R.S. returns, read line by line. Three hundred twenty-six thousand grant records relevant to Florida. Thirteen thousand five hundred fifty-four verified funders. Then we pointed all of it at one question: who actually gives to an organization like yours, in your county?",
+      "Fifty-six million dollars flowed into Orange County nonprofits. Six hundred and fifty-three foundations. Two thousand six hundred and twenty-two grants, every one of them off a filing. That is the pool.",
+      "Twenty point six million of that went to organizations your size. Two hundred and twenty-nine foundations. Nine hundred and ninety-four grants. Not the whole ocean — the part of it you can actually swim in. That is your lane.",
+      "And the typical grant to an organization your size is five thousand dollars. Not a projection. Not an average of averages. It is the number that shows up, over and over, on the filings. That is your first check.",
+      "Here is what that looks like with the names left in. Black History Project — five thousand. Love Our Youth — five thousand. Page Fifteen — five thousand. Lakemont Elementary P.T.O. Orlando Athletic Training Academy. Pop Warner. Real organizations. Your size. Your county. Getting real checks.",
+      "And this is not a mockup. This is your workspace, already built, already sitting there. Twenty point six million dollars in verified foundation grants, to two hundred and twenty-nine organizations like yours. That line is not marketing copy. It is a query, and you can run it yourself.",
+      "Your mission sits in the middle. Around it, six things: funders, partners, government pathways, resources, readiness, and the pathways that connect them. That is what we mean by a web. Not a list you scroll. A landscape you can see all at once.",
+      "Now watch one control. Sorted the ordinary way, the top of the list is a million-dollar research grant to the University of Florida. Sort by organizations your size, and the very same data returns five-thousand-dollar checks to Orlando nonprofits doing your kind of work. Nothing was added. Nothing was removed. The lens changed.",
+      "And it tells you the truth about where you stand. Sixty-one out of a hundred. Developing. Programs need clearer definition — that is your top gap. Missing documents in the vault — that is your highest-leverage fix. A tool that only flatters you is not worth having.",
+      "So, plainly, three things this will not do. It will not call a three hundred and fifty million dollar university an organization like you. It will not show you a grant you cannot click through and verify against the filing. And it will not promise to get you funded. You still write the ask. Verified means verified.",
+      "A hundred and fifty dollars a month. Founding rate, locked for life, as one of the first twenty partners. That is the whole offer. No setup fee. No annual contract. No percentage of anything you raise. If the map is wrong, you will know inside a month.",
+      "And what I built for Orlando is not Orlando-specific. The same map exists for Broward. The same map exists for Miami. Every chapter, the same three numbers, the same receipts. The ceiling is not this room. Anansi Atlas. See the whole web. Let's start with Orlando.",
     ],
   },
   {
