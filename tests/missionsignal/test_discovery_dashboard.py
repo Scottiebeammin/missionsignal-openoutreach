@@ -134,7 +134,9 @@ def test_discovery_demo_records_are_deterministic_and_varied(discovery_project):
         for item in group.opportunities
     ]
 
-    assert first.total_opportunities >= 29
+    # 28, not 29: the overview now excludes ARCHIVED rows (the demo fixture seeds one),
+    # so archiving an opportunity actually takes it off the client's inventory.
+    assert first.total_opportunities >= 28
     assert first.active_opportunities >= 8
     assert first.monitoring_opportunities >= 3
     assert first.high_priority_opportunities >= 6

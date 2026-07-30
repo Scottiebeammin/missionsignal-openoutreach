@@ -199,6 +199,7 @@ def _lifecycle_stages(items: list[DiscoveryOpportunity]) -> list[DiscoveryLifecy
 def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOverview:
     queryset = (
         Opportunity.objects.filter(project=project)
+        .exclude(status=Opportunity.Status.ARCHIVED)  # same rule as the pipeline board
         .select_related("source_organization")
         .prefetch_related("tasks", "deadlines")
         .order_by("name")

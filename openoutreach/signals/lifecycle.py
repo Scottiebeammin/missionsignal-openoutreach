@@ -336,6 +336,10 @@ def build_lifecycle_summary(project=None, limit_per_stage: int | None = None) ->
     qs = Opportunity.objects.select_related("source_organization", "assigned_owner").order_by("deadline", "name")
     if project is not None:
         qs = qs.filter(project=project)
+    # Archived means "taken off the board" — it has to hold here too. Without this the
+    # pipeline kept showing rows an operator had already archived (including retracted
+    # AI guesses), which is exactly where a client would act on them.
+    qs = qs.exclude(status=Opportunity.Status.ARCHIVED)
     opportunities = list(qs)
     stages = []
     for value in PIPELINE_STAGE_VALUES:
