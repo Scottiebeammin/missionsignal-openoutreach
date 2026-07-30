@@ -24,6 +24,7 @@ import { CapabilityTest2 } from "./oneoffs/CapabilityTest2";
 import { CapabilityTest3, CAPABILITY_TEST_3_TOTAL } from "./oneoffs/CapabilityTest3";
 import { EarthWebTest, EARTH_WEB_TEST_TOTAL } from "./oneoffs/EarthWebTest";
 import { WebOfOpportunityFilm, WebOfOpportunityFilmWide, FILM_TOTAL } from "./oneoffs/WebOfOpportunityFilm";
+import { AnansiVisionFilm, VISION_TOTAL } from "./oneoffs/AnansiVisionFilm";
 import { BamOrlandoPresentation, BamOrlandoPresentationWide, BAM_TOTAL } from "./oneoffs/BamOrlandoPresentation";
 import { LuckyMistake, LUCKY_MISTAKE_TOTAL } from "./oneoffs/LuckyMistake";
 
@@ -323,6 +324,34 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={{ audioSrc: "web-of-opportunity-film-vo.mp3" as string | null }}
+      />
+
+      {/*
+        🎞️ THE EXECUTIVE VISION FILM — "The Whole Field" (18 scenes, five acts).
+        Orange County FL government + Central Florida grantmakers. Native 16:9 —
+        NOT pillarboxed like the Wide comps above; wide cinematic type needs the
+        full frame. Act IV is a CONCEPT register (wireframes of unbuilt ideas).
+        Render the master with --image-format=png: remotion.config.ts sets jpeg
+        globally, which bands the navy gradient over six minutes at 1080p.
+      */}
+      <Composition
+        id="AnansiVisionFilm"
+        component={AnansiVisionFilm}
+        durationInFrames={VISION_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+        defaultProps={{ audioSrc: "anansi-vision-film-vo.mp3" as string | null, captions: false, music: true }}
+      />
+      {/* Same film, baked captions — for autoplay-muted feeds. */}
+      <Composition
+        id="AnansiVisionFilmCaptioned"
+        component={AnansiVisionFilm}
+        durationInFrames={VISION_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+        defaultProps={{ audioSrc: null as string | null, captions: true, music: true }}
       />
 
       {/* ⚠️ PROTOTYPE — de-risking the rotating-globe hero visual before committing it. */}

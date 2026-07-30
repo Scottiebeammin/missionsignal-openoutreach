@@ -7,7 +7,9 @@ import {
   Caption,
   CTAButton,
   Eyebrow,
+  GradientMesh,
   LogoLockup,
+  makePrng,
   NavyBG,
   OrbWeb,
   ProgressRail,
@@ -51,48 +53,9 @@ const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ childre
   </AbsoluteFill>
 );
 
-// Seeded PRNG — deterministic scatter everywhere (no Math.random in render paths).
-function makePrng(seed: number) {
-  let s = seed >>> 0;
-  return () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 4294967296;
-  };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Gradient mesh atmosphere (Pinterest ref #1, brand-adapted: gold/teal on navy)
-// ─────────────────────────────────────────────────────────────────────────────
-const GradientMesh: React.FC<{ opacity?: number }> = ({ opacity = 0.5 }) => {
-  const frame = useCurrentFrame();
-  const t = frame / 30;
-  const blobs = [
-    // brand palette only: gold / blue / cream / deep blue on navy
-    { color: "222,168,28", x: 22 + Math.sin(t * 0.21) * 8, y: 24 + Math.cos(t * 0.17) * 7, r: 38 },
-    { color: "58,108,200", x: 76 + Math.sin(t * 0.16 + 2) * 9, y: 68 + Math.cos(t * 0.19 + 1) * 8, r: 42 },
-    { color: "243,221,140", x: 55 + Math.sin(t * 0.13 + 4) * 10, y: 30 + Math.cos(t * 0.15 + 3) * 9, r: 30 },
-    { color: "40,78,160", x: 34 + Math.sin(t * 0.18 + 5.5) * 9, y: 74 + Math.cos(t * 0.14 + 4.5) * 7, r: 32 },
-  ];
-  return (
-    <AbsoluteFill style={{ opacity, filter: "blur(70px)" }}>
-      {blobs.map((b, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            left: `${b.x - b.r / 2}%`,
-            top: `${b.y - b.r / 2}%`,
-            width: `${b.r}%`,
-            height: `${b.r}%`,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(${b.color},0.9) 0%, rgba(${b.color},0) 70%)`,
-          }}
-        />
-      ))}
-    </AbsoluteFill>
-  );
-};
-
+// makePrng + GradientMesh were promoted into ../components on 2026-07-29 so the
+// executive vision film shares the exact generator and atmosphere this film uses.
+// They are imported above — do not redefine them here.
 
 // Soft brand-color corner light for the globe scenes (canvas is alpha:true, so
 // these read through around the planet without washing it out).

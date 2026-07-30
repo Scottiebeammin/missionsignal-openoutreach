@@ -63,6 +63,53 @@ export const ADS = [
     ],
   },
   {
+    // THE EXECUTIVE VISION FILM — "The Whole Field". Orange County FL government +
+    // Central Florida grantmakers. 18 scenes, five acts, ~6:15. oneOff. Voice: Christopher.
+    //
+    // Generate with `node scripts/gen-vo-timestamped.mjs AnansiVisionFilm` (NOT `npm run vo`) —
+    // the film has three long silent passages, so it needs the alignment JSON to slice the
+    // master MP3 per line rather than laying one continuous track across the timeline.
+    //
+    // Scene 01 is silent by design and has no line here; the array starts at Scene 02.
+    //
+    // CTA (Scott, 2026-07-29): a SOFT close — "call or visit our website to learn more",
+    // carrying the phone number and URL on screen. Deliberately still NO price and no seat
+    // count: "$150 locked for life" cannot share the frame with "we're not here to sell you
+    // software." So this partially breaks the every-ad checklist in BRAND-TEMPLATE.md §5
+    // beat 6 — invitation, not conversion. See the BRAND-DEVIATION note in the film file.
+    //
+    // The partner line says "Empowered Girls" (no "Inc.") — TTS reads "Inc." as "ink",
+    // and the spoken-out "Incorporated" sounded stiff. On screen it renders the full
+    // legal "Empowered Girls Inc." Facts drawn from seed_egi.py: 501(c)(3), Orlando,
+    // girls ages 9-18. Their impact figures (43 girls, $11k scholarships, 5,000
+    // families) are deliberately NOT in the film — a specific claim about a partner
+    // needs that partner's sign-off, not ours.
+    id: "AnansiVisionFilm",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "anansi-vision-film-vo.mp3",
+    script: [
+      "Every community already holds what it needs. The people. The institutions. The money. In Orange County, Florida, all of it is here right now. That has never really been the question. The question is quieter, and harder: can the organizations closest to the work actually see it?",
+      "A youth program in Pine Hills. A food pantry in Apopka. A workforce nonprofit two blocks from a foundation that funds exactly the kind of work they do — and neither one has any idea the other exists. Not because anyone failed. Because nobody ever drew the map.",
+      "Every mission has more opportunities than it can see. That is not a criticism. It's just true, everywhere, all the time.",
+      "The opportunity already exists. It's just scattered. So we went looking for it.",
+      "So we built the count. Three hundred and ten thousand I.R.S. returns, read line by line. Three hundred twenty-six thousand grant records relevant to Florida. From those, thirteen thousand five hundred fifty-four verified funders. And one hundred fourteen thousand exempt organizations in the Florida database — the full field, not a sample of it.",
+      "Then we pointed it at one real organization here in Orange County. What came back was sixty-three point six million dollars in verified foundation grants, going to four hundred seventy-four Orange County organizations. One thousand nine hundred and twelve individual grants. Every one of them traceable back to a filing you can open yourself.",
+      "That last part matters more than the number. Every opportunity carries a real source, or it never enters the system at all. Verified, or verify-first. There is no third category.",
+      "Funders. Partners. Government. Resources. Readiness. Pathways. This is what we mean by a web.",
+      "Here is the platform, at the pace you'd actually use it on a Tuesday morning. A mission sits at the center of the screen. Around it, the funders. The partners. The government pathways. The resources. And an honest read on how ready that organization is to compete for any of it — including where it isn't.",
+      "Nothing here was invented. Every node is drawn from public filings, public notices, and public records — the same information anyone could gather, if anyone had ten thousand hours. What the platform does is hold it all in one shape, so a single person can look at the whole thing at once.",
+      "Watch one control. Sort by peer size. The top of the list stops being a five-million-dollar gift to a university, and becomes twenty-five-thousand-dollar grants to organizations the same size, in the same county, doing the same work. Nothing was added. Nothing was removed. The lens changed — and suddenly the list is about you.",
+      "That's the whole idea. We don't get anyone funded. We don't promise a dollar. We map what is already there — and we show you where to look.",
+      "Now — everything after this line is unbuilt. Not a beta. Not a roadmap promise. It's a question we'd like to ask out loud, in a room like this one.",
+      "What if a funder could see the same map from the other side? Not who applied this cycle — who is actually out there. Which organizations in a county are doing the work, at what scale, with what capacity. And where a portfolio has a hole in it that nobody has named yet.",
+      "What if a county could look at one sector — youth development, housing, workforce — and see the entire field at once? Where the dollars land. Where they don't. Who is carrying weight without support. None of that exists today. We're showing it to you in wireframe, on purpose, because whether it should exist isn't ours to decide alone.",
+      "What does exist is this. Empowered Girls, right here in Orange County, works with girls ages nine to eighteen — and today they are live in production as our first founding partner. One organization is not a movement. It is, however, a beginning.",
+      "So we're not here to sell you software. We're here to ask a question. Whether the way this county sees its own nonprofit sector could be clearer than it is today. Whether the organizations already doing the work deserve to see the whole field they're standing in. We think they do. Reveal. Connect. Clarify. Empower. Act. Anansi Atlas. See the whole web. Call us, or visit anansiatlas.com, to learn more.",
+    ],
+  },
+  {
     // FIRST LINKEDIN POST — "19 of 20 Seats" stat reveal. oneOff (posted manually, not
     // scheduler-dated). Voice: Jackson (assertive/scarcity — same as PilotSignup).
     id: "PilotSeatsReveal",
@@ -177,6 +224,95 @@ export const ADS = [
       "The result is simple. Instead of chasing scattered leads, your team always knows exactly where to focus next.",
       "We're opening the Founding Atlas Partners Pilot to nineteen to twenty mission-driven organizations.",
       "Apply today at anansi atlas dot com, slash anansi atlas.",
+    ],
+  },
+  {
+    // STANDALONE FLAGSHIP — "Who We Are + Platform Walkthrough" cold-outreach video. Scott's
+    // final approved script (verbatim — do not paraphrase). Use case: cold outreach. Tone:
+    // premium, calm, strategic, mission-centered. Same laptop-mockup/logo style as the Jul 8
+    // hero; rendered in both square (LinkedIn) and wide (YouTube) cuts. Voice: Giselle.
+    // NOTE: at natural TTS pace this script runs longer than the "60-75s" noted in Scott's brief
+    // — used verbatim per his "use this script" instruction. Revised per Scott's "fix it" pass
+    // (2026-07-04 conversion review): sharper cold-open hook, one line pulled forward to make the
+    // demo-org screenshots feel like "picture your own mission" instead of someone else's data,
+    // the two negation lines consolidated into one tighter beat, and price/scarcity added to the
+    // close (previously the CTA never stated $150/mo or the seat count — the single biggest
+    // missing conversion lever). Re-run scripts/gen-vo-timestamped.mjs after any further edits.
+    id: "WhoWeAreWalkthrough",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Giselle",
+    audioOut: "who-we-are-walkthrough-vo.mp3",
+    script: [
+      // [Opening — Brand Belief]
+      "Somewhere right now, a funder is aligned with your mission — and you don't know it exists.",
+      "Funders. Partners. Resources. Government pathways. Relationships. Risks. Next steps.",
+      "The challenge is that most of that opportunity is scattered — across websites, portals, conversations, spreadsheets, deadlines, and institutional knowledge.",
+      "So even strong organizations can miss what is already connected to their mission.",
+      "That is the problem Anansi Atlas is built to solve.",
+      // [Product Reveal]
+      "Anansi Atlas helps mission-driven organizations map the web of opportunity around their mission.",
+      "Not a generic list. Not another database to search through.",
+      "But a clearer way to see the funders, partners, resources, pathways, readiness gaps, risks, and next steps that may matter most.",
+      // [Walkthrough Bridge]
+      "Here is what that looks like inside the platform — picture this mapped to your own mission.",
+      // [Dashboard]
+      "The dashboard begins with focus.",
+      "What to do next. Readiness signals. Relationship opportunities. Pathway health.",
+      "A clearer view of where your organization stands — and where it can move next.",
+      // [Opportunity Web]
+      "The Opportunity Web places your mission at the center.",
+      "Around it, Anansi Atlas organizes the opportunities and connections surrounding your work — funders, partners, government pathways, resources, risks, and practical next steps.",
+      // [Opportunity Web Snapshot]
+      "The Opportunity Web Snapshot turns that map into action.",
+      "It gives your team a mission-centered brief with aligned opportunities, readiness insights, and a practical 30-day action plan.",
+      "So instead of chasing scattered leads, your organization can move with more clarity and focus.",
+      // [Closing CTA]
+      "This is Anansi Atlas.",
+      "The Web of Opportunity, mapped around your mission.",
+      "We're currently inviting a limited group of mission-driven organizations to the Founding Atlas Partners Pilot — $150 a month, locked for life, while founding seats remain.",
+      "Apply at anansiatlas.com.",
+    ],
+  },
+  {
+    // JULY CONTENT CALENDAR — Wed Jul 8 hero "Platform Walkthrough" (content-center/07-content-
+    // calendar-july-2026.md). The month's highest-visibility product-proof asset: Dashboard ->
+    // Opportunity Web -> Snapshot, real screenshots, ends on the founding-seat CTA. Voice:
+    // Giselle (per Scott — calendar draft said Christopher, overridden to a female voice).
+    id: "Jul08-PlatformWalkthrough",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Giselle",
+    audioOut: "jul08-platform-walkthrough-vo.mp3",
+    script: [
+      "Let me show you the actual product. Not a mockup — the thing you'd use every day.",
+      "This is Anansi Atlas. Sign in, and your Dashboard opens with one card: What To Do Next, plus your readiness, relationship, and pathway health at a glance.",
+      "The Opportunity Web puts your mission at the center — funders, partners, government, resources, readiness, and pathways, orbiting it, so you see the whole landscape at once.",
+      "And your Snapshot leads with a 30-day action plan, ranked for your mission — not a wall of grants.",
+      "No pitch deck. This is the working software founding partners log into on day one.",
+      "Want the full walkthrough with your own data? It comes with your founding seat. Apply at anansiatlas.com.",
+    ],
+  },
+  {
+    // ONBOARDING TUTORIAL — "Getting Started with Anansi Atlas" (profile creation -> dashboard
+    // tour). Instructional, not a sales piece: no pilot CTA/pricing. Voice: Giselle (the
+    // calmer, explainer-toned female voice already used for Jul25-SnapshotScroll).
+    id: "DashboardWalkthrough",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Giselle",
+    audioOut: "dashboard-walkthrough-vo.mp3",
+    script: [
+      "Welcome to Anansi Atlas. Sign in, and let's take a tour — from setting up your profile to understanding your dashboard.",
+      "First, tell us about your organization — your mission, your programs, and where you work. Atlas builds your profile from there.",
+      "Home is your daily base: one clear next move, your health scores, and upcoming deadlines, readable in under a minute.",
+      "Snapshot is your executive brief: the summary, your Opportunity Web map, and a 30-day action plan, together in one place.",
+      "Ecosystem maps everything around your mission: funding, government, resources, partnerships, and relationships, as tabs of one view.",
+      "Opportunities is where you decide. Top picks first, all matches and discovery behind tabs. Track anything worth pursuing.",
+      "Pipeline is your lifecycle board: everything you committed to, from discovered to awarded, with deadlines flagged.",
+      "Readiness shows what stands between you and a competitive application, with documents and evidence one tab away.",
+      "And Organization is home for your profile, your wins, and your membership. Keep it fresh; everything else in the Atlas is built from it.",
+      "That's the tour, start to finish. You know your way around — come back anytime at anansiatlas.com.",
     ],
   },
   {

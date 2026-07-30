@@ -45,6 +45,41 @@ PY
 ```
 Always capture from **project pk=1 (Creative Display)**, never a real client's project — that keeps every rendered ad ad-safe by construction.
 
+#### ⚠️ Capture at 2× DPR for anything 1920×1080 (added 2026-07-29)
+
+The existing `public/screenshots/*.png` are all **1600×1000**. That was fine for 1080×1080 comps, but it is not enough for a 16:9 cinematic film that pushes in and *holds* on the UI:
+
+> `LaptopScreenshotPanel` at `width={1180}` with Ken Burns to `zoomTo` samples ~1,322 CSS px from a 1600 px source — **1.21× headroom**, and the panel is `objectFit: cover` on a 16:10 box, so it is effectively 1:1 at the end of the push. Visible softening on a projector, exactly when the room is staring at it.
+
+Fix — one argument, and **keep the viewport at 1600×1000**. `ScreenshotPanel` and `LaptopScreenshotPanel` both hardcode `aspectRatio: "16 / 10"`, so staying 16:10 makes this a zero-code-change sharpness win (3200×2000 output = 2.4× oversampling):
+
+```python
+ctx = browser.new_context(
+    viewport={"width": 1600, "height": 1000},
+    device_scale_factor=2,          # ← 3200×2000 PNG output
+)
+page = ctx.new_page()
+# … login as above …
+page.goto(url); page.wait_for_load_state("networkidle")
+# freeze animations + caret so the capture is deterministic frame-to-frame
+page.add_style_tag(content="*{animation:none!important;transition:none!important;caret-color:transparent!important}")
+page.wait_for_timeout(1200)         # let counters/charts settle
+page.screenshot(path=f"content-center/video-ads/public/screenshots/hd-{name}.png")
+```
+
+Shots the executive vision film wants as `hd-*` (see the `SHOT` map in `AnansiVisionFilm.tsx` — swapping them is a single edit there):
+
+| File | Scene | Note |
+|---|---|---|
+| `hd-dashboard.png` | 10 | mission-at-centre dashboard, held on screen for 27s |
+| `hd-web.png` | 11 | Opportunity Web with all six nodes visible |
+| `hd-opps-default.png` | 12 | opportunity list, **default** sort |
+| `hd-opps-peersize.png` | 12 | **same viewport, same scroll** — peer-size sort the ONLY difference |
+| `hd-card-verified.png` | 8 | tight crop of one card showing the ✓ Verified badge |
+| `hd-readiness.png` | 10 | optional b-shot |
+
+The two Sc12 captures are the hardest requirement in that film: if they differ by anything other than the sort control, the beat doesn't land and the audience reads it as a cut, not a re-sort.
+
 ## Render
 ```bash
 cd content-center/video-ads

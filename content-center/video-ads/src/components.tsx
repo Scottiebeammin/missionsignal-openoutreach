@@ -19,12 +19,19 @@ import { fontFamily as sans } from "@remotion/google-fonts/Inter";
 export const SERIF = serif;
 export const SANS = sans;
 
-/** Deep navy background with a subtle radial glow + faint web threads (tasteful, not spidery). */
-export const NavyBG: React.FC<{ children?: React.ReactNode; w?: number; h?: number }> = ({
-  children,
-  w = SIZE,
-  h = SIZE,
-}) => {
+/**
+ * Deep navy background with a subtle radial glow + faint web threads (tasteful, not spidery).
+ *
+ * `threads` scales the radial thread layer (1 = the established look, 0 = off). The vision
+ * film dials this down in its acentric constellation scenes, where a centred radial hub
+ * fights the drifting NodeField and reads closer to a literal web than we want.
+ */
+export const NavyBG: React.FC<{
+  children?: React.ReactNode;
+  w?: number;
+  h?: number;
+  threads?: number;
+}> = ({ children, w = SIZE, h = SIZE, threads = 1 }) => {
   return (
     <AbsoluteFill
       style={{
@@ -32,18 +39,18 @@ export const NavyBG: React.FC<{ children?: React.ReactNode; w?: number; h?: numb
         fontFamily: SANS,
       }}
     >
-      <WebThreads w={w} h={h} />
+      {threads > 0 ? <WebThreads w={w} h={h} strength={threads} /> : null}
       {children}
     </AbsoluteFill>
   );
 };
 
 /** Faint gold radial threads — abstract network motif, NEVER a literal spider. */
-const WebThreads: React.FC<{ w: number; h: number }> = ({ w, h }) => {
+const WebThreads: React.FC<{ w: number; h: number; strength?: number }> = ({ w, h, strength = 1 }) => {
   const cx = w / 2;
   const cy = h / 2;
   return (
-    <AbsoluteFill style={{ opacity: 0.1 }}>
+    <AbsoluteFill style={{ opacity: 0.1 * strength }}>
       <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
         {Array.from({ length: 16 }).map((_, i) => {
           const a = (i / 16) * Math.PI * 2;
@@ -515,6 +522,130 @@ export const ScreenshotPanel: React.FC<{
   );
 };
 
+/** The same browser-chrome screenshot as ScreenshotPanel, set into a CSS laptop mockup (screen
+ *  bezel + hinge + keyboard deck) instead of floating flat. Self-contained — no environment
+ *  photo required (unlike LaptopFrame, which needs an envSrc office shot). */
+export const LaptopScreenshotPanel: React.FC<{
+  src: string;
+  label?: string;
+  zoomFrom?: number;
+  zoomTo?: number;
+  panX?: [number, number];
+  panY?: [number, number];
+  durationInFrames: number;
+  width?: number;
+  delay?: number;
+  glow?: string;
+}> = ({ src, label, zoomFrom = 1, zoomTo = 1.12, panX = [0, 0], panY = [0, -4], durationInFrames, width = 900, delay = 0, glow }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const scale = interpolate(frame, [0, durationInFrames], [zoomFrom, zoomTo], { extrapolateRight: "clamp" });
+  const tx = interpolate(frame, [0, durationInFrames], panX, { extrapolateRight: "clamp" });
+  const ty = interpolate(frame, [0, durationInFrames], panY, { extrapolateRight: "clamp" });
+  const s = spring({ frame: frame - delay, fps, config: { damping: 16, mass: 0.9 } });
+  const entranceScale = interpolate(s, [0, 1], [0.88, 1]);
+  const opacity = interpolate(frame - delay, [0, 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const screenH = (width * 10) / 16 + 44; // 16:10 content + browser chrome bar
+
+  return (
+    <div style={{ position: "relative", opacity, transform: `scale(${entranceScale})`, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      {/* colorful under-glow */}
+      <div
+        style={{
+          position: "absolute",
+          inset: -70,
+          borderRadius: 60,
+          background: glow ?? "radial-gradient(ellipse at 30% 15%, rgba(212,160,23,0.32) 0%, rgba(58,108,200,0.24) 45%, transparent 75%)",
+          filter: "blur(50px)",
+        }}
+      />
+      {/* laptop screen bezel */}
+      <div
+        style={{
+          position: "relative",
+          width,
+          height: screenH,
+          borderRadius: "16px 16px 5px 5px",
+          background: "linear-gradient(160deg, #232d44 0%, #0a0f1c 100%)",
+          border: "1px solid rgba(255,255,255,0.2)",
+          boxShadow: "0 40px 100px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)",
+          padding: 14,
+        }}
+      >
+        {/* front camera dot */}
+        <div style={{ position: "absolute", top: 5, left: "50%", width: 5, height: 5, borderRadius: 999, background: "#2a3550", transform: "translateX(-50%)" }} />
+        <div style={{ width: "100%", height: "100%", borderRadius: 8, overflow: "hidden", background: "#1b2a4a" }}>
+          {/* browser chrome bar */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "#16233f" }}>
+            <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ width: 9, height: 9, borderRadius: 999, background: "#e5695b" }} />
+              <div style={{ width: 9, height: 9, borderRadius: 999, background: "#e5b93f" }} />
+              <div style={{ width: 9, height: 9, borderRadius: 999, background: "#57b76b" }} />
+            </div>
+            <div
+              style={{
+                marginLeft: 8,
+                padding: "3px 12px",
+                borderRadius: 999,
+                background: "rgba(255,255,255,0.06)",
+                color: BRAND.muted,
+                fontFamily: SANS,
+                fontSize: 11,
+                fontWeight: 700,
+              }}
+            >
+              {label || "anansiatlas.com"}
+            </div>
+          </div>
+          {/* screenshot with Ken Burns motion */}
+          <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 10", overflow: "hidden" }}>
+            <Img
+              src={src}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "top",
+                transform: `scale(${scale}) translate(${tx}px, ${ty}px)`,
+                transformOrigin: "top center",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      {/* hinge */}
+      <div style={{ width: width * 0.97, height: 6, background: "linear-gradient(180deg, #0a0f1c 0%, #1b2333 100%)" }} />
+      {/* keyboard deck */}
+      <div
+        style={{
+          position: "relative",
+          width: width * 1.1,
+          height: 18,
+          borderRadius: "2px 2px 12px 12px",
+          background: "linear-gradient(180deg, #2a3348 0%, #141a2b 55%, #0d1120 100%)",
+          boxShadow: "0 16px 34px rgba(0,0,0,0.5)",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            bottom: -1,
+            transform: "translateX(-50%)",
+            width: width * 0.16,
+            height: 6,
+            borderRadius: "0 0 8px 8px",
+            background: "rgba(0,0,0,0.35)",
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
 /** Genuine motion-graphics logo reveal: gold threads converge from the edges into the wordmark. */
 export const AnimatedLogoReveal: React.FC<{ delay?: number }> = ({ delay = 0 }) => {
   const frame = useCurrentFrame();
@@ -849,6 +980,810 @@ export const DeviceFrame: React.FC<{
         {/* front camera dot */}
         <div style={{ position: "absolute", top: 7, left: "50%", width: 6, height: 6, borderRadius: 999, background: "#2a3550", transform: "translateX(-50%)" }} />
       </div>
+    </div>
+  );
+};
+
+// ═════════════════════════════════════════════════════════════════════════════
+// EXECUTIVE VISION FILM SYSTEM
+// Added 2026-07-29 for oneoffs/AnansiVisionFilm.tsx (Orange County FL screening).
+//
+// Every component below is a PURE FUNCTION of useCurrentFrame() — no GSAP ticker,
+// no Three.js Clock, no DOM measurement, no Math.random. Remotion renders frames
+// out of order, so anything else is non-deterministic (BRAND-TEMPLATE.md §0d).
+//
+// Motion register for this system: motion GUIDES attention, it never performs.
+// Cubic ease-out on entrances, ease-in on exits, no spring overshoot, no bounce.
+// Everything animates fully IN and fully OUT before its clip ends (§0c rule #1).
+// ═════════════════════════════════════════════════════════════════════════════
+
+/** Cubic ease-out — the entrance curve used across the whole vision-film system. */
+const easeOut3 = (p: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, p)), 3);
+/** Quadratic ease-in — the exit curve. Slower to leave than to arrive. */
+const easeIn2 = (p: number) => Math.pow(Math.min(1, Math.max(0, p)), 2);
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+/**
+ * Seeded PRNG — deterministic scatter with no Math.random in a render path.
+ * Promoted out of oneoffs/WebOfOpportunityFilm.tsx so NodeField/ActBridge share
+ * the exact generator the approved launch film used.
+ */
+export function makePrng(seed: number) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+/**
+ * Gradient-mesh atmosphere — four slow drifting colour blobs behind everything.
+ * Promoted out of oneoffs/WebOfOpportunityFilm.tsx (was module-private there).
+ * Palette is film-register only: gold / cream / blue on navy. No teal, no rose.
+ */
+export const GradientMesh: React.FC<{ opacity?: number }> = ({ opacity = 0.5 }) => {
+  const frame = useCurrentFrame();
+  const t = frame / 30;
+  const blobs = [
+    { color: "222,168,28", x: 22 + Math.sin(t * 0.21) * 8, y: 24 + Math.cos(t * 0.17) * 7, r: 38 },
+    { color: "58,108,200", x: 76 + Math.sin(t * 0.16 + 2) * 9, y: 68 + Math.cos(t * 0.19 + 1) * 8, r: 42 },
+    { color: "243,221,140", x: 55 + Math.sin(t * 0.13 + 4) * 10, y: 30 + Math.cos(t * 0.15 + 3) * 9, r: 30 },
+    { color: "40,78,160", x: 34 + Math.sin(t * 0.18 + 5.5) * 9, y: 74 + Math.cos(t * 0.14 + 4.5) * 7, r: 32 },
+  ];
+  return (
+    <AbsoluteFill style={{ opacity, filter: "blur(70px)" }}>
+      {blobs.map((b, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            left: `${b.x - b.r / 2}%`,
+            top: `${b.y - b.r / 2}%`,
+            width: `${b.r}%`,
+            height: `${b.r}%`,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, rgba(${b.color},0.9) 0%, rgba(${b.color},0) 70%)`,
+          }}
+        />
+      ))}
+    </AbsoluteFill>
+  );
+};
+
+export type HyperFrameWord = string | { word: string; hold?: number; color?: string };
+
+/** Total frame length of a HyperFrames run — so the beat map never has to guess. */
+export const hyperFramesLength = (n: number, hold = 42, enter = 16, exit = 14, gap = 8) =>
+  n * (enter + hold + exit) + Math.max(0, n - 1) * gap;
+
+/**
+ * HYPERFRAMES — single-word cinematic typography. One word owns the frame, enters by
+ * contracting its own letter-spacing (not by sliding), holds with a near-imperceptible
+ * tracking drift so it is never a static freeze, and fully exits before the next word
+ * begins. The film's connective typographic device; recurs once per act.
+ *
+ * Deliberately NOT spring-driven — `Rise`/`GsapRise` overshoot, and this register bans
+ * bouncy easing. Renders nothing outside its slots, so it is free to leave mounted.
+ */
+export const HyperFrames: React.FC<{
+  words: HyperFrameWord[];
+  at?: number;
+  hold?: number;
+  enter?: number;
+  exit?: number;
+  gap?: number;
+  size?: number;
+  face?: "serif" | "sans";
+  color?: string;
+  outline?: boolean;
+  trackFrom?: number;
+  trackTo?: number;
+  y?: number;
+}> = ({
+  words,
+  at = 0,
+  hold = 42,
+  enter = 16,
+  exit = 14,
+  gap = 8,
+  size = 168,
+  face = "serif",
+  color = BRAND.white,
+  outline = false,
+  trackFrom = 0.3,
+  trackTo = 0.09,
+  y = 0,
+}) => {
+  const frame = useCurrentFrame();
+  const local = frame - at;
+
+  // Slot layout is pure arithmetic — no state, no memo needed.
+  let cursor = 0;
+  const slots = words.map((w) => {
+    const word = typeof w === "string" ? w : w.word;
+    const h = typeof w === "string" ? hold : w.hold ?? hold;
+    const c = typeof w === "string" ? undefined : w.color;
+    const slot = { start: cursor, end: cursor + enter + h + exit, word, hold: h, color: c };
+    cursor += enter + h + exit + gap;
+    return slot;
+  });
+
+  const active = slots.find((s) => local >= s.start && local < s.end);
+  if (!active) return null;
+
+  const l = local - active.start;
+  const e = easeOut3(l / enter);
+  const f = easeIn2((l - enter - active.hold) / exit);
+  // Tracking keeps drifting a hair through the hold — invisible per frame, alive over 1.5s.
+  const holdT = Math.min(1, Math.max(0, (l - enter) / Math.max(1, active.hold)));
+  const tracking = lerp(trackFrom, trackTo, e) + holdT * 0.004;
+
+  return (
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+      <div
+        style={{
+          fontFamily: face === "serif" ? SERIF : SANS,
+          fontWeight: face === "serif" ? 600 : 800,
+          fontSize: size,
+          lineHeight: 1.0,
+          textTransform: "uppercase",
+          textAlign: "center",
+          color: outline ? "transparent" : active.color ?? color,
+          WebkitTextStroke: outline ? `1.5px ${BRAND.goldLight}` : undefined,
+          letterSpacing: `${tracking}em`,
+          // Uppercase + letter-spacing adds a trailing gap; nudge back to true centre.
+          textIndent: `${tracking}em`,
+          opacity: e * (1 - f),
+          transform: `translateY(${y - 10 * f}px) scale(${0.985 + 0.015 * e})`,
+          filter: f > 0 ? `blur(${3 * f}px)` : undefined,
+          padding: "0 80px",
+        }}
+      >
+        {active.word}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/**
+ * THREAD RULE — a single gold hairline that draws between two points and later retracts.
+ * The atomic unit of the web motif. Used in-scene (Sc01 horizon, Sc03 the connection
+ * between two orgs, Sc06 under each figure) so the web reads as a recurring MOTIF
+ * rather than only a transition effect.
+ *
+ * Coordinates are percentages of the frame, so it is resolution-independent.
+ */
+export const ThreadRule: React.FC<{
+  from: [number, number];
+  to: [number, number];
+  at?: number;
+  draw?: number;
+  hold?: number;
+  out?: number;
+  color?: string;
+  width?: number;
+  opacity?: number;
+  dots?: boolean;
+}> = ({
+  from,
+  to,
+  at = 0,
+  draw = 40,
+  hold = 60,
+  out = 20,
+  color = BRAND.gold,
+  width = 1.5,
+  opacity = 0.75,
+  dots = false,
+}) => {
+  const frame = useCurrentFrame();
+  const l = frame - at;
+  if (l < 0 || l > draw + hold + out) return null;
+
+  const p = easeOut3(l / draw);
+  const fade = easeIn2((l - draw - hold) / out);
+  const x2 = lerp(from[0], to[0], p);
+  const y2 = lerp(from[1], to[1], p);
+  const op = opacity * (1 - fade);
+
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      <svg width="100%" height="100%" style={{ overflow: "visible" }}>
+        <line
+          x1={`${from[0]}%`}
+          y1={`${from[1]}%`}
+          x2={`${x2}%`}
+          y2={`${y2}%`}
+          stroke={color}
+          strokeWidth={width}
+          strokeOpacity={op}
+          strokeLinecap="round"
+        />
+        {dots ? (
+          <>
+            <circle cx={`${from[0]}%`} cy={`${from[1]}%`} r={4} fill={color} fillOpacity={op} />
+            <circle cx={`${to[0]}%`} cy={`${to[1]}%`} r={4} fill={color} fillOpacity={op * p} />
+          </>
+        ) : null}
+      </svg>
+    </AbsoluteFill>
+  );
+};
+
+/**
+ * NODE FIELD — a seeded constellation that drifts very slowly, with optional
+ * highlighted nodes. Generalized from ParticleLogoOpen in the launch film.
+ * Carries the web motif in 2D at native resolution (we deliberately do NOT use the
+ * Three.js globe here — a rotating Earth reads "global SaaS" to a county audience).
+ */
+export const NodeField: React.FC<{
+  w?: number;
+  h?: number;
+  count?: number;
+  seed?: number;
+  opacity?: number;
+  highlight?: number[];
+  connect?: boolean;
+  at?: number;
+  fadeIn?: number;
+}> = ({
+  w = SIZE,
+  h = SIZE,
+  count = 9,
+  seed = 20260729,
+  opacity = 0.18,
+  highlight = [],
+  connect = true,
+  at = 0,
+  fadeIn = 40,
+}) => {
+  const frame = useCurrentFrame();
+  const t = frame / 30;
+  const appear = easeOut3((frame - at) / fadeIn);
+  if (appear <= 0) return null;
+
+  const rnd = makePrng(seed);
+  const pts = Array.from({ length: count }).map(() => ({
+    x: 12 + rnd() * 76,
+    y: 16 + rnd() * 68,
+    ph: rnd() * Math.PI * 2,
+    sp: 0.05 + rnd() * 0.06,
+  }));
+  const at2 = pts.map((p) => ({
+    x: p.x + Math.sin(t * p.sp + p.ph) * 1.1,
+    y: p.y + Math.cos(t * p.sp * 0.8 + p.ph) * 0.9,
+  }));
+
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      <svg width="100%" height="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+        {connect
+          ? at2.map((a, i) => {
+              // Each node links to its single nearest neighbour — a loose constellation,
+              // never a radial hub (that grammar belongs to OrbWeb).
+              let best = -1;
+              let bd = Infinity;
+              at2.forEach((b, j) => {
+                if (j === i) return;
+                const d = (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+                if (d < bd) {
+                  bd = d;
+                  best = j;
+                }
+              });
+              if (best < 0 || best < i) return null;
+              const b = at2[best];
+              return (
+                <line
+                  key={`e${i}`}
+                  x1={(a.x / 100) * w}
+                  y1={(a.y / 100) * h}
+                  x2={(b.x / 100) * w}
+                  y2={(b.y / 100) * h}
+                  stroke={BRAND.gold}
+                  strokeWidth={1}
+                  strokeOpacity={opacity * appear * 0.8}
+                />
+              );
+            })
+          : null}
+        {at2.map((a, i) => {
+          const hot = highlight.includes(i);
+          const pulse = hot ? 0.85 + Math.sin(t * 1.1) * 0.15 : 1;
+          return (
+            <circle
+              key={`n${i}`}
+              cx={(a.x / 100) * w}
+              cy={(a.y / 100) * h}
+              r={hot ? 7 : 3.5}
+              fill={hot ? BRAND.goldLight : BRAND.gold}
+              fillOpacity={(hot ? 0.95 * pulse : opacity * 1.6) * appear}
+            />
+          );
+        })}
+      </svg>
+    </AbsoluteFill>
+  );
+};
+
+/**
+ * ACT BRIDGE — an animated connection web that draws THROUGH an act cut, peaking exactly
+ * on the boundary so the audience sees the network connect, then the new act.
+ *
+ * Deliberately the same boundaries[] overlay API as SceneDissolve (not a TransitionSeries)
+ * so it is timing-safe and cannot desync fixed-frame captions — see SceneDissolve above.
+ *
+ * Complements rather than duplicates:
+ *   SceneDissolve — dip only, no geometry        → the 13 in-act cuts
+ *   OrbWeb        — radial, hub-centred, labelled, diegetic (it IS the product)
+ *   ActBridge     — acentric, unlabelled, non-diegetic (connective tissue)
+ * Pass DISJOINT boundary arrays; never both at the same frame.
+ */
+export const ActBridge: React.FC<{
+  boundaries: number[];
+  w?: number;
+  h?: number;
+  lead?: number;
+  tail?: number;
+  nodes?: number;
+  dip?: number;
+  seed?: number;
+  label?: (string | null)[];
+}> = ({
+  boundaries,
+  w = SIZE,
+  h = SIZE,
+  lead = 40,
+  tail = 40,
+  nodes = 11,
+  dip = 0.62,
+  seed = 20260729,
+  label,
+}) => {
+  const frame = useCurrentFrame();
+
+  const idx = boundaries.findIndex((b) => frame >= b - lead && frame <= b + tail);
+  if (idx < 0) return null;
+  const b = boundaries[idx];
+
+  // Geometry — pure arithmetic from the seed, identical on every frame.
+  const rnd = makePrng(seed + idx * 977);
+  const cx = w / 2;
+  const cy = h / 2;
+  const homes = Array.from({ length: nodes }).map(() => {
+    const x = (12 + rnd() * 76) * (w / 100);
+    const y = (12 + rnd() * 76) * (h / 100);
+    return { x, y };
+  });
+  // Each node flies in from off-frame along the centre→home vector.
+  const origins = homes.map((p) => ({
+    x: cx + (p.x - cx) * 1.9,
+    y: cy + (p.y - cy) * 1.9,
+  }));
+
+  const pIn = easeOut3((frame - (b - lead)) / lead);
+  const pOut = easeIn2((frame - b) / tail);
+
+  const pos = homes.map((home, i) => {
+    const o = origins[i];
+    // Continue drifting ~6% past home during the out-phase so nothing freezes.
+    const t = pIn + pOut * 0.06;
+    return { x: lerp(o.x, home.x, t), y: lerp(o.y, home.y, t) };
+  });
+
+  // Edges: 2 nearest neighbours per node, deduped — plus no hub, ever.
+  const edges: [number, number][] = [];
+  const seen = new Set<string>();
+  homes.forEach((a, i) => {
+    const near = homes
+      .map((c, j) => ({ j, d: (a.x - c.x) ** 2 + (a.y - c.y) ** 2 }))
+      .filter((n) => n.j !== i)
+      .sort((p, q) => p.d - q.d)
+      .slice(0, 2);
+    near.forEach((n) => {
+      const k = i < n.j ? `${i}-${n.j}` : `${n.j}-${i}`;
+      if (!seen.has(k)) {
+        seen.add(k);
+        edges.push([i, n.j]);
+      }
+    });
+  });
+
+  const alpha = pIn * (1 - pOut);
+  const navyDip = interpolate(frame, [b - lead * 0.7, b, b + tail * 0.7], [0, dip, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const text = label?.[idx] ?? null;
+  const labelOp = text
+    ? interpolate(frame, [b - 14, b, b + 14], [0, 1, 0], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      })
+    : 0;
+
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      <AbsoluteFill style={{ background: BRAND.navy, opacity: navyDip }} />
+      <svg width="100%" height="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+        {edges.map(([i, j], k) => {
+          const a = pos[i];
+          const c = pos[j];
+          // Draw by interpolating the endpoint — same technique as OrbWeb, so the two
+          // read as one visual family, and it stays a pure function of frame.
+          const drawn = easeOut3((pIn - (k % 5) * 0.05) / 0.7);
+          return (
+            <line
+              key={`e${k}`}
+              x1={a.x}
+              y1={a.y}
+              x2={a.x + (c.x - a.x) * drawn}
+              y2={a.y + (c.y - a.y) * drawn}
+              stroke={BRAND.gold}
+              strokeWidth={1.4}
+              strokeOpacity={0.55 * alpha}
+            />
+          );
+        })}
+        {pos.map((p, i) => (
+          <circle key={`n${i}`} cx={p.x} cy={p.y} r={4} fill={BRAND.goldLight} fillOpacity={0.9 * alpha} />
+        ))}
+      </svg>
+      {text ? (
+        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+          <div
+            style={{
+              fontFamily: SANS,
+              fontWeight: 800,
+              fontSize: 22,
+              letterSpacing: "0.28em",
+              textTransform: "uppercase",
+              color: BRAND.goldLight,
+              opacity: labelOp,
+            }}
+          >
+            {text}
+          </div>
+        </AbsoluteFill>
+      ) : null}
+    </AbsoluteFill>
+  );
+};
+
+/**
+ * CONCEPT FRAME — the Act IV register. Everything inside it reads as UNBUILT.
+ *
+ * This is the film's largest credibility exposure: a room of county officials must never
+ * mistake a wireframe for shipped product. Defence is layered so no single failure exposes
+ * us — desaturation, a blueprint grid, and a persistent dashed "CONCEPT · NOT BUILT" chip.
+ * The other three layers live in the film itself: zero screenshots in Act IV, outline
+ * typography, and a reverse un-draw on the last wireframe.
+ */
+export const ConceptFrame: React.FC<{
+  children?: React.ReactNode;
+  at?: number;
+  enter?: number;
+  exit?: number;
+  durationInFrames?: number;
+  chip?: string;
+  grid?: number;
+}> = ({
+  children,
+  at = 0,
+  enter = 20,
+  exit = 20,
+  durationInFrames,
+  chip = "CONCEPT · NOT BUILT",
+  grid = 48,
+}) => {
+  const frame = useCurrentFrame();
+  const l = frame - at;
+  const pIn = easeOut3(l / enter);
+  const pOut = durationInFrames ? easeIn2((l - (durationInFrames - exit)) / exit) : 0;
+  const on = pIn * (1 - pOut);
+
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill style={{ filter: `saturate(${lerp(1, 0.55, on)})` }}>{children}</AbsoluteFill>
+      {/* blueprint grid — draws on as the register changes */}
+      <AbsoluteFill
+        style={{
+          opacity: 0.06 * on,
+          backgroundImage: `linear-gradient(${BRAND.gold} 1px, transparent 1px), linear-gradient(90deg, ${BRAND.gold} 1px, transparent 1px)`,
+          backgroundSize: `${grid}px ${grid}px`,
+        }}
+      />
+      <AbsoluteFill style={{ alignItems: "flex-end", justifyContent: "flex-start", padding: 54 }}>
+        <div
+          style={{
+            opacity: on,
+            border: `1px dashed ${BRAND.goldLight}`,
+            borderRadius: 6,
+            padding: "9px 16px",
+            fontFamily: SANS,
+            fontWeight: 800,
+            fontSize: 18,
+            letterSpacing: "0.24em",
+            color: BRAND.goldLight,
+            textTransform: "uppercase",
+          }}
+        >
+          {chip}
+        </div>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+/**
+ * WIRE BLOCK — a hairline rectangle that draws itself stroke-by-stroke and can UN-DRAW
+ * in reverse. The Act IV primitive. Never fills, never colours in: an outline that
+ * retracts is the strongest non-verbal statement of "this does not exist yet."
+ *
+ * Perimeter is computed analytically (not via getTotalLength) so it stays frame-pure.
+ */
+export const WireBlock: React.FC<{
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  at?: number;
+  draw?: number;
+  undrawAt?: number;
+  undraw?: number;
+  label?: string;
+  color?: string;
+  radius?: number;
+  rows?: number;
+}> = ({
+  x,
+  y,
+  w,
+  h,
+  at = 0,
+  draw = 30,
+  undrawAt,
+  undraw = 24,
+  label,
+  color = BRAND.goldLight,
+  radius = 4,
+  rows = 0,
+}) => {
+  const frame = useCurrentFrame();
+  const l = frame - at;
+  if (l < 0) return null;
+
+  const p = easeOut3(l / draw);
+  const back = undrawAt !== undefined ? easeIn2((frame - undrawAt) / undraw) : 0;
+  const shown = Math.max(0, p - back);
+  if (shown <= 0) return null;
+
+  const perim = 2 * (w + h);
+
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      <svg width="100%" height="100%" style={{ overflow: "visible" }}>
+        <rect
+          x={`${x}%`}
+          y={`${y}%`}
+          width={`${w}%`}
+          height={`${h}%`}
+          rx={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={1.25}
+          strokeOpacity={0.85}
+          pathLength={perim}
+          strokeDasharray={perim}
+          strokeDashoffset={perim * (1 - shown)}
+        />
+        {Array.from({ length: rows }).map((_, i) => {
+          const ry = y + (h / (rows + 1)) * (i + 1);
+          const rp = Math.max(0, Math.min(1, (shown - 0.5 - i * 0.08) / 0.4));
+          return (
+            <line
+              key={i}
+              x1={`${x + 2}%`}
+              y1={`${ry}%`}
+              x2={`${x + 2 + (w - 4) * rp}%`}
+              y2={`${ry}%`}
+              stroke={color}
+              strokeWidth={1}
+              strokeOpacity={0.4 * rp}
+            />
+          );
+        })}
+      </svg>
+      {label ? (
+        <div
+          style={{
+            position: "absolute",
+            left: `${x}%`,
+            top: `calc(${y}% - 26px)`,
+            opacity: shown,
+            fontFamily: SANS,
+            fontWeight: 800,
+            fontSize: 15,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color,
+          }}
+        >
+          {label}
+        </div>
+      ) : null}
+    </AbsoluteFill>
+  );
+};
+
+/**
+ * UI SPOTLIGHT — a gold hairline rectangle drawn in panel-relative percentages, plus an
+ * optional soft vignette. Points at one control in a screenshot WITHOUT a fake cursor
+ * (a drawn cursor implies interaction we aren't performing, and reads as demo-ware).
+ */
+export const UISpotlight: React.FC<{
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  at?: number;
+  draw?: number;
+  hold?: number;
+  out?: number;
+  vignette?: number;
+  label?: string;
+}> = ({ x, y, w, h, at = 0, draw = 22, hold = 90, out = 18, vignette = 0.36, label }) => {
+  const frame = useCurrentFrame();
+  const l = frame - at;
+  if (l < 0 || l > draw + hold + out) return null;
+
+  const p = easeOut3(l / draw);
+  const fade = easeIn2((l - draw - hold) / out);
+  const on = p * (1 - fade);
+  const perim = 2 * (w + h);
+
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      {vignette > 0 ? (
+        <AbsoluteFill
+          style={{
+            opacity: on * vignette,
+            background: `radial-gradient(ellipse ${w * 2.4}% ${h * 3.2}% at ${x + w / 2}% ${
+              y + h / 2
+            }%, transparent 0%, rgba(4,9,20,0.92) 100%)`,
+          }}
+        />
+      ) : null}
+      <svg width="100%" height="100%" style={{ overflow: "visible" }}>
+        <rect
+          x={`${x}%`}
+          y={`${y}%`}
+          width={`${w}%`}
+          height={`${h}%`}
+          rx={5}
+          fill="none"
+          stroke={BRAND.gold}
+          strokeWidth={2}
+          strokeOpacity={on}
+          pathLength={perim}
+          strokeDasharray={perim}
+          strokeDashoffset={perim * (1 - p)}
+        />
+      </svg>
+      {label ? (
+        <div
+          style={{
+            position: "absolute",
+            left: `${x}%`,
+            top: `calc(${y + h}% + 14px)`,
+            opacity: on,
+            fontFamily: SANS,
+            fontWeight: 800,
+            fontSize: 20,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: BRAND.goldLight,
+          }}
+        >
+          {label}
+        </div>
+      ) : null}
+    </AbsoluteFill>
+  );
+};
+
+/**
+ * COUNT-UP FIGURE — a number that counts to its value on a cubic ease and settles, with a
+ * gold hairline drawing beneath it and a wide-tracked label below. Generalized from the
+ * CountUpMoney pattern in oneoffs/BamOrlandoPresentation.tsx, minus the spring (no
+ * overshoot in this register).
+ *
+ * `format` receives the eased value so callers own their own units — every figure in this
+ * film traces to a real source, so nothing is formatted speculatively here.
+ */
+export const CountUpFigure: React.FC<{
+  value: number;
+  format?: (n: number) => string;
+  label?: string;
+  at?: number;
+  count?: number;
+  size?: number;
+  labelSize?: number;
+  color?: string;
+  rule?: boolean;
+  outFrom?: number;
+  out?: number;
+}> = ({
+  value,
+  format = (n) => Math.round(n).toLocaleString("en-US"),
+  label,
+  at = 0,
+  count = 70,
+  size = 104,
+  labelSize = 18,
+  color = BRAND.goldLight,
+  rule = true,
+  outFrom,
+  out = 18,
+}) => {
+  const frame = useCurrentFrame();
+  const l = frame - at;
+  if (l < 0) return null;
+
+  const p = easeOut3(l / count);
+  const appear = easeOut3(l / 14);
+  const fade = outFrom !== undefined ? easeIn2((frame - outFrom) / out) : 0;
+  const on = appear * (1 - fade);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 10,
+        opacity: on,
+        transform: `translateY(${8 * (1 - appear) + 8 * fade}px)`,
+      }}
+    >
+      <div
+        style={{
+          fontFamily: SERIF,
+          fontWeight: 700,
+          fontSize: size,
+          lineHeight: 1,
+          color,
+          letterSpacing: "-0.02em",
+          fontVariantNumeric: "tabular-nums",
+        }}
+      >
+        {format(value * p)}
+      </div>
+      {rule ? (
+        <div
+          style={{
+            width: `${72 * easeOut3((l - 8) / 30)}px`,
+            height: 1,
+            background: BRAND.gold,
+            opacity: 0.7,
+          }}
+        />
+      ) : null}
+      {label ? (
+        <div
+          style={{
+            fontFamily: SANS,
+            fontWeight: 800,
+            fontSize: labelSize,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: BRAND.muted,
+            textAlign: "center",
+          }}
+        >
+          {label}
+        </div>
+      ) : null}
     </div>
   );
 };
