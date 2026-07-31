@@ -84,25 +84,27 @@ const H = 1080;
 // Scene N occupies [B[N-1], B[N]). Scene 01 IS the silent lead; VO starts at B[1].
 // Phase 3: re-derive these from public/anansi-vision-film-vo.alignment.json.
 // ─────────────────────────────────────────────────────────────────────────────
-const B = [
-  //  s01   s02   s03   s04 | s05   s06   s07   s08 | s09
-  0, 150, 810, 1440, 1830, 2130, 2910, 3660, 4110,
-  //  s10   s11   s12   s13 | s14   s15   s16 | s17   s18   END
-  4560, 5370, 6060, 6810, 7230, 7680, 8430, 9240, 9870, 10920,
-];
+// B is COMPUTED, not hand-written (2026-07-30). It was a literal array, which meant
+// any script edit — a reworded line changes its spoken length — required re-deriving
+// all eighteen boundaries by hand, with a silent desync as the penalty for getting
+// one wrong. Dropping the word "money" from Sc02 proved the point: regenerating the
+// VO moved every line, and TTS pacing drift alone added ~14s across the film.
+//
+// TAIL was derived FROM the literal B it replaced (dur - LEAD - line) and round-trips
+// to it exactly, so this refactor was a no-op at the moment it landed.
+//
+// Sc17/Sc18 each gained 120f when the CTA and the Orange County line went in — hence
+// their long tails. Sc01 was cut 600f -> 150f (Scott, 2026-07-30): a 20s silent open
+// tested as too long. NOTE that cut forced the removal of Sc01's MISSION -> COMMUNITY
+// -> POSSIBILITY hyperframe, which alone ran 294f and cannot fit inside 150f. That was
+// the film's opening statement — flagged, not silently dropped.
+const SILENT_LEAD = 150; // Sc01, music only
 
-// Sc17/Sc18 each gained 120f when the CTA and the Orange County line went in.
-// Sc01 was then cut 600f -> 150f (Scott, 2026-07-30): a 20s silent open tested as
-// too long, so everything from B[1] shifts -450. NOTE this forced the removal of
-// Sc01's MISSION -> COMMUNITY -> POSSIBILITY hyperframe, which alone ran 294f and
-// cannot fit inside 150f. That was the film's opening statement — flagged, not
-// silently dropped.
-export const VISION_TOTAL = B[18]; // 10,920f = 6:04 @ 30fps
+/** Frames of silence before each scene's narration begins — the room breathes first. */
+const LEAD = [60, 60, 70, 60, 70, 40, 60, 30, 80, 70, 40, 60, 70, 90, 90, 70, 60];
+/** Frames of silence after it ends — how long each beat is allowed to hang. */
+const TAIL = [114, 107, 108, 94, 113, 148, 72, 214, 188, 116, 84, 73, 131, 132, 128, 107, 231];
 
-/** Act boundaries — the connection web draws THROUGH these cuts. */
-const ACT_CUTS = [B[4], B[8], B[13], B[16]];
-/** Everything else gets the quieter dip. DISJOINT from ACT_CUTS — never both. */
-const SCENE_CUTS = [B[1], B[2], B[3], B[5], B[6], B[7], B[9], B[10], B[11], B[12], B[14], B[15], B[17]];
 const ACT_LABELS = ["II · DISCOVERY", "III · REALIZATION", "IV · VISION", "V · PARTNERSHIP"];
 
 // Screenshots. Phase 4 swaps these for 2× DPR `hd-*` recaptures (see oneoffs/README.md).
@@ -120,44 +122,60 @@ const SHOT = {
 };
 
 /**
+ * The walkthrough's org is swappable per audience (Scott, 2026-07-30).
+ *
+ * Default is Empowered Girls Inc. (project 14) — the real founding partner, which is
+ * what the OCFL/grantmaker cut must show, because Sc17 names them out loud.
+ * `AnansiVisionFilmBAM` overrides `dashboard` + `web` with BAM Orlando's own screens
+ * so the film can be shown IN a BAM pitch and feel like theirs.
+ *
+ * ⚠️ Sc12's A/B pair is deliberately NOT overridden. Its narration says
+ * "twenty-five-thousand-dollar grants to organizations the same size" — $25,000 is
+ * EGI's size band. BAM's band is $5,000. Pointing Sc12 at BAM's capture would put a
+ * $5,000 screen under a $25,000 voice-over. Changing that beat honestly needs the
+ * line re-voiced, not the screenshot swapped.
+ */
+const ShotCtx = React.createContext<typeof SHOT>(SHOT);
+
+/**
  * ── VO SLICING ───────────────────────────────────────────────────────────────
  * scripts/generate-vo.mjs joins the script into ONE continuous MP3, which cannot
  * hold this film's silent passages (Sc01 is music alone; Sc16 un-draws in
  * silence). So we generate once with gen-vo-timestamped.mjs and slice the master
  * per line with <Audio startFrom endAt>.
  *
- * [srcFrom, srcTo] are frames INTO public/anansi-vision-film-vo.mp3 (257.2s total),
+ * [srcFrom, srcTo] are frames INTO public/anansi-vision-film-vo.mp3 (260.7s total),
  * derived from public/anansi-vision-film-vo.alignment.json — not estimated.
  * Line i belongs to Scene i+2; Scene 01 is silent and has no line.
  *
  * Regenerate: node scripts/gen-vo-timestamped.mjs AnansiVisionFilm
  */
 const LINE: [number, number][] = [
-  [0, 486],      // S02 Orange County
-  [492, 955],    // S03 Two blocks apart
-  [959, 1171],   // S04 More than it can see
-  [1185, 1331],  // S05 Scattered
-  [1335, 1932],  // S06 We counted
-  [1952, 2514],  // S07 $63.6M county-wide
-  [2532, 2850],  // S08 Verified
-  [2854, 3060],  // S09 Six nodes
-  [3069, 3611],  // S10 The platform
-  [3639, 4143],  // S11 Nothing was invented
-  [4157, 4783],  // S12 Sort by peer size
-  [4787, 5074],  // S13 Where to look + "That's Anansi Atlas."
-  [5077, 5326],  // S14 Unbuilt from here
-  [5335, 5863],  // S15 Other side of the map
-  [5886, 6478],  // S16 A whole sector
-  [6490, 6943],  // S17 Empowered Girls Inc.
-  [6957, 7716],  // S18 The invitation + CTA
+  [0, 513],      // S02 Orange County
+  [521, 1011],   // S03 Two blocks apart
+  [1018, 1237],  // S04 More than it can see
+  [1242, 1398],  // S05 Scattered
+  [1401, 2020],  // S06 We counted
+  [2029, 2607],  // S07 $63.6M county-wide
+  [2619, 2991],  // S08 Verified
+  [3000, 3244],  // S09 Six nodes
+  [3253, 3808],  // S10 The platform
+  [3811, 4348],  // S11 Nothing was invented
+  [4359, 4954],  // S12 Sort by peer size
+  [4955, 5229],  // S13 Where to look + "That's Anansi Atlas."
+  [5234, 5507],  // S14 Unbuilt from here
+  [5519, 5963],  // S15 Funder-side: lifecycle, communication, data hub
+  [5974, 6552],  // S16 A whole sector
+  [6560, 7023],  // S17 Empowered Girls Inc.
+  [7031, 7821],  // S18 The invitation + CTA
 ];
 
 /**
  * Length of the master VO in frames. Only used to stop the last slice's tail
  * padding running past the end of the file. Re-print it with
- * `node scripts/derive-vo-lines.mjs` after every VO regeneration.
+ * `node scripts/vo-line-slices.mjs AnansiVisionFilm` after every VO regeneration.
  */
-const MASTER_FRAMES = 7716;
+const MASTER_FRAMES = 7821;
 
 /**
  * ── WHY THE SLICES ARE PADDED AND FADED ──────────────────────────────────────
@@ -188,8 +206,18 @@ const SLICE = LINE.map(([from, to], i) => {
   return { from: from - padIn, to: to + padOut, padIn };
 });
 
-/** Frames of silence before each scene's narration begins — the room breathes first. */
-const LEAD = [60, 60, 70, 60, 70, 40, 60, 30, 80, 70, 40, 60, 70, 90, 90, 70, 60];
+/** Scene N's span = LEAD + spoken line + TAIL. Sc01 is the silent lead. */
+const B = LINE.reduce<number[]>(
+  (acc, [from, to], i) => [...acc, acc[acc.length - 1] + LEAD[i] + (to - from) + TAIL[i]],
+  [0, SILENT_LEAD],
+);
+
+export const VISION_TOTAL = B[18]; // 11,343f = 6:18 @ 30fps
+
+/** Act boundaries — the connection web draws THROUGH these cuts. */
+const ACT_CUTS = [B[4], B[8], B[13], B[16]];
+/** Everything else gets the quieter dip. DISJOINT from ACT_CUTS — never both. */
+const SCENE_CUTS = [B[1], B[2], B[3], B[5], B[6], B[7], B[9], B[10], B[11], B[12], B[14], B[15], B[17]];
 
 /** Where line i lands in the composition. Scene components use these for visual sync. */
 const VO_AT = LINE.map((_, i) => B[i + 1] + LEAD[i]);
@@ -265,8 +293,42 @@ const S02: React.FC = () => (
     <NavyBG w={W} h={H} threads={0.45} />
     <GradientMesh opacity={0.38} />
     <NodeField w={W} h={H} count={11} opacity={0.22} highlight={[2, 5, 8]} at={0} fadeIn={70} />
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 132 }}>
+    {/* The mark rises with the place-name (Scott, 2026-07-30) — the film now
+        signs itself in its first spoken scene instead of withholding the brand
+        until the close. Emblem, not anansi-mark.png: the mark PNG has no alpha
+        channel and renders as a navy box on navy. */}
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 96, gap: 26 }}>
+      <Rise delay={22}>
+        <Img
+          src={staticFile("anansi-emblem-785.png")}
+          style={{ width: 92, height: 92, objectFit: "contain" }}
+        />
+      </Rise>
       <Eyebrow delay={40}>Orange County · Florida</Eyebrow>
+    </AbsoluteFill>
+    {/*
+      The three assets, animated on their measured spoken beats (Scott, 2026-07-30):
+      "The people" 137 · "The institutions" 163 · "The opportunity" 200. Deliberately
+      NO exit — they hold the frame until the Sc03 cut, so the scene ends on the
+      film's whole thesis standing in one place. Opportunity lands in gold: it is
+      the one of the three this film is actually about.
+    */}
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 34, paddingTop: 40 }}>
+      <Rise delay={139}>
+        <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 84, color: BRAND.white, textAlign: "center" }}>
+          The People.
+        </div>
+      </Rise>
+      <Rise delay={166}>
+        <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 84, color: BRAND.white, textAlign: "center" }}>
+          The Institutions.
+        </div>
+      </Rise>
+      <Rise delay={200}>
+        <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 92, color: BRAND.goldLight, textAlign: "center" }}>
+          The Opportunity.
+        </div>
+      </Rise>
     </AbsoluteFill>
   </AbsoluteFill>
 );
@@ -378,10 +440,10 @@ const S06: React.FC = () => {
 /** 07 · $63.6 Million — 750f. The film's single loudest moment. */
 const S07: React.FC = () => {
   const frame = useCurrentFrame();
-  // Measured (lead 40): "sixty-three" 159 · "reaching four hundred" 281 ·
-  // "One thousand nine hundred" 403 · "traceable" 517. The count runs 117→192 so the
+  // Measured (lead 40): "sixty-three" 149 · "reaching four hundred" 270 ·
+  // "One thousand nine hundred" 409 · "traceable" 533. The count runs 107→182 so the
   // figure completes mid-phrase, and the bloom lands on that completion.
-  const bloom = interpolate(frame, [192, 212, 354], [0, 0.5, 0], {
+  const bloom = interpolate(frame, [182, 202, 344], [0, 0.5, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -399,21 +461,21 @@ const S07: React.FC = () => {
         <CountUpFigure
           value={63.6}
           format={(n) => `$${n.toFixed(1)}M`}
-          at={117}
+          at={107}
           count={75}
           size={260}
           rule={false}
           outFrom={690}
         />
-        {/* Each label lands on its own measured phrase: 281 · 403 · 517. */}
+        {/* Each label lands on its own measured phrase: 270 · 409 · 533. */}
         <div style={{ display: "flex", gap: 90 }}>
-          <Rise delay={281}>
+          <Rise delay={270}>
             <Label size={24} color={BRAND.ink}>474 Orange County organizations</Label>
           </Rise>
-          <Rise delay={403}>
+          <Rise delay={409}>
             <Label size={24} color={BRAND.ink}>1,912 grants</Label>
           </Rise>
-          <Rise delay={517}>
+          <Rise delay={533}>
             <Label size={24} color={BRAND.ink}>IRS Form 990-PF</Label>
           </Rise>
         </div>
@@ -480,19 +542,19 @@ const Chip: React.FC<{ text: string; tone: "gold" | "muted" }> = ({ text, tone }
 const S09: React.FC = () => {
   const frame = useCurrentFrame();
   // After the six words pass, all six settle into a ring together.
-  const ring = interpolate(frame, [160, 240], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const ring = interpolate(frame, [190, 270], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill>
       <NavyBG w={W} h={H} threads={0.45} />
       <GradientMesh opacity={0.3} />
       {/*
         Timed to the narration, not to a comfortable reading pace: Christopher says
-        all six nouns in 104 frames (measured: 30·53·76·94·116·134), so the cycle is
-        20f/word. Faster than
+        all six nouns in 131 frames (measured: 30·56·82·103·131·161), so the cycle is
+        ~26f/word. Faster than
         the film's other hyperframes by necessity — a word on screen that isn't the
         word being spoken is worse than a quick cut.
       */}
-      <HyperFrames words={[...NODES]} at={30} hold={8} enter={6} exit={4} gap={2} size={140} face="sans" />
+      <HyperFrames words={[...NODES]} at={30} hold={15} enter={7} exit={4} gap={0} size={140} face="sans" />
       <AbsoluteFill style={{ opacity: ring, alignItems: "center", justifyContent: "center" }}>
         <OrbWebBox scale={0.86 + ring * 0.04} progress={ring} />
       </AbsoluteFill>
@@ -504,13 +566,15 @@ const S09: React.FC = () => {
  * 10 · The Platform, Slowly — 810f. The UI holds the frame for 27 seconds with one
  * slow push and no callouts for the first 400f. "Never rush through features."
  */
-const S10: React.FC = () => (
+const S10: React.FC = () => {
+  const shot = React.useContext(ShotCtx);
+  return (
   <AbsoluteFill>
     <NavyBG w={W} h={H} threads={0.45} />
     <GradientMesh opacity={0.2} />
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
       <LaptopScreenshotPanel
-        src={staticFile(SHOT.dashboard)}
+        src={staticFile(shot.dashboard)}
         label="anansiatlas.com/dashboard"
         width={1180}
         zoomFrom={1.0}
@@ -524,13 +588,15 @@ const S10: React.FC = () => (
       <Eyebrow delay={40}>The Dashboard</Eyebrow>
     </AbsoluteFill>
   </AbsoluteFill>
-);
+  );
+};
 
 /**
  * 11 · Mission at the Center — 690f. OrbWeb assembles thread-by-thread, then
  * cross-dissolves into the real UI: the metaphor becoming the product.
  */
 const S11: React.FC = () => {
+  const shot = React.useContext(ShotCtx);
   const frame = useCurrentFrame();
   const build = interpolate(frame, [20, 300], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const handoff = interpolate(frame, [320, 400], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -543,7 +609,7 @@ const S11: React.FC = () => {
       </AbsoluteFill>
       <AbsoluteFill style={{ opacity: handoff, alignItems: "center", justifyContent: "center" }}>
         <ScreenshotPanel
-          src={staticFile(SHOT.web)}
+          src={staticFile(shot.web)}
           width={1240}
           zoomFrom={1.0}
           zoomTo={1.04}
@@ -564,10 +630,10 @@ const S11: React.FC = () => {
  */
 const S12: React.FC = () => {
   const frame = useCurrentFrame();
-  // Measured (lead 40): "Sort by peer size" 88 · "million-dollar research grant" 205 ·
-  // "twenty-five-thousand-dollar" 292 · "The lens changed" 552. The wipe runs BETWEEN the
+  // Measured (lead 40): "Sort by peer size" 82 · "million-dollar research grant" 187 ·
+  // "twenty-five-thousand-dollar" 278 · "The lens changed" ~545. The wipe runs BETWEEN the
   // two dollar figures, so the re-sort happens exactly as the narration turns the corner.
-  const wipe = interpolate(frame, [235, 290], [0, 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const wipe = interpolate(frame, [212, 272], [0, 100], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill>
       <NavyBG w={W} h={H} threads={0.45} />
@@ -610,7 +676,7 @@ const S12: React.FC = () => {
       {/* Framed on the actual toggle control ("Grants your size · Largest grants"),
       measured off the 2x capture at ~71-80% x, ~24% y of the 1920x1080 frame.
       The earlier box sat over the panel's description text instead. */}
-  <UISpotlight x={70.5} y={22.6} w={11} h={4} at={64} draw={26} hold={170} out={16} label="Sort by peer size" />
+  <UISpotlight x={70.5} y={22.6} w={11} h={4} at={56} draw={26} hold={170} out={16} label="Sort by peer size" />
       {/*
         Each label is pinned to its own spoken figure AND to the wipe: the "before"
         label peaks at 195 while the screen still shows million-dollar university
@@ -620,10 +686,10 @@ const S12: React.FC = () => {
       */}
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-end", paddingBottom: 84 }}>
         <div style={{ position: "relative", height: 40, width: 900 }}>
-          <AbsoluteFill style={{ opacity: interpolate(frame, [195, 235, 288], [0, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
+          <AbsoluteFill style={{ opacity: interpolate(frame, [175, 215, 281], [0, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
             <Label size={26} color={BRAND.muted}>$1,199,692 · University of Florida</Label>
           </AbsoluteFill>
-          <AbsoluteFill style={{ opacity: interpolate(frame, [292, 332], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
+          <AbsoluteFill style={{ opacity: interpolate(frame, [278, 318], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>
             <Label size={26} color={BRAND.goldLight}>$25,000 · Orange County peer</Label>
           </AbsoluteFill>
         </div>
@@ -635,11 +701,11 @@ const S12: React.FC = () => {
 /** 13 · Where to Look — 420f. The honesty line, at full weight. */
 const S13: React.FC = () => {
   const frame = useCurrentFrame();
-  // Measured (lead 60): denial 102 · "where to look" 246 · "That's Anansi Atlas" 292.
-  // The first two lines dim as the tagline lands; then ALL THREE dim as the name
-  // arrives, so Act III signs itself off before the concept register begins.
-  const dim = interpolate(frame, [230, 280], [1, 0.3], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const dimAll = interpolate(frame, [292, 330], [1, 0.28], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Measured (lead 60): "where to look" 261 · "That's Anansi Atlas" 288. First two dim as
+  // the tagline lands; then ALL THREE dim after the line ends (419), so Act III signs
+  // itself off before the concept register begins.
+  const dim = interpolate(frame, [245, 295], [1, 0.3], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const dimAll = interpolate(frame, [288, 326], [1, 0.28], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill>
       <NavyBG w={W} h={H} threads={0.45} />
@@ -656,13 +722,13 @@ const S13: React.FC = () => {
           </Headline>
         </div>
         <div style={{ opacity: dimAll }}>
-          <Headline size={76} delay={230}>
+          <Headline size={76} delay={261}>
             We show you where to look.
           </Headline>
         </div>
-        {/* 292 = measured frame the voice says "That's Anansi Atlas." */}
+        {/* 288 = measured frame the voice says "That's Anansi Atlas." */}
         <div style={{ marginTop: 18 }}>
-          <Rise delay={292}>
+          <Rise delay={288}>
             <div
               style={{
                 fontFamily: SERIF,
@@ -715,9 +781,11 @@ const S15: React.FC = () => (
           <Label size={24} color={BRAND.goldLight}>Funder intelligence — concept</Label>
         </Rise>
       </AbsoluteFill>
-      <WireBlock x={11} y={26} w={35} h={26} at={40} draw={40} label="Portfolio coverage" rows={4} />
-      <WireBlock x={54} y={26} w={35} h={26} at={80} draw={40} label="Organizations not yet reached" rows={4} />
-      <WireBlock x={11} y={60} w={78} h={22} at={130} draw={50} label="Scale distribution" rows={3} />
+      {/* Each block draws in as its phrase is spoken (measured, lead 90):
+          "lifecycle" 228 · "One place for communication" 300 · "central hub" 390. */}
+      <WireBlock x={11} y={26} w={35} h={26} at={196} draw={40} label="Grant lifecycle" rows={4} />
+      <WireBlock x={54} y={26} w={35} h={26} at={272} draw={40} label="Awardee communication" rows={4} />
+      <WireBlock x={11} y={60} w={78} h={22} at={360} draw={50} label="Grant data hub — every grant, every awardee" rows={3} />
     </AbsoluteFill>
   </ConceptFrame>
 );
@@ -776,14 +844,14 @@ const S17: React.FC = () => (
     <GradientMesh opacity={0.28} />
     <NodeField w={W} h={H} count={11} opacity={0.12} highlight={[4]} at={0} fadeIn={60} />
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 22 }}>
-      {/* 132 = measured frame the voice says "Empowered Girls" */}
-      <Rise delay={132}>
+      {/* 133 = measured frame the voice says "Empowered Girls" */}
+      <Rise delay={133}>
         <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 62, color: BRAND.white, textAlign: "center" }}>
           Empowered Girls Inc.
         </div>
       </Rise>
       {/* 314 = "live in production" — the sub-label lands on the words */}
-      <Rise delay={314}>
+      <Rise delay={319}>
         <Label size={22} color={BRAND.goldLight}>
           Founding partner · Orlando, Orange County · live in production
         </Label>
@@ -795,12 +863,12 @@ const S17: React.FC = () => (
 /** 18 · The Invitation — 1050f. The ask, the pillars, the mark, the CTA, the hold. */
 const S18: React.FC = () => {
   const frame = useCurrentFrame();
-  // Measured (lead 60): "Reveal." 503 · "Anansi Atlas." 622 · "See the whole web." 670 ·
-  // "Call us" 708 · narration ends 819. The five pillars span 119 frames, so the cycle
-  // is 23f/word. The card then holds in silence ~7s before the fade.
-  const askOut = interpolate(frame, [430, 480], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const logoIn = interpolate(frame, [622, 682], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const fadeOut = interpolate(frame, [1010, 1050], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Measured (lead 60): "Reveal." 528 · "Anansi Atlas." 653 · "See the whole web." 691 ·
+  // "Call us" 736 · narration ends 850. The five pillars span 125 frames (25f/word).
+  // The card then holds in silence before the fade (scene is 1081f).
+  const askOut = interpolate(frame, [470, 520], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const logoIn = interpolate(frame, [653, 713], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeOut = interpolate(frame, [1031, 1081], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{ opacity: fadeOut }}>
       <NavyBG w={W} h={H} threads={0.45} />
@@ -822,8 +890,8 @@ const S18: React.FC = () => {
       {/* The five brand pillars, spoken rapidly — 22f/word to stay on the voice. */}
       <HyperFrames
         words={["REVEAL", "CONNECT", "CLARIFY", "EMPOWER", "ACT"]}
-        at={503}
-        hold={12}
+        at={528}
+        hold={14}
         enter={7}
         exit={4}
         gap={0}
@@ -840,9 +908,9 @@ const S18: React.FC = () => {
           src={staticFile("anansi-emblem-785.png")}
           style={{ width: 152, height: 152, objectFit: "contain" }}
         />
-        <LogoLockup delay={622} />
+        <LogoLockup delay={653} />
         <div style={{ marginTop: 16 }}>
-          <Rise delay={670}>
+          <Rise delay={691}>
             <div
               style={{
                 fontFamily: SERIF,
@@ -858,16 +926,16 @@ const S18: React.FC = () => {
         </div>
 
         {/*
-          CTA (Scott, 2026-07-29) — a SOFT close, landing on "Call us" at 708.
+          CTA (Scott, 2026-07-29) — a SOFT close, landing on "Call us" at 736.
           The voice never reads the digits: ten spoken numerals would turn a
           six-minute executive film into a late-night ad. The voice invites, the
           card carries the details. Still no price and no seat count.
         */}
         <div style={{ marginTop: 30, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          <Rise delay={708}>
+          <Rise delay={736}>
             <Label size={19} color={BRAND.goldLight}>Call or visit to learn more</Label>
           </Rise>
-          <Rise delay={735}>
+          <Rise delay={763}>
             <div
               style={{
                 fontFamily: SERIF,
@@ -898,7 +966,7 @@ const S18: React.FC = () => {
               background: BRAND.gold,
               opacity: 0.5,
               transformOrigin: "center",
-              transform: `scaleX(${interpolate(frame, [759, 805], [0, 1], {
+              transform: `scaleX(${interpolate(frame, [787, 833], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               })})`,
@@ -940,18 +1008,19 @@ const CAPTIONS: Caption[] = [
   cap(9, "The platform holds it in one shape, so one person can see all of it.", 260),
   cap(10, "Sort by peer size.", 0, 252),
   cap(10, "The top stops being a $1.2M university research grant and becomes $25,000 peer grants.", 252),
-  cap(11, "We map what is already there — and we show you where to look.", 0, 232),
-  cap(11, "That's Anansi Atlas.", 232),
+  cap(11, "We map what is already there — and we show you where to look.", 0, 228),
+  cap(11, "That's Anansi Atlas.", 228),
   cap(12, "Everything after this line is unbuilt. Not a beta. Not a roadmap promise."),
-  cap(13, "What if a funder could see the same map from the other side?"),
+  cap(13, "Imagine a funder could see the same map — the full lifecycle of every managed grant.", 0, 210),
+  cap(13, "One place for communication. A central hub for your grant data. Seen at once.", 210),
   cap(14, "What if a county could see an entire sector at once?", 0, 300),
   cap(14, "None of that exists today. We're showing it in wireframe, on purpose.", 300),
-  cap(15, "Empowered Girls works with girls ages 9–18, right here in Orange County.", 0, 244),
-  cap(15, "Live in production today — our first founding partner.", 244),
+  cap(15, "Empowered Girls works with girls ages 9–18, right here in Orange County.", 0, 249),
+  cap(15, "Live in production today — our first founding partner.", 249),
   cap(16, "We're not here to sell you software. We're here to ask a question.", 0, 300),
-  cap(16, "Whether the organizations doing the work deserve to see the whole field.", 300, 143),
-  cap(16, "Reveal. Connect. Clarify. Empower. Act. See the whole web.", 443, 205),
-  cap(16, "Call us, or visit anansiatlas.com, to learn more.", 648),
+  cap(16, "Whether the organizations doing the work deserve to see the whole field.", 300, 168),
+  cap(16, "Reveal. Connect. Clarify. Empower. Act. See the whole web.", 468, 208),
+  cap(16, "Call us, or visit anansiatlas.com, to learn more.", 676),
 ];
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -962,10 +1031,15 @@ export const AnansiVisionFilm: React.FC<{
   audioSrc?: string | null;
   captions?: boolean;
   music?: boolean;
-}> = ({ audioSrc = null, captions = false, music = true }) => {
+  /** Per-audience screenshot overrides for the Act III walkthrough. See ShotCtx. */
+  shots?: Partial<typeof SHOT>;
+}> = ({ audioSrc = null, captions = false, music = true, shots }) => {
   const scenes = [S01, S02, S03, S04, S05, S06, S07, S08, S09, S10, S11, S12, S13, S14, S15, S16, S17, S18];
+  // Memoised so the context value is referentially stable frame to frame.
+  const shotValue = React.useMemo(() => ({ ...SHOT, ...shots }), [shots]);
 
   return (
+    <ShotCtx.Provider value={shotValue}>
     <AbsoluteFill style={{ background: BRAND.charcoal }}>
       {scenes.map((Scene, i) => (
         <Sequence key={i} from={B[i]} durationInFrames={B[i + 1] - B[i]}>
@@ -991,36 +1065,36 @@ export const AnansiVisionFilm: React.FC<{
         <>
           {/*
             Crossfade centers sit INSIDE the measured speech gaps, not on the act
-            cuts themselves: S08 ends at 4038 and S09 begins at 4140, so A->B
-            hands off at 4044-4134; S13's "That's Anansi Atlas." ends at 7157 and
-            Act IV's first line begins at 7300, so B->C hands off at 7183-7273.
+            cuts themselves: S08 ends at 4201 and S09 begins at 4303, so A->B
+            hands off at 4207-4297; S13's "That's Anansi Atlas." ends at 7360 and
+            Act IV's first line begins at 7503, so B->C hands off at 7386-7476.
             On the raw boundaries both fades clipped the edges of speech.
           */}
-          <Sequence key="score-a" from={0} durationInFrames={4134}>
+          <Sequence key="score-a" from={0} durationInFrames={4297}>
             <Audio
               src={staticFile("music/stem-minimal.mp3")}
-              endAt={4134}
+              endAt={4297}
               volume={(f) =>
-                interpolate(f, [0, 60, 4044, 4134], [0, 0.36, 0.36, 0], {
+                interpolate(f, [0, 60, 4207, 4297], [0, 0.36, 0.36, 0], {
                   extrapolateLeft: "clamp",
                   extrapolateRight: "clamp",
                 })
               }
             />
           </Sequence>
-          <Sequence key="score-b" from={4044} durationInFrames={3229}>
+          <Sequence key="score-b" from={4207} durationInFrames={3269}>
             <Audio
               src={staticFile("music/stem-build.mp3")}
-              endAt={3229}
+              endAt={3269}
               volume={(f) =>
-                interpolate(f, [0, 90, 3139, 3229], [0, 0.34, 0.34, 0], {
+                interpolate(f, [0, 90, 3179, 3269], [0, 0.34, 0.34, 0], {
                   extrapolateLeft: "clamp",
                   extrapolateRight: "clamp",
                 })
               }
             />
           </Sequence>
-          <Sequence key="score-c" from={7183} durationInFrames={3737}>
+          <Sequence key="score-c" from={7386} durationInFrames={3704}>
             <Audio
               src={staticFile("music/stem-resolve.mp3")}
               endAt={3737}
@@ -1028,8 +1102,8 @@ export const AnansiVisionFilm: React.FC<{
                 interpolate(
                   f,
                   // low under Act IV's concept register; warm from S17 (EGI, film
-                  // frame 9240 = seq 2057); fade with the film's own closing fade.
-                  [0, 90, 2057, 2177, 3677, 3737],
+                  // frame 9369 = seq 1983); fade with the film's own closing fade.
+                  [0, 90, 1983, 2103, 3644, 3704],
                   [0, 0.26, 0.26, 0.36, 0.36, 0],
                   { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
                 )
@@ -1070,5 +1144,6 @@ export const AnansiVisionFilm: React.FC<{
       <ActBridge boundaries={ACT_CUTS} w={W} h={H} lead={40} tail={40} label={ACT_LABELS} />
       {captions ? <Subtitles captions={CAPTIONS} /> : null}
     </AbsoluteFill>
+    </ShotCtx.Provider>
   );
 };

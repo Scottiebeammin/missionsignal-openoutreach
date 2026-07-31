@@ -103,7 +103,7 @@ export const ADS = [
       "Watch one control. Sort by peer size. The top of the list stops being a million-dollar research grant to a university, and becomes twenty-five-thousand-dollar grants to organizations the same size, in the same county, doing the same work. Nothing was added. Nothing was removed. The lens changed — and suddenly the list is about you.",
       "That's the whole idea. We don't get anyone funded. We don't promise a dollar. We map what is already there — and we show you where to look. That's Anansi Atlas.",
       "Now — everything after this line is unbuilt. Not a beta. Not a roadmap promise. It's a question we'd like to ask out loud, in a room like this one.",
-      "What if a funder could see the same map from the other side? Not who applied this cycle — who is actually out there. Which organizations in a county are doing the work, at what scale, with what capacity. And where a portfolio has a hole in it that nobody has named yet.",
+      "Imagine a funder could see the same map. Not just who applied this cycle — the full lifecycle of every managed grant. One place for communication with every award winner. A central hub for your grant data. Every grant, and every awardee, seen at once.",
       "What if a county could look at one sector — youth development, housing, workforce — and see the entire field at once? Where the dollars land. Where they don't. Who is carrying weight without support. None of that exists today. We're showing it to you in wireframe, on purpose, because whether it should exist isn't ours to decide alone.",
       "What does exist is this. Empowered Girls, right here in Orange County, works with girls ages nine to eighteen — and today they are live in production as our first founding partner. One organization is not a movement. It is, however, a beginning.",
       "So we're not here to sell you software. We're here to ask a question. Whether the way this county sees its own nonprofit sector could be clearer than it is today. Whether the organizations already doing the work deserve to see the whole field they're standing in. We think they do. Reveal. Connect. Clarify. Empower. Act. Anansi Atlas. See the whole web. Call us, or visit anansiatlas.com, to learn more.",
@@ -389,7 +389,17 @@ export const ADS = [
 ];
 
 // ElevenLabs voice settings (tuned for an awake, credible business read — not sleepy).
+//
+// ⚠️ ENGLISH-LOCKED (Scott, 2026-07-30). Every VO in this pipeline is US English.
+// eleven_multilingual_v2 occasionally drifted into another language mid-take on long
+// reads — it shipped in a vision-film cut and the drift only surfaced on human
+// listening, after render and delivery. eleven_turbo_v2_5 + language_code pins the
+// language at the API level (multilingual_v2 has no such parameter — with it, every
+// regeneration re-rolls the dice). This object feeds EVERY ad's generation, so the
+// lock protects all films. Do not switch back to a multilingual model without a
+// per-line language audit of the resulting master.
 export const VOICE_SETTINGS = {
-  model_id: "eleven_multilingual_v2",
+  model_id: "eleven_turbo_v2_5",
+  language_code: "en",
   voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true },
 };

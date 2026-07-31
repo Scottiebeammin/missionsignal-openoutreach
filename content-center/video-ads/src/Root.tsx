@@ -375,6 +375,34 @@ export const RemotionRoot: React.FC = () => {
         height={1080}
         defaultProps={{ audioSrc: "anansi-vision-film-vo.mp3" as string | null, captions: false, music: true }}
       />
+      {/*
+        BAM CUT — same film, but the Act III walkthrough shows BAM Orlando's own
+        dashboard and Opportunity Web instead of Empowered Girls'. For showing the
+        vision film INSIDE a BAM pitch, alongside oneoffs/BamOrlandoFilm.tsx.
+
+        ⚠️ Sc12's peer-size A/B is intentionally still EGI's capture: the narration
+        says "twenty-five-thousand-dollar grants" and $25,000 is EGI's size band,
+        not BAM's ($5,000). Swapping that shot alone would put a $5,000 screen under
+        a $25,000 voice-over. Also NOT a public asset — real prospect data on screen.
+      */}
+      <Composition
+        id="AnansiVisionFilmBAM"
+        component={AnansiVisionFilm}
+        durationInFrames={VISION_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+        defaultProps={{
+          audioSrc: "anansi-vision-film-vo.mp3" as string | null,
+          captions: false,
+          music: true,
+          shots: {
+            dashboard: "screenshots/bamv-dashboard.png",
+            web: "screenshots/bamv-web.png",
+          },
+        }}
+      />
+
       {/* Same film, baked captions — for autoplay-muted feeds. */}
       <Composition
         id="AnansiVisionFilmCaptioned"
