@@ -15,8 +15,13 @@
     <section class="panel">
       <h2>Application sections</h2>
       <p class="muted">
-        Open a section to see the funder's question, what Atlas already knows, what is missing,
+        Open a question to see what the funder asked, what Atlas already knows, what is missing,
         and the draft response. Approved answers are marked — an AI draft is never treated as approved.
+      </p>
+      <p class="actions" style="margin-top: 10px;">
+        <a class="btn btn-primary" href="{% url 'project-grant-import' project.pk application.pk %}">
+          {% if has_imported_questions %}Re-import Application Questions{% else %}Import Application Questions{% endif %}
+        </a>
       </p>
       <div class="table-wrap" style="margin-top: 12px;">
         <table>
@@ -29,7 +34,11 @@
                 <td>
                   <strong>{{ row.section.title }}</strong>
                   {% if not row.section.required %}<span class="pill" style="margin-left: 6px;">Optional</span>{% endif %}
-                  <div class="muted" style="margin-top: 4px; font-size: .8rem;">{{ row.section.funder_question|truncatechars:120 }}</div>
+                  {% if row.group %}<span class="pill pill-ai" style="margin-left: 6px;">{{ row.group }}</span>{% endif %}
+                  <div class="muted" style="margin-top: 4px; font-size: .8rem;">{{ row.section.asked_question|truncatechars:120 }}</div>
+                  {% if row.section.is_imported and not row.ready %}
+                    <div style="margin-top: 5px;"><span class="pill pill-needs_information">More information needed</span></div>
+                  {% endif %}
                 </td>
                 <td>
                   <span class="pill pill-{{ row.section.status }}">{{ row.section.get_status_display }}</span>

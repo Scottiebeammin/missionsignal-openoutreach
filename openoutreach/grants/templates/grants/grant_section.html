@@ -24,19 +24,103 @@
           <p class="eyebrow">{{ section.get_status_display }}</p>
           <h1 style="font-size: 1.5rem;">{{ section.title }}</h1>
 
-          <h2 style="margin-top: 16px;">Funder question</h2>
-          <p>{{ section.funder_question }}</p>
+          {% if section.is_imported %}
+            <h2 style="margin-top: 16px;">Original funder question</h2>
+            <p style="font-size: 1.02rem;">{{ section.original_question }}</p>
+            {% if section.instructions %}
+              <p class="muted" style="margin-top: 8px; white-space: pre-wrap;">{{ section.instructions }}</p>
+            {% endif %}
 
-          {% if spec %}
-            <h2 style="margin-top: 16px;">Atlas guidance</h2>
-            <p class="muted">A strong response here usually needs:</p>
-            <ul class="clean">
-              {% for item in section.guidance %}<li>{{ item }}</li>{% endfor %}
-            </ul>
+            <h2 style="margin-top: 16px;">Requirements</h2>
+            <p><span class="pill {% if section.required %}pill-needs_information{% else %}pill-not_started{% endif %}">{{ section.requirement_label }}</span>
+               <span class="pill pill-ai">{{ section.get_question_type_display }}</span>
+               {% if section.section_group %}<span class="pill">{{ section.section_group }}</span>{% endif %}</p>
+            {% if section.scoring_notes %}
+              <p class="muted" style="margin-top: 8px;"><strong>Scoring:</strong> {{ section.scoring_notes }}</p>
+            {% endif %}
+          {% else %}
+            <h2 style="margin-top: 16px;">Funder question</h2>
+            <p>{{ section.funder_question }}</p>
+
+            {% if spec %}
+              <h2 style="margin-top: 16px;">Atlas guidance</h2>
+              <p class="muted">A strong response here usually needs:</p>
+              <ul class="clean">
+                {% for item in section.guidance %}<li>{{ item }}</li>{% endfor %}
+              </ul>
+            {% endif %}
           {% endif %}
         </section>
 
-        {% if missing %}
+        {% if analysis %}
+          <section class="panel" style="border-left: 5px solid var(--green);">
+            <h2>Known by Atlas</h2>
+            <p class="muted">
+              Information your organization has already given Atlas. Only these facts may be used in
+              a draft — everything here is traceable to a record you control.
+            </p>
+            {% if analysis.known_facts %}
+              <div class="grid grid-2" style="margin-top: 12px;">
+                {% for fact in analysis.known_facts %}
+                  <article class="card">
+                    <h3 style="font-size: .88rem;">{{ fact.label }}</h3>
+                    <p class="muted answer-body" style="margin: 4px 0 0; font-size: .84rem;">{{ fact.value|truncatechars:260 }}</p>
+                  </article>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="muted">Atlas holds nothing that answers this question yet.</p>
+            {% endif %}
+          </section>
+
+          <section class="panel" style="border-left: 5px solid {% if analysis.missing_information %}var(--gold){% else %}var(--line){% endif %};">
+            <h2>Needs your input</h2>
+            {% if analysis.missing_information %}
+              <p class="muted">Atlas will not invent these. Supply them and the answer gets materially stronger.</p>
+              <ul class="clean">
+                {% for item in analysis.missing_information %}
+                  <li>
+                    <strong>{{ item.label }}</strong> — <span class="muted">{{ item.hint }}</span>
+                    <a class="btn btn-sm" style="margin-left: 6px;" href="{% url item.add_url_name project.pk %}">{{ item.add_label }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">Nothing outstanding for this question.</p>
+            {% endif %}
+          </section>
+
+          {% if analysis.writing_suggestions %}
+            <section class="panel" style="border-left: 5px solid var(--blue);">
+              <h2>Suggested by Atlas</h2>
+              <p class="muted">
+                Writing and positioning advice — <strong>not facts about your organization</strong>.
+                Nothing here is a claim Atlas can support; it is guidance on how to answer.
+              </p>
+              <ul class="clean">
+                {% for suggestion in analysis.writing_suggestions %}
+                  <li>{{ suggestion.text }}{% if suggestion.reason %} <span class="muted">({{ suggestion.reason }})</span>{% endif %}</li>
+                {% endfor %}
+              </ul>
+            </section>
+          {% endif %}
+
+          <section class="panel" style="border-left: 5px solid {% if analysis.can_generate_draft %}var(--green){% else %}var(--gold){% endif %};">
+            <h2>{% if analysis.can_generate_draft %}Ready to draft{% else %}More information needed{% endif %}</h2>
+            <p>{{ analysis.gate_reason }}</p>
+            {% if analysis.can_generate_draft %}
+              {% if analysis.known_labels %}
+                <p class="muted" style="margin-top: 6px;">Atlas has: {{ analysis.known_labels|join:", " }}.</p>
+              {% endif %}
+            {% else %}
+              <p style="margin-top: 10px;">
+                <a class="btn btn-primary" href="{% url 'project-organization' project.pk %}">Add Information</a>
+              </p>
+            {% endif %}
+          </section>
+        {% endif %}
+
+        {% if missing and not analysis %}
           <section class="panel" style="border-left: 5px solid var(--gold);">
             <h2>Information needed</h2>
             <p class="muted">Atlas will not invent these. Add them and the draft gets materially stronger.</p>
@@ -116,6 +200,29 @@
           </form>
         </section>
 
+        {% if imported_review %}
+          <section class="panel">
+            <h2>Grant Coach</h2>
+            <p class="muted">
+              Overall: <span class="pill pill-{{ imported_review.overall_label|slugify }}">{{ imported_review.overall_label }}</span>
+            </p>
+            <div class="table-wrap" style="margin-top: 10px;">
+              <table>
+                <thead><tr><th>Dimension</th><th>Assessment</th><th>What to do</th></tr></thead>
+                <tbody>
+                  {% for d in imported_review.dimensions %}
+                    <tr>
+                      <td><strong>{{ d.name }}</strong></td>
+                      <td><span class="pill pill-{{ d.label|slugify }}">{{ d.label }}</span><div class="muted" style="margin-top: 5px;">{{ d.explanation }}</div></td>
+                      <td class="muted">{{ d.improvement|default:"—" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        {% endif %}
+
         {% if review and review.findings %}
           <section class="panel">
             <h2>Grant Coach</h2>
@@ -184,6 +291,41 @@
             <a class="btn btn-sm" href="{% url 'project-organization' project.pk %}">Add Information</a>
           {% endif %}
         </section>
+
+        {% if library_matches %}
+          <section class="panel">
+            <h2>Relevant previous answer</h2>
+            <p class="muted" style="font-size: .84rem;">
+              Approved answers from earlier applications. Adapting keeps the facts and re-shapes the
+              wording for this funder — the saved answer itself is never changed.
+            </p>
+            {% for match in library_matches %}
+              <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line);">
+                <strong style="font-size: .88rem;">{{ match.item.title }}</strong>
+                <div class="muted" style="font-size: .78rem; margin: 3px 0 6px;">
+                  {{ match.item.get_category_display }} · approved {{ match.item.updated_at|date:"F Y" }}
+                </div>
+                {% if match.has_warning %}
+                  <div class="msg msg-error" style="font-size: .8rem; padding: 8px 10px;">
+                    <strong>Possible outdated information.</strong>
+                    {% if match.stale_numbers %}
+                      This answer states {{ match.stale_numbers|join:", " }}, which Atlas cannot match to your
+                      current organization data. Check it before reusing.
+                    {% endif %}
+                    {{ match.age_note }}
+                  </div>
+                {% endif %}
+                <p class="muted" style="font-size: .8rem; margin: 4px 0 8px;">{{ match.item.answer|truncatechars:200 }}</p>
+                <form class="inline-form" method="post" action="{% url 'project-grant-library-reuse' project.pk application.pk match.item.pk %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="section_key" value="{{ section.section_key }}">
+                  <button class="btn btn-sm" type="submit" name="mode" value="append">Adapt for this question</button>
+                  <button class="btn btn-sm" type="submit" name="mode" value="replace">Replace draft</button>
+                </form>
+              </div>
+            {% endfor %}
+          </section>
+        {% endif %}
 
         {% if suggestions %}
           <section class="panel">

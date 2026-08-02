@@ -3,7 +3,9 @@ from django.contrib import admin
 from openoutreach.grants.models import (
     GrantAnswerLibraryItem,
     GrantApplication,
+    GrantApplicationImport,
     GrantApplicationSection,
+    GrantAttachmentRequirement,
 )
 
 
@@ -45,4 +47,22 @@ class GrantAnswerLibraryItemAdmin(admin.ModelAdmin):
         "organization", "project", "source_application", "source_section",
         "created_by", "updated_by",
     )
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(GrantApplicationImport)
+class GrantApplicationImportAdmin(admin.ModelAdmin):
+    list_display = ("application", "detected_question_count", "parse_confidence", "status", "created_at")
+    list_filter = ("status", "parse_confidence")
+    search_fields = ("application__title", "raw_text", "source_label")
+    raw_id_fields = ("application", "created_by")
+    readonly_fields = ("created_at", "saved_at")
+
+
+@admin.register(GrantAttachmentRequirement)
+class GrantAttachmentRequirementAdmin(admin.ModelAdmin):
+    list_display = ("title", "application", "document_type", "confirmed", "linked_document")
+    list_filter = ("confirmed", "document_type")
+    search_fields = ("title", "application__title")
+    raw_id_fields = ("application", "linked_document", "source_import")
     readonly_fields = ("created_at", "updated_at")

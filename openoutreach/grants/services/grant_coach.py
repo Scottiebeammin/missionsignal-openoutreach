@@ -208,3 +208,250 @@ def review_section(section, context: GrantContext, spec) -> SectionReview:
 def requirement_label(key: str) -> str:
     spec = REQUIREMENTS.get(key)
     return spec.label if spec else key
+
+
+# ── Imported-question review ─────────────────────────────────────────────────
+# A real funder question deserves a different read than a template section: the
+# first thing that matters is whether the answer actually answers what was
+# asked. Five dimensions, each reported as a LABEL with an explanation and one
+# concrete improvement — no invented percentage scores.
+
+STRONG_LABEL = "Strong"
+MODERATE_LABEL = "Moderate"
+NEEDS_ATTENTION_LABEL = "Needs Attention"
+INCOMPLETE_LABEL = "Incomplete"
+
+_LABEL_RANK = {
+    INCOMPLETE_LABEL: 0,
+    NEEDS_ATTENTION_LABEL: 1,
+    MODERATE_LABEL: 2,
+    STRONG_LABEL: 3,
+}
+
+# Words that fill space without saying anything checkable.
+_VAGUE_TERMS = (
+    "various", "numerous", "many", "several", "significant", "substantial",
+    "world-class", "cutting-edge", "innovative", "passionate", "committed to excellence",
+    "best-in-class", "leading", "premier", "robust", "synergy", "holistic",
+    "a wide range", "state-of-the-art", "meaningful impact", "make a difference",
+)
+
+# Question words carry no information about the answer's content.
+_STOPWORDS = frozenset({
+    "describe", "explain", "provide", "please", "your", "you", "the", "and", "for",
+    "with", "that", "this", "will", "what", "how", "why", "who", "organization",
+    "organisation", "include", "should", "would", "which", "their", "there",
+    "about", "from", "into", "have", "has", "does", "list", "state", "detail",
+    "summarize", "summarise", "outline", "discuss", "identify", "any", "all",
+})
+
+
+@dataclass(frozen=True)
+class Dimension:
+    name: str
+    label: str
+    explanation: str
+    improvement: str = ""
+
+    @property
+    def rank(self) -> int:
+        return _LABEL_RANK.get(self.label, 0)
+
+
+@dataclass(frozen=True)
+class ImportedQuestionReview:
+    dimensions: list[Dimension]
+    unsupported_numbers: list[str]
+    information_needed_markers: list[str]
+
+    @property
+    def overall_label(self) -> str:
+        """The weakest dimension — an answer is only as good as its worst part."""
+        if not self.dimensions:
+            return INCOMPLETE_LABEL
+        return min(self.dimensions, key=lambda d: d.rank).label
+
+    @property
+    def needs_work(self) -> list[Dimension]:
+        return [d for d in self.dimensions if d.label != STRONG_LABEL]
+
+
+def _content_words(text: str) -> set[str]:
+    return {
+        word for word in _WORD.findall((text or "").casefold())
+        if word not in _STOPWORDS and len(word) > 3
+    }
+
+
+def _dimension_answered(section, text: str) -> Dimension:
+    """Does the response engage the terms the funder actually used?"""
+    asked = _content_words(section.asked_question)
+    answered = _content_words(text)
+    if not asked:
+        return Dimension(
+            "Answered the Question", MODERATE_LABEL,
+            "Atlas could not read distinctive terms from the question, so this could not be checked.",
+            "Re-read the funder's question and confirm the response addresses it directly.",
+        )
+    overlap = asked & answered
+    ratio = len(overlap) / len(asked)
+    if ratio >= 0.5:
+        return Dimension(
+            "Answered the Question", STRONG_LABEL,
+            f"The response engages the terms the funder used ({', '.join(sorted(overlap)[:4])}).",
+        )
+    if ratio >= 0.25:
+        missed = sorted(asked - answered)[:4]
+        return Dimension(
+            "Answered the Question", MODERATE_LABEL,
+            "The response is on topic but does not pick up every part of the question.",
+            f"Address these explicitly: {', '.join(missed)}.",
+        )
+    missed = sorted(asked - answered)[:5]
+    return Dimension(
+        "Answered the Question", NEEDS_ATTENTION_LABEL,
+        "The response does not clearly answer what this question asked.",
+        f"The funder asked about {', '.join(missed)} — answer that directly, in the first sentence.",
+    )
+
+
+def _dimension_evidence(text: str, unsupported: list[str], supported_hits: int) -> Dimension:
+    if unsupported:
+        return Dimension(
+            "Evidence", NEEDS_ATTENTION_LABEL,
+            f"Contains {'a figure' if len(unsupported) == 1 else 'figures'} Atlas cannot trace to "
+            f"your organization data ({', '.join(unsupported[:4])}).",
+            "Add the figure to your profile or Evidence Library so it is supported, or remove it.",
+        )
+    if supported_hits >= 2:
+        return Dimension(
+            "Evidence", STRONG_LABEL,
+            "Factual claims are backed by figures already recorded in Atlas.",
+        )
+    if supported_hits == 1:
+        return Dimension(
+            "Evidence", MODERATE_LABEL,
+            "One supported figure appears in the response.",
+            "Add a second concrete result — reviewers weigh evidence more than description.",
+        )
+    return Dimension(
+        "Evidence", NEEDS_ATTENTION_LABEL,
+        "The response makes no measurable claim.",
+        "Include at least one figure from your Evidence Library.",
+    )
+
+
+def _dimension_specificity(text: str) -> Dimension:
+    lowered = (text or "").casefold()
+    vague_hits = [term for term in _VAGUE_TERMS if term in lowered]
+    has_numbers = bool(extract_numbers(text))
+    if len(vague_hits) >= 3:
+        return Dimension(
+            "Specificity", NEEDS_ATTENTION_LABEL,
+            f"Leans on vague language ({', '.join(vague_hits[:3])}).",
+            "Replace each with a concrete detail: who, where, how many.",
+        )
+    if vague_hits and not has_numbers:
+        return Dimension(
+            "Specificity", MODERATE_LABEL,
+            f"Some general phrasing ({vague_hits[0]}) and no concrete figures.",
+            "Swap the general claim for a specific one a reader could verify.",
+        )
+    if has_numbers:
+        return Dimension("Specificity", STRONG_LABEL, "Uses concrete, checkable detail.")
+    return Dimension(
+        "Specificity", MODERATE_LABEL,
+        "Reads clearly but stays general.",
+        "Name the place, the population, or the number.",
+    )
+
+
+def _dimension_alignment(context: GrantContext, text: str) -> Dimension:
+    focus = context.fact("opportunity.focus_areas")
+    if not focus:
+        return Dimension(
+            "Funder Alignment", MODERATE_LABEL,
+            "The opportunity record does not list focus areas, so alignment could not be checked.",
+            "Check the funder's published priorities and reflect them here.",
+        )
+    overlap = _tokens(focus.value) & _tokens(text)
+    if overlap:
+        return Dimension(
+            "Funder Alignment", STRONG_LABEL,
+            f"Connects to the funder's stated priority ({', '.join(sorted(overlap)[:3])}).",
+        )
+    return Dimension(
+        "Funder Alignment", NEEDS_ATTENTION_LABEL,
+        f"This funder emphasises {focus.value}, which the response does not mention.",
+        "Draw an explicit line from your work to that priority.",
+    )
+
+
+def _dimension_readability(text: str, section) -> Dimension:
+    sentences = [s for s in re.split(r"[.!?]+", text or "") if s.strip()]
+    if not sentences:
+        return Dimension("Readability", INCOMPLETE_LABEL, "There is nothing written yet.")
+    longest = max(len(s.split()) for s in sentences)
+    average = sum(len(s.split()) for s in sentences) / len(sentences)
+    if section.over_limit:
+        return Dimension(
+            "Readability", NEEDS_ATTENTION_LABEL,
+            "The response is over the funder's limit.",
+            "Use Shorten to bring it within range without dropping facts.",
+        )
+    if average > 32 or longest > 55:
+        return Dimension(
+            "Readability", NEEDS_ATTENTION_LABEL,
+            f"Sentences run long (longest is {longest} words).",
+            "Split the longest sentences — reviewers skim.",
+        )
+    if average > 24:
+        return Dimension(
+            "Readability", MODERATE_LABEL,
+            "Somewhat dense, but readable.",
+            "Trim the longest sentences for a faster read.",
+        )
+    return Dimension("Readability", STRONG_LABEL, "Clear and easy to read at review speed.")
+
+
+def review_imported_question(section, context: GrantContext, analysis=None) -> ImportedQuestionReview:
+    """Five-dimension review of an answer to a real funder question."""
+    text = section.current_text
+    markers = information_needed_markers(text)
+    unsupported = unsupported_numbers(text, context)
+
+    if not text.strip():
+        return ImportedQuestionReview(
+            dimensions=[Dimension(
+                "Answered the Question", INCOMPLETE_LABEL, "No response has been written yet.",
+                "Generate a draft or write the answer directly.",
+            )],
+            unsupported_numbers=[],
+            information_needed_markers=[],
+        )
+
+    stripped = _MARKER.sub(" ", text)
+    supported_hits = sum(
+        1 for number in dict.fromkeys(extract_numbers(stripped))
+        if number in context.supported_numbers
+    )
+
+    dimensions = [
+        _dimension_answered(section, text),
+        _dimension_evidence(text, unsupported, supported_hits),
+        _dimension_specificity(text),
+        _dimension_alignment(context, text),
+        _dimension_readability(text, section),
+    ]
+    if markers:
+        dimensions.insert(0, Dimension(
+            "Answered the Question", INCOMPLETE_LABEL,
+            f"{len(markers)} placeholder{'s' if len(markers) != 1 else ''} still to fill: "
+            + "; ".join(markers[:3]),
+            "Supply the missing information, then regenerate or edit the answer.",
+        ))
+    return ImportedQuestionReview(
+        dimensions=dimensions,
+        unsupported_numbers=unsupported,
+        information_needed_markers=markers,
+    )

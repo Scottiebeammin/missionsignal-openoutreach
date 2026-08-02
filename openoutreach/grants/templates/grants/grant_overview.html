@@ -51,8 +51,59 @@
       {% endif %}
     </section>
 
+    {% if application_instructions %}
+      <section class="panel" style="border-left: 5px solid var(--blue);">
+        <h2>Application instructions</h2>
+        <p class="muted">Rules the funder set for the whole application, kept from your import.</p>
+        <ul class="clean">
+          {% for line in application_instructions %}<li>{{ line }}</li>{% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
+    {% if attachment_requirements %}
+      <section class="panel">
+        <h2>Required attachments</h2>
+        <p class="muted">Tick each one off as you confirm you have it. Atlas links to your Document Vault where it can.</p>
+        <div class="table-wrap" style="margin-top: 10px;">
+          <table>
+            <thead><tr><th></th><th>Document</th><th>In your Document Vault</th><th></th></tr></thead>
+            <tbody>
+              {% for item in attachment_requirements %}
+                <tr>
+                  <td style="width: 40px; font-size: 1.1rem;">{% if item.is_satisfied %}&#9745;{% else %}&#9744;{% endif %}</td>
+                  <td><strong>{{ item.title }}</strong></td>
+                  <td class="muted">
+                    {% if item.linked_document %}{{ item.linked_document.title }} ({{ item.linked_document.get_status_display }})
+                    {% else %}Not linked{% endif %}
+                  </td>
+                  <td>
+                    <form class="inline-form" method="post" action="{% url 'project-grant-attachment-toggle' project.pk application.pk item.pk %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{% url 'project-grant-overview' project.pk application.pk %}">
+                      <button class="btn btn-sm" type="submit">{% if item.confirmed %}Un-confirm{% else %}Confirm{% endif %}</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p class="muted" style="margin-top: 10px; font-size: .82rem;">
+          <a href="{% url 'project-documents' project.pk %}">Open your Document Vault</a>
+        </p>
+      </section>
+    {% endif %}
+
     <section class="panel">
-      <h2>Sections</h2>
+      <h2>{% if has_imported_questions %}The funder's questions{% else %}Sections{% endif %}</h2>
+      {% if not has_imported_questions %}
+        <p class="muted" style="margin-bottom: 10px;">
+          These are Atlas's standard sections. Have the real application?
+          <a href="{% url 'project-grant-import' project.pk application.pk %}">Import Application Questions</a>
+          and Atlas will work from the funder's own wording instead.
+        </p>
+      {% endif %}
       <div class="grid grid-3">
         {% for section in sections %}
           <article class="card">

@@ -22,6 +22,9 @@ Every screen answers one of these:
 | What is still missing? | **Missing Information** tab; per-section **Information needed** panel; Grant Coach findings |
 | How do we turn that into a stronger application? | Section drafting + Atlas actions; Grant Coach; **Review** |
 
+**V1.1** adds the step before all of that: paste the funder's real application and Atlas
+breaks it into their actual questions — see [APPLICATION_IMPORT.md](APPLICATION_IMPORT.md).
+
 ## What it is not
 
 It is not an "AI grant writer". The AI is a *writer*, never a *source*. It may improve
@@ -67,3 +70,4 @@ tests/missionsignal/test_grant_builder.py
 - [DATA_MODEL.md](DATA_MODEL.md) — the three models and why there is no fourth
 - [AI_RULES.md](AI_RULES.md) — the factual-integrity guarantee and how it is enforced
 - [USER_FLOW.md](USER_FLOW.md) — the client-facing walkthrough
+- [APPLICATION_IMPORT.md](APPLICATION_IMPORT.md) — **V1.1**: real application import, the parser, question mapping, and the three-bucket trust model

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Import Application Questions — {{ application.title }}</title>
+  {% include "signals/_app_shell_styles.html" %}
+  {% include "grants/_grant_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="grants" %}
+  <main>
+    {% include "grants/_grant_header.html" %}
+
+    <section class="panel">
+      <h2>Import Application Questions</h2>
+      <p class="muted">
+        Paste the funder's application instructions or questions below. Atlas will break them into
+        individual questions, pick up word and character limits, and note any attachments — then
+        show you what it found so you can correct it. Nothing is drafted at this step.
+      </p>
+
+      <form method="post" action="{% url 'project-grant-import' project.pk application.pk %}">
+        {% csrf_token %}
+        <div class="field" style="margin-top: 16px;">
+          <label for="raw_text">Application text</label>
+          <textarea id="raw_text" name="raw_text" style="min-height: 340px;"
+                    placeholder="Paste the full application — headings, numbered questions, instructions, limits, and the attachment list.&#10;&#10;You can also paste just a few questions if that is all you have."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="source_label">Where is this from? (optional)</label>
+          <input type="text" id="source_label" name="source_label"
+                 placeholder="e.g. Example Foundation portal, Section 2">
+        </div>
+
+        <h3 style="margin-top: 18px;">Application details</h3>
+        <p class="muted" style="font-size: .84rem;">Prefilled from this grant draft. Correct anything the funder states differently.</p>
+        <div class="grid grid-2">
+          <div class="field">
+            <label for="title">Application title</label>
+            <input type="text" id="title" name="title" value="{{ application.title }}">
+          </div>
+          <div class="field">
+            <label for="funder_name">Funder</label>
+            <input type="text" id="funder_name" name="funder_name" value="{{ application.funder_name }}">
+          </div>
+          <div class="field">
+            <label for="deadline">Deadline</label>
+            <input type="date" id="deadline" name="deadline" value="{{ application.deadline|date:'Y-m-d' }}">
+          </div>
+          <div class="field">
+            <label for="requested_amount">Requested amount (USD)</label>
+            <input type="number" step="0.01" id="requested_amount" name="requested_amount"
+                   value="{{ application.requested_amount|default_if_none:'' }}">
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top: 14px;">
+          <button class="btn btn-primary" type="submit">Analyze Application</button>
+          <a class="btn" href="{% url 'project-grant-application' project.pk application.pk %}">Cancel</a>
+        </div>
+      </form>
+    </section>
+
+    {% if application.imports.all %}
+      <section class="panel">
+        <h2>Previous imports</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Imported</th><th>Source</th><th>Questions</th><th>Confidence</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for batch in application.imports.all %}
+                <tr>
+                  <td>{{ batch.created_at|date:"M j, Y, g:i a" }}</td>
+                  <td class="muted">{{ batch.source_label|default:"—" }}</td>
+                  <td>{{ batch.detected_question_count }}</td>
+                  <td><span class="pill pill-{{ batch.parse_confidence }}">{{ batch.get_parse_confidence_display }}</span></td>
+                  <td><span class="pill">{{ batch.get_status_display }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {% endif %}
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>

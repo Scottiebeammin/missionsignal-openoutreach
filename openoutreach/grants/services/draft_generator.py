@@ -16,6 +16,7 @@ Approved text lives in a different column and is never touched by this module.
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 
 from pydantic import BaseModel, Field
 
@@ -35,6 +36,7 @@ ACTIONS: dict[str, str] = {
     "specific": "Make this response more specific by drawing harder on the concrete details already present in the facts.",
     "clarity": "Improve clarity and readability. Plain sentences, no jargon, no filler.",
     "align": "Align this response more closely to the funder's stated priorities, without adding any new claim about the organization.",
+    "evidence": "Strengthen the evidence in this response: foreground the concrete, supported figures and named results already present in the facts, and replace vague assertions with them. Do NOT introduce any figure that is not in the facts — where evidence is missing, say so with an [Information needed: …] marker.",
 }
 
 ACTION_LABELS: dict[str, str] = {
@@ -44,6 +46,7 @@ ACTION_LABELS: dict[str, str] = {
     "specific": "Make More Specific",
     "clarity": "Improve Clarity",
     "align": "Align to Funder",
+    "evidence": "Strengthen Evidence",
 }
 
 
@@ -148,25 +151,84 @@ def _reusable_block(reusable) -> str:
     )
 
 
-def _prompt(section, context: GrantContext, spec, reusable=(), instruction: str = "", existing: str = "") -> str:
-    facts = render_facts_block(context, spec.fact_keys)
+@dataclass(frozen=True)
+class DraftBrief:
+    """What the drafter needs, regardless of where the question came from.
+
+    Standard-template sections build this from their `SectionSpec`; imported
+    questions build it from the funder's own wording plus the topic analysis.
+    Either way the drafter sees the same closed fact set.
+    """
+
+    question: str
+    fact_keys: tuple[str, ...]
+    guidance: tuple[str, ...] = ()
+    drafting_note: str = ""
+    instructions: str = ""
+
+
+def brief_from_spec(section, spec) -> DraftBrief:
+    return DraftBrief(
+        question=section.funder_question or spec.question,
+        fact_keys=tuple(spec.fact_keys),
+        guidance=tuple(section.guidance or spec.guidance),
+        drafting_note=spec.drafting_note,
+    )
+
+
+def brief_from_analysis(section, analysis) -> DraftBrief:
+    """Build a brief for an imported question.
+
+    Guidance comes from the analysis's *writing suggestions* — advice, clearly
+    labelled as such in the prompt so the model cannot mistake a recommendation
+    for a fact about the organization.
+    """
+    return DraftBrief(
+        question=section.asked_question,
+        fact_keys=tuple(analysis.fact_keys),
+        guidance=tuple(s.text for s in analysis.writing_suggestions),
+        instructions=section.instructions,
+        drafting_note=(
+            "This is the funder's own question, quoted exactly. Answer THIS question directly — "
+            "do not answer a more convenient adjacent question, and do not restate the question "
+            "back in the response."
+        ),
+    )
+
+
+def _resolve_brief(section, spec=None, analysis=None) -> DraftBrief:
+    if isinstance(spec, DraftBrief):
+        return spec
+    if spec is not None:
+        return brief_from_spec(section, spec)
+    if analysis is not None:
+        return brief_from_analysis(section, analysis)
+    raise DraftGenerationFailed("Cannot draft without a template section or a question analysis.")
+
+
+def _prompt(section, context: GrantContext, brief: DraftBrief, reusable=(), instruction: str = "", existing: str = "") -> str:
+    facts = render_facts_block(context, brief.fact_keys)
     opportunity_keys = (
         "opportunity.name", "opportunity.funder", "opportunity.focus_areas",
         "opportunity.beneficiaries", "opportunity.geography", "opportunity.eligibility_notes",
         "opportunity.applicant_types", "opportunity.funding_amount", "opportunity.deadline",
     )
     opportunity_facts = render_facts_block(context, opportunity_keys)
-    guidance = "\n".join(f"- {item}" for item in (section.guidance or spec.guidance))
+    guidance = "\n".join(f"- {item}" for item in brief.guidance)
 
     parts = [
         f"SECTION: {section.title}",
-        f"FUNDER QUESTION:\n{section.funder_question or spec.question}",
-        f"WHAT A STRONG RESPONSE NEEDS:\n{guidance}",
+        f"FUNDER QUESTION:\n{brief.question}",
+    ]
+    if brief.instructions:
+        parts.append(f"FUNDER'S INSTRUCTIONS FOR THIS QUESTION:\n{brief.instructions}")
+    parts += [
+        f"WRITING GUIDANCE (advice on how to answer — NOT facts about the organization):\n{guidance}",
         f"ORGANIZATION FACTS (the only permitted source of substance):\n{facts}",
         f"OPPORTUNITY FACTS (verified funder data — use to tailor, not to invent):\n{opportunity_facts}",
     ]
-    if spec.drafting_note:
-        parts.append(f"SECTION-SPECIFIC RULE:\n{spec.drafting_note}")
+    if brief.drafting_note:
+        parts.append(f"SECTION-SPECIFIC RULE:\n{brief.drafting_note}")
     if existing:
         parts.append(f"CURRENT RESPONSE (revise this, keep every supported fact):\n{existing}")
     if instruction:
@@ -175,13 +237,18 @@ def _prompt(section, context: GrantContext, spec, reusable=(), instruction: str 
     return "\n\n".join(parts) + _reusable_block(reusable) + _limit_instruction(section)
 
 
-def generate_section_draft(section, context: GrantContext, spec, reusable=()) -> SectionDraft:
-    """Write a first draft for one section from the organization's own facts."""
+def generate_section_draft(section, context: GrantContext, spec=None, reusable=(), analysis=None) -> SectionDraft:
+    """Write a first draft for one section from the organization's own facts.
+
+    ``spec`` (a template `SectionSpec`) and ``analysis`` (a `QuestionAnalysis`
+    for an imported question) are alternatives — supply whichever applies.
+    """
+    brief = _resolve_brief(section, spec, analysis)
     agent = _agent(SectionDraft)
-    return _run(agent, _prompt(section, context, spec, reusable=reusable))
+    return _run(agent, _prompt(section, context, brief, reusable=reusable))
 
 
-def refine_section_draft(section, context: GrantContext, spec, action: str, text: str) -> SectionDraft:
+def refine_section_draft(section, context: GrantContext, spec, action: str, text: str, analysis=None) -> SectionDraft:
     """Apply a writing action (Improve / Shorten / …) to text the user already has.
 
     ``text`` is passed in by the caller so an approved answer can be refined into
@@ -190,5 +257,6 @@ def refine_section_draft(section, context: GrantContext, spec, action: str, text
     instruction = ACTIONS.get(action)
     if instruction is None:
         raise DraftGenerationFailed(f"Unknown refinement action: {action!r}")
+    brief = _resolve_brief(section, spec, analysis)
     agent = _agent(SectionDraft)
-    return _run(agent, _prompt(section, context, spec, instruction=instruction, existing=text))
+    return _run(agent, _prompt(section, context, brief, instruction=instruction, existing=text))

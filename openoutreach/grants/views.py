@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from openoutreach.funding.models import Opportunity
+from openoutreach.funding.models import DocumentVaultItem, Opportunity
 from openoutreach.grants.exceptions import GrantBuilderError
 from openoutreach.grants.models import (
     GrantAnswerLibraryItem,
@@ -130,6 +130,13 @@ def grant_overview(request, pk, application_id):
         "known_facts": sorted(
             (fact for fact in context.facts.values()), key=lambda fact: fact.label,
         ),
+        # V1.1: what the funder said outside any single question, and the
+        # documents they asked to be attached.
+        "application_instructions": _application_instructions(application),
+        "attachment_requirements": list(
+            application.attachment_requirements.select_related("linked_document")
+        ),
+        "has_imported_questions": application.has_imported_questions,
         "statuses": GrantApplication.Status.choices,
         "active_page": "grants",
         **_nav(application, "overview"),
@@ -142,13 +149,26 @@ def grant_application_view(request, pk, application_id):
     project, application = _application(request, pk, application_id)
     sections = sync_sections(application)
     context = build_grant_context(application)
+    from openoutreach.grants.services.question_analysis import analyze_question
+
     rows = []
     for section in sections:
-        spec = spec_for(section.section_key)
+        spec = spec_for(section.section_key) if not section.is_imported else None
+        if spec is not None:
+            missing = context.missing_for(spec.requirements)
+            available = context.available_labels(spec.fact_keys)
+            ready = True
+        else:
+            analysis = analyze_question(section, context)
+            missing = analysis.missing_information
+            available = analysis.known_labels
+            ready = analysis.can_generate_draft
         rows.append({
             "section": section,
-            "missing": context.missing_for(spec.requirements) if spec else [],
-            "available": context.available_labels(spec.fact_keys) if spec else [],
+            "missing": missing,
+            "available": available,
+            "ready": ready,
+            "group": section.section_group,
         })
     return render(request, "grants/grant_application.html", {
         "project": project,
@@ -156,6 +176,7 @@ def grant_application_view(request, pk, application_id):
         "application": application,
         "rows": rows,
         "completion": application.completion_percent(sections),
+        "has_imported_questions": application.has_imported_questions,
         "active_page": "grants",
         **_nav(application, "application"),
     })
@@ -166,10 +187,30 @@ def grant_section_view(request, pk, application_id, section_key):
     """The answer workspace for one section."""
     project, application = _application(request, pk, application_id)
     section = _section(application, section_key)
-    spec = spec_for(section.section_key)
+    spec = spec_for(section.section_key) if not section.is_imported else None
     context = build_grant_context(application)
 
-    review = grant_coach.review_section(section, context, spec) if spec else None
+    # Imported questions get the three-bucket analysis and the five-dimension
+    # coach; template sections keep the V1 behaviour unchanged.
+    from openoutreach.grants.services.question_analysis import analyze_question
+
+    if section.is_imported or spec is None:
+        analysis = analyze_question(section, context)
+        review = None
+        imported_review = grant_coach.review_imported_question(section, context, analysis)
+        available_facts = analysis.known_facts
+        missing = analysis.missing_information
+        library_matches = analysis.relevant_answer_library_items
+        suggestions = []
+    else:
+        analysis = None
+        review = grant_coach.review_section(section, context, spec)
+        imported_review = None
+        available_facts = context.facts_for(spec.fact_keys)
+        missing = context.missing_for(spec.requirements)
+        library_matches = []
+        suggestions = answer_library.suggestions_for_section(section, spec)
+
     sections = list(application.sections.all())
     index = next((i for i, item in enumerate(sections) if item.pk == section.pk), 0)
 
@@ -179,9 +220,12 @@ def grant_section_view(request, pk, application_id, section_key):
         "application": application,
         "section": section,
         "spec": spec,
-        "available_facts": context.facts_for(spec.fact_keys) if spec else [],
-        "missing": context.missing_for(spec.requirements) if spec else [],
-        "suggestions": answer_library.suggestions_for_section(section, spec) if spec else [],
+        "analysis": analysis,
+        "imported_review": imported_review,
+        "library_matches": library_matches,
+        "available_facts": available_facts,
+        "missing": missing,
+        "suggestions": suggestions,
         "review": review,
         "actions": ACTION_LABELS,
         "previous_section": sections[index - 1] if index > 0 else None,
@@ -197,12 +241,23 @@ def grant_section_generate(request, pk, application_id, section_key):
     """Generate or refine the DRAFT for a section. Never touches approved text."""
     _project, application = _application(request, pk, application_id)
     section = _section(application, section_key)
-    spec = spec_for(section.section_key)
-    if spec is None:
-        messages.error(request, "This section is no longer part of the grant template.")
-        return redirect("project-grant-section", pk=pk, application_id=application_id, section_key=section_key)
-
+    spec = spec_for(section.section_key) if not section.is_imported else None
     context = build_grant_context(application)
+
+    from openoutreach.grants.services.question_analysis import analyze_question
+
+    analysis = None
+    if spec is None:
+        analysis = analyze_question(section, context)
+        if not analysis.can_generate_draft:
+            messages.error(request, analysis.gate_reason)
+            return redirect(
+                "project-grant-section", pk=pk, application_id=application_id, section_key=section_key,
+            )
+        reusable = [match.item for match in analysis.relevant_answer_library_items]
+    else:
+        reusable = answer_library.suggestions_for_section(section, spec)
+
     action = (request.POST.get("action") or "").strip()
 
     try:
@@ -213,11 +268,12 @@ def grant_section_generate(request, pk, application_id, section_key):
                 return redirect(
                     "project-grant-section", pk=pk, application_id=application_id, section_key=section_key,
                 )
-            draft = draft_generator.refine_section_draft(section, context, spec, action, source_text)
+            draft = draft_generator.refine_section_draft(
+                section, context, spec, action, source_text, analysis=analysis,
+            )
         else:
             draft = draft_generator.generate_section_draft(
-                section, context, spec,
-                reusable=answer_library.suggestions_for_section(section, spec),
+                section, context, spec, reusable=reusable, analysis=analysis,
             )
     except GrantBuilderError as exc:
         messages.error(request, str(exc))
@@ -225,7 +281,10 @@ def grant_section_generate(request, pk, application_id, section_key):
             "project-grant-section", pk=pk, application_id=application_id, section_key=section_key,
         )
 
-    missing = context.missing_for(spec.requirements)
+    missing = (
+        context.missing_for(spec.requirements) if spec is not None
+        else analysis.missing_information
+    )
     # Prefer Atlas's own view of what is missing (checked against real records)
     # over the model's self-report, then fold in anything extra the model named.
     missing_labels = [item.label for item in missing]
@@ -233,11 +292,14 @@ def grant_section_generate(request, pk, application_id, section_key):
         if label and label not in missing_labels:
             missing_labels.append(label)
 
+    candidate_facts = (
+        context.facts_for(spec.fact_keys) if spec is not None else analysis.known_facts
+    )
     section.draft_response = draft.response
     section.source_fields = [
-        {"key": fact.key, "label": fact.label} for fact in context.facts_for(spec.fact_keys)
+        {"key": fact.key, "label": fact.label} for fact in candidate_facts
         if not draft.sources_used or fact.label in draft.sources_used
-    ] or [{"key": fact.key, "label": fact.label} for fact in context.facts_for(spec.fact_keys)]
+    ] or [{"key": fact.key, "label": fact.label} for fact in candidate_facts]
     section.missing_information = missing_labels
     # An approved section STAYS approved. Generating produces an alternative
     # draft alongside the approved answer; only a person can promote it.
@@ -476,3 +538,168 @@ def grant_export(request, pk, application_id):
         "active_page": "grants",
         **_nav(application, "review"),
     })
+
+
+# ── V1.1: real application import ────────────────────────────────────────────
+
+@login_required
+def grant_import(request, pk, application_id):
+    """Paste a real application. Parsing only — no answers are generated here."""
+    project, application = _application(request, pk, application_id)
+
+    if request.method == "POST":
+        raw_text = request.POST.get("raw_text") or ""
+        if not raw_text.strip():
+            messages.error(request, "Paste the application text before analyzing it.")
+        else:
+            from openoutreach.grants.services import imports
+            from openoutreach.grants.services.application_parser import parse_application
+
+            _apply_detail_edits(request, application)
+            parsed = parse_application(raw_text)
+            batch = imports.create_import(
+                application, raw_text, parsed, user=request.user,
+                source_label=(request.POST.get("source_label") or "").strip(),
+            )
+            request.session[f"grant_import_{batch.pk}"] = {
+                "questions": [
+                    {
+                        "text": q.text, "label": q.label, "section_group": q.section_group,
+                        "instructions": q.instructions, "question_type": q.question_type,
+                        "required": q.required, "word_limit": q.word_limit,
+                        "character_limit": q.character_limit, "page_limit_note": q.page_limit_note,
+                        "scoring_notes": q.scoring_notes, "order": q.order,
+                    }
+                    for q in parsed.questions
+                ],
+                "attachments": [
+                    {"title": a.title, "document_type": a.document_type} for a in parsed.attachments
+                ],
+                "unparsed": parsed.unparsed_blocks,
+            }
+            return redirect(
+                "project-grant-import-review", pk=pk, application_id=application_id, batch_id=batch.pk,
+            )
+
+    return render(request, "grants/grant_import.html", {
+        "project": project,
+        "organization": project.organization,
+        "application": application,
+        "statuses": GrantApplication.Status.choices,
+        "active_page": "grants",
+        **_nav(application, "application"),
+    })
+
+
+def _apply_detail_edits(request, application):
+    """Let the import screen correct the header facts while it is open."""
+    from decimal import Decimal, InvalidOperation
+
+    changed = []
+    title = (request.POST.get("title") or "").strip()
+    funder = (request.POST.get("funder_name") or "").strip()
+    deadline = (request.POST.get("deadline") or "").strip()
+    amount = (request.POST.get("requested_amount") or "").replace(",", "").replace("$", "").strip()
+
+    if title and title != application.title:
+        application.title = title[:500]
+        changed.append("title")
+    if funder and funder != application.funder_name:
+        application.funder_name = funder[:500]
+        changed.append("funder_name")
+    if deadline:
+        parsed_date = parse_date(deadline)
+        if parsed_date and parsed_date != application.deadline:
+            application.deadline = parsed_date
+            changed.append("deadline")
+    if amount:
+        try:
+            value = Decimal(amount)
+        except InvalidOperation:
+            value = None
+        if value is not None and value != application.requested_amount:
+            application.requested_amount = value
+            changed.append("requested_amount")
+    if changed:
+        application.save(update_fields=[*changed, "updated_at"])
+
+
+@login_required
+def grant_import_review(request, pk, application_id, batch_id):
+    """Review and correct what the parser found, then save. Human review is required."""
+    from openoutreach.grants.models import GrantApplicationImport
+    from openoutreach.grants.services import imports
+
+    project, application = _application(request, pk, application_id)
+    batch = get_object_or_404(GrantApplicationImport, pk=batch_id, application=application)
+    cached = request.session.get(f"grant_import_{batch.pk}") or {}
+
+    if request.method == "POST":
+        questions = imports.questions_from_post(request.POST)
+        attachments = imports.attachments_from_post(request.POST)
+        if not questions:
+            messages.error(request, "Add at least one question before saving.")
+        else:
+            instructions = [
+                line.strip()
+                for line in (request.POST.get("application_instructions") or "").splitlines()
+                if line.strip()
+            ]
+            batch.application_instructions = instructions
+            batch.save(update_fields=["application_instructions"])
+            created = imports.save_imported_questions(batch, questions, attachments)
+            request.session.pop(f"grant_import_{batch.pk}", None)
+            messages.success(
+                request,
+                f"Saved {len(created)} question{'s' if len(created) != 1 else ''} from the application.",
+            )
+            return redirect("project-grant-application", pk=pk, application_id=application_id)
+
+    return render(request, "grants/grant_import_review.html", {
+        "project": project,
+        "organization": project.organization,
+        "application": application,
+        "batch": batch,
+        "questions": cached.get("questions", []),
+        "attachments": cached.get("attachments", []),
+        "unparsed": cached.get("unparsed", []),
+        "instructions_text": "\n".join(batch.application_instructions or []),
+        "question_types": GrantApplicationSection.QuestionType.choices,
+        "document_types": DocumentVaultItem.DocumentType.choices,
+        "active_page": "grants",
+        **_nav(application, "application"),
+    })
+
+
+@login_required
+@require_POST
+def grant_attachment_toggle(request, pk, application_id, requirement_id):
+    """Tick or untick one attachment on the checklist."""
+    from openoutreach.grants.models import GrantAttachmentRequirement
+
+    _project, application = _application(request, pk, application_id)
+    requirement = get_object_or_404(
+        GrantAttachmentRequirement, pk=requirement_id, application=application,
+    )
+    requirement.confirmed = not requirement.confirmed
+    requirement.save(update_fields=["confirmed", "updated_at"])
+    return redirect(request.POST.get("next") or reverse(
+        "project-grant-overview", args=[pk, application_id],
+    ))
+
+
+def _application_instructions(application) -> list[str]:
+    """Application-wide rules from every import, newest first, de-duplicated.
+
+    These belong to the application, not to any one question, so parsing must
+    never lose them — they are shown on the overview.
+    """
+    seen: set[str] = set()
+    lines: list[str] = []
+    for batch in application.imports.all():
+        for line in batch.application_instructions or []:
+            key = line.strip().casefold()
+            if key and key not in seen:
+                seen.add(key)
+                lines.append(line.strip())
+    return lines

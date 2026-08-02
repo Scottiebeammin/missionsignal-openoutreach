@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Application Review — {{ application.title }}</title>
+  {% include "signals/_app_shell_styles.html" %}
+  {% include "grants/_grant_styles.html" %}
+  <style>
+    .q-card { border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; background: #fff; }
+    .q-card.deleted { opacity: .45; }
+    .q-head { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 10px; }
+    .q-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+    .q-grid .field { margin-bottom: 0; }
+    .checkline { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: .82rem; color: var(--muted); }
+    .checkline input { width: auto; }
+    @media (max-width: 900px) { .q-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="grants" %}
+  <main>
+    {% include "grants/_grant_header.html" %}
+
+    <section class="panel">
+      <h2>Application Review</h2>
+      <p class="muted">
+        Atlas detected {{ questions|length }} question{{ questions|length|pluralize }} in the text you pasted.
+        Check each one before saving — the parser is a starting point, not the final word. Your
+        corrections are what get saved.
+      </p>
+
+      <div class="grid grid-3" style="margin-top: 12px;">
+        <div class="metric-card">
+          <strong>{{ questions|length }}</strong><span>Questions detected</span>
+        </div>
+        <div class="metric-card">
+          <strong>{{ batch.get_parse_confidence_display }}</strong><span>Parse confidence</span>
+          <p class="basis">{% if batch.is_low_confidence %}Atlas may need help identifying these questions.{% else %}Still worth a read-through.{% endif %}</p>
+        </div>
+        <div class="metric-card">
+          <strong>{{ attachments|length }}</strong><span>Attachments detected</span>
+        </div>
+      </div>
+
+      {% if batch.parse_notes %}
+        <div class="panel" style="margin-top: 14px; border-left: 5px solid var(--gold); box-shadow: none;">
+          <h3>Atlas may need help here</h3>
+          <ul class="clean">
+            {% for note in batch.parse_notes %}<li>{{ note }}</li>{% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </section>
+
+    <form method="post" action="{% url 'project-grant-import-review' project.pk application.pk batch.pk %}">
+      {% csrf_token %}
+
+      <section class="panel">
+        <h2>Questions</h2>
+        <div id="question-list">
+          {% for q in questions %}
+            <div class="q-card" data-index="{{ forloop.counter0 }}">
+              <div class="q-head">
+                <div>
+                  <span class="pill">Question {{ forloop.counter }}</span>
+                  {% if q.section_group %}<span class="pill pill-ai">{{ q.section_group }}</span>{% endif %}
+                </div>
+                <label class="checkline">
+                  <input type="checkbox" name="q-{{ forloop.counter0 }}-delete" value="1"
+                         onchange="this.closest('.q-card').classList.toggle('deleted', this.checked)">
+                  Remove this question
+                </label>
+              </div>
+
+              <div class="field">
+                <label for="q-{{ forloop.counter0 }}-text">Question text (exactly as the funder wrote it)</label>
+                <textarea id="q-{{ forloop.counter0 }}-text" name="q-{{ forloop.counter0 }}-text"
+                          style="min-height: 78px;">{{ q.text }}</textarea>
+              </div>
+
+              {% if q.instructions %}
+                <div class="field">
+                  <label for="q-{{ forloop.counter0 }}-instructions">Funder's instructions for this question</label>
+                  <textarea id="q-{{ forloop.counter0 }}-instructions" name="q-{{ forloop.counter0 }}-instructions"
+                            style="min-height: 60px;">{{ q.instructions }}</textarea>
+                </div>
+              {% else %}
+                <input type="hidden" name="q-{{ forloop.counter0 }}-instructions" value="">
+              {% endif %}
+
+              <div class="q-grid">
+                <div class="field">
+                  <label for="q-{{ forloop.counter0 }}-section_group">Section</label>
+                  <input type="text" id="q-{{ forloop.counter0 }}-section_group"
+                         name="q-{{ forloop.counter0 }}-section_group" value="{{ q.section_group }}">
+                </div>
+                <div class="field">
+                  <label for="q-{{ forloop.counter0 }}-question_type">Type</label>
+                  <select id="q-{{ forloop.counter0 }}-question_type" name="q-{{ forloop.counter0 }}-question_type">
+                    {% for value, label in question_types %}
+                      <option value="{{ value }}" {% if q.question_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="q-{{ forloop.counter0 }}-word_limit">Word limit</label>
+                  <input type="number" min="0" id="q-{{ forloop.counter0 }}-word_limit"
+                         name="q-{{ forloop.counter0 }}-word_limit" value="{{ q.word_limit|default_if_none:'' }}">
+                </div>
+                <div class="field">
+                  <label for="q-{{ forloop.counter0 }}-character_limit">Character limit</label>
+                  <input type="number" min="0" id="q-{{ forloop.counter0 }}-character_limit"
+                         name="q-{{ forloop.counter0 }}-character_limit" value="{{ q.character_limit|default_if_none:'' }}">
+                </div>
+              </div>
+
+              <div class="q-grid" style="margin-top: 10px;">
+                <div class="field">
+                  <label for="q-{{ forloop.counter0 }}-order">Order</label>
+                  <input type="number" min="1" id="q-{{ forloop.counter0 }}-order"
+                         name="q-{{ forloop.counter0 }}-order" value="{{ q.order }}">
+                </div>
+                <div class="field">
+                  <label for="q-{{ forloop.counter0 }}-label">Funder's number</label>
+                  <input type="text" id="q-{{ forloop.counter0 }}-label"
+                         name="q-{{ forloop.counter0 }}-label" value="{{ q.label }}">
+                </div>
+                <div class="field">
+                  <label for="q-{{ forloop.counter0 }}-page_limit_note">Page limit</label>
+                  <input type="text" id="q-{{ forloop.counter0 }}-page_limit_note"
+                         name="q-{{ forloop.counter0 }}-page_limit_note" value="{{ q.page_limit_note }}">
+                </div>
+                <div class="field" style="display: flex; align-items: flex-end;">
+                  <label class="checkline">
+                    <input type="checkbox" name="q-{{ forloop.counter0 }}-required" value="1"
+                           {% if q.required %}checked{% endif %}>
+                    Required
+                  </label>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <p class="muted">
+              Atlas could not identify any questions in that text. Add them by hand below — one per box.
+            </p>
+          {% endfor %}
+        </div>
+
+        <button class="btn" type="button" id="add-question">+ Add a question Atlas missed</button>
+      </section>
+
+      {% if unparsed %}
+        <section class="panel">
+          <h2>Text Atlas could not place</h2>
+          <p class="muted">
+            These lines were left out. If any of them is really a question, add it above.
+          </p>
+          <ul class="clean">
+            {% for block in unparsed %}<li>{{ block }}</li>{% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+
+      <section class="panel">
+        <h2>Application-level instructions</h2>
+        <p class="muted">
+          Rules that apply to the whole application rather than one question. These are kept with the
+          application and shown on your overview — one per line.
+        </p>
+        <div class="field" style="margin-top: 10px;">
+          <label for="application_instructions">Instructions</label>
+          <textarea id="application_instructions" name="application_instructions"
+                    style="min-height: 120px;">{{ instructions_text }}</textarea>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Required attachments</h2>
+        <p class="muted">A checklist. Atlas links each one to your Document Vault where it can.</p>
+        <div id="attachment-list">
+          {% for a in attachments %}
+            <div class="q-card" style="padding: 12px;">
+              <div class="q-head" style="margin-bottom: 8px;">
+                <span class="pill">Attachment {{ forloop.counter }}</span>
+                <label class="checkline">
+                  <input type="checkbox" name="a-{{ forloop.counter0 }}-delete" value="1"
+                         onchange="this.closest('.q-card').classList.toggle('deleted', this.checked)">
+                  Remove
+                </label>
+              </div>
+              <div class="grid grid-2">
+                <div class="field">
+                  <label for="a-{{ forloop.counter0 }}-title">Document</label>
+                  <input type="text" id="a-{{ forloop.counter0 }}-title" name="a-{{ forloop.counter0 }}-title" value="{{ a.title }}">
+                </div>
+                <div class="field">
+                  <label for="a-{{ forloop.counter0 }}-document_type">Vault type</label>
+                  <select id="a-{{ forloop.counter0 }}-document_type" name="a-{{ forloop.counter0 }}-document_type">
+                    {% for value, label in document_types %}
+                      <option value="{{ value }}" {% if a.document_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <p class="muted">No attachments were detected in the pasted text.</p>
+          {% endfor %}
+        </div>
+        <button class="btn" type="button" id="add-attachment">+ Add an attachment</button>
+      </section>
+
+      <section class="panel">
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Save Application Questions</button>
+          <a class="btn" href="{% url 'project-grant-import' project.pk application.pk %}">Start over</a>
+          <a class="btn" href="{% url 'project-grant-application' project.pk application.pk %}">Cancel</a>
+        </div>
+        <p class="muted" style="margin-top: 10px; font-size: .84rem;">
+          Saving replaces any previously imported questions on this application. Answers you have
+          already approved are kept.
+        </p>
+      </section>
+    </form>
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+
+  <script>
+  (function () {
+    var questionList = document.getElementById("question-list");
+    var attachmentList = document.getElementById("attachment-list");
+    var nextQuestion = {{ questions|length }};
+    var nextAttachment = {{ attachments|length }};
+    var typeOptions = `{% for value, label in question_types %}<option value="{{ value }}">{{ label }}</option>{% endfor %}`;
+    var docOptions = `{% for value, label in document_types %}<option value="{{ value }}">{{ label }}</option>{% endfor %}`;
+
+    document.getElementById("add-question").addEventListener("click", function () {
+      var i = nextQuestion++;
+      var card = document.createElement("div");
+      card.className = "q-card";
+      card.innerHTML =
+        '<div class="q-head"><span class="pill">New question</span>' +
+        '<label class="checkline"><input type="checkbox" name="q-' + i + '-delete" value="1" ' +
+        'onchange="this.closest(\'.q-card\').classList.toggle(\'deleted\', this.checked)"> Remove this question</label></div>' +
+        '<div class="field"><label>Question text</label>' +
+        '<textarea name="q-' + i + '-text" style="min-height:78px;"></textarea></div>' +
+        '<div class="q-grid">' +
+        '<div class="field"><label>Section</label><input type="text" name="q-' + i + '-section_group"></div>' +
+        '<div class="field"><label>Type</label><select name="q-' + i + '-question_type">' + typeOptions + '</select></div>' +
+        '<div class="field"><label>Word limit</label><input type="number" min="0" name="q-' + i + '-word_limit"></div>' +
+        '<div class="field"><label>Character limit</label><input type="number" min="0" name="q-' + i + '-character_limit"></div>' +
+        '</div>' +
+        '<div class="q-grid" style="margin-top:10px;">' +
+        '<div class="field"><label>Order</label><input type="number" min="1" name="q-' + i + '-order" value="' + (i + 1) + '"></div>' +
+        '<div class="field"><label>Funder\'s number</label><input type="text" name="q-' + i + '-label"></div>' +
+        '<div class="field"><label>Page limit</label><input type="text" name="q-' + i + '-page_limit_note"></div>' +
+        '<div class="field" style="display:flex;align-items:flex-end;"><label class="checkline">' +
+        '<input type="checkbox" name="q-' + i + '-required" value="1" checked> Required</label></div>' +
+        '</div>' +
+        '<input type="hidden" name="q-' + i + '-instructions" value="">';
+      questionList.appendChild(card);
+      card.querySelector("textarea").focus();
+    });
+
+    document.getElementById("add-attachment").addEventListener("click", function () {
+      var i = nextAttachment++;
+      var card = document.createElement("div");
+      card.className = "q-card";
+      card.style.padding = "12px";
+      card.innerHTML =
+        '<div class="q-head" style="margin-bottom:8px;"><span class="pill">New attachment</span>' +
+        '<label class="checkline"><input type="checkbox" name="a-' + i + '-delete" value="1" ' +
+        'onchange="this.closest(\'.q-card\').classList.toggle(\'deleted\', this.checked)"> Remove</label></div>' +
+        '<div class="grid grid-2">' +
+        '<div class="field"><label>Document</label><input type="text" name="a-' + i + '-title"></div>' +
+        '<div class="field"><label>Vault type</label><select name="a-' + i + '-document_type">' + docOptions + '</select></div>' +
+        '</div>';
+      attachmentList.appendChild(card);
+      card.querySelector("input").focus();
+    });
+  })();
+  </script>
+</body>
+</html>

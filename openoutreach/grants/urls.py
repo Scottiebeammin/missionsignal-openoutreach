@@ -70,6 +70,21 @@ urlpatterns = [
         name="project-grant-details",
     ),
     path(
+        "projects/<int:pk>/grants/<int:application_id>/import/",
+        views.grant_import,
+        name="project-grant-import",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/import/<int:batch_id>/review/",
+        views.grant_import_review,
+        name="project-grant-import-review",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/attachments/<int:requirement_id>/toggle/",
+        views.grant_attachment_toggle,
+        name="project-grant-attachment-toggle",
+    ),
+    path(
         "projects/<int:pk>/grants/<int:application_id>/export/",
         views.grant_export,
         name="project-grant-export",

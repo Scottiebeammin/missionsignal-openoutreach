@@ -135,8 +135,16 @@ def _budget_metric(context: GrantContext, application) -> Metric:
 
 
 def build_application_review(application, context: GrantContext, sections=None) -> ApplicationReview:
-    """Everything the Review screen shows, computed from real section state."""
-    sections = list(application.sections.all()) if sections is None else list(sections)
+    """Everything the Review screen shows, computed from real section state.
+
+    Once the real application has been imported, the funder's own questions are
+    the yardstick — not Atlas's 14-section template. ``answerable_sections``
+    makes that switch, so "7 of 10" always refers to what the funder asked.
+    """
+    all_sections = list(application.sections.all()) if sections is None else list(sections)
+    sections = application.answerable_sections(all_sections)
+    imported_mode = any(s.is_imported or s.source_type == GrantApplicationSection.SourceType.MANUAL
+                        for s in sections)
     required = [section for section in sections if section.required]
     approved = [section for section in sections if section.is_approved]
     approved_required = [section for section in required if section.is_approved]
@@ -145,14 +153,19 @@ def build_application_review(application, context: GrantContext, sections=None) 
     draftable = 0
     blocked = 0
     issues: list[Issue] = []
+    needs_org_info = 0
 
     for section in sections:
-        spec = spec_for(section.section_key)
-        if spec is None:
-            continue
-        missing = context.missing_for(spec.requirements)
+        spec = spec_for(section.section_key) if not section.is_imported else None
+        if spec is not None:
+            missing = context.missing_for(spec.requirements)
+        else:
+            # Imported question: ask the analyzer what this question depends on.
+            from openoutreach.grants.services.question_analysis import analyze_question
+            missing = analyze_question(section, context).missing_information
         if missing:
             blocked += 1
+            needs_org_info += 1
         else:
             draftable += 1
 
@@ -161,16 +174,27 @@ def build_application_review(application, context: GrantContext, sections=None) 
                 issues.append(Issue(section.title, "No response drafted yet.", section.section_key))
             continue
 
-        review = grant_coach.review_section(section, context, spec)
-        for finding in review.findings:
-            if finding.kind in {grant_coach.UNSUPPORTED_CLAIM, grant_coach.POSSIBLE_MISMATCH}:
-                issues.append(Issue(section.title, finding.message, section.section_key))
-        if review.information_needed_markers:
+        if spec is not None:
+            review = grant_coach.review_section(section, context, spec)
+            for finding in review.findings:
+                if finding.kind in {grant_coach.UNSUPPORTED_CLAIM, grant_coach.POSSIBLE_MISMATCH}:
+                    issues.append(Issue(section.title, finding.message, section.section_key))
+            markers = review.information_needed_markers
+        else:
+            imported_review = grant_coach.review_imported_question(section, context)
+            if imported_review.unsupported_numbers:
+                issues.append(Issue(
+                    section.title,
+                    "Contains figures Atlas cannot trace to your organization data "
+                    f"({', '.join(imported_review.unsupported_numbers[:4])}).",
+                    section.section_key,
+                ))
+            markers = imported_review.information_needed_markers
+        if markers:
             issues.append(Issue(
                 section.title,
-                f"{len(review.information_needed_markers)} placeholder"
-                f"{'s' if len(review.information_needed_markers) != 1 else ''} still to fill: "
-                + "; ".join(review.information_needed_markers[:3]),
+                f"{len(markers)} placeholder{'s' if len(markers) != 1 else ''} still to fill: "
+                + "; ".join(markers[:3]),
                 section.section_key,
             ))
         if section.over_character_limit:
@@ -193,16 +217,36 @@ def build_application_review(application, context: GrantContext, sections=None) 
     if application.deadline is None:
         issues.append(Issue("Application", "No deadline recorded for this opportunity."))
 
+    # Attachment checklist — the funder asked for documents, not just answers.
+    attachments = list(application.attachment_requirements.select_related("linked_document"))
+    unconfirmed = [item for item in attachments if not item.is_satisfied]
+    for item in unconfirmed:
+        issues.append(Issue("Required attachments", f"{item.title} is not confirmed yet."))
+
     completion = application.completion_percent(sections)
     required_count = len(required) or len(sections)
+    unit = "questions" if imported_mode else "sections"
 
     metrics = [
         Metric(
             "Application Completeness",
             f"{completion}%",
             completion,
-            f"{len(approved_required)} of {required_count} required sections approved; "
-            "drafted-but-unapproved sections count half.",
+            f"{len(approved_required)} of {required_count} required {unit} approved; "
+            "drafted-but-unapproved answers count half.",
+        ),
+        Metric(
+            "Required Questions Complete" if imported_mode else "Required Sections Complete",
+            f"{len(approved_required)} / {required_count}",
+            None,
+            (
+                f"{needs_org_info} {'question' if needs_org_info == 1 else 'questions'} still need "
+                f"organization information. "
+                + (
+                    f"{len(unconfirmed)} of {len(attachments)} required attachments not confirmed."
+                    if attachments else "No attachment requirements recorded."
+                )
+            ),
         ),
         Metric(
             "Information Coverage",

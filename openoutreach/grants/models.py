@@ -22,7 +22,7 @@ from django.conf import settings
 from django.db import models
 
 from openoutreach.core.models import Organization, Project
-from openoutreach.funding.models import FundingSignal, Opportunity
+from openoutreach.funding.models import DocumentVaultItem, FundingSignal, Opportunity
 
 
 class GrantApplication(models.Model):
@@ -98,6 +98,37 @@ class GrantApplication(models.Model):
         """Grouped currency for templates (humanize is not installed)."""
         return f"${self.requested_amount:,.0f}" if self.requested_amount is not None else ""
 
+    def answerable_sections(self, sections=None) -> list:
+        """The sections completion is actually measured against.
+
+        Once the real application has been imported, the standard template is no
+        longer the yardstick — the funder's own questions are. Template rows are
+        kept (an org may have drafted against them before importing) but they
+        stop counting, so "7 of 10" always means the funder's ten questions.
+
+        Informational and attachment questions are excluded: they are not
+        answers a person writes into a box.
+        """
+        sections = list(self.sections.all()) if sections is None else list(sections)
+        imported = [s for s in sections if s.source_type != GrantApplicationSection.SourceType.TEMPLATE]
+        pool = imported or sections
+        return [
+            s for s in pool
+            if s.question_type not in {
+                GrantApplicationSection.QuestionType.INFORMATIONAL,
+                GrantApplicationSection.QuestionType.ATTACHMENT,
+            }
+        ]
+
+    @property
+    def has_imported_questions(self) -> bool:
+        return self.sections.filter(
+            source_type__in=(
+                GrantApplicationSection.SourceType.IMPORTED,
+                GrantApplicationSection.SourceType.MANUAL,
+            )
+        ).exists()
+
     def completion_percent(self, sections=None) -> int:
         """Completion derived from real section status — never stored, never guessed.
 
@@ -107,7 +138,7 @@ class GrantApplication(models.Model):
         sections only count once they have been started, so an org is never
         penalized for skipping a section this funder didn't ask for.
         """
-        sections = list(self.sections.all()) if sections is None else list(sections)
+        sections = self.answerable_sections(sections)
         if not sections:
             return 0
         weights = {
@@ -126,14 +157,155 @@ class GrantApplication(models.Model):
         return round((earned / len(counted)) * 100)
 
 
+class GrantApplicationImport(models.Model):
+    """One paste of a real application's text, and what Atlas made of it.
+
+    Kept as its own row so the funder's original text survives verbatim. If the
+    parser gets something wrong, the source is still there to re-read — Atlas
+    never has only its own interpretation of what the funder asked.
+    """
+
+    class Status(models.TextChoices):
+        PARSED = "parsed", "Parsed — awaiting review"
+        SAVED = "saved", "Saved to application"
+        DISCARDED = "discarded", "Discarded"
+
+    class Confidence(models.TextChoices):
+        HIGH = "high", "High"
+        MEDIUM = "medium", "Medium"
+        LOW = "low", "Low"
+
+    application = models.ForeignKey(
+        GrantApplication, on_delete=models.CASCADE, related_name="imports",
+    )
+    # The paste, verbatim. Never rewritten.
+    raw_text = models.TextField()
+    source_label = models.CharField(
+        max_length=300, blank=True, default="",
+        help_text="Where the text came from, e.g. 'Foundation portal, Section 2'.",
+    )
+    # Application-wide rules that belong to no single question (font size, page
+    # setup, eligibility statements). Kept apart so parsing can't lose them.
+    application_instructions = models.JSONField(default=list, blank=True)
+    parse_confidence = models.CharField(
+        max_length=10, choices=Confidence.choices, default=Confidence.MEDIUM,
+    )
+    # Human-readable notes about what the parser was unsure of.
+    parse_notes = models.JSONField(default=list, blank=True)
+    detected_question_count = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PARSED)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="grant_application_imports",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    saved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        return f"Import for {self.application_id} ({self.detected_question_count} questions)"
+
+    @property
+    def is_low_confidence(self) -> bool:
+        return self.parse_confidence == self.Confidence.LOW
+
+
+class GrantAttachmentRequirement(models.Model):
+    """A document the funder asks to be attached, detected from the application text.
+
+    V1.1 is a checklist: it tracks what the funder wants and lets a person
+    confirm they have it. Where the organization's Document Vault already holds
+    the document, ``linked_document`` points at it rather than storing a copy —
+    the vault stays the single home for documents.
+    """
+
+    application = models.ForeignKey(
+        GrantApplication, on_delete=models.CASCADE, related_name="attachment_requirements",
+    )
+    title = models.CharField(max_length=300)
+    # Reuses the Document Vault's own vocabulary so a requirement can be matched
+    # to a vault item instead of inventing a parallel taxonomy.
+    document_type = models.CharField(
+        max_length=40, choices=DocumentVaultItem.DocumentType.choices,
+        default=DocumentVaultItem.DocumentType.OTHER,
+    )
+    linked_document = models.ForeignKey(
+        DocumentVaultItem, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="grant_attachment_requirements",
+    )
+    confirmed = models.BooleanField(default=False)
+    notes = models.TextField(blank=True, default="")
+    order = models.PositiveSmallIntegerField(default=0)
+    source_import = models.ForeignKey(
+        GrantApplicationImport, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="attachment_requirements",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("order", "title")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("application", "title"), name="unique_application_attachment_title",
+            ),
+        ]
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def is_satisfied(self) -> bool:
+        """Confirmed by a person, or already sitting in the Document Vault."""
+        if self.confirmed:
+            return True
+        return bool(
+            self.linked_document_id
+            and self.linked_document.status == DocumentVaultItem.Status.AVAILABLE
+        )
+
+
 class GrantApplicationSection(models.Model):
-    """One answer inside a grant application."""
+    """One answer inside a grant application.
+
+    Two origins share this model: sections generated from Atlas's standard
+    template, and questions imported verbatim from a real application. The
+    difference is carried by ``source_type`` — imported rows keep the funder's
+    exact wording in ``original_question``, which is never rewritten.
+    """
 
     class Status(models.TextChoices):
         NOT_STARTED = "not_started", "Not Started"
         NEEDS_INFORMATION = "needs_information", "Needs Information"
         DRAFTED = "drafted", "Drafted"
         APPROVED = "approved", "Approved"
+
+    class SourceType(models.TextChoices):
+        TEMPLATE = "template", "Atlas standard template"
+        IMPORTED = "imported", "Imported from the real application"
+        MANUAL = "manual", "Added by hand"
+
+    class QuestionType(models.TextChoices):
+        NARRATIVE = "narrative", "Narrative"
+        SHORT_TEXT = "short_text", "Short text"
+        LONG_TEXT = "long_text", "Long text"
+        NUMERIC = "numeric", "Numeric"
+        CURRENCY = "currency", "Currency"
+        DATE = "date", "Date"
+        YES_NO = "yes_no", "Yes / No"
+        MULTIPLE_CHOICE = "multiple_choice", "Multiple choice"
+        ATTACHMENT = "attachment", "Attachment"
+        INFORMATIONAL = "informational", "Informational"
+        UNKNOWN = "unknown", "Unknown"
+
+    # Question types Atlas will draft prose for. Everything else is a field the
+    # organization fills in itself — drafting a "Yes/No" is not a service.
+    DRAFTABLE_TYPES = frozenset({
+        QuestionType.NARRATIVE, QuestionType.LONG_TEXT, QuestionType.SHORT_TEXT,
+        QuestionType.UNKNOWN,
+    })
 
     application = models.ForeignKey(
         GrantApplication, on_delete=models.CASCADE, related_name="sections",
@@ -146,9 +318,42 @@ class GrantApplicationSection(models.Model):
     required = models.BooleanField(default=True)
 
     # The funder's real question when Atlas knows it; otherwise the standard
-    # template's phrasing of what this section has to answer.
+    # template's phrasing of what this section has to answer. Editable.
     funder_question = models.TextField(blank=True, default="")
+    # The imported question EXACTLY as the funder wrote it. Set once at import
+    # and never rewritten — `funder_question` is the editable working copy, this
+    # is the record of what was actually asked.
+    original_question = models.TextField(blank=True, default="")
     guidance = models.JSONField(default=list, blank=True)
+
+    # ── Imported-application fields (blank for standard-template sections) ──
+    source_type = models.CharField(
+        max_length=20, choices=SourceType.choices, default=SourceType.TEMPLATE,
+    )
+    question_type = models.CharField(
+        max_length=20, choices=QuestionType.choices, default=QuestionType.NARRATIVE,
+    )
+    # The funder's own section heading, e.g. "Organization Information".
+    section_group = models.CharField(max_length=300, blank=True, default="")
+    # Per-question instructions printed under the question on the real form.
+    instructions = models.TextField(blank=True, default="")
+    # Position in the real application, preserved separately from `order` so a
+    # user can reorder the workspace without losing the funder's numbering.
+    imported_order = models.PositiveSmallIntegerField(default=0)
+    imported_label = models.CharField(
+        max_length=40, blank=True, default="",
+        help_text="The funder's own numbering, e.g. '3' or 'B.2'.",
+    )
+    import_batch = models.ForeignKey(
+        "GrantApplicationImport", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="sections",
+    )
+    # Reviewer/scoring guidance the funder published for this question.
+    scoring_notes = models.TextField(blank=True, default="")
+    # A page limit is recorded and shown, not enforced — Atlas counts words and
+    # characters, and cannot know the funder's page geometry.
+    page_limit_note = models.CharField(max_length=120, blank=True, default="")
+    attachment_requirement = models.CharField(max_length=300, blank=True, default="")
 
     # AI output and human-approved text are kept apart on purpose: regeneration
     # only ever touches draft_response.
@@ -221,6 +426,34 @@ class GrantApplicationSection(models.Model):
         if self.word_limit:
             return f"{self.word_count:,} / {self.word_limit:,} words"
         return f"{self.word_count:,} words · {self.character_count:,} characters"
+
+    # ── Imported-question helpers ──────────────────────────────────────────
+
+    @property
+    def is_imported(self) -> bool:
+        return self.source_type == self.SourceType.IMPORTED
+
+    @property
+    def asked_question(self) -> str:
+        """What to show the writer: the funder's exact words when we have them."""
+        return self.original_question or self.funder_question
+
+    @property
+    def is_draftable_type(self) -> bool:
+        """Whether drafting prose makes sense for this question type."""
+        return self.question_type in self.DRAFTABLE_TYPES
+
+    @property
+    def requirement_label(self) -> str:
+        """One line summarising what the funder demands, for the question header."""
+        parts = ["Required" if self.required else "Optional"]
+        if self.character_limit:
+            parts.append(f"maximum {self.character_limit:,} characters")
+        elif self.word_limit:
+            parts.append(f"maximum {self.word_limit:,} words")
+        if self.page_limit_note:
+            parts.append(self.page_limit_note)
+        return " · ".join(parts)
 
 
 class GrantAnswerLibraryItem(models.Model):
