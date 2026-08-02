@@ -114,6 +114,7 @@ INSTALLED_APPS = [
     "openoutreach.signals.apps.SignalsConfig",
     "openoutreach.sources.apps.SourcesConfig",
     "openoutreach.funding.apps.FundingConfig",
+    "openoutreach.grants.apps.GrantsConfig",
 ]
 
 MIDDLEWARE = [

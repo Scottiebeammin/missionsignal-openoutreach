@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Application — {{ application.title }}</title>
+  {% include "signals/_app_shell_styles.html" %}
+  {% include "grants/_grant_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="grants" %}
+  <main>
+    {% include "grants/_grant_header.html" %}
+
+    <section class="panel">
+      <h2>Application sections</h2>
+      <p class="muted">
+        Open a section to see the funder's question, what Atlas already knows, what is missing,
+        and the draft response. Approved answers are marked — an AI draft is never treated as approved.
+      </p>
+      <div class="table-wrap" style="margin-top: 12px;">
+        <table>
+          <thead>
+            <tr><th>Section</th><th>Status</th><th>Length</th><th>Atlas knows</th><th>Information needed</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td>
+                  <strong>{{ row.section.title }}</strong>
+                  {% if not row.section.required %}<span class="pill" style="margin-left: 6px;">Optional</span>{% endif %}
+                  <div class="muted" style="margin-top: 4px; font-size: .8rem;">{{ row.section.funder_question|truncatechars:120 }}</div>
+                </td>
+                <td>
+                  <span class="pill pill-{{ row.section.status }}">{{ row.section.get_status_display }}</span>
+                  {% if row.section.draft_response and not row.section.is_approved %}
+                    <div style="margin-top: 5px;"><span class="pill pill-ai">AI draft — not approved</span></div>
+                  {% endif %}
+                </td>
+                <td class="muted" style="white-space: nowrap;">
+                  {{ row.section.limit_label }}
+                  {% if row.section.over_limit %}<div><span class="pill pill-needs-attention">Over limit</span></div>{% endif %}
+                </td>
+                <td class="muted" style="font-size: .8rem;">
+                  {% if row.available %}{{ row.available|join:", "|truncatechars:110 }}{% else %}Nothing yet{% endif %}
+                </td>
+                <td style="font-size: .8rem;">
+                  {% if row.missing %}
+                    {% for item in row.missing %}<div>{{ item.label }}</div>{% endfor %}
+                  {% else %}
+                    <span class="muted">Nothing missing</span>
+                  {% endif %}
+                </td>
+                <td><a class="btn btn-sm" href="{% url 'project-grant-section' project.pk application.pk row.section.section_key %}">Open</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top: 14px;" class="actions">
+        <a class="btn" href="{% url 'project-grant-review' project.pk application.pk %}">Review the application</a>
+        <a class="btn btn-primary" href="{% url 'project-grant-export' project.pk application.pk %}">Full draft &amp; export</a>
+      </p>
+    </section>
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>

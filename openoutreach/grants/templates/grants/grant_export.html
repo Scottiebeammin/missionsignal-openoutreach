@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Full Draft — {{ application.title }}</title>
+  {% include "signals/_app_shell_styles.html" %}
+  {% include "grants/_grant_styles.html" %}
+  <style>
+    @media print {
+      .sidebar, .subnav, .no-print, .msg { display: none !important; }
+      body { padding-left: 0 !important; background: #fff !important; }
+      .panel { box-shadow: none; border-color: #ccc; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="grants" %}
+  <main>
+    {% include "grants/_grant_header.html" %}
+
+    <section class="panel no-print">
+      <h2>Copy or export</h2>
+      <p class="muted">
+        Copy the full draft into the funder's real application form, or print it (choose
+        "Save as PDF" in the print dialog) for internal review.
+      </p>
+      <div class="actions" style="margin-top: 10px;">
+        <button class="btn btn-primary" type="button" id="copy-all">Copy Full Draft</button>
+        <button class="btn" type="button" onclick="window.print()">Print / Save as PDF</button>
+        <a class="btn" href="{% url 'project-grant-review' project.pk application.pk %}">Back to review</a>
+      </div>
+      {% if review.issues %}
+        <p style="margin-top: 12px;">
+          <span class="pill pill-needs-attention">{{ review.issue_count }} issue{{ review.issue_count|pluralize }} outstanding</span>
+          <span class="muted" style="margin-left: 6px;">Resolve these before submitting.</span>
+        </p>
+      {% endif %}
+    </section>
+
+    <section class="panel" id="full-draft">
+      <h2>{{ application.title }}</h2>
+      <p class="muted">
+        {{ organization.name }}{% if application.funder_name %} · {{ application.funder_name }}{% endif %}
+        {% if application.deadline %} · Deadline {{ application.deadline|date:"F j, Y" }}{% endif %}
+      </p>
+
+      {% for section in sections %}
+        <article style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line);">
+          <h3>{{ section.title }}</h3>
+          <p class="muted" style="font-size: .82rem;">
+            {{ section.funder_question }}
+            <br>
+            {% if section.is_approved %}
+              <span class="pill pill-approved">Approved</span>
+            {% else %}
+              <span class="pill pill-ai">Draft — not approved</span>
+            {% endif %}
+            <span class="muted">{{ section.limit_label }}</span>
+          </p>
+          <p class="answer-body">{{ section.current_text }}</p>
+          <button class="btn btn-sm no-print copy-one" type="button" data-target="answer-{{ section.pk }}">Copy this answer</button>
+          <textarea id="answer-{{ section.pk }}" style="position: absolute; left: -9999px; height: 1px;" readonly>{{ section.current_text }}</textarea>
+        </article>
+      {% empty %}
+        <div class="empty">
+          <h3>Nothing drafted yet</h3>
+          <p>Once you draft or approve answers, the full application appears here ready to copy.</p>
+          <a class="btn btn-primary" href="{% url 'project-grant-application' project.pk application.pk %}">Open the application</a>
+        </div>
+      {% endfor %}
+    </section>
+
+    {% if empty_sections %}
+      <section class="panel no-print">
+        <h2>Not yet drafted</h2>
+        <ul class="clean">
+          {% for section in empty_sections %}
+            <li><a href="{% url 'project-grant-section' project.pk application.pk section.section_key %}">{{ section.title }}</a>{% if not section.required %} <span class="muted">(optional)</span>{% endif %}</li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+
+  <script>
+  (function () {
+    function copyText(text, button) {
+      var original = button.textContent;
+      function done() { button.textContent = "Copied ✓"; setTimeout(function () { button.textContent = original; }, 1600); }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done);
+        return;
+      }
+      var scratch = document.createElement("textarea");
+      scratch.value = text;
+      scratch.style.position = "fixed";
+      scratch.style.left = "-9999px";
+      document.body.appendChild(scratch);
+      scratch.select();
+      document.execCommand("copy");
+      document.body.removeChild(scratch);
+      done();
+    }
+
+    document.querySelectorAll(".copy-one").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var field = document.getElementById(button.dataset.target);
+        if (field) { copyText(field.value, button); }
+      });
+    });
+
+    var all = document.getElementById("copy-all");
+    if (all) {
+      all.addEventListener("click", function () {
+        var parts = [];
+        document.querySelectorAll("#full-draft article").forEach(function (article) {
+          var heading = article.querySelector("h3");
+          var body = article.querySelector("textarea");
+          if (heading && body) { parts.push(heading.textContent.trim() + "\n\n" + body.value.trim()); }
+        });
+        copyText(parts.join("\n\n\n"), all);
+      });
+    }
+  })();
+  </script>
+</body>
+</html>

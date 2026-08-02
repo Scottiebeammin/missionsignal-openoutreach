@@ -22,6 +22,9 @@ urlpatterns = [
     # Google Search Console URL-prefix verification (Domain property uses a DNS TXT record instead).
     path("googlea6345ee15704b2ab.html", TemplateView.as_view(
         template_name="googlea6345ee15704b2ab.html", content_type="text/html")),
+    # Grant Builder is mounted before the portal's own routes so its
+    # projects/<pk>/grants/... paths resolve without touching signals.urls.
+    path("", include("openoutreach.grants.urls")),
     path("", include("openoutreach.signals.urls")),
     path("admin/", admin.site.urls),
     # Authentication

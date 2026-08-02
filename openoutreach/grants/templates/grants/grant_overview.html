@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ application.title }} — Grant Builder</title>
+  {% include "signals/_app_shell_styles.html" %}
+  {% include "grants/_grant_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="grants" %}
+  <main>
+    {% include "grants/_grant_header.html" %}
+
+    <section class="panel">
+      <h2>Grant preparation readiness</h2>
+      <div class="grid grid-4">
+        <div class="metric-card">
+          <strong>{{ readiness.score }}%</strong><span>Grant Preparation Readiness</span>
+          <p class="basis">{{ readiness.level }}</p>
+        </div>
+        <div class="metric-card">
+          <strong>{{ readiness.draftable_sections }} of {{ readiness.total_sections }}</strong>
+          <span>Sections Atlas can draft now</span>
+          <p class="basis">The rest need information Atlas does not have yet.</p>
+        </div>
+        <div class="metric-card">
+          <strong>{{ readiness.organization_score }}%</strong><span>Organization Completeness</span>
+          <p class="basis">From your <a href="{% url 'project-readiness' project.pk %}">Readiness dashboard</a>.</p>
+        </div>
+        <div class="metric-card">
+          <strong>{{ review.issue_count }}</strong><span>Issues before submission</span>
+          <p class="basis"><a href="{% url 'project-grant-review' project.pk application.pk %}">Open the review →</a></p>
+        </div>
+      </div>
+
+      {% if readiness.still_needed %}
+        <h3 style="margin-top: 18px;">Still needed</h3>
+        <ul class="clean">
+          {% for item in readiness.still_needed|slice:":6" %}
+            <li><strong>{{ item.label }}</strong> — <span class="muted">{{ item.hint }}</span></li>
+          {% endfor %}
+        </ul>
+        <p style="margin-top: 12px;">
+          <a class="btn btn-sm" href="{% url 'project-grant-missing' project.pk application.pk %}">See all missing information</a>
+        </p>
+      {% else %}
+        <p class="muted" style="margin-top: 14px;">
+          Atlas has every piece of information this template asks for. Nothing is blocking a full draft.
+        </p>
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>Sections</h2>
+      <div class="grid grid-3">
+        {% for section in sections %}
+          <article class="card">
+            <h3><a href="{% url 'project-grant-section' project.pk application.pk section.section_key %}">{{ section.title }}</a></h3>
+            <span class="pill pill-{{ section.status }}">{{ section.get_status_display }}</span>
+            {% if not section.required %}<span class="pill">Optional</span>{% endif %}
+            {% if section.missing_information %}
+              <p class="muted" style="margin: 8px 0 0; font-size: .8rem;">
+                Needs: {{ section.missing_information|join:", " }}
+              </p>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+      <p style="margin-top: 14px;">
+        <a class="btn btn-primary" href="{% url 'project-grant-application' project.pk application.pk %}">Open the application</a>
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>What Atlas already knows about you</h2>
+      <p class="muted">
+        These are the facts Grant Builder draws on. Everything written into this application comes
+        from here — Atlas never invents organizational facts.
+      </p>
+      <div class="table-wrap" style="margin-top: 10px;">
+        <table>
+          <thead><tr><th>Source</th><th>What Atlas has</th></tr></thead>
+          <tbody>
+            {% for fact in known_facts %}
+              <tr>
+                <td style="white-space: nowrap;"><strong>{{ fact.label }}</strong></td>
+                <td class="muted answer-body">{{ fact.value|truncatechars:320 }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="2">Atlas has no organization facts yet. Complete your organization profile to begin.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Grant details</h2>
+      <form method="post" action="{% url 'project-grant-details' project.pk application.pk %}">
+        {% csrf_token %}
+        <div class="grid grid-3">
+          <div class="field">
+            <label for="funder_name">Funder</label>
+            <input type="text" id="funder_name" name="funder_name" value="{{ application.funder_name }}">
+          </div>
+          <div class="field">
+            <label for="deadline">Deadline</label>
+            <input type="date" id="deadline" name="deadline" value="{{ application.deadline|date:'Y-m-d' }}">
+          </div>
+          <div class="field">
+            <label for="requested_amount">Requested amount (USD)</label>
+            <input type="number" step="0.01" id="requested_amount" name="requested_amount" value="{{ application.requested_amount|default_if_none:'' }}">
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Save details</button>
+      </form>
+
+      <form method="post" action="{% url 'project-grant-status' project.pk application.pk %}" style="margin-top: 16px;">
+        {% csrf_token %}
+        <label for="status">Application status</label>
+        <div class="actions">
+          <select id="status" name="status" style="max-width: 260px;">
+            {% for value, label in statuses %}
+              <option value="{{ value }}" {% if application.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn" type="submit">Update status</button>
+        </div>
+      </form>
+    </section>
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>

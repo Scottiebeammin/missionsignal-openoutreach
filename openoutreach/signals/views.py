@@ -1116,6 +1116,11 @@ def project_opportunity_workspace(request, pk, opportunity_id):
     pursuit_readiness = build_opportunity_pursuit_readiness(project, opportunity)
     document_summary = build_opportunity_document_summary(project, opportunity)
     relationship_context = build_opportunity_relationship_context(project, opportunity)
+    # Grant Builder entry point: Start Grant Draft, or Continue when one exists.
+    from openoutreach.grants.models import GrantApplication
+    grant_application = GrantApplication.objects.filter(
+        project=project, opportunity=opportunity,
+    ).prefetch_related("sections").first()
     return render(
         request,
         "signals/project_opportunity_workspace.html",
@@ -1123,6 +1128,8 @@ def project_opportunity_workspace(request, pk, opportunity_id):
             "project": project,
             "organization": project.organization,
             "opportunity": opportunity,
+            "grant_application": grant_application,
+            "grant_completion": grant_application.completion_percent() if grant_application else 0,
             "workspace": workspace,
             "pursuit_readiness": pursuit_readiness,
             "document_summary": document_summary,

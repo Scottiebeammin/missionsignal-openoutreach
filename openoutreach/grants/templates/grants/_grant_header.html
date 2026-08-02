@@ -1,0 +1,39 @@
+{% if messages %}
+  {% for message in messages %}
+    <div class="msg {% if message.tags == 'error' %}msg-error{% elif message.tags == 'success' %}msg-success{% endif %}">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+<header class="hero panel">
+  <section>
+    <p class="eyebrow">Atlas Grant Builder</p>
+    <h1>{{ application.title }}</h1>
+    <p class="muted">
+      {% if application.funder_name %}Funder: {{ application.funder_name }}{% else %}Funder not recorded{% endif %}
+      {% if application.deadline %} · Deadline: {{ application.deadline|date:"F j, Y" }}{% endif %}
+      {% if application.requested_amount %} · Requested: {{ application.requested_amount_display }}{% endif %}
+    </p>
+    <div class="actions" style="margin-top: 10px;">
+      <span class="pill pill-{{ application.status }}">{{ application.get_status_display }}</span>
+      {% if application.source_url %}
+        <a class="btn btn-sm" href="{{ application.source_url }}" target="_blank" rel="noopener">Open the real application ↗</a>
+      {% endif %}
+      <a class="btn btn-sm" href="{% url 'project-opportunity-workspace' project.pk application.opportunity_id %}">Opportunity workspace</a>
+    </div>
+  </section>
+  <section>
+    <h2>Grant Builder Completion</h2>
+    <p style="font-size: 2.1rem; font-weight: 800; line-height: 1; margin-bottom: 8px;">{{ completion|default:application.completion_percent }}%</p>
+    <div class="bar"><i style="width: {{ completion|default:application.completion_percent }}%"></i></div>
+    <p class="muted" style="margin-top: 10px; font-size: .82rem;">
+      Derived from the real status of every section — approved answers count in full,
+      unapproved drafts count half.
+    </p>
+  </section>
+</header>
+
+<nav class="subnav" aria-label="Grant Builder sections">
+  {% for key, label, url in grant_nav %}
+    <a class="{% if grant_nav_active == key %}active{% endif %}" href="{{ url }}">{{ label }}</a>
+  {% endfor %}
+</nav>

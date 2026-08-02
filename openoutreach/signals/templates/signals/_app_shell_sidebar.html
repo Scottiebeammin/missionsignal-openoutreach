@@ -19,6 +19,7 @@
       <span class="nav-label">Act</span>
       <a class="{% if active_page == 'opportunities' or active_page == 'discovery' or active_page == 'matching' %}active{% endif %}" href="{% url 'project-opportunities' project.pk %}">Opportunities <span>Choose what to chase</span></a>
       <a class="{% if active_page == 'pipeline' %}active{% endif %}" href="{% url 'project-pipeline' project.pk %}">Pipeline <span>Track your pursuits</span></a>
+      <a class="{% if active_page == 'grants' %}active{% endif %}" href="{% url 'project-grants' project.pk %}">Grant Builder <span>Turn what Atlas knows into answers</span></a>
     </div>
 
     <div class="nav-section">

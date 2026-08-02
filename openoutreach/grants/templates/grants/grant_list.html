@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grant Builder — {{ organization.name }}</title>
+  {% include "signals/_app_shell_styles.html" %}
+  {% include "grants/_grant_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="grants" %}
+  <main>
+    {% if messages %}{% for message in messages %}
+      <div class="msg {% if message.tags == 'error' %}msg-error{% elif message.tags == 'success' %}msg-success{% endif %}">{{ message }}</div>
+    {% endfor %}{% endif %}
+
+    <header class="hero panel">
+      <section>
+        <p class="eyebrow">Atlas Grant Builder</p>
+        <h1>Turn what Atlas already knows into grant-ready answers.</h1>
+        <p class="muted">
+          Stop rewriting your organization from scratch for every application. Atlas reuses your
+          approved profile, shows what is still missing, and helps you build a submission-ready draft.
+        </p>
+      </section>
+      <section>
+        <h2>Answer Library</h2>
+        <p style="font-size: 2.1rem; font-weight: 800; line-height: 1; margin-bottom: 6px;">{{ library_count }}</p>
+        <p class="muted" style="font-size: .84rem;">
+          approved answers saved for reuse across future applications.
+        </p>
+      </section>
+    </header>
+
+    {% if rows %}
+      <section class="panel">
+        <h2>Your grant drafts</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Grant</th><th>Funder</th><th>Deadline</th><th>Status</th><th>Completion</th><th></th></tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+                <tr>
+                  <td><strong>{{ row.application.title }}</strong></td>
+                  <td class="muted">{{ row.application.funder_name|default:"Not recorded" }}</td>
+                  <td>{{ row.application.deadline|date:"M j, Y"|default:"Not set" }}</td>
+                  <td><span class="pill pill-{{ row.application.status }}">{{ row.application.get_status_display }}</span></td>
+                  <td>
+                    <strong>{{ row.completion }}%</strong>
+                    <div class="bar" style="margin-top: 5px;"><i style="width: {{ row.completion }}%"></i></div>
+                  </td>
+                  <td>
+                    <a class="btn btn-sm btn-primary" href="{% url 'project-grant-overview' project.pk row.application.pk %}">Continue Grant Draft</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {% else %}
+      <section class="panel empty">
+        <h3>No Grant Drafts</h3>
+        <p>
+          You haven't started a grant draft yet. Open an opportunity you want to pursue and choose
+          <strong>Start Grant Draft</strong> — Atlas will build the workspace from your organization profile.
+        </p>
+        <a class="btn btn-primary" href="{% url 'project-opportunities' project.pk %}">Browse Opportunities</a>
+      </section>
+    {% endif %}
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Missing Information — {{ application.title }}</title>
+  {% include "signals/_app_shell_styles.html" %}
+  {% include "grants/_grant_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="grants" %}
+  <main>
+    {% include "grants/_grant_header.html" %}
+
+    <section class="panel">
+      <h2>What's still missing</h2>
+      <div class="grid grid-3">
+        <div class="metric-card">
+          <strong>{{ readiness.draftable_label }}</strong><span>Atlas can draft</span>
+          <p class="basis">Sections with every required fact already in Atlas.</p>
+        </div>
+        <div class="metric-card">
+          <strong>{{ readiness.still_needed|length }}</strong><span>Information gaps</span>
+          <p class="basis">Each one below blocks at least one section from being written well.</p>
+        </div>
+        <div class="metric-card">
+          <strong>{{ readiness.score }}%</strong><span>Grant Preparation Readiness</span>
+          <p class="basis">{{ readiness.level }} — combines your organization completeness with this application's coverage.</p>
+        </div>
+      </div>
+    </section>
+
+    {% if rows %}
+      <section class="panel">
+        <h2>Add these to strengthen the application</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Information needed</th><th>Why it matters</th><th>Sections affected</th><th></th></tr></thead>
+            <tbody>
+              {% for row in rows %}
+                <tr>
+                  <td><strong>{{ row.item.label }}</strong></td>
+                  <td class="muted">{{ row.item.hint }}</td>
+                  <td style="font-size: .82rem;">{% spaceless %}
+                    {% for section in row.sections %}
+                      <a href="{% url 'project-grant-section' project.pk application.pk section.section_key %}">{{ section.title }}</a>{% if not forloop.last %}<span>, </span>{% endif %}
+                    {% empty %}
+                      <span class="muted">&mdash;</span>
+                    {% endfor %}
+                  {% endspaceless %}</td>
+                  <td><a class="btn btn-sm btn-primary" href="{% url row.item.add_url_name project.pk %}">{{ row.item.add_label }}</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {% else %}
+      <section class="panel empty">
+        <h3>Nothing is missing</h3>
+        <p>
+          Atlas holds every piece of information this grant template asks for. You can draft any
+          section with full support.
+        </p>
+        <a class="btn btn-primary" href="{% url 'project-grant-application' project.pk application.pk %}">Open the application</a>
+      </section>
+    {% endif %}
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>

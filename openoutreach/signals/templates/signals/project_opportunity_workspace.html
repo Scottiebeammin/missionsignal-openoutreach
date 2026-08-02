@@ -72,6 +72,20 @@
         <h2>Recommended Next Step</h2>
         <p><strong>{{ workspace.recommended_next_step }}</strong></p>
         <p class="muted">Use this workspace to manage requirements, tasks, deadlines, notes, and lifecycle progress.</p>
+        <div class="inline-actions" style="margin-top: 12px;">
+          {% if grant_application %}
+            <a class="action-button primary" href="{% url 'project-grant-overview' project.pk grant_application.pk %}">Continue Grant Draft</a>
+            <span class="pill">{{ grant_completion }}% complete</span>
+          {% else %}
+            <form class="inline-form" method="post" action="{% url 'project-grant-start' project.pk opportunity.pk %}">
+              {% csrf_token %}
+              <button class="action-button primary" type="submit">Start Grant Draft</button>
+            </form>
+          {% endif %}
+        </div>
+        <p class="muted" style="margin-top: 8px;">
+          Grant Builder turns what Atlas already knows about your organization into grant-ready answers.
+        </p>
       </section>
     </header>
 

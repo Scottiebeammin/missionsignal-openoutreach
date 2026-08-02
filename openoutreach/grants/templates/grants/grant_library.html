@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Answer Library — {{ organization.name }}</title>
+  {% include "signals/_app_shell_styles.html" %}
+  {% include "grants/_grant_styles.html" %}
+</head>
+<body>
+  {% include "signals/_app_shell_sidebar.html" with active_page="grants" %}
+  <main>
+    {% include "grants/_grant_header.html" %}
+
+    <section class="panel">
+      <h2>Answer Library</h2>
+      <p class="muted">
+        Your organization's approved answers, reusable across every future application.
+        Reusing one copies it in as a draft to adapt — the original is never changed.
+      </p>
+      {% if categories %}
+        <div class="subnav" style="margin-top: 12px;">
+          <a class="{% if not selected_category %}active{% endif %}" href="{% url 'project-grant-library' project.pk application.pk %}">All</a>
+          {% for value, label, count in categories %}
+            <a class="{% if selected_category == value %}active{% endif %}"
+               href="{% url 'project-grant-library' project.pk application.pk %}?category={{ value }}">{{ label }} ({{ count }})</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+
+    {% if items %}
+      {% for item in items %}
+        <section class="panel">
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
+            <div>
+              <h3 style="margin-bottom: 4px;">{{ item.title }}</h3>
+              <p class="muted" style="margin: 0; font-size: .82rem;">
+                <span class="pill">{{ item.get_category_display }}</span>
+                <span class="pill pill-approved">{{ item.get_approval_status_display }}</span>
+                {% if item.source_grant_title %}from {{ item.source_grant_title }} · {% endif %}
+                updated {{ item.updated_at|date:"M j, Y" }} · {{ item.word_count }} words
+              </p>
+            </div>
+          </div>
+          <p class="answer-body" style="margin-top: 12px;">{{ item.answer }}</p>
+          {% if item.source_fields %}
+            <p class="muted" style="font-size: .8rem;">
+              Built from: {% for source in item.source_fields %}{{ source.label }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </p>
+          {% endif %}
+          <form method="post" action="{% url 'project-grant-library-reuse' project.pk application.pk item.pk %}" style="margin-top: 10px;">
+            {% csrf_token %}
+            <div class="actions">
+              <select name="section_key" style="max-width: 280px;">
+                {% for section in sections %}
+                  <option value="{{ section.section_key }}">{{ section.title }}</option>
+                {% endfor %}
+              </select>
+              <button class="btn" type="submit" name="mode" value="append">Reuse in this application</button>
+              <button class="btn" type="submit" name="mode" value="replace">Replace that section's draft</button>
+            </div>
+          </form>
+        </section>
+      {% endfor %}
+    {% else %}
+      <section class="panel empty">
+        <h3>No Answer Library Items</h3>
+        <p>
+          Approved grant responses you save will appear here for reuse in future applications.
+          Approve an answer in this application, then choose <strong>Save to Answer Library</strong>.
+        </p>
+        <a class="btn btn-primary" href="{% url 'project-grant-application' project.pk application.pk %}">Open the application</a>
+      </section>
+    {% endif %}
+
+    {% include "signals/_app_shell_footer.html" %}
+  </main>
+</body>
+</html>

@@ -1,0 +1,77 @@
+from django.urls import path
+
+from openoutreach.grants import views
+
+urlpatterns = [
+    path("projects/<int:pk>/grants/", views.grant_list, name="project-grants"),
+    path(
+        "projects/<int:pk>/grants/start/<int:opportunity_id>/",
+        views.grant_start,
+        name="project-grant-start",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/",
+        views.grant_overview,
+        name="project-grant-overview",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/application/",
+        views.grant_application_view,
+        name="project-grant-application",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/sections/<str:section_key>/",
+        views.grant_section_view,
+        name="project-grant-section",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/sections/<str:section_key>/generate/",
+        views.grant_section_generate,
+        name="project-grant-section-generate",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/sections/<str:section_key>/save/",
+        views.grant_section_save,
+        name="project-grant-section-save",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/sections/<str:section_key>/library-save/",
+        views.grant_library_save,
+        name="project-grant-library-save",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/missing/",
+        views.grant_missing,
+        name="project-grant-missing",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/library/",
+        views.grant_library,
+        name="project-grant-library",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/library/<int:item_id>/reuse/",
+        views.grant_library_reuse,
+        name="project-grant-library-reuse",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/review/",
+        views.grant_review,
+        name="project-grant-review",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/status/",
+        views.grant_status_update,
+        name="project-grant-status",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/details/",
+        views.grant_details_update,
+        name="project-grant-details",
+    ),
+    path(
+        "projects/<int:pk>/grants/<int:application_id>/export/",
+        views.grant_export,
+        name="project-grant-export",
+    ),
+]
