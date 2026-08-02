@@ -82,6 +82,48 @@ That is the seam for funder-specific templates: return a different section list 
 `sections_for()` and everything downstream (drafting, coach, review, library categories)
 follows, with no schema change and no data loss on existing drafts.
 
+## LLM provider independence
+
+Grant Builder never talks to a model vendor. It calls `core.llm.get_llm_model()` and
+`run_agent_sync()`, and that is the whole of its knowledge about inference. The provider
+is chosen in `SiteConfig` (Django Admin), so switching vendors is configuration, not code:
+
+```
+Grant Builder → core.llm → provider builder → Anthropic | OpenAI | any OpenAI-compatible server
+```
+
+`core.llm` ships seven builders (`openai`, `anthropic`, `google`, `groq`, `mistral`,
+`cohere`, `openai_compatible`). The `openai_compatible` builder takes `llm_api_base` and
+therefore already reaches **any OpenAI-compatible inference server** — a self-hosted
+open-weight model behind vLLM, TGI, or Ollama included. This was verified end to end
+against a local Ollama server: Atlas built a working model client with **zero code
+changes**, purely from `SiteConfig`.
+
+Two rules keep this true, both enforced by tests in
+`tests/missionsignal/test_grant_llm_provider.py`:
+
+- **No provider SDK may be imported inside `openoutreach/grants/`.** The Anthropic and
+  OpenAI SDKs are imported only in `core/llm.py`.
+- **No provider or model name may appear in Grant Builder source.** Model IDs are
+  free-text `SiteConfig` values, so adopting a new model needs no release.
+
+### Structured output is the binding requirement
+
+Drafting uses pydantic-ai's `output_type=SectionDraft`, which is implemented with
+**tool/function calling**. Any candidate model must call tools reliably — prose-only JSON
+is not sufficient. A model that cannot do this fails with
+`UnexpectedModelBehavior: Exceeded maximum output retries`, regardless of how good its
+writing is. This is the first thing to test when evaluating a new provider or model, and
+small models (≈3B) commonly advertise tool support without delivering it.
+
+### No production dependency on developer hardware
+
+Local inference is a **development and evaluation** convenience only. Production Atlas
+must never point at a developer's machine: `llm_api_base` in a deployed environment
+resolves to a hosted endpoint (a vendor API, or a dedicated inference server), never to
+`localhost`. Moving from a laptop to a dedicated GPU server changes three `SiteConfig`
+fields and nothing else in this codebase.
+
 ## Extension points already in place
 
 | Future capability | What already supports it |
@@ -93,3 +135,4 @@ follows, with no schema change and no data loss on existing drafts.
 | Collaborative writing | `approved_by` / `approved_at` per section, `created_by` per application |
 | Submission tracking | `GrantApplication.Status` already runs to Submitted / Awarded / Declined / Withdrawn |
 | Word/PDF export | `grant_export` renders the whole application in one document; print-to-PDF works today, a generator would render the same context |
+| Self-hosted open-weight model | `openai_compatible` provider + `llm_api_base`; point it at a vLLM/TGI/Ollama server. No Grant Builder change |
