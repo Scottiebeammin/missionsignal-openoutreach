@@ -138,6 +138,15 @@ class Project(models.Model):
         settings.AUTH_USER_MODEL, blank=True, related_name="missionsignal_projects",
     )
     active = models.BooleanField(default=True)
+
+    class Tier(models.TextChoices):
+        FULL = "full", "Full Seat"
+        SNAPSHOT = "snapshot", "Snapshot"
+
+    tier = models.CharField(
+        max_length=20, choices=Tier.choices, default=Tier.FULL,
+        help_text="full = interactive workspace; snapshot = read-only monthly Snapshot tier.",
+    )
     intake_notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
