@@ -1,0 +1,622 @@
+[
+  {
+    "text": "Your",
+    "start": 0.07,
+    "end": 0.25
+  },
+  {
+    "text": "organization",
+    "start": 0.29,
+    "end": 1.05
+  },
+  {
+    "text": "may",
+    "start": 1.05,
+    "end": 1.24
+  },
+  {
+    "text": "not",
+    "start": 1.24,
+    "end": 1.42
+  },
+  {
+    "text": "have",
+    "start": 1.42,
+    "end": 1.72
+  },
+  {
+    "text": "an",
+    "start": 1.72,
+    "end": 1.8
+  },
+  {
+    "text": "opportunity",
+    "start": 1.8,
+    "end": 2.44
+  },
+  {
+    "text": "problem.",
+    "start": 2.44,
+    "end": 3.34
+  },
+  {
+    "text": "It",
+    "start": 3.41,
+    "end": 3.45
+  },
+  {
+    "text": "may",
+    "start": 3.45,
+    "end": 3.59
+  },
+  {
+    "text": "have",
+    "start": 3.63,
+    "end": 3.85
+  },
+  {
+    "text": "a",
+    "start": 3.85,
+    "end": 3.9
+  },
+  {
+    "text": "visibility",
+    "start": 3.9,
+    "end": 4.47
+  },
+  {
+    "text": "problem.",
+    "start": 4.47,
+    "end": 5.08
+  },
+  {
+    "text": "The",
+    "start": 5.15,
+    "end": 5.28
+  },
+  {
+    "text": "funders,",
+    "start": 5.28,
+    "end": 5.88
+  },
+  {
+    "text": "the",
+    "start": 5.88,
+    "end": 6.07
+  },
+  {
+    "text": "partners,",
+    "start": 6.07,
+    "end": 6.72
+  },
+  {
+    "text": "the",
+    "start": 6.72,
+    "end": 6.9
+  },
+  {
+    "text": "public",
+    "start": 6.94,
+    "end": 7.3
+  },
+  {
+    "text": "programs,",
+    "start": 7.3,
+    "end": 7.98
+  },
+  {
+    "text": "the",
+    "start": 8.05,
+    "end": 8.18
+  },
+  {
+    "text": "community",
+    "start": 8.18,
+    "end": 8.8
+  },
+  {
+    "text": "resources,",
+    "start": 8.8,
+    "end": 9.58
+  },
+  {
+    "text": "most",
+    "start": 9.58,
+    "end": 9.8
+  },
+  {
+    "text": "of",
+    "start": 9.8,
+    "end": 9.91
+  },
+  {
+    "text": "it",
+    "start": 9.91,
+    "end": 10.04
+  },
+  {
+    "text": "is",
+    "start": 10.04,
+    "end": 10.17
+  },
+  {
+    "text": "already",
+    "start": 10.19,
+    "end": 10.69
+  },
+  {
+    "text": "out",
+    "start": 10.69,
+    "end": 10.9
+  },
+  {
+    "text": "there,",
+    "start": 10.9,
+    "end": 11.28
+  },
+  {
+    "text": "but",
+    "start": 11.35,
+    "end": 11.47
+  },
+  {
+    "text": "it",
+    "start": 11.47,
+    "end": 11.6
+  },
+  {
+    "text": "lives",
+    "start": 11.6,
+    "end": 11.92
+  },
+  {
+    "text": "in",
+    "start": 11.92,
+    "end": 12.05
+  },
+  {
+    "text": "40",
+    "start": 12.05,
+    "end": 12.44
+  },
+  {
+    "text": "browser",
+    "start": 12.44,
+    "end": 12.9
+  },
+  {
+    "text": "tabs,",
+    "start": 12.9,
+    "end": 13.32
+  },
+  {
+    "text": "six",
+    "start": 13.32,
+    "end": 13.68
+  },
+  {
+    "text": "spreadsheets,",
+    "start": 13.68,
+    "end": 14.42
+  },
+  {
+    "text": "and",
+    "start": 14.49,
+    "end": 14.64
+  },
+  {
+    "text": "somebody's",
+    "start": 14.64,
+    "end": 15.39
+  },
+  {
+    "text": "inbox.",
+    "start": 15.39,
+    "end": 16.02
+  },
+  {
+    "text": "And",
+    "start": 16.09,
+    "end": 16.19
+  },
+  {
+    "text": "when",
+    "start": 16.19,
+    "end": 16.42
+  },
+  {
+    "text": "you",
+    "start": 16.42,
+    "end": 16.59
+  },
+  {
+    "text": "can't",
+    "start": 16.59,
+    "end": 16.87
+  },
+  {
+    "text": "see",
+    "start": 16.87,
+    "end": 17.04
+  },
+  {
+    "text": "how",
+    "start": 17.04,
+    "end": 17.21
+  },
+  {
+    "text": "it",
+    "start": 17.21,
+    "end": 17.32
+  },
+  {
+    "text": "all",
+    "start": 17.32,
+    "end": 17.44
+  },
+  {
+    "text": "connects,",
+    "start": 17.54,
+    "end": 18.11
+  },
+  {
+    "text": "every",
+    "start": 18.19,
+    "end": 18.45
+  },
+  {
+    "text": "decision",
+    "start": 18.45,
+    "end": 18.98
+  },
+  {
+    "text": "gets",
+    "start": 18.98,
+    "end": 19.25
+  },
+  {
+    "text": "harder",
+    "start": 19.25,
+    "end": 19.54
+  },
+  {
+    "text": "than",
+    "start": 19.65,
+    "end": 19.92
+  },
+  {
+    "text": "it",
+    "start": 19.92,
+    "end": 20.05
+  },
+  {
+    "text": "should",
+    "start": 20.05,
+    "end": 20.45
+  },
+  {
+    "text": "be.",
+    "start": 20.45,
+    "end": 20.82
+  },
+  {
+    "text": "Anansi",
+    "start": 20.89,
+    "end": 21.19
+  },
+  {
+    "text": "Atlas",
+    "start": 21.19,
+    "end": 21.51
+  },
+  {
+    "text": "brings",
+    "start": 21.51,
+    "end": 21.89
+  },
+  {
+    "text": "the",
+    "start": 21.89,
+    "end": 22.08
+  },
+  {
+    "text": "whole",
+    "start": 22.08,
+    "end": 22.4
+  },
+  {
+    "text": "ecosystem",
+    "start": 22.4,
+    "end": 23
+  },
+  {
+    "text": "into",
+    "start": 23,
+    "end": 23.38
+  },
+  {
+    "text": "view.",
+    "start": 23.38,
+    "end": 23.78
+  },
+  {
+    "text": "One",
+    "start": 24.13,
+    "end": 24.26
+  },
+  {
+    "text": "connected",
+    "start": 24.26,
+    "end": 24.85
+  },
+  {
+    "text": "map",
+    "start": 24.85,
+    "end": 25.06
+  },
+  {
+    "text": "of",
+    "start": 25.06,
+    "end": 25.16
+  },
+  {
+    "text": "the",
+    "start": 25.16,
+    "end": 25.31
+  },
+  {
+    "text": "opportunity",
+    "start": 25.31,
+    "end": 25.86
+  },
+  {
+    "text": "web",
+    "start": 25.86,
+    "end": 26.15
+  },
+  {
+    "text": "around",
+    "start": 26.28,
+    "end": 26.69
+  },
+  {
+    "text": "your",
+    "start": 26.69,
+    "end": 27.02
+  },
+  {
+    "text": "mission.",
+    "start": 27.02,
+    "end": 27.86
+  },
+  {
+    "text": "Watch",
+    "start": 27.93,
+    "end": 28.1
+  },
+  {
+    "text": "what",
+    "start": 28.1,
+    "end": 28.28
+  },
+  {
+    "text": "happens",
+    "start": 28.33,
+    "end": 28.63
+  },
+  {
+    "text": "when",
+    "start": 28.63,
+    "end": 28.82
+  },
+  {
+    "text": "scattered",
+    "start": 28.82,
+    "end": 29.26
+  },
+  {
+    "text": "research",
+    "start": 29.26,
+    "end": 29.68
+  },
+  {
+    "text": "becomes",
+    "start": 29.72,
+    "end": 30.1
+  },
+  {
+    "text": "structure,",
+    "start": 30.18,
+    "end": 30.9
+  },
+  {
+    "text": "funding",
+    "start": 30.9,
+    "end": 31.41
+  },
+  {
+    "text": "pathways,",
+    "start": 31.41,
+    "end": 32.16
+  },
+  {
+    "text": "strategic",
+    "start": 32.16,
+    "end": 32.82
+  },
+  {
+    "text": "partners,",
+    "start": 32.82,
+    "end": 33.56
+  },
+  {
+    "text": "government",
+    "start": 33.64,
+    "end": 34.25
+  },
+  {
+    "text": "programs,",
+    "start": 34.25,
+    "end": 34.94
+  },
+  {
+    "text": "an",
+    "start": 34.94,
+    "end": 34.99
+  },
+  {
+    "text": "honest",
+    "start": 35.1,
+    "end": 35.38
+  },
+  {
+    "text": "read",
+    "start": 35.4,
+    "end": 35.64
+  },
+  {
+    "text": "on",
+    "start": 35.64,
+    "end": 35.75
+  },
+  {
+    "text": "your",
+    "start": 35.77,
+    "end": 36
+  },
+  {
+    "text": "readiness,",
+    "start": 36,
+    "end": 36.7
+  },
+  {
+    "text": "complexity",
+    "start": 36.78,
+    "end": 37.71
+  },
+  {
+    "text": "in,",
+    "start": 37.71,
+    "end": 38.11
+  },
+  {
+    "text": "clarity",
+    "start": 38.11,
+    "end": 38.79
+  },
+  {
+    "text": "out,",
+    "start": 38.85,
+    "end": 39.24
+  },
+  {
+    "text": "and",
+    "start": 39.24,
+    "end": 39.4
+  },
+  {
+    "text": "a",
+    "start": 39.4,
+    "end": 39.45
+  },
+  {
+    "text": "practical",
+    "start": 39.45,
+    "end": 39.63
+  },
+  {
+    "text": "plan",
+    "start": 40.13,
+    "end": 40.28
+  },
+  {
+    "text": "for",
+    "start": 40.35,
+    "end": 40.63
+  },
+  {
+    "text": "what",
+    "start": 40.63,
+    "end": 41.1
+  },
+  {
+    "text": "to",
+    "start": 41.1,
+    "end": 41.33
+  },
+  {
+    "text": "do",
+    "start": 41.33,
+    "end": 41.56
+  },
+  {
+    "text": "next.",
+    "start": 41.56,
+    "end": 42.37
+  },
+  {
+    "text": "The",
+    "start": 42.49,
+    "end": 42.64
+  },
+  {
+    "text": "opportunity",
+    "start": 42.64,
+    "end": 43.47
+  },
+  {
+    "text": "may",
+    "start": 43.47,
+    "end": 43.69
+  },
+  {
+    "text": "already",
+    "start": 43.69,
+    "end": 44.21
+  },
+  {
+    "text": "exist.",
+    "start": 44.21,
+    "end": 44.84
+  },
+  {
+    "text": "Anansi",
+    "start": 44.91,
+    "end": 45.23
+  },
+  {
+    "text": "Atlas",
+    "start": 45.23,
+    "end": 45.56
+  },
+  {
+    "text": "helps",
+    "start": 45.56,
+    "end": 45.89
+  },
+  {
+    "text": "you",
+    "start": 45.89,
+    "end": 46.09
+  },
+  {
+    "text": "see",
+    "start": 46.09,
+    "end": 46.26
+  },
+  {
+    "text": "how",
+    "start": 46.38,
+    "end": 46.49
+  },
+  {
+    "text": "it",
+    "start": 46.49,
+    "end": 46.62
+  },
+  {
+    "text": "connects.",
+    "start": 46.62,
+    "end": 47.42
+  }
+]

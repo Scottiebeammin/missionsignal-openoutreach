@@ -1,0 +1,4 @@
+# Interface Animation Plan
+Core component: `PreviewProfileScreen` (src/oneoffs/AnansiUniversalCommercial.tsx) — the campaign's "YOUR ORGANIZATION HERE" populated preview. Props: title/subtitle/chip (EGI film reuses it as EMPOWERED GIRLS · OPPORTUNITY PROFILE), seed (re-rolls every fit bar → visibly different per org/variation — "never the same twice" is enforced in code), populated/fast/spotlight/portrait (1600×1000 landscape + 1000×1250 portrait layouts).
+Supporting: InputsScreen ("Start with what makes you, you." — Imagine variation + social YourOrg), GrantSearchScreen (generic, no real funders — social Grants), LaptopShell (bezel, wide formats), TabStack (Visibility), ScatterField/FlashCards (fragment fields), MiniWeb (per-example seeds).
+Real product screens appear ONLY in the EGI film (hd-* captures, EGI workspace, authorized) — campaign versions never pass a mock as the product, and never show the product as a mock.

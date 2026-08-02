@@ -28,6 +28,51 @@ import { AnansiVisionFilm, VISION_TOTAL } from "./oneoffs/AnansiVisionFilm";
 import { BamOrlandoPresentation, BamOrlandoPresentationWide, BAM_TOTAL } from "./oneoffs/BamOrlandoPresentation";
 import { BamOrlandoFilm, BAM_FILM_TOTAL } from "./oneoffs/BamOrlandoFilm";
 import { LuckyMistake, LUCKY_MISTAKE_TOTAL } from "./oneoffs/LuckyMistake";
+import {
+  AnansiUniversalCommercial,
+  AnansiUniversalCommercialCaptioned,
+  AnansiUniversal9x16,
+  AnansiUniversal4x5,
+  AnansiUniversal1x1,
+  UNIVERSAL_TOTAL,
+} from "./oneoffs/AnansiUniversalCommercial";
+import {
+  AnansiSocial30,
+  AnansiSocial30HookB,
+  AnansiSocial30HookC,
+  AnansiSocial30HookD,
+  AnansiSocial30Alt,
+  AnansiSocial30FourFive,
+  AnansiSocial30Square,
+  AnansiSocial30Wide,
+  SOCIAL30_TOTAL,
+} from "./oneoffs/AnansiSocial30";
+import {
+  AnansiUniversalVisibility,
+  AnansiUniversalVisibility9x16,
+  AnansiUniversalVisibility4x5,
+  AnansiUniversalVisibility1x1,
+  AnansiUniversalImagine,
+  AnansiUniversalImagine9x16,
+  AnansiUniversalImagine4x5,
+  AnansiUniversalImagine1x1,
+  VISIBILITY_TOTAL,
+  IMAGINE_TOTAL,
+} from "./oneoffs/AnansiUniversalVariations";
+import {
+  AnansiSocial30Grants,
+  AnansiSocial30Grants4x5,
+  AnansiSocial30Grants1x1,
+  AnansiSocial30YourOrg,
+  AnansiSocial30YourOrg4x5,
+  AnansiSocial30YourOrg1x1,
+  SOCIAL30_VAR_TOTAL,
+} from "./oneoffs/AnansiSocial30Variations";
+import {
+  EmpoweredGirlsResearchFilm,
+  EmpoweredGirlsResearchFilmCaptioned,
+  EGI_FILM_TOTAL,
+} from "./oneoffs/EmpoweredGirlsResearchFilm";
 
 // To add narration: drop the ElevenLabs export into public/ (e.g. public/showcase-vo.mp3)
 // then set the audioSrc prop below (or in Remotion Studio's props panel, or via
@@ -412,6 +457,105 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={{ audioSrc: null as string | null, captions: true, music: true }}
+      />
+
+      {/*
+        CAMPAIGN VIDEO 1 — universal commercial (~80.5s). Four native canvases,
+        redesigned per format (not crops). Render masters with --image-format=png.
+      */}
+      <Composition
+        id="AnansiUniversalCommercial"
+        component={AnansiUniversalCommercial}
+        durationInFrames={UNIVERSAL_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="AnansiUniversalCommercialCaptioned"
+        component={AnansiUniversalCommercialCaptioned}
+        durationInFrames={UNIVERSAL_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="AnansiUniversal9x16"
+        component={AnansiUniversal9x16}
+        durationInFrames={UNIVERSAL_TOTAL}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="AnansiUniversal4x5"
+        component={AnansiUniversal4x5}
+        durationInFrames={UNIVERSAL_TOTAL}
+        fps={FPS}
+        width={1080}
+        height={1350}
+      />
+      <Composition
+        id="AnansiUniversal1x1"
+        component={AnansiUniversal1x1}
+        durationInFrames={UNIVERSAL_TOTAL}
+        fps={FPS}
+        width={1080}
+        height={1080}
+      />
+
+      {/*
+        CAMPAIGN VIDEO 2 — 30s social ad, native 9:16, captions burned. Hook
+        variants B/C/D share the same VO master (extra lines); Alt drops the
+        sting for a corner mark + end-only logo reveal.
+      */}
+      <Composition id="AnansiSocial30" component={AnansiSocial30} durationInFrames={SOCIAL30_TOTAL} fps={FPS} width={1080} height={1920} />
+      <Composition id="AnansiSocial30HookB" component={AnansiSocial30HookB} durationInFrames={SOCIAL30_TOTAL} fps={FPS} width={1080} height={1920} />
+      <Composition id="AnansiSocial30HookC" component={AnansiSocial30HookC} durationInFrames={SOCIAL30_TOTAL} fps={FPS} width={1080} height={1920} />
+      <Composition id="AnansiSocial30HookD" component={AnansiSocial30HookD} durationInFrames={SOCIAL30_TOTAL} fps={FPS} width={1080} height={1920} />
+      <Composition id="AnansiSocial30Alt" component={AnansiSocial30Alt} durationInFrames={SOCIAL30_TOTAL} fps={FPS} width={1080} height={1920} />
+      <Composition id="AnansiSocial30FourFive" component={AnansiSocial30FourFive} durationInFrames={SOCIAL30_TOTAL} fps={FPS} width={1080} height={1350} />
+      <Composition id="AnansiSocial30Square" component={AnansiSocial30Square} durationInFrames={SOCIAL30_TOTAL} fps={FPS} width={1080} height={1080} />
+      <Composition id="AnansiSocial30Wide" component={AnansiSocial30Wide} durationInFrames={SOCIAL30_TOTAL} fps={FPS} width={1920} height={1080} />
+
+      {/* CAMPAIGN VARIATIONS — universal A "Visibility" (~63s) + B "Imagine" (~66s) */}
+      <Composition id="AnansiUniversalVisibility" component={AnansiUniversalVisibility} durationInFrames={VISIBILITY_TOTAL} fps={FPS} width={1920} height={1080} />
+      <Composition id="AnansiUniversalVisibility9x16" component={AnansiUniversalVisibility9x16} durationInFrames={VISIBILITY_TOTAL} fps={FPS} width={1080} height={1920} />
+      <Composition id="AnansiUniversalVisibility4x5" component={AnansiUniversalVisibility4x5} durationInFrames={VISIBILITY_TOTAL} fps={FPS} width={1080} height={1350} />
+      <Composition id="AnansiUniversalVisibility1x1" component={AnansiUniversalVisibility1x1} durationInFrames={VISIBILITY_TOTAL} fps={FPS} width={1080} height={1080} />
+      <Composition id="AnansiUniversalImagine" component={AnansiUniversalImagine} durationInFrames={IMAGINE_TOTAL} fps={FPS} width={1920} height={1080} />
+      <Composition id="AnansiUniversalImagine9x16" component={AnansiUniversalImagine9x16} durationInFrames={IMAGINE_TOTAL} fps={FPS} width={1080} height={1920} />
+      <Composition id="AnansiUniversalImagine4x5" component={AnansiUniversalImagine4x5} durationInFrames={IMAGINE_TOTAL} fps={FPS} width={1080} height={1350} />
+      <Composition id="AnansiUniversalImagine1x1" component={AnansiUniversalImagine1x1} durationInFrames={IMAGINE_TOTAL} fps={FPS} width={1080} height={1080} />
+
+      {/* SOCIAL VARIATIONS — A "Grants are only one part" + B "Your Organization Here" */}
+      <Composition id="AnansiSocial30Grants" component={AnansiSocial30Grants} durationInFrames={SOCIAL30_VAR_TOTAL} fps={FPS} width={1080} height={1920} />
+      <Composition id="AnansiSocial30Grants4x5" component={AnansiSocial30Grants4x5} durationInFrames={SOCIAL30_VAR_TOTAL} fps={FPS} width={1080} height={1350} />
+      <Composition id="AnansiSocial30Grants1x1" component={AnansiSocial30Grants1x1} durationInFrames={SOCIAL30_VAR_TOTAL} fps={FPS} width={1080} height={1080} />
+      <Composition id="AnansiSocial30YourOrg" component={AnansiSocial30YourOrg} durationInFrames={SOCIAL30_VAR_TOTAL} fps={FPS} width={1080} height={1920} />
+      <Composition id="AnansiSocial30YourOrg4x5" component={AnansiSocial30YourOrg4x5} durationInFrames={SOCIAL30_VAR_TOTAL} fps={FPS} width={1080} height={1350} />
+      <Composition id="AnansiSocial30YourOrg1x1" component={AnansiSocial30YourOrg1x1} durationInFrames={SOCIAL30_VAR_TOTAL} fps={FPS} width={1080} height={1080} />
+
+      {/*
+        CAMPAIGN VIDEO 3 — Empowered Girls research film (~4:47). Every claim
+        traces to the campaign source log; EGI workspace shots authorized.
+        Render with --image-format=png (navy gradient bands on jpeg).
+      */}
+      <Composition
+        id="EmpoweredGirlsResearchFilm"
+        component={EmpoweredGirlsResearchFilm}
+        durationInFrames={EGI_FILM_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="EmpoweredGirlsResearchFilmCaptioned"
+        component={EmpoweredGirlsResearchFilmCaptioned}
+        durationInFrames={EGI_FILM_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
       />
 
       {/* ⚠️ PROTOTYPE — de-risking the rotating-globe hero visual before committing it. */}

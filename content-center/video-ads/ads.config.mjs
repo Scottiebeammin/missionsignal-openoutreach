@@ -386,6 +386,136 @@ export const ADS = [
       "We're opening the Founding Atlas Partners Pilot to twenty mission-driven organizations — a rate locked in for life, a Snapshot built around your actual mission, and a personal walkthrough with our team. If this is the system your organization has been missing, don't wait for the standard rate. Register now at anansi atlas dot com, slash anansi atlas, and let's map your web of opportunity today.",
     ],
   },
+  {
+    // CAMPAIGN VIDEO 1 — Universal Anansi Atlas Commercial (~90s). National audience;
+    // deliberately NO Empowered Girls, NO county figures — must work for any US nonprofit.
+    // Generate with `node scripts/gen-vo-timestamped.mjs AnansiUniversalCommercial` —
+    // logo open (S01) and end card (S10) are silent, so the film slices the master per line.
+    // Script source: Scott's master campaign prompt 2026-07-31, conformed to brand voice.
+    id: "AnansiUniversalCommercial",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "anansi-universal-commercial-vo.mp3",
+    script: [
+      "You are already doing the work. But the opportunities surrounding your mission are scattered everywhere.",
+      "Every organization operates inside a larger opportunity ecosystem — funders, partners, government pathways, community resources, risks, and next steps.",
+      "The problem is not always finding another opportunity. It is understanding how everything connects — and knowing what your organization is ready to pursue.",
+      "Anansi Atlas turns that scattered information into one clear view of the opportunity web surrounding your mission.",
+      "Your profile is built around your mission, your location, the people you serve, your goals, and your current capacity.",
+      "You receive more than a list. You see where to focus, who could help, what may be holding you back, and what to do next.",
+      "Whether you serve one neighborhood, an entire state, or communities across the country, your opportunity web is unique.",
+      "Your mission is already surrounded by opportunity. Anansi Atlas helps you see the whole web — and decide what to do next.",
+    ],
+  },
+  {
+    // CAMPAIGN VIDEO 2 — 30-second social ad, native 9:16. Lines 1-5 are the master cut
+    // (hook A body); lines 6-8 are alternate hooks B/C/D voiced in the same take so every
+    // variant shares one master. Generate with
+    // `node scripts/gen-vo-timestamped.mjs AnansiSocial30`.
+    id: "AnansiSocial30",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "anansi-social30-vo.mp3",
+    script: [
+      "Your nonprofit may not have an opportunity problem.",
+      "You may have a visibility problem.",
+      "Anansi Atlas maps the funders, partners, resources, government pathways, and readiness gaps surrounding your mission.",
+      "Then it turns that research into clear priorities, and a practical thirty-day action plan.",
+      "See your whole web of opportunity.",
+      "What opportunities are hiding around your mission?",
+      "Grants are only one part of your opportunity web.",
+      "Your next opportunity may already be connected to your mission.",
+    ],
+  },
+  {
+    // CAMPAIGN VARIATION — Universal commercial A, "The Visibility Problem" (~70s).
+    // Confusion → visibility → clarity → action. Same claims, different strategy.
+    id: "AnansiUniversalVisibility",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "anansi-universal-visibility-vo.mp3",
+    script: [
+      "Your organization may not have an opportunity problem. It may have a visibility problem.",
+      "The funders, the partners, the public programs, the community resources — most of it is already out there. But it lives in forty browser tabs, six spreadsheets, and somebody's inbox.",
+      "And when you can't see how it all connects, every decision gets harder than it should be.",
+      "Anansi Atlas brings the whole ecosystem into view — one connected map of the opportunity web around your mission.",
+      "Watch what happens when scattered research becomes structure. Funding pathways. Strategic partners. Government programs. An honest read on your readiness.",
+      "Complexity in. Clarity out. And a practical plan for what to do next.",
+      "The opportunity may already exist. Anansi Atlas helps you see how it connects.",
+    ],
+  },
+  {
+    // CAMPAIGN VARIATION — Universal commercial B, "Imagine Your Organization Here" (~70s).
+    // Curiosity → personalization → possibility → action. Laptop-first structure.
+    id: "AnansiUniversalImagine",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "anansi-universal-imagine-vo.mp3",
+    script: [
+      "Imagine seeing the full opportunity ecosystem surrounding your organization — in one clear view.",
+      "It starts with what makes you, you. Your mission. Your location. The people you serve. Your goals. Your current capacity.",
+      "Anansi Atlas builds your profile around those answers. Not a template. Never the same twice.",
+      "Change the mission, and the web changes with it. Change the geography, and new pathways appear.",
+      "A youth program serving one county. A housing nonprofit working statewide. An arts organization in three cities. Each one sees a different web — because each one is different.",
+      "What you receive is a working map. Funders. Partners. Public programs. Resources. Readiness. And a thirty-day plan to act on it.",
+      "Your mission. Your location. Your opportunity web.",
+    ],
+  },
+  {
+    // CAMPAIGN VARIATIONS — social 30s A ("Grants are only one part", lines 1-4) and
+    // B ("Your Organization Here", lines 5-8), one master take.
+    id: "AnansiSocial30Vars",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "anansi-social30-vars-vo.mp3",
+    script: [
+      "Grants are only one part of your opportunity web.",
+      "Around your mission are potential partners, government pathways, community resources, funders, risks, and next steps.",
+      "Anansi Atlas brings those connections into one clear opportunity profile — built around your organization.",
+      "See your whole web of opportunity.",
+      "What would Anansi Atlas reveal around your mission?",
+      "Potential funders. Strategic partners. Government pathways. Community resources. Readiness gaps. And a practical plan for what to do next.",
+      "Built around your mission, your location, and your current capacity.",
+      "Your organization could be here.",
+    ],
+  },
+  {
+    // CAMPAIGN VIDEO 3 — Empowered Girls Orlando/Orange County Research Film (~5:40).
+    // EVERY factual claim traces to ANANSI_ATLAS_VIDEO_CAMPAIGN/14_SOURCE_LOG/.
+    // EGI identity verified (Sunbiz N18000012567, EIN 83-2591882, empoweredgirlsinc.org);
+    // mission line quotes their official site. Impact figures (43+ girls, 5,000
+    // families) deliberately EXCLUDED per Scott 2026-07-29 — partner claims need
+    // partner sign-off. Funders/partners/gov framed strictly as "potentially
+    // aligned / eligibility to be confirmed". Readiness = categories the platform
+    // reads, never claimed EGI weaknesses. Scene 01 title is silent.
+    id: "EmpoweredGirlsResearchFilm",
+    kind: "remotion",
+    oneOff: true,
+    voice: "Christopher",
+    audioOut: "egi-research-film-vo.mp3",
+    script: [
+      "In Orlando, Florida, there is an organization that believes every girl deserves to grow into a confident, capable woman. Empowered Girls, founded in twenty eighteen, works with girls across Orange County through life skills, mentorship, health and wellness, and academics infused with empowerment.",
+      "Their mission, in their own words: empowering girls to grow into confident, capable women through life skills, mentorship, and programs that help them overcome barriers and achieve success.",
+      "The work happens in a county of real scale. Orange County is home to more than three hundred twenty-two thousand children — about one in five residents. And about one in six of those children lives below the poverty line.",
+      "Nationally, the picture for girls is just as urgent. By fifth grade, only sixty-eight percent of girls describe themselves as confident — down from eighty-six percent six years earlier. And by one national estimate, one in three young people reach adulthood without ever having a mentor. This is the field Empowered Girls stands in.",
+      "But no mission exists in isolation. Around this work is a larger ecosystem — funders, schools, government programs, community organizations, businesses, and people — who may already be aligned with what Empowered Girls is building. Anansi Atlas exists to map exactly that.",
+      "Start with funding. In Central Florida, the pathways potentially aligned with girls' youth development are real and specific. A community foundation whose grassroots grants name youth development as a priority. A local charity with a microgrant program built for smaller organizations. And corporate giving from the region's largest employers, with youth and education programs that accept applications year-round.",
+      "None of these are commitments. Every one is a doorway — worth researching, worth confirming, worth a conversation.",
+      "Then, partners. Orange County Public Schools runs a formal Partners in Education program — the front door for organizations that work inside schools. The University of Central Florida connects student volunteers to more than two hundred community agencies. And Rollins College runs an institute whose entire purpose is strengthening Orange County nonprofits.",
+      "Government has doorways of its own. Orange County's Citizens' Commission for Children reviews funding for youth-serving nonprofits every year. Community Development Block Grants support programs for families who need them most. And the City of Orlando builds neighborhood initiatives through nonprofit partners. Possible pathways — each with its own eligibility to confirm.",
+      "And alongside opportunity, an honest look inward. The platform reads readiness the way a funder would — program documentation, outcome tracking, partnership materials — and shows where an organization is strong, and where to strengthen next. Not as criticism. As preparation.",
+      "All of it comes together here. This is Empowered Girls' actual workspace in Anansi Atlas — live in production today. Their mission at the center. Around it, the funders. The partners. The government pathways. The resources. The readiness.",
+      "From here, research becomes decisions. What to pursue. Who to call. What to prepare. In order, starting now.",
+      "It ends in a plan — a thirty-day sequence of clear next actions. Confirm eligibility for the strongest funding pathways. Open the school partnership conversation. Assemble the readiness documents that outreach will ask for. Small steps, in the right order.",
+      "This is the web surrounding Empowered Girls — built around their mission, their location, the girls they serve, their priorities, and their capacity today. Every organization's web looks different. That is the point. Anansi Atlas helps nonprofit leaders see what surrounds their mission, and decide what to do next.",
+      "Your mission is already surrounded by people, resources, pathways, and possibilities. The next step is seeing how they connect. Call us, or visit anansiatlas.com. Your organization could be next.",
+    ],
+  },
 ];
 
 // ElevenLabs voice settings (tuned for an awake, credible business read — not sleepy).
