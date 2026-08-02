@@ -60,7 +60,7 @@ class Command(BaseCommand):
             for o in opps:
                 if is_off_geography(o, project.organization) or is_research_grant(o):
                     continue
-                if opportunity_relevance(o, keywords) <= 0:
+                if opportunity_relevance(o, keywords, project.organization) <= 0:
                     continue
                 # deadline milestone (only if not already applied/terminal)
                 applied = o.status in applied_status or o.lifecycle_status in applied_lifecycle

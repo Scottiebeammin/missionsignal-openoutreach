@@ -93,18 +93,24 @@ def _relevant_upcoming_deadlines(project, limit=5):
         org_keywords, opportunity_relevance, is_off_geography, is_research_grant,
     )
 
+    from django.utils import timezone
+
     keywords = org_keywords(project.organization)
     out, seen_names = [], set()
     qs = (
         Opportunity.objects.filter(project=project)
         .exclude(deadline__isnull=True)
+        # "Upcoming" has to mean upcoming: filter on the date itself, not just the
+        # EXPIRED flag. The flag is only swept on pipeline load, so a past deadline
+        # can still be un-flagged when the dashboard renders.
+        .filter(deadline__gte=timezone.localdate())
         .exclude(status__in=[Opportunity.Status.EXPIRED, Opportunity.Status.ARCHIVED])
         .order_by("deadline", "name")
     )
     for opp in qs:
         if is_off_geography(opp, project.organization) or is_research_grant(opp):
             continue
-        if opportunity_relevance(opp, keywords) <= 0:
+        if opportunity_relevance(opp, keywords, project.organization) <= 0:
             continue
         key = opp.name.strip().lower()
         if key in seen_names:  # same grant posted under multiple IDs — show once

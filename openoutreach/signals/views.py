@@ -626,7 +626,7 @@ def project_funding_dashboard(request, pk):
     )
     keywords = org_keywords(project.organization)
     for o in grants:
-        o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords)
+        o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords, project.organization)
     grants.sort(key=lambda o: (-o.relevance, o.deadline or _date.max, o.name))
     recommended_grants = [o for o in grants if o.relevance > 0][:6]
     return render(
@@ -1031,7 +1031,7 @@ def project_opportunities_workspace(request, pk):
     for o in ranked:
         # Foreign/overseas grants are disqualified outright (relevance 0), even if the
         # topic overlaps — a Central Florida nonprofit can't use a "...in Brazil" grant.
-        o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords)
+        o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords, project.organization)
         # Trust tier: confirmed = human-verified AND backed by a real source link.
         o.confirmed = o.is_confirmed
         o.source_url = o.real_source_url()

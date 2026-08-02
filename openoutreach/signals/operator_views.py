@@ -131,7 +131,7 @@ def operator_org_detail(request, pk):
         o for o in opportunities
         if not is_off_geography(o, project.organization)
         and not is_research_grant(o)
-        and opportunity_relevance(o, _kw) > 0
+        and opportunity_relevance(o, _kw, project.organization) > 0
     ][:10] or list(opportunities[:10])
 
     try:

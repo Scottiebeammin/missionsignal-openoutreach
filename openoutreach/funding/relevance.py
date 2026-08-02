@@ -34,7 +34,12 @@ _FOREIGN_COUNTRIES = {
     "serbia", "kosovo", "bosnia", "macedonia", "turkmenistan", "uzbekistan", "mongolia",
     "rwanda", "senegal", "zambia", "zimbabwe", "malawi", "mozambique", "angola",
 }
-_FOREIGN_PHRASES = ("u.s. mission to", "u.s. embassy", "overseas", " abroad", "foreign assistance")
+_FOREIGN_PHRASES = (
+    "u.s. mission to", "u.s. embassy", "overseas", " abroad", "foreign assistance",
+    # State/INL international bureaus fund foreign partners and multilateral work —
+    # no country name in the title, so match the bureau itself.
+    "bureau of international", "transnational criminal",
+)
 
 # If the grant explicitly supports US-based orgs/communities, KEEP it even when a
 # foreign country is mentioned (e.g. a multinational corp's US giving program, or a
@@ -63,6 +68,8 @@ _RESEARCH_MARKERS = (
     "national defense education", "u24", "u54", "r21", "p20", "p30", "k23",
     "phase ii clinical", "phase iii clinical", "data coordinating center",
     "informatics and resource", "translational research", "basic research",
+    # disease-specific investigator academies and MD/PhD pipelines
+    "kidney cancer", "medical scientist training", "early-career investigator",
 )
 
 
@@ -92,6 +99,78 @@ def _tokens(text: str) -> set[str]:
     return {w for w in words if len(w) >= 3 and w not in _STOPWORDS}
 
 
+# Locality weights. A community nonprofit's own city and county programs are both the
+# most winnable and the most relevant, so they outrank a statewide match.
+_CITY_WEIGHT = 3
+_COUNTY_WEIGHT = 3
+_STATE_WEIGHT = 2
+_LOCALITY_CAP = 4  # an opportunity naming city + county + state shouldn't run away
+
+_US_STATE_ABBR = {
+    "alabama": "al", "alaska": "ak", "arizona": "az", "arkansas": "ar", "california": "ca",
+    "colorado": "co", "connecticut": "ct", "delaware": "de", "florida": "fl", "georgia": "ga",
+    "hawaii": "hi", "idaho": "id", "illinois": "il", "indiana": "in", "iowa": "ia",
+    "kansas": "ks", "kentucky": "ky", "louisiana": "la", "maine": "me", "maryland": "md",
+    "massachusetts": "ma", "michigan": "mi", "minnesota": "mn", "mississippi": "ms",
+    "missouri": "mo", "montana": "mt", "nebraska": "ne", "nevada": "nv",
+    "new hampshire": "nh", "new jersey": "nj", "new mexico": "nm", "new york": "ny",
+    "north carolina": "nc", "north dakota": "nd", "ohio": "oh", "oklahoma": "ok",
+    "oregon": "or", "pennsylvania": "pa", "rhode island": "ri", "south carolina": "sc",
+    "south dakota": "sd", "tennessee": "tn", "texas": "tx", "utah": "ut", "vermont": "vt",
+    "virginia": "va", "washington": "wa", "west virginia": "wv", "wisconsin": "wi",
+    "wyoming": "wy",
+}
+
+
+def _opportunity_geo_text(opportunity) -> str:
+    """Where the opportunity says it applies — name, funder, and geography tags."""
+    parts = [opportunity.name, opportunity.source_name]
+    parts += [str(g) for g in (opportunity.geography or [])]
+    return " ".join(p for p in parts if p).lower()
+
+
+def locality_bonus(opportunity, organization=None) -> int:
+    """Extra relevance for opportunities tied to the org's own city / county / state.
+
+    Geographic proximity is a relevance signal in its own right: a county youth
+    initiative in the org's own county is a better match than an identically-worded
+    national program. Without this, local government and civic funders — usually the
+    most winnable — rank below generic national grants that happen to share vocabulary.
+    """
+    if organization is None:
+        return 0
+
+    text = _opportunity_geo_text(opportunity)
+    bonus = 0
+
+    city = (getattr(organization, "city", "") or "").strip().lower()
+    if city and city in text:
+        bonus += _CITY_WEIGHT
+
+    # County is stored bare ("Orange"), which is far too generic to match on its own —
+    # only credit the full phrase ("orange county").
+    county = (getattr(organization, "county", "") or "").strip().lower()
+    if county:
+        county_phrase = county if county.endswith(" county") else f"{county} county"
+        if county_phrase in text:
+            bonus += _COUNTY_WEIGHT
+
+    # State may be stored as a full name ("Florida") or a USPS code ("FL") — both are
+    # in use. Never substring-match a 2-letter code: "fl" hits "flexible", "conflict".
+    state = (getattr(organization, "state", "") or "").strip().lower()
+    if state:
+        if len(state) == 2:
+            names = [n for n, a in _US_STATE_ABBR.items() if a == state]
+            abbr = state
+        else:
+            names = [state]
+            abbr = _US_STATE_ABBR.get(state)
+        if any(n in text for n in names) or (abbr and re.search(rf"\b{abbr}\b", text)):
+            bonus += _STATE_WEIGHT
+
+    return min(bonus, _LOCALITY_CAP)
+
+
 def org_keywords(organization) -> set[str]:
     """The org's relevance vocabulary — what it does + who it serves + its mission."""
     kw: set[str] = set()
@@ -101,10 +180,15 @@ def org_keywords(organization) -> set[str]:
     return kw
 
 
-def opportunity_relevance(opportunity, keywords: set[str]) -> int:
-    """Count of distinct org keywords that appear in the opportunity's text.
+def opportunity_relevance(opportunity, keywords: set[str], organization=None) -> int:
+    """Count of distinct org keywords that appear in the opportunity's text, plus a
+    bonus when the opportunity is tied to the org's own city / county / state.
 
     0 = no overlap (off-topic — kept out of the top recommendations).
+
+    The locality bonus only applies to opportunities that ALREADY overlap the org's
+    mission. A Florida grant with nothing to do with what the org does stays at 0 and
+    still drops out — proximity promotes a real match, it never creates one.
     """
     if not keywords:
         return 0
@@ -117,4 +201,7 @@ def opportunity_relevance(opportunity, keywords: set[str]) -> int:
     parts += [str(x) for x in (opportunity.focus_areas or [])]
     parts += [str(x) for x in (opportunity.beneficiaries or [])]
     opp_tokens = _tokens(" ".join(p for p in parts if p))
-    return len(keywords & opp_tokens)
+    score = len(keywords & opp_tokens)
+    if score <= 0:
+        return 0
+    return score + locality_bonus(opportunity, organization)
