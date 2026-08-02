@@ -8,6 +8,12 @@
       "port": 8001
     },
     {
+      "name": "openoutreach-shots",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["DEBUG=true", ".venv/bin/python", "manage.py", "runserver", "8010"],
+      "port": 8010
+    },
+    {
       "name": "reelforge",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "/Users/scottiebeammin/Documents/GitHub/reelforge", "run", "dev"],
