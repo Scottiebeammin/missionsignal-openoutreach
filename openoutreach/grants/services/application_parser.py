@@ -161,6 +161,15 @@ _NARRATIVE_VERBS = re.compile(
     r"^\s*(?:describe|explain|provide|summarize|summarise|outline|discuss|detail|tell us|share|"
     r"identify|list|state|what|how|why|who|when|where|in what ways)\b", re.I,
 )
+# An IMPERATIVE prompt ("Describe…", "Explain…") asks for prose, even when the
+# sentence later mentions a quantity — "Describe the population you serve,
+# including how many people you reach" is a narrative, not a numeric field.
+# Interrogatives ("What…", "How many…") stay eligible for the typed checks,
+# because those genuinely are number/currency fields.
+_NARRATIVE_IMPERATIVE = re.compile(
+    r"^\s*(?:describe|explain|provide|summarize|summarise|outline|discuss|detail|tell us|share|"
+    r"please describe|please explain|please provide)\b", re.I,
+)
 
 
 def classify_question(text: str, word_limit: int | None, character_limit: int | None) -> str:
@@ -169,6 +178,14 @@ def classify_question(text: str, word_limit: int | None, character_limit: int | 
         return QuestionType.ATTACHMENT
     if _MULTIPLE_CHOICE.search(stripped):
         return QuestionType.MULTIPLE_CHOICE
+    # An imperative prompt is prose. Check this before the numeric/currency/date
+    # patterns so an embedded "how many" cannot demote it to a form field.
+    if _NARRATIVE_IMPERATIVE.match(stripped):
+        if character_limit and character_limit <= 250:
+            return QuestionType.SHORT_TEXT
+        if word_limit and word_limit <= 50:
+            return QuestionType.SHORT_TEXT
+        return QuestionType.NARRATIVE
     if _YES_NO.search(stripped):
         return QuestionType.YES_NO
     if _CURRENCY.search(stripped):

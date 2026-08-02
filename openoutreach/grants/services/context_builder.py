@@ -117,6 +117,26 @@ def _lines(values) -> str:
     return "\n".join(f"- {_text(item)}" for item in (values or []) if _text(item))
 
 
+def _budget_display(value) -> str:
+    """Render a budget range for humans.
+
+    Intake stores readable values ("Under $250K"), but seeded and imported rows
+    can carry slug forms ("under_250k"). Those must never reach the drafter — a
+    generated answer once read "an annual budget of under_250k".
+    """
+    raw = _text(value)
+    if not raw or " " in raw or "$" in raw:
+        return raw
+    spelled = raw.replace("_", " ").strip()
+    spelled = re.sub(r"\b(\d+)k\b", r"$\1K", spelled, flags=re.I)
+    spelled = re.sub(r"\b(\d+)m\b", r"$\1M", spelled, flags=re.I)
+    spelled = spelled.replace("under", "Under").replace("over", "Over")
+    spelled = re.sub(r"\s*\bplus\b", "+", spelled, flags=re.I)
+    # "under_250k" -> "Under $250K"; "250k_1m" -> "$250K–$1M"
+    spelled = re.sub(r"(\$[\d.]+[KM])\s+(\$[\d.]+[KM])", r"\1–\2", spelled)
+    return spelled[:1].upper() + spelled[1:] if spelled else raw
+
+
 _YEAR_FOUNDED = re.compile(
     r"\b(?:founded|established|incorporated|since|serving\s+\w+\s+since)\D{0,20}(1[89]\d{2}|20\d{2})\b",
     re.IGNORECASE,
@@ -230,12 +250,13 @@ def build_grant_context(application) -> GrantContext:
     ]
     staffing = _matching_evidence(evidence, _STAFF_TERMS)
     leadership_evidence = _matching_evidence(evidence, _LEADERSHIP_TERMS)
+    # Only a board roster evidences leadership. An annual report is a useful
+    # document but does not tell a funder who governs the organization, and
+    # counting it marked this requirement satisfied while the board list was
+    # still missing from the vault.
     leadership_documents = [
         item for item in documents
-        if item.document_type in {
-            DocumentVaultItem.DocumentType.BOARD_LIST,
-            DocumentVaultItem.DocumentType.ANNUAL_REPORT,
-        }
+        if item.document_type == DocumentVaultItem.DocumentType.BOARD_LIST
     ]
     sustainability = _matching_evidence(evidence, _SUSTAINABILITY_TERMS) + _matching_documents(
         documents, _SUSTAINABILITY_TERMS
@@ -284,7 +305,7 @@ def build_grant_context(application) -> GrantContext:
         ("organization.outcomes", "Outcomes and Impact", _lines(organization.outcomes_and_impact)),
         ("organization.partnerships", "Existing Partnerships", _joined(organization.existing_partnerships)),
         ("organization.funding_sources", "Current Funding Sources", _joined(organization.current_funding_sources)),
-        ("organization.budget_range", "Annual Budget Range", _text(organization.budget_range)),
+        ("organization.budget_range", "Annual Budget Range", _budget_display(organization.budget_range)),
         ("organization.year_founded", "Year Founded", year_founded),
 
         ("project.name", "Project Name", _text(project.name)),

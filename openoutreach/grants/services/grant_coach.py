@@ -445,7 +445,7 @@ def review_imported_question(section, context: GrantContext, analysis=None) -> I
     ]
     if markers:
         dimensions.insert(0, Dimension(
-            "Answered the Question", INCOMPLETE_LABEL,
+            "Completeness", INCOMPLETE_LABEL,
             f"{len(markers)} placeholder{'s' if len(markers) != 1 else ''} still to fill: "
             + "; ".join(markers[:3]),
             "Supply the missing information, then regenerate or edit the answer.",

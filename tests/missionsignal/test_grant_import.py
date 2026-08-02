@@ -842,3 +842,79 @@ def test_informational_fields_are_excluded_from_completion(application):
     assert [s.question_type for s in created] == ["informational", "narrative"]
     assert len(answerable) == 1
     assert answerable[0].question_type == "narrative"
+
+
+# ── Regressions found by validating against real Empowered Girls data ────────
+
+def test_imperative_prompt_mentioning_a_quantity_stays_narrative():
+    """Regression: 'Describe the population you serve, including how many people
+    you reach annually' was typed `numeric`, which closed the generation gate on
+    a genuinely narrative question."""
+    parsed = parse_application(
+        "5. Describe the population your organization serves, including how many "
+        "people you reach annually.\n   Limit response to 400 words."
+    )
+
+    question = parsed.questions[0]
+    assert question.question_type == "narrative"
+    assert question.word_limit == 400
+
+
+def test_interrogative_quantity_questions_are_still_typed():
+    """The fix must not swallow real numeric/currency fields."""
+    parsed = parse_application(
+        "1. How many people will this program serve?\n\n"
+        "2. What is your organization's annual operating budget?"
+    )
+
+    assert [q.question_type for q in parsed.questions] == ["numeric", "currency"]
+
+
+def test_placeholder_finding_does_not_duplicate_a_dimension_name(application):
+    """Regression: the placeholder finding reused 'Answered the Question', so the
+    coach table showed that dimension twice."""
+    _batch, created, _parsed = _import(application)
+    section = created[0]
+    section.approved_response = "We serve youth. [Information needed: participant count]"
+    section.status = GrantApplicationSection.Status.APPROVED
+    section.save()
+    context = build_grant_context(application)
+
+    review = grant_coach.review_imported_question(section, context)
+
+    names = [d.name for d in review.dimensions]
+    assert len(names) == len(set(names)), f"duplicate dimension names: {names}"
+    assert "Completeness" in names
+
+
+@pytest.mark.parametrize("stored,expected", [
+    ("under_250k", "Under $250K"),
+    ("250k_1m", "$250K–$1M"),
+    ("5m_plus", "$5M+"),
+    ("Under $250K", "Under $250K"),
+    ("", ""),
+])
+def test_budget_range_is_humanised_before_reaching_the_drafter(stored, expected):
+    """Regression: a slug budget value reached the drafter, which produced
+    'an annual budget of under_250k' in a generated answer."""
+    from openoutreach.grants.services.context_builder import _budget_display
+
+    assert _budget_display(stored) == expected
+
+
+def test_leadership_requires_a_board_roster_not_an_annual_report(application):
+    """Regression: an annual report satisfied 'Leadership and board' while the
+    board list was still missing from the Document Vault."""
+    DocumentVaultItem.objects.create(
+        project=application.project, title="2025 Annual Report",
+        document_type=DocumentVaultItem.DocumentType.ANNUAL_REPORT,
+        status=DocumentVaultItem.Status.AVAILABLE,
+    )
+    assert build_grant_context(application).resolved_requirements["leadership"] is False
+
+    DocumentVaultItem.objects.create(
+        project=application.project, title="Board of Directors",
+        document_type=DocumentVaultItem.DocumentType.BOARD_LIST,
+        status=DocumentVaultItem.Status.AVAILABLE,
+    )
+    assert build_grant_context(application).resolved_requirements["leadership"] is True
