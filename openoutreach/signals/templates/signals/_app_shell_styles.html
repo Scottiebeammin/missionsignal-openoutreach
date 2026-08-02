@@ -288,6 +288,10 @@
   }
   .metric-card strong, .kpi-card strong, .summary-card strong, .scorecard strong {
     color: var(--accent, #d4a017);
+    /* Value and label are separate lines. Without this the two run together
+       ("97Government Score") on any page that doesn't set its own override. */
+    display: block;
+    line-height: 1.1;
   }
   .metric-card,
   .kpi-card,
@@ -300,6 +304,8 @@
   .summary-card span,
   .scorecard span {
     letter-spacing: .01em;
+    display: block;
+    margin-top: 5px;
   }
   .score-card-title {
     color: var(--muted, #687789);

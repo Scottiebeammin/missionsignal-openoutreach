@@ -130,8 +130,10 @@ def normalize_hit(hit: dict) -> dict:
     return {
         "external_id": f"grants.gov:{gid}",
         "gid": gid,
-        "name": (hit.get("title") or "").strip(),
-        "agency": (hit.get("agency") or hit.get("agencyCode") or "").strip(),
+        # Grants.gov titles arrive HTML-escaped ("&ndash;", "&nbsp;"). Unescape at the
+        # boundary so the entity never reaches the database or the screen.
+        "name": html.unescape(hit.get("title") or "").strip(),
+        "agency": html.unescape(hit.get("agency") or hit.get("agencyCode") or "").strip(),
         "number": (hit.get("number") or "").strip(),
         "posted_date": _parse_date(hit.get("openDate")),
         "deadline": _parse_date(hit.get("closeDate")),

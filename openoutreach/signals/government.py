@@ -65,8 +65,13 @@ def _readiness_level(score: int) -> str:
 
 
 def _local_context(organization) -> str:
+    # County is stored bare ("Orange"), which reads wrong in a sentence about agencies —
+    # "Orlando, Orange, Florida" should be "Orlando, Orange County, Florida".
+    county = (organization.county or "").strip()
+    if county and not county.lower().endswith("county"):
+        county = f"{county} County"
     context = ", ".join(
-        value for value in [organization.city, organization.county, organization.state] if value
+        value for value in [organization.city, county, organization.state] if value
     )
     if context:
         return context
