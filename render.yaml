@@ -63,10 +63,12 @@ services:
   # build (no daemon deps). Set the EMAIL_* vars on THIS service (same as the web
   # service) so reminders can send. Cron jobs are a paid Render feature.
   #
-  # Data refresh + new-match alerts are MANUAL for now (run from the Render shell when
-  # you want fresh data, or schedule monthly later):
-  #     python manage.py pull_grants_gov --all && python manage.py send_opportunity_alerts
-  # To automate monthly, add a second cron with schedule "0 12 1 * *" and that command.
+  # NOTE (2026-08-05): the refresh chain is NO LONGER manual, and is not only monthly.
+  # A dashboard-created cron "anansi-daily" (crn-d92320gk1i2s738ihvmg, 0 9 * * *) runs
+  # the same chain daily and is NOT described by this blueprint — it was created by hand,
+  # so editing this file does not change it. If you change the chain here, change it there
+  # too, or the two drift. The chain in both places is:
+  #     pull_grants_gov --all && expire_opportunities && send_opportunity_alerts
   - type: cron
     name: anansi-weekly-reminders
     runtime: python
@@ -177,7 +179,10 @@ services:
 
   # ── Monthly grants refresh ──
   # Re-pulls Grants.gov for every active project (geo/eligibility-aware ingestion),
-  # then emails owners any new matches + upcoming deadlines. Idempotent upserts.
+  # sweeps any grant whose deadline has passed into EXPIRED, then emails owners the new
+  # matches + upcoming deadlines. Idempotent upserts. The sweep runs BETWEEN the two on
+  # purpose: a grant that closed since the last run must leave the board before the digest
+  # is built, or the email advertises a deadline the client can no longer make.
   - type: cron
     name: anansi-monthly-grants
     runtime: python
@@ -186,7 +191,7 @@ services:
     branch: main
     schedule: "0 11 2 * *"   # 2nd of each month, 11:00 UTC
     buildCommand: "pip install -r requirements/web.txt"
-    startCommand: "python manage.py pull_grants_gov --all && python manage.py send_opportunity_alerts"
+    startCommand: "python manage.py pull_grants_gov --all && python manage.py expire_opportunities && python manage.py send_opportunity_alerts"
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.7"
