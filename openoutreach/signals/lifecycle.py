@@ -387,12 +387,14 @@ def build_lifecycle_summary(project=None, limit_per_stage: int | None = None) ->
     )
 
 
-def expire_past_deadline_opportunities(project) -> int:
-    """Move past-deadline opportunities the org never applied to into EXPIRED.
+def past_deadline_opportunities(project=None):
+    """The opportunities whose deadline has passed and that were never applied to.
 
-    Runs on pipeline page load (cheap, idempotent bulk update). Opportunities the
-    org has applied to — or that are already terminal — are left in their own spot
-    untouched, so only genuinely-missed deadlines get swept. Returns the count moved.
+    One definition of "missed deadline", shared by the pipeline page load and the
+    `expire_opportunities` command, so a sweep can never mean two different things.
+    Opportunities the org has applied to — or that are already terminal — are left
+    in their own spot untouched. Pass project=None to span every project (including
+    rows not attached to one yet).
     """
     today = timezone.localdate()
     applied_or_terminal_status = {
@@ -407,13 +409,23 @@ def expire_past_deadline_opportunities(project) -> int:
         Opportunity.LifecycleStatus.DECLINED,
         Opportunity.LifecycleStatus.CLOSED,
     }
+    queryset = Opportunity.objects.filter(deadline__isnull=False, deadline__lt=today)
+    if project is not None:
+        queryset = queryset.filter(project=project)
     return (
-        Opportunity.objects.filter(
-            project=project,
-            deadline__isnull=False,
-            deadline__lt=today,
-        )
+        queryset
         .exclude(status__in=applied_or_terminal_status)
         .exclude(lifecycle_status__in=applied_or_terminal_lifecycle)
-        .update(status=Opportunity.Status.EXPIRED, updated_at=timezone.now())
+    )
+
+
+def expire_past_deadline_opportunities(project=None) -> int:
+    """Move past-deadline opportunities the org never applied to into EXPIRED.
+
+    Runs on pipeline page load (cheap, idempotent bulk update), and system-wide from
+    the `expire_opportunities` command for the projects nobody has opened. Returns
+    the count moved.
+    """
+    return past_deadline_opportunities(project).update(
+        status=Opportunity.Status.EXPIRED, updated_at=timezone.now(),
     )
