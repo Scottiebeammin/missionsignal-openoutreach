@@ -63,12 +63,22 @@ services:
   # build (no daemon deps). Set the EMAIL_* vars on THIS service (same as the web
   # service) so reminders can send. Cron jobs are a paid Render feature.
   #
-  # NOTE (2026-08-05): the refresh chain is NO LONGER manual, and is not only monthly.
-  # A dashboard-created cron "anansi-daily" (crn-d92320gk1i2s738ihvmg, 0 9 * * *) runs
-  # the same chain daily and is NOT described by this blueprint — it was created by hand,
-  # so editing this file does not change it. If you change the chain here, change it there
-  # too, or the two drift. The chain in both places is:
-  #     pull_grants_gov --all && expire_opportunities && send_opportunity_alerts
+  # NOTE (2026-08-05): the refresh chain is NOT manual and is NOT only monthly, whatever
+  # the comment above this one used to say. A dashboard-created cron "anansi-daily"
+  # (crn-d92320gk1i2s738ihvmg, 0 9 * * *) runs it daily and is NOT described by this
+  # blueprint — it was created by hand, so editing this file does not change it. Change
+  # the chain here and you must change it there too, or the two drift. Both run:
+  #     pull_grants_gov --all && send_opportunity_alerts
+  #
+  # expire_opportunities is deliberately NOT in that chain (Marcus's call, 2026-08-05):
+  # run it by hand instead, from the Render shell:
+  #     python manage.py expire_opportunities --dry-run   # list what would expire
+  #     python manage.py expire_opportunities             # do it
+  # Trade-off being accepted: between manual runs, grants whose deadline has passed stay
+  # visible as open on client pipeline boards and in the alert digest, for any project
+  # nobody opens (opening a project's pipeline page still sweeps that one project). On
+  # 2026-08-05 that backlog was 28 rows across two live partners, oldest closed 13 days
+  # earlier. Worth re-running whenever the digest goes out.
   - type: cron
     name: anansi-weekly-reminders
     runtime: python
@@ -179,10 +189,10 @@ services:
 
   # ── Monthly grants refresh ──
   # Re-pulls Grants.gov for every active project (geo/eligibility-aware ingestion),
-  # sweeps any grant whose deadline has passed into EXPIRED, then emails owners the new
-  # matches + upcoming deadlines. Idempotent upserts. The sweep runs BETWEEN the two on
-  # purpose: a grant that closed since the last run must leave the board before the digest
-  # is built, or the email advertises a deadline the client can no longer make.
+  # then emails owners any new matches + upcoming deadlines. Idempotent upserts.
+  # NOTE: nothing here drops grants whose deadline has passed — expire_opportunities is
+  # run by hand (see the note above). Until it is run, this digest can advertise a
+  # deadline the client can no longer make.
   - type: cron
     name: anansi-monthly-grants
     runtime: python
@@ -191,7 +201,7 @@ services:
     branch: main
     schedule: "0 11 2 * *"   # 2nd of each month, 11:00 UTC
     buildCommand: "pip install -r requirements/web.txt"
-    startCommand: "python manage.py pull_grants_gov --all && python manage.py expire_opportunities && python manage.py send_opportunity_alerts"
+    startCommand: "python manage.py pull_grants_gov --all && python manage.py send_opportunity_alerts"
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.7"
