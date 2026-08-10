@@ -116,6 +116,31 @@ class Command(BaseCommand):
 
         project, created = Project.objects.get_or_create(organization=org, defaults={"name": org.name})
 
+        # Program Readiness scores off project.programs, not the org summary — leaving
+        # it empty scores 25 and reports "Programs need clearer definition" to a client
+        # whose site lists six of them. website_verification also splits this field on
+        # "·" to build the claims it checks against the live site, so the separator
+        # matters as much as the content.
+        project.programs = (
+            "Tech Sassy Girlz Code · Pearls in Tech Accelerator · Tech Treks · "
+            "Tech Sassy Girlz Annual Conference · Tech Your Impact · Grow with Google"
+        )
+        project.program_summaries = [
+            {"name": "Tech Sassy Girlz Code",
+             "description": "After-school coding program building the pipeline of underrepresented girls into STEM fields through hands-on learning."},
+            {"name": "Pearls in Tech Accelerator",
+             "description": "Accelerator for high school juniors and seniors building 21st-century digital and technical skills; graduates move into internships the organization arranges."},
+            {"name": "Tech Treks",
+             "description": "Hands-on industry tours where girls meet women role models in STEM, including simulations and career discussions."},
+            {"name": "Tech Sassy Girlz Annual Conference",
+             "description": "Annual conference hosted at the University of Central Florida — campus tours, demonstrations, engineering challenges and career exploration."},
+            {"name": "Tech Your Impact",
+             "description": "Program engaging girls in applying technology to community impact."},
+            {"name": "Grow with Google",
+             "description": "Google-partnered digital skills training delivered to program participants."},
+        ]
+        project.save()
+
         self.stdout.write(self.style.SUCCESS(
             f"{'Created' if created else 'Refreshed'} Tech Sassy Girlz workspace — org #{org.pk}, project #{project.pk}.\n"
             f"  Client view: /projects/{project.pk}/dashboard/\n"
