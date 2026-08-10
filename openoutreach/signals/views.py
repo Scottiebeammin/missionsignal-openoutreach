@@ -613,6 +613,7 @@ def project_funding_dashboard(request, pk):
     from datetime import date as _date
 
     from openoutreach.funding.relevance import (
+        eligibility_rank, eligibility_stance,
         is_off_geography, is_research_grant, opportunity_relevance, org_keywords,
     )
 
@@ -627,7 +628,12 @@ def project_funding_dashboard(request, pk):
     keywords = org_keywords(project.organization)
     for o in grants:
         o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords)
-    grants.sort(key=lambda o: (-o.relevance, o.deadline or _date.max, o.name))
+        # A notice that closes itself to nonprofits sinks below every one that
+        # doesn't, however well the topic matches — recommending a program the
+        # client can't be prime applicant on costs more trust than it wins.
+        o.eligibility = eligibility_stance(o)
+        o.eligibility_rank = eligibility_rank(o)
+    grants.sort(key=lambda o: (o.eligibility_rank, -o.relevance, o.deadline or _date.max, o.name))
     recommended_grants = [o for o in grants if o.relevance > 0][:6]
     return render(
         request,
@@ -1014,7 +1020,10 @@ def project_opportunities_workspace(request, pk):
     # archived are excluded from the active recommendations.
     from datetime import date as _date
     from openoutreach.funding.models import Opportunity
-    from openoutreach.funding.relevance import org_keywords, opportunity_relevance, is_off_geography, is_research_grant
+    from openoutreach.funding.relevance import (
+        org_keywords, opportunity_relevance, is_off_geography, is_research_grant,
+        eligibility_rank, eligibility_stance,
+    )
     _prio = {
         Opportunity.PriorityLevel.HIGH: 0,
         Opportunity.PriorityLevel.MEDIUM: 1,
@@ -1035,8 +1044,13 @@ def project_opportunities_workspace(request, pk):
         # Trust tier: confirmed = human-verified AND backed by a real source link.
         o.confirmed = o.is_confirmed
         o.source_url = o.real_source_url()
-    # Verified-with-source opportunities rank above AI-suggested ones at equal relevance.
-    ranked.sort(key=lambda o: (-o.relevance, 0 if o.confirmed else 1, _prio.get(o.priority_level, 3), o.deadline or _date.max, o.name))
+        # Eligibility read from the notice's own "Who May Submit" text — grants
+        # restricted to degree-granting institutions sink below everything else.
+        o.eligibility = eligibility_stance(o)
+        o.eligibility_rank = eligibility_rank(o)
+    # Eligible-or-unstated first, then relevance; verified-with-source opportunities
+    # rank above AI-suggested ones at equal relevance.
+    ranked.sort(key=lambda o: (o.eligibility_rank, -o.relevance, 0 if o.confirmed else 1, _prio.get(o.priority_level, 3), o.deadline or _date.max, o.name))
 
     # "Not a fit" feedback: flagged opportunities never make the top-10 shelf (the
     # next best match refills the slot) but stay in "see all" with a muted tag.

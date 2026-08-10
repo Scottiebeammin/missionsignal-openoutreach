@@ -10,6 +10,7 @@ When the org checks a new focus area or beneficiary (financial literacy, people
 with disabilities, etc.), those keywords immediately start matching opportunities —
 no code change needed; the relevance just shifts with the profile.
 """
+import html
 import re
 
 # Generic words that would match almost anything — excluded so scoring is meaningful.
@@ -85,6 +86,70 @@ def is_off_geography(opportunity, organization=None) -> bool:
     if any(phrase in text for phrase in _FOREIGN_PHRASES):
         return True
     return bool(set(re.findall(r"[a-z]+", text)) & _FOREIGN_COUNTRIES)
+
+
+# Grants.gov applicant-type codes are useless for this: NSF tags nearly every
+# program "25 — Others (see text field entitled Additional Information on
+# Eligibility)", so a type check passes programs that are closed to nonprofits.
+# The truth is in the eligibility prose, which we already store.
+_WHO_MAY_SUBMIT = re.compile(r"who\s+may\s+submit[^:]*:", re.I)
+_NONPROFIT_CATEGORY = re.compile(r"non-?profit", re.I)
+_HIGHER_ED_CATEGORY = re.compile(
+    r"institutions?\s+of\s+higher\s+(education|learning)|\bIHEs?\b"
+    r"|minority[-\s]serving\s+institutions|\bMSIs\b",
+    re.I,
+)
+
+ELIGIBILITY_OPEN = "open"
+ELIGIBILITY_RESTRICTED = "restricted"
+ELIGIBILITY_UNKNOWN = "unknown"
+
+
+def eligibility_stance(opportunity) -> str:
+    """Can a community nonprofit be the prime applicant?
+
+    "open"       — a nonprofit category is named among eligible applicants
+    "restricted" — only degree-granting institutions are named
+    "unknown"    — the notice doesn't say, or we have no text
+
+    Reads the "Who May Submit Proposals" block rather than the whole document,
+    which is the difference between getting LSAMP right and wrong: every LSAMP
+    track (ADG, SPIO, SPRA) lists Institutions of Higher Education and nothing
+    else, while the word "nonprofit" still appears further down the notice in
+    other contexts. ATE, by contrast, names "Non-profit, non-academic
+    organizations" inside the block itself.
+
+    Deliberately conservative: absent an explicit restriction this returns
+    "unknown", never "restricted". Hiding a grant a client could have won is a
+    worse failure than showing one they have to read twice.
+    """
+    text = html.unescape(opportunity.eligibility_notes or "")
+    if not text.strip():
+        return ELIGIBILITY_UNKNOWN
+    match = _WHO_MAY_SUBMIT.search(text)
+    if match:
+        # NSF delimits its sections with "*"; stop at the next one so a later
+        # section ("Who May Serve as PI") can't leak categories into this answer.
+        block = text[match.end():]
+        star = block.find("*")
+        if star > 0:
+            block = block[:star]
+    else:
+        block = text
+    if _NONPROFIT_CATEGORY.search(block):
+        return ELIGIBILITY_OPEN
+    if _HIGHER_ED_CATEGORY.search(block):
+        return ELIGIBILITY_RESTRICTED
+    return ELIGIBILITY_UNKNOWN
+
+
+def eligibility_rank(opportunity) -> int:
+    """Sort key: 0 keeps an opportunity in contention, 1 sinks it.
+
+    Only demotes what the notice itself rules out, so "unknown" ranks alongside
+    "open" — the ordering within each tier is still relevance.
+    """
+    return 1 if eligibility_stance(opportunity) == ELIGIBILITY_RESTRICTED else 0
 
 
 def _tokens(text: str) -> set[str]:
