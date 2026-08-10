@@ -82,28 +82,45 @@ class FoundationMatch:
 
 # Rough "a grant this size could be us" target by annual budget. Foundation
 # grants to a nonprofit typically land well under its annual budget; these
+def normalize_budget_range(value: str) -> str:
+    """Collapse the many budget_range spellings into one comparable form.
+
+    The value arrives from three places that never agreed with each other: the
+    intake form's display choices ("$250K - $1M"), the seed commands' tokens
+    ("under_250k", "250k-1m"), and older imports. Matching those raw strings by
+    substring was silently wrong for the intake values — "$250K - $1M" never
+    matched the "250k - 1m" needle (the "$" before "1M" breaks it) and fell
+    through to the bare "250k" needle, so a $250K-$1M org was sorted at the
+    $25k band and got no peer-income ceiling at all. "$1M - $5M" was worse: it
+    matched the leading "5m" needle and was treated as a $5M+ organization.
+
+    Stripping "$" and folding "_"/"-" to spaces makes every spelling land on the
+    same key, so the needles below can be written once.
+    """
+    key = (value or "").strip().casefold()
+    key = key.replace("$", "").replace("_", " ").replace("-", " ")
+    return " ".join(key.split())
+
+
 # targets center the band so the receipts panel leads with relatable grants
-# instead of $2M university gifts. Keys match Organization.budget_range values
-# (freeform across intake versions — matched case/space-insensitively).
+# instead of $2M university gifts. Keys are normalized (see above) and ordered
+# most-specific first, so "1m 5m" is not swallowed by the bare "5m" needle.
 _BUDGET_TARGET = [
-    ("5m", 1_000_000),
-    ("1m - 5m", 400_000),
-    ("1m-5m", 400_000),
-    ("250k - 1m", 100_000),
-    ("250k-1m", 100_000),
     # Micro-orgs (all-volunteer / community-donation funded) sit far below the
     # under-250k band: a $25k ask is most of their year. Lead them with grants
     # that a foundation actually writes to an org this size.
-    ("under_50k", 5_000),
-    ("under $50k", 5_000),
-    ("under_250k", 25_000),
-    ("under $250k", 25_000),
+    ("under 50k", 5_000),
+    ("under 250k", 25_000),
+    ("250k 1m", 100_000),
+    ("1m 5m", 400_000),
+    ("5m", 1_000_000),
+    # Legacy bare value, kept so older rows don't lose their target.
     ("250k", 25_000),
 ]
 
 
 def budget_target_amount(budget_range: str) -> int | None:
-    key = (budget_range or "").strip().casefold()
+    key = normalize_budget_range(budget_range)
     if not key:
         return None
     for needle, target in _BUDGET_TARGET:
@@ -117,20 +134,16 @@ def budget_target_amount(budget_range: str) -> int | None:
 # Recipients reporting income above this ceiling are dropped from the receipts.
 # Unknown-income orgs are kept (small orgs file 990-N and report none).
 _PEER_INCOME_CEILING = [
-    ("under_50k", 1_000_000),
-    ("under $50k", 1_000_000),
-    ("under_250k", 5_000_000),
-    ("under $250k", 5_000_000),
-    ("250k - 1m", 20_000_000),
-    ("250k-1m", 20_000_000),
-    ("1m - 5m", 100_000_000),
-    ("1m-5m", 100_000_000),
+    ("under 50k", 1_000_000),
+    ("under 250k", 5_000_000),
+    ("250k 1m", 20_000_000),
+    ("1m 5m", 100_000_000),
 ]
 
 
 def peer_income_ceiling(budget_range: str) -> int | None:
     """Largest recipient income still credible as "an org like yours"."""
-    key = (budget_range or "").strip().casefold()
+    key = normalize_budget_range(budget_range)
     if not key:
         return None
     for needle, ceiling in _PEER_INCOME_CEILING:

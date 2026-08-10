@@ -11,6 +11,7 @@ import logging
 import re
 import urllib.request
 from datetime import date, datetime
+from decimal import Decimal, InvalidOperation
 
 from django.utils import timezone
 
@@ -96,6 +97,59 @@ def normalize_applicant_types(raw) -> list[dict]:
         elif str(entry).strip():
             normalized.append({"id": "", "description": str(entry).strip()})
     return normalized
+
+
+def _parse_money(value) -> Decimal | None:
+    """Grants.gov returns award figures as digit strings ("300000"). Return a
+    Decimal, or None for missing/unparseable values — never raise, since a
+    malformed amount must not cost us the whole opportunity."""
+    if value in (None, "", "0"):
+        return None
+    try:
+        amount = Decimal(str(value).replace(",", "").replace("$", "").strip())
+    except (InvalidOperation, ValueError):
+        return None
+    return amount if amount > 0 else None
+
+
+def award_figures(details: dict) -> dict:
+    """Pull the money fields off a fetchOpportunity synopsis.
+
+    These ride along on the detail call we already make for applicantTypes, so
+    capturing them costs no extra request. `amount` is the per-award ceiling —
+    what one applicant could receive — falling back to the floor when a program
+    publishes only a minimum. `estimated_funding` is the whole program's pot and
+    is deliberately kept separate: summing program totals across opportunities
+    would wildly overstate what any single organization could win.
+    """
+    ceiling = _parse_money(details.get("awardCeiling"))
+    floor = _parse_money(details.get("awardFloor"))
+    try:
+        awards = int(str(details.get("numberOfAwards") or "").strip() or 0) or None
+    except ValueError:
+        awards = None
+    return {
+        "amount": ceiling or floor,
+        "ceiling": ceiling,
+        "floor": floor,
+        "estimated_funding": _parse_money(details.get("estimatedFunding")),
+        "number_of_awards": awards,
+    }
+
+
+def describe_award(figures: dict) -> str:
+    """One human-readable clause for source_notes, or "" when nothing is known."""
+    parts = []
+    ceiling, floor = figures.get("ceiling"), figures.get("floor")
+    if ceiling and floor and ceiling != floor:
+        parts.append(f"Award range ${floor:,.0f}-${ceiling:,.0f}")
+    elif ceiling or floor:
+        parts.append(f"Award up to ${(ceiling or floor):,.0f}")
+    if figures.get("estimated_funding"):
+        parts.append(f"estimated program funding ${figures['estimated_funding']:,.0f}")
+    if figures.get("number_of_awards"):
+        parts.append(f"{figures['number_of_awards']} awards expected")
+    return "; ".join(parts)
 
 
 def detect_states(text: str) -> list[str]:
@@ -193,6 +247,11 @@ def ingest_grants_for_project(
             details = fetch_opportunity_details(n["gid"])
             applicant_types = normalize_applicant_types(details.get("applicantTypes"))
             eligibility_notes = (details.get("applicantEligibilityDesc") or "").strip()[:4000]
+            figures = award_figures(details)
+            award_note = describe_award(figures)
+            source_notes = f"Pulled live from Grants.gov (keyword: {kw})."
+            if award_note:
+                source_notes = f"{source_notes} {award_note}."
 
             _, was_created = Opportunity.objects.update_or_create(
                 project=project,
@@ -207,12 +266,23 @@ def ingest_grants_for_project(
                     "geography": geography_for_hit(n["name"]),
                     "applicant_types": applicant_types,
                     "eligibility_notes": eligibility_notes,
+                    "funding_amount": figures["amount"],
                     "status": status,
                     "source_urls": [n["url"]],
                     "source_references": [
-                        {"system": "grants.gov", "id": n["gid"], "number": n["number"]}
+                        {
+                            "system": "grants.gov",
+                            "id": n["gid"],
+                            "number": n["number"],
+                            "award_ceiling": str(figures["ceiling"]) if figures["ceiling"] else "",
+                            "award_floor": str(figures["floor"]) if figures["floor"] else "",
+                            "estimated_funding": (
+                                str(figures["estimated_funding"]) if figures["estimated_funding"] else ""
+                            ),
+                            "number_of_awards": figures["number_of_awards"] or "",
+                        }
                     ],
-                    "source_notes": f"Pulled live from Grants.gov (keyword: {kw}).",
+                    "source_notes": source_notes,
                     "verification_status": Opportunity.VerificationStatus.VERIFIED,
                     "last_reviewed_at": timezone.now(),
                 },
