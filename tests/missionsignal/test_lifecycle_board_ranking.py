@@ -103,3 +103,52 @@ def test_operator_view_across_projects_keeps_deadline_order():
     assert summary.not_applicable == 0
     discovered = next(s for s in summary.stages if s.value == Opportunity.LifecycleStatus.DISCOVERED)
     assert discovered.count == 2
+
+
+# --------------------------------------------------------------------------
+# The board renders discovery.lifecycle_stages, which is built by a SEPARATE
+# matcher (score_inventory_opportunity). Fixing build_lifecycle_summary alone
+# left CREST sitting at the top of the live board with "Match 85" — the two
+# systems disagreed about the same row. These pin them together.
+# --------------------------------------------------------------------------
+
+def test_discovery_board_drops_what_a_us_nonprofit_cannot_apply_for():
+    from openoutreach.signals.discovery import build_discovery_overview
+
+    p = _project()
+    _opp(p, "American Center Yangon Small Grants", 5, source_name="U.S. Mission to Burma")
+    _opp(p, "STEM Girls Youth Mentorship", 40, source_name="U.S. Department of Education")
+    overview = build_discovery_overview(p)
+    names = [i.opportunity.name for s in overview.lifecycle_stages for i in s.opportunities]
+    assert names == ["STEM Girls Youth Mentorship"]
+
+
+def test_discovery_board_sinks_university_only_programs():
+    """CREST was row 1 on the live board at Match 85 while the recommendation
+    views had it disqualified."""
+    from openoutreach.signals.discovery import build_discovery_overview
+
+    p = _project()
+    _opp(p, "Centers of Research Excellence in Science and Technology", 120,
+         source_name="U.S. National Science Foundation",
+         eligibility_notes="*Who May Submit Proposals: Eligible institutions are MSIs that "
+                           "offer graduate degrees in NSF STEM areas.")
+    _opp(p, "STEM Girls Youth Program", 200, source_name="U.S. Department of Education")
+    overview = build_discovery_overview(p)
+    names = [i.opportunity.name for s in overview.lifecycle_stages for i in s.opportunities]
+    assert names[0] == "STEM Girls Youth Program", names
+
+
+def test_board_and_summary_agree_on_the_same_project():
+    """The metric row and the board columns are built by different code paths and
+    were showing different numbers (115 vs 203) for one project."""
+    from openoutreach.signals.discovery import build_discovery_overview
+
+    p = _project()
+    _opp(p, "Freedom250 Algeria", 3, source_name="U.S. Mission to Algeria")
+    _opp(p, "STEM Girls Youth A", 30, source_name="U.S. Department of Education")
+    _opp(p, "STEM Girls Youth B", 60, source_name="U.S. Department of Education")
+    overview = build_discovery_overview(p)
+    board = sum(len(s.opportunities) for s in overview.lifecycle_stages)
+    summary = sum(s.count for s in overview.lifecycle_summary.stages)
+    assert board == summary == 2

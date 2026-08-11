@@ -216,9 +216,24 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
     # Drop hard-screened opportunities (other-state-only scope, or applicant
     # types that exclude nonprofits) from the discovery list entirely.
     items = [item for item in items if not item.match.excluded]
+    # ...and the ones no US-domestic nonprofit can act on. score_inventory_opportunity
+    # is a separate matcher from funding.relevance and the two disagreed: it rated
+    # CREST — an NSF programme restricted to graduate-degree-granting institutions —
+    # at 85 and put it top of the client's board, while the recommendation views
+    # were correctly forcing it to zero. is_not_applicable is now the one definition
+    # of "never show this", shared by both.
+    from openoutreach.funding.relevance import eligibility_rank, is_not_applicable
+
+    organization = project.organization
+    items = [item for item in items if not is_not_applicable(item.opportunity, organization)]
     items = sorted(
         items,
-        key=lambda item: (-item.match.score, item.opportunity.get_opportunity_type_display(), item.opportunity.name),
+        key=lambda item: (
+            eligibility_rank(item.opportunity),
+            -item.match.score,
+            item.opportunity.get_opportunity_type_display(),
+            item.opportunity.name,
+        ),
     )
 
     groups = []

@@ -355,15 +355,14 @@ def rank_for_client(opportunities, project) -> tuple[list, int]:
     from datetime import date as _date
 
     from openoutreach.funding.relevance import (
-        eligibility_rank, is_off_geography, is_research_grant,
-        opportunity_relevance, org_keywords,
+        eligibility_rank, is_not_applicable, opportunity_relevance, org_keywords,
     )
 
     organization = project.organization
     keywords = org_keywords(organization)
     keep, dropped = [], 0
     for opportunity in opportunities:
-        if is_off_geography(opportunity, organization) or is_research_grant(opportunity):
+        if is_not_applicable(opportunity, organization):
             dropped += 1
             continue
         opportunity.relevance = opportunity_relevance(opportunity, keywords)

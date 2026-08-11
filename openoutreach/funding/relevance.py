@@ -74,6 +74,20 @@ def is_research_grant(opportunity) -> bool:
     return any(m in text for m in _RESEARCH_MARKERS)
 
 
+def is_not_applicable(opportunity, organization=None) -> bool:
+    """True when a US-domestic community nonprofit can never act on this row.
+
+    The single definition of "don't put this on a client's board", shared by the
+    recommendation views, the lifecycle board and the discovery inventory. Those
+    three used to screen differently — discovery scored CREST at 85 while the
+    recommendation views forced it to zero — which is how university-only and
+    overseas programmes stayed visible on the one screen clients actually work
+    from. Disqualification is a different judgement from a low score and belongs
+    in one place.
+    """
+    return is_off_geography(opportunity, organization) or is_research_grant(opportunity)
+
+
 def is_off_geography(opportunity, organization=None) -> bool:
     """True if the opportunity is tied to a foreign country / overseas post — disqualified
     for a US-domestic nonprofit. Override: kept if it explicitly supports US-based orgs."""
