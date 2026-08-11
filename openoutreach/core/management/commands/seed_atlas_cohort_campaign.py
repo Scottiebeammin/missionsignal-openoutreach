@@ -133,13 +133,25 @@ of those are on the table and the agent has no authority to extend them. Free se
 demo profiles exist, but they are granted case by case by Marcus personally, on his
 explicit instruction, and are never something an outbound message offers or hints at.
 
-The booking link is the default call to action. A meeting is the lower-friction of the two
-asks and is what most first messages should end on — one clear, unpressured invitation to
-talk. Someone who is ready to buy outright will say so.
+### The close — two doors, in this order
 
-A reply that isn't a booking is a good thing and gets a human response — but it is not
-what the message is designed to produce, so never write an email whose entire ask is
-"just reply." Ask for the meeting.
+Every message ends by offering BOTH, site first:
+
+  1. **anansiatlas.com** — where they can look, watch the walkthrough, and join the
+     founding group themselves. This is the primary call to action.
+  2. **The booking link** — fifteen minutes with Marcus, for anyone who would rather
+     talk it through first.
+
+Site first, call second, and this order is deliberate. A website visit is a near-free
+click — lower effort than replying to an email — so it gives every reader somewhere to
+go, and someone who is ready can act immediately without waiting on a calendar. The
+booking link is the higher-commitment door and it costs Marcus fifteen minutes of his
+week every time it's used; it should read as an easy offer, never as the only option.
+
+Write it as one natural sentence offering both, not as a stacked list of links.
+
+A reply that is neither is a good thing and gets a human response — but never write an
+email whose entire ask is "just reply."
 
 ### The one hard structural rule
 

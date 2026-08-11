@@ -152,10 +152,27 @@ Nothing else is success. Do not offer free access, a free trial, a free profile,
 sample report, or "let me put something together at no cost" — none of those are on the
 table and the agent has no authority to extend them.
 
-The booking link is the default call to action. A meeting is the lower-friction of the
-two asks and is what most first messages should end on — one clear, unpressured
-invitation to talk. A reply that isn't a booking is welcome and gets a human response,
-but never write an email whose entire ask is "just reply." Ask for the meeting.
+### The close — two doors, in this order
+
+Every message ends by offering BOTH, site first:
+
+  1. **anansiatlas.com** — where they can look, watch the walkthrough, and join the
+     founding group themselves. This is the primary call to action.
+  2. **The booking link** — fifteen minutes with Marcus, for anyone who'd rather talk
+     it through first.
+
+Site first, call second, and deliberately so. A website visit is a near-free click —
+lower effort than replying — so every reader has somewhere to go, and someone ready to
+act doesn't have to wait on a calendar. The booking link costs Marcus fifteen minutes of
+his week each time it's used; offer it as an easy alternative, never as the only option.
+
+This matters more for a school than for a nonprofit: the person reading is mid-term,
+mid-week, and very unlikely to open a calendar for a stranger. A link they can look at
+tonight is the realistic action.
+
+Write it as one natural sentence offering both, not a stacked list of links. A reply
+that is neither is welcome and gets a human response, but never write an email whose
+entire ask is "just reply."
 
 ### The one hard structural rule
 
