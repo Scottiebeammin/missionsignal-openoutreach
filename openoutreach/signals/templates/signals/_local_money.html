@@ -61,7 +61,12 @@ to do something. See signals/local_money.py.
                 {% if o.deadline %}<span class="score-badge score-low">Due {{ o.deadline }}</span>
                 {% else %}<span class="score-badge" title="This page doesn't state a deadline. We don't guess one.">No stated deadline</span>{% endif %}
               </p>
-              <p class="muted">{{ group.name }}</p>
+              {% comment %}
+              Without an LLM key the row IS the source page, so name and source are
+              the same string and printing both just looks broken. With program-level
+              extraction the names differ and the attribution earns its line.
+              {% endcomment %}
+              {% if group.name != o.name %}<p class="muted">{{ group.name }}</p>{% endif %}
               <div class="opp-actions">
                 <a href="{{ group.url }}" target="_blank" rel="noopener">Open source to verify ↗</a>
                 <form method="post" action="{% url 'project-opportunity-interest' project.pk o.pk %}" style="margin:0;">

@@ -203,6 +203,25 @@ def test_each_empty_state_renders_its_own_message(staff_client, kw, expected):
     assert expected in body
 
 
+def test_a_page_level_row_does_not_print_its_own_name_twice(staff_client):
+    """Without an LLM key the row IS the source page, so name == source name."""
+    _, project = _org()
+    name = "Orange County Citizens' Commission for Children — Grant Funding"
+    _local_row(project, name, ORANGE_CCC)
+    body = staff_client.get(f"/projects/{project.pk}/opportunities/").content.decode()
+    section = body[body.index("State &amp; Local Funding"):body.index("Top 10 Recommended")]
+    assert section.count(name.replace("'", "&#x27;")) + section.count(name) == 1
+
+
+def test_a_program_level_row_keeps_its_source_attribution(staff_client):
+    """When the names differ the attribution earns its line back."""
+    _, project = _org()
+    _local_row(project, "Youth Mental Health Mini-Grant", ORANGE_CCC)
+    body = staff_client.get(f"/projects/{project.pk}/opportunities/").content.decode()
+    assert "Youth Mental Health Mini-Grant" in body
+    assert "Citizens" in body  # the source name is still shown alongside it
+
+
 def test_local_rows_are_not_also_ranked_against_federal_ones(staff_client):
     """The whole point of the section: local money stops competing in a ranking
     it structurally loses. It must not appear in both places."""
