@@ -79,6 +79,14 @@ class Command(BaseCommand):
             "Boys & Girls Clubs of Central Florida",
             "OCPS Career and Technical Education",
             "Orlando Science Center",
+            # Named on /internship-opportunities — CareerSource is the delivery
+            # mechanism for the summer internships, and these three firms host the
+            # placements. A workforce-board relationship is a materially different
+            # funding signal from a community sponsor.
+            "CareerSource Central Florida",
+            "Larson Design Group",
+            "Charlan Brock Architects",
+            "Cormia Design Group",
         ]
         org.current_funding_sources = ["community donations", "sponsorships"]
         # All-volunteer, community-donation funded (~$29k/yr) — grants at this org's
@@ -89,6 +97,29 @@ class Command(BaseCommand):
         org.save()
 
         project, created = Project.objects.get_or_create(organization=org, defaults={"name": org.name})
+
+        # Program Readiness scores off project.programs, not the capabilities list
+        # above — leaving it empty scores 25 and reports "Programs need clearer
+        # definition". Sourced from bamorlando.org (/workshops and
+        # /internship-opportunities), not inferred. "·" separates programs because
+        # website_verification splits on it to build the claims it re-checks against
+        # the live site; the scholarship names stay comma-joined so they don't become
+        # three half-sentence claims.
+        project.programs = (
+            "Design Workshops · Site Tours and Firm Visits · Summer Youth Internships · "
+            "Scholarships: Breaking Barriers, Rising Star Architect, Margaret Wells"
+        )
+        project.program_summaries = [
+            {"name": "Design Workshops",
+             "description": "Guided individual and group design challenges that give students the chance to think, design and create like architects, and to share their design ideas among peers. Led by diverse professionals, customised to the host school or organisation, using games, presentations, model-making and computer modelling."},
+            {"name": "Site Tours and Firm Visits",
+             "description": "Field trips to architectural firm offices, notable buildings in the community, and museums — showing students the built environment and the people who make it."},
+            {"name": "Summer Youth Internships",
+             "description": "Paid summer placements run in collaboration with CareerSource Central Florida's Summer Youth Program, with students hosted by registered local architecture firms for mentoring and professional experience."},
+            {"name": "Scholarships",
+             "description": "Three named awards — Breaking Barriers, Rising Star Architect and Margaret Wells — easing the financial burden of architectural education for students pursuing the field."},
+        ]
+        project.save()
 
         self.stdout.write(self.style.SUCCESS(
             f"{'Created' if created else 'Refreshed'} BAM Orlando workspace — org #{org.pk}, project #{project.pk}.\n"
