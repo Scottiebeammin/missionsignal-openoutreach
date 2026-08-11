@@ -88,6 +88,33 @@ class Command(BaseCommand):
 
         project, created = Project.objects.get_or_create(organization=org, defaults={"name": org.name})
 
+        # Program Readiness scores off project.programs (readiness.py — 90 if
+        # _has_text(project.programs) else 25). This was left empty at seed time, so
+        # WOTR has been reading "Programs need clearer definition" on its own Readiness
+        # page since July. Sourced from wotrinc.org, not inferred from the capabilities
+        # list above. "·" is the separator website_verification splits on to build the
+        # claims it re-checks against the live site.
+        project.programs = (
+            "Career Development Cohort · Educated & Broke™ Financial Empowerment Series · "
+            "Entrepreneurship Showcase: Built With Intention · The RISE Executive Roundtable · "
+            "Self Care Awareness Assessment · Annual Awards Gala"
+        )
+        project.program_summaries = [
+            {"name": "Career Development Cohort",
+             "description": "10-week program for mid-career women combining professional coaching, financial education and career development training, with childcare and meals provided so participants can actually attend."},
+            {"name": "Educated & Broke™ Financial Empowerment Series",
+             "description": "Free 3-part virtual series for women who are highly educated and skilled yet financially vulnerable — net worth and goal setting, retirement accounts, insurance and estate planning, savings and budgeting, and the emotional barriers around money."},
+            {"name": "Entrepreneurship Showcase: Built With Intention",
+             "description": "Annual event celebrating women entrepreneurs and business owners, with presentations and networking."},
+            {"name": "The RISE Executive Roundtable",
+             "description": "Intimate leadership development sessions for Visionary Members, in conversation with accomplished business leaders on entrepreneurship and growth."},
+            {"name": "Self Care Awareness Assessment",
+             "description": "Emotional awareness and self-care assessment offered to members as the wellness pillar of the four-pillar model."},
+            {"name": "Annual Awards Gala",
+             "description": "Annual celebration recognising the achievements and contributions of women in the WOTR community."},
+        ]
+        project.save()
+
         self.stdout.write(self.style.SUCCESS(
             f"{'Created' if created else 'Refreshed'} WOTR workspace — org #{org.pk}, project #{project.pk}.\n"
             f"  Client view: /projects/{project.pk}/dashboard/\n"
