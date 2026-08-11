@@ -1,0 +1,107 @@
+{% comment %}
+State & Local money, grouped by the government that issues it.
+
+Sits above Top 10 deliberately: for a small community nonprofit this is the most
+winnable money on the page, and it used to be invisible because it was ranked
+against federal notices by keyword overlap.
+
+The three empty states are different on purpose — each needs a different person
+to do something. See signals/local_money.py.
+{% endcomment %}
+<section class="panel">
+  <h2>State &amp; Local Funding</h2>
+  <div class="section-toolbar">
+    <p class="muted">
+      Money administered by {{ local_overview.state_label }}, your county and your city — the layer
+      federal search can't see.
+      {% if local_overview.opportunity_total %}
+        {{ local_overview.opportunity_total }} source{{ local_overview.opportunity_total|pluralize }} on your board.
+      {% endif %}
+    </p>
+  </div>
+
+  {% if local_overview.empty_reason == "no_geography" %}
+    <div class="empty-state">
+      <strong>We don't know where you operate yet</strong>
+      State, county and city funding is matched by geography. Add your state, county and city in
+      Settings and this section fills in.
+    </div>
+
+  {% elif local_overview.empty_reason == "no_sources_registered" %}
+    <div class="empty-state">
+      <strong>No {{ local_overview.state_label }} sources registered yet</strong>
+      We hand-verify every state, county and city funding page before it goes on a client board, and
+      we haven't covered {{ local_overview.state_label }} yet. This is a gap on our side, not
+      something missing from your profile.
+    </div>
+
+  {% elif local_overview.empty_reason == "not_yet_ingested" %}
+    <div class="empty-state">
+      <strong>{{ local_overview.source_total }} source{{ local_overview.source_total|pluralize }} matched, none fetched yet</strong>
+      We've identified the state, county and city funders that cover you. Their pages haven't been
+      read yet — this fills in on the next run.
+    </div>
+
+  {% else %}
+    {% for jurisdiction in local_overview.jurisdictions %}
+      <h3 style="margin:18px 0 6px;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:#5c6675;">
+        {{ jurisdiction.label }}
+        <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400;">
+          &middot; {{ jurisdiction.level }}
+        </span>
+      </h3>
+      <div class="grid">
+        {% for group in jurisdiction.reachable_groups %}
+          {% for o in group.opportunities %}
+            <article class="opportunity-card">
+              <h3>{{ o.name }}</h3>
+              <p>
+                <span class="score-badge" style="background:#1f7a8c;color:#fff;">{{ jurisdiction.label }}</span>
+                <span class="score-badge" style="background:#a9761d;color:#fff;" title="Fetched from the funder's own page — open it and confirm the details">⚠ Verify first</span>
+                {% if o.deadline %}<span class="score-badge score-low">Due {{ o.deadline }}</span>
+                {% else %}<span class="score-badge" title="This page doesn't state a deadline. We don't guess one.">No stated deadline</span>{% endif %}
+              </p>
+              <p class="muted">{{ group.name }}</p>
+              <div class="opp-actions">
+                <a href="{{ group.url }}" target="_blank" rel="noopener">Open source to verify ↗</a>
+                <form method="post" action="{% url 'project-opportunity-interest' project.pk o.pk %}" style="margin:0;">
+                  {% csrf_token %}
+                  <button type="submit" class="track-btn {% if o.is_interested %}tracking{% endif %}"
+                          title="{% if o.is_interested %}Stop tracking{% else %}Track this — get weekly reminders until you apply{% endif %}">
+                    {% if o.is_interested %}★ Tracking{% else %}☆ Track{% endif %}
+                  </button>
+                </form>
+              </div>
+            </article>
+          {% empty %}
+            <article class="opportunity-card">
+              <h3>{{ group.name }}</h3>
+              <p><span class="score-badge">Not fetched yet</span></p>
+              <div class="opp-actions">
+                <a href="{{ group.url }}" target="_blank" rel="noopener">Open source ↗</a>
+              </div>
+            </article>
+          {% endfor %}
+        {% endfor %}
+      </div>
+
+      {% if jurisdiction.blocked_groups %}
+        {% for group in jurisdiction.blocked_groups %}
+          <p class="muted" style="margin:8px 0 0;font-size:.85rem;border-left:3px solid #a9761d;padding:8px 12px;background:rgba(169,118,29,.06);border-radius:0 8px 8px 0;">
+            <strong>Known gap — {{ group.name }}.</strong> {{ group.source.blocked }}
+            <a href="{{ group.url }}" target="_blank" rel="noopener">Check it directly ↗</a>
+          </p>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {% if local_overview.missing_geography %}
+    <p class="muted" style="margin:14px 0 0;font-size:.85rem;">
+      Your profile has no
+      {% for level in local_overview.missing_geography %}{% if not forloop.first %} or {% endif %}<strong>{{ level }}</strong>{% endfor %}
+      on file, so {{ local_overview.missing_geography|join:" and " }}-level funders can't be matched to you.
+      Adding {{ local_overview.missing_geography|length|pluralize:"it,them" }} in Settings may surface more.
+    </p>
+  {% endif %}
+</section>

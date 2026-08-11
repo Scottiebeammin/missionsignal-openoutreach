@@ -1022,18 +1022,25 @@ def project_opportunities_workspace(request, pk):
     from openoutreach.funding.models import Opportunity
     from openoutreach.funding.relevance import (
         org_keywords, opportunity_relevance, is_off_geography, is_research_grant,
-        eligibility_rank, eligibility_stance,
+        eligibility_rank, eligibility_stance, is_local_government_source,
     )
+    from openoutreach.signals.local_money import build_local_overview
     _prio = {
         Opportunity.PriorityLevel.HIGH: 0,
         Opportunity.PriorityLevel.MEDIUM: 1,
         Opportunity.PriorityLevel.LOW: 2,
     }
-    ranked = list(
-        Opportunity.objects.filter(project=project).exclude(
+    # State/county/city money has its own section, grouped by the government that
+    # issues it. Excluding it here is the point: ranked by keyword overlap it loses
+    # to any federal notice with a descriptive title, which is what the relevance
+    # floor was patching over. It doesn't compete now, so it can't lose.
+    local_overview = build_local_overview(project)
+    ranked = [
+        o for o in Opportunity.objects.filter(project=project).exclude(
             status__in=[Opportunity.Status.EXPIRED, Opportunity.Status.ARCHIVED]
         )
-    )
+        if not is_local_government_source(o)
+    ]
     # Score each opportunity against what THIS org does + who it serves, so only
     # relevant ones rise to the top (off-topic grants score 0 and drop out).
     keywords = org_keywords(project.organization)
@@ -1076,6 +1083,7 @@ def project_opportunities_workspace(request, pk):
             "lifecycle": discovery.lifecycle_summary,
             "top_opportunities": top,
             "all_opportunities": ranked,
+            "local_overview": local_overview,
             "opportunity_total": len(ranked),
             "relevant_total": len(relevant),
             "confirmed_total": sum(1 for o in ranked if o.confirmed),
