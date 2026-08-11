@@ -85,12 +85,39 @@ class Command(BaseCommand):
         parser.add_argument("--limit", type=int, default=0)
         parser.add_argument("--delay", type=float, default=1.5)
         parser.add_argument("--progress-file", default="data/florida-crm-staging/scrape_progress.json")
+        # Targeting filters. The original sweep worked the High tier top-down;
+        # these aim a sweep at a segment instead — e.g. education orgs inside the
+        # ICP revenue band, where email coverage (not the number of organizations)
+        # is what limits how big a list can get.
+        parser.add_argument("--sector", action="append", default=[],
+                            help="Restrict to NTEE sector(s), e.g. --sector Education. Repeatable.")
+        parser.add_argument("--county", default="", help="Restrict to one county.")
+        parser.add_argument("--min-income", type=int, default=0,
+                            help="Only orgs at or above this annual income.")
+        parser.add_argument("--max-income", type=int, default=0,
+                            help="Only orgs at or below this annual income (0 = no ceiling).")
+        parser.add_argument("--count-only", action="store_true",
+                            help="Print how many sites the filters select, then exit. Visits nothing.")
 
     def handle(self, *args, **options):
         qs = FloridaOrg.objects.exclude(website="").filter(contact_email="")
         if options["priority"].lower() != "all":
             qs = qs.filter(priority__iexact=options["priority"])
+        if options["sector"]:
+            qs = qs.filter(ntee_sector__in=options["sector"])
+        if options["county"]:
+            qs = qs.filter(county__iexact=options["county"])
+        if options["min_income"]:
+            qs = qs.filter(income_amount__gte=options["min_income"])
+        if options["max_income"]:
+            qs = qs.filter(income_amount__lte=options["max_income"])
         qs = qs.order_by("pk")
+
+        if options["count_only"]:
+            self.stdout.write(self.style.SUCCESS(
+                f"{qs.count():,} site(s) match these filters and have no email yet."
+            ))
+            return
 
         progress_path = Path(options["progress_file"])
         progress_path.parent.mkdir(parents=True, exist_ok=True)
