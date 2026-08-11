@@ -105,6 +105,12 @@ class DiscoveryOverview:
     top_opportunities: list[DiscoveryOpportunity]
     lifecycle_summary: LifecycleSummary
     lifecycle_stages: list[DiscoveryLifecycleStage]
+    # Everything the board screened out, by BOTH gates — match.excluded
+    # (other-state-only scope, applicant types that exclude nonprofits) and
+    # is_not_applicable (overseas, university-only). The banner has to describe
+    # what this board actually dropped; sourcing it from the lifecycle summary
+    # instead reported 101 over a board of 107, and the arithmetic didn't close.
+    not_applicable: int = 0
 
     @property
     def best_opportunity_category(self) -> str:
@@ -226,6 +232,7 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
 
     organization = project.organization
     items = [item for item in items if not is_not_applicable(item.opportunity, organization)]
+    screened_out = len(opportunities) - len(items)
     items = sorted(
         items,
         key=lambda item: (
@@ -332,4 +339,5 @@ def build_discovery_overview(project, funding_criteria=None) -> DiscoveryOvervie
         top_opportunities=items[:5],
         lifecycle_summary=build_lifecycle_summary(project=project, limit_per_stage=6),
         lifecycle_stages=_lifecycle_stages(items),
+        not_applicable=screened_out,
     )

@@ -99,11 +99,11 @@
 
     <section id="board" class="panel">
       <h2>Lifecycle Board</h2>
-      {% if lifecycle.not_applicable %}
+      {% if discovery.not_applicable %}
         <p class="muted">Ordered by fit — the ones you can actually apply for come first.
-        {{ lifecycle.not_applicable }} opportunit{{ lifecycle.not_applicable|pluralize:"y,ies" }}
-        hidden as not applicable to a US-based nonprofit (overseas and embassy programs,
-        university-only research mechanisms).</p>
+        {{ discovery.not_applicable }} opportunit{{ discovery.not_applicable|pluralize:"y,ies" }}
+        hidden as not applicable to a US-based nonprofit — overseas and embassy programs,
+        university-only research mechanisms, and grants scoped to other states.</p>
       {% endif %}
       <div class="board">
         {% for stage in discovery.lifecycle_stages %}

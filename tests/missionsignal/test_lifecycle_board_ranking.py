@@ -152,3 +152,18 @@ def test_board_and_summary_agree_on_the_same_project():
     board = sum(len(s.opportunities) for s in overview.lifecycle_stages)
     summary = sum(s.count for s in overview.lifecycle_summary.stages)
     assert board == summary == 2
+
+
+def test_the_hidden_count_closes_against_the_board():
+    """The banner number must equal what this board actually dropped. Sourcing it
+    from the lifecycle summary reported 101 hidden over a board of 107 out of 216
+    — three numbers on one screen that didn't reconcile."""
+    from openoutreach.signals.discovery import build_discovery_overview
+
+    p = _project()
+    _opp(p, "Freedom250 Algeria", 3, source_name="U.S. Mission to Algeria")
+    _opp(p, "American Center Yangon", 4, source_name="U.S. Mission to Burma")
+    _opp(p, "STEM Girls Youth A", 30, source_name="U.S. Department of Education")
+    overview = build_discovery_overview(p)
+    shown = sum(len(s.opportunities) for s in overview.lifecycle_stages)
+    assert shown + overview.not_applicable == overview.total_opportunities
