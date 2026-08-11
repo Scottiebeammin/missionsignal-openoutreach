@@ -24,7 +24,7 @@ class FakeOpportunity:
         self.beneficiaries = beneficiaries or []
 
 
-KEYWORDS = {"stem", "girls", "youth", "mentorship", "workforce"}
+KEYWORDS = {"stem", "girls", "youth", "mentorship", "workforce", "coding", "scholarships", "entrepreneurship"}
 
 # The four real rows pull_local_grants saved for Tech Sassy Girlz (project 3).
 LOCAL_ROWS = [
@@ -53,10 +53,19 @@ def test_federal_rows_are_not_floored():
 def test_a_local_row_that_does_match_scores_above_the_floor():
     """The floor is a minimum, not a flat rate — real overlap still counts."""
     opp = FakeOpportunity(
-        name="Orange County STEM Girls Youth Workforce Mentorship Fund",
+        name="Orange County STEM Girls Youth Workforce Mentorship Coding Scholarships Fund",
         external_id="localgov:abc123",
     )
     assert opportunity_relevance(opp, KEYWORDS) > LOCAL_GEOGRAPHY_FLOOR
+
+
+def test_floor_clears_the_marginal_federal_band():
+    """The prod distribution has 8 federal rows at exactly 4 — coincidental keyword
+    hits like "Medical Student Education". A floor level with that band leaves local
+    rows tied, and since they carry no deadline they lose the tiebreak and fall off
+    the shelf entirely. The floor has to clear it, not sit in it."""
+    marginal_federal = 4
+    assert LOCAL_GEOGRAPHY_FLOOR > marginal_federal
 
 
 def test_floor_does_not_outrank_a_strong_federal_match():
@@ -64,7 +73,7 @@ def test_floor_does_not_outrank_a_strong_federal_match():
     matches the mission — that would trade one bad ranking for another."""
     local = FakeOpportunity(name="Orange County — Neighborhood Grants", external_id="localgov:abc")
     federal = FakeOpportunity(
-        name="STEM Girls Youth Mentorship and Workforce Readiness Program",
+        name="STEM Girls Youth Mentorship Workforce Coding Scholarships Entrepreneurship Program",
         external_id="grants.gov:999",
     )
     assert opportunity_relevance(federal, KEYWORDS) > opportunity_relevance(local, KEYWORDS)

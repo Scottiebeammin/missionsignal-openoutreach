@@ -174,13 +174,17 @@ def org_keywords(organization) -> set[str]:
 # Girlz's four local sources scored 0 and never reached the board at all.
 LOCAL_SOURCE_PREFIX = "localgov:"
 
-# Chosen against the real distribution: federal matches for a well-profiled org
-# run 1-8, with the strongest topical fits at 6+. A floor of 4 puts every
-# geography-matched local source above the long tail and safely onto the board,
-# without letting a $500 neighbourhood-projects fund outrank a $7.5M program
-# that genuinely matches the mission. Local rows still score higher than the
-# floor when their text does overlap.
-LOCAL_GEOGRAPHY_FLOOR = 4
+# Calibrated against the real prod distribution for Tech Sassy Girlz, not guessed:
+#   score: 8→1  7→2  6→1  5→2  4→12  3→5  2→14  1→40  0→138
+# The mass at 4 is the marginal band — Medical Student Education, HBCU Excellence
+# in Research, EPSCoR — matches on a shared word rather than a real fit. A floor
+# of 4 ties local sources with those eight federal rows, and since local rows
+# carry no deadline they lose the tiebreak and land around position 15, still off
+# the shelf. 5 is the smallest value that clears the marginal band outright while
+# staying below every federal row scoring 5+, so a county programme can outrank a
+# coincidental keyword hit but never a genuine topical match. Local rows still
+# score above the floor when their own text overlaps.
+LOCAL_GEOGRAPHY_FLOOR = 5
 
 
 def is_local_government_source(opportunity) -> bool:
