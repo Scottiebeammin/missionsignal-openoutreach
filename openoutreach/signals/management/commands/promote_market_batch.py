@@ -89,6 +89,41 @@ NOT_A_SCHOOL_MARKERS = (
 )
 
 
+def _norm(name: str) -> str:
+    """Normalize an org name for collision matching — case, punctuation, suffixes."""
+    n = name.lower().strip()
+    for junk in (",", ".", "'", '"', "&"):
+        n = n.replace(junk, " " if junk == "&" else "")
+    for suffix in (" inc", " incorporated", " llc", " corp", " corporation", " ltd", " co"):
+        if n.endswith(suffix):
+            n = n[: -len(suffix)]
+    return " ".join(n.split())
+
+
+def existing_lead_keys():
+    """Names and emails already in the pipeline, in any segment.
+
+    `promote_org_to_pipeline` only guards on `FloridaOrg.promoted_lead`, which is
+    set when *this system* promotes an org. Leads that arrived another way — the
+    warm campaign was imported from CSV — have no back-link, so the same
+    organization can exist as a warm lead and be promoted again as a cold one.
+    That would put a stranger's cold email in front of someone Marcus already has
+    a relationship with. Matching on name catches what matching on email misses:
+    a warm contact is a named person (khadesia.brown@…) while the market row
+    usually holds a generic inbox (info@…), so the addresses differ even though
+    the organization is the same.
+    """
+    from openoutreach.signals.models import SalesLead
+
+    names, emails = set(), set()
+    for org, email in SalesLead.objects.values_list("organization", "email"):
+        if org:
+            names.add(_norm(org))
+        if email:
+            emails.add(email.lower().strip())
+    return names, emails
+
+
 def classify_school(name: str) -> str | None:
     """Return 'Charter school', 'Religious school', or None if it isn't either."""
     n = f" {name.lower()} "
@@ -163,6 +198,9 @@ class Command(BaseCommand):
         # (org, school_kind_or_None). On the schools track the name classifier is a
         # filter, so scan further than `limit` rather than truncating first.
         candidates: list[tuple[object, str | None]] = []
+        known_names, known_emails = existing_lead_keys()
+        skipped_known: list[str] = []
+
         # The two tracks are mutually exclusive: a charter school promoted on the
         # nonprofit track would be worked with the wrong message, and whichever
         # track ran first would claim it (the promoted_lead FK is one-shot).
@@ -172,9 +210,22 @@ class Command(BaseCommand):
                 continue
             if not schools_track and kind is not None:
                 continue
+            # Never cold-promote an organization that is already a lead — most
+            # importantly a warm one. See existing_lead_keys().
+            if _norm(org.name) in known_names or (org.contact_email or "").lower().strip() in known_emails:
+                skipped_known.append(org.name)
+                continue
             candidates.append((org, kind if schools_track else None))
             if len(candidates) >= options["limit"]:
                 break
+
+        if skipped_known:
+            self.stdout.write(self.style.WARNING(
+                f"\nSkipped {len(skipped_known)} org(s) already in the pipeline — "
+                "cold-emailing an existing (possibly warm) contact:"
+            ))
+            for n in skipped_known[:15]:
+                self.stdout.write(f"    · {n}")
 
         if not candidates:
             self.stderr.write(self.style.ERROR(
