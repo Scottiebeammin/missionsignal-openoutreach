@@ -166,13 +166,40 @@ def org_keywords(organization) -> set[str]:
     return kw
 
 
+# State/county/city sources reach a project only by matching its geography, so
+# they arrive having passed a test the federal pull never applies. Scoring them
+# on keyword overlap measures the wrong thing: a federal notice carries pages of
+# matchable prose, while a local source is "City of Orlando — Community
+# Investment Program" and nothing else. Left unfloored, three of Tech Sassy
+# Girlz's four local sources scored 0 and never reached the board at all.
+LOCAL_SOURCE_PREFIX = "localgov:"
+
+# Chosen against the real distribution: federal matches for a well-profiled org
+# run 1-8, with the strongest topical fits at 6+. A floor of 4 puts every
+# geography-matched local source above the long tail and safely onto the board,
+# without letting a $500 neighbourhood-projects fund outrank a $7.5M program
+# that genuinely matches the mission. Local rows still score higher than the
+# floor when their text does overlap.
+LOCAL_GEOGRAPHY_FLOOR = 4
+
+
+def is_local_government_source(opportunity) -> bool:
+    """True for rows created by pull_local_grants (state / county / city)."""
+    return str(getattr(opportunity, "external_id", "") or "").startswith(LOCAL_SOURCE_PREFIX)
+
+
 def opportunity_relevance(opportunity, keywords: set[str]) -> int:
     """Count of distinct org keywords that appear in the opportunity's text.
 
     0 = no overlap (off-topic — kept out of the top recommendations).
+
+    Geography-matched local sources are floored at LOCAL_GEOGRAPHY_FLOOR: being
+    the county you operate in is relevance of a different kind than sharing
+    vocabulary, and the disqualifiers in the callers (off-geography, research-
+    only) still zero these rows if they trip.
     """
     if not keywords:
-        return 0
+        return LOCAL_GEOGRAPHY_FLOOR if is_local_government_source(opportunity) else 0
     parts = [
         opportunity.name,
         opportunity.notes,
@@ -182,4 +209,7 @@ def opportunity_relevance(opportunity, keywords: set[str]) -> int:
     parts += [str(x) for x in (opportunity.focus_areas or [])]
     parts += [str(x) for x in (opportunity.beneficiaries or [])]
     opp_tokens = _tokens(" ".join(p for p in parts if p))
-    return len(keywords & opp_tokens)
+    score = len(keywords & opp_tokens)
+    if is_local_government_source(opportunity):
+        return max(score, LOCAL_GEOGRAPHY_FLOOR)
+    return score
