@@ -170,6 +170,10 @@ class LifecycleSummary:
     awarded_opportunities: int
     highest_priority_active_opportunity: Opportunity | None
     health: PipelineHealth
+    # Rows a US-domestic nonprofit can never act on (overseas/embassy programmes,
+    # university-only research mechanisms). Kept as a number so the board can be
+    # honest that it filtered rather than silently showing fewer than it found.
+    not_applicable: int = 0
 
     @property
     def highest_activity_stage(self) -> str:
@@ -332,6 +336,43 @@ def assign_opportunity_owner(opportunity: Opportunity, owner) -> Opportunity:
     return opportunity
 
 
+def rank_for_client(opportunities, project) -> tuple[list, int]:
+    """Order a client's board the way the recommendation views already do, and
+    drop what can never be acted on.
+
+    The board used to come back in plain deadline order, which is why Tech Sassy
+    Girlz — an Orlando after-school STEM nonprofit — opened its pipeline to
+    embassy grants for Algeria, Abu Dhabi and Myanmar. Those weren't merely weak
+    matches: is_off_geography already knows a US-domestic nonprofit cannot use
+    them, and the recommendation views force them to zero. The lifecycle board
+    simply never asked.
+
+    Returns (ranked, not_applicable_count). Disqualified rows are removed rather
+    than sunk, because "not eligible, ever" is a different statement from "ranked
+    low" — but the count comes back so the page can say so out loud instead of
+    quietly showing a smaller number than the client was told.
+    """
+    from datetime import date as _date
+
+    from openoutreach.funding.relevance import (
+        eligibility_rank, is_off_geography, is_research_grant,
+        opportunity_relevance, org_keywords,
+    )
+
+    organization = project.organization
+    keywords = org_keywords(organization)
+    keep, dropped = [], 0
+    for opportunity in opportunities:
+        if is_off_geography(opportunity, organization) or is_research_grant(opportunity):
+            dropped += 1
+            continue
+        opportunity.relevance = opportunity_relevance(opportunity, keywords)
+        opportunity.eligibility_rank = eligibility_rank(opportunity)
+        keep.append(opportunity)
+    keep.sort(key=lambda o: (o.eligibility_rank, -o.relevance, o.deadline or _date.max, o.name))
+    return keep, dropped
+
+
 def build_lifecycle_summary(project=None, limit_per_stage: int | None = None) -> LifecycleSummary:
     qs = Opportunity.objects.select_related("source_organization", "assigned_owner").order_by("deadline", "name")
     if project is not None:
@@ -341,6 +382,11 @@ def build_lifecycle_summary(project=None, limit_per_stage: int | None = None) ->
     # AI guesses), which is exactly where a client would act on them.
     qs = qs.exclude(status=Opportunity.Status.ARCHIVED)
     opportunities = list(qs)
+    not_applicable = 0
+    if project is not None:
+        # Operator views span every project and have no single organization to
+        # score against, so they keep plain deadline order.
+        opportunities, not_applicable = rank_for_client(opportunities, project)
     stages = []
     for value in PIPELINE_STAGE_VALUES:
         stage_opportunities = [
@@ -384,6 +430,7 @@ def build_lifecycle_summary(project=None, limit_per_stage: int | None = None) ->
         ),
         highest_priority_active_opportunity=_highest_priority_active_opportunity(opportunities),
         health=_pipeline_health(opportunities),
+        not_applicable=not_applicable,
     )
 
 
