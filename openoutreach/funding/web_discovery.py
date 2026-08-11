@@ -71,6 +71,86 @@ class _SameHostRedirects(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
+_ROBOTS_CACHE: dict[str, bool] = {}
+
+
+def _robots_allows(url: str, timeout: int) -> bool:
+    """Does this host's robots.txt permit us to fetch this path?
+
+    Gate on the browser-fingerprint retry, so the decision to look like a browser
+    is always subordinate to the site's own stated crawling policy. The robots
+    file is fetched with the same fingerprint because these edges 403 it too —
+    reading the policy is the one request that can't be objectionable, and its
+    answer is what governs everything after it.
+
+    Fails CLOSED: an unreadable or unparseable robots.txt means no retry. A site
+    we cannot get a policy from does not get bypassed.
+    """
+    from urllib import robotparser
+
+    parsed = urlparse(url)
+    origin = f"{parsed.scheme}://{parsed.netloc}"
+    if origin in _ROBOTS_CACHE:
+        return _ROBOTS_CACHE[origin]
+
+    allowed = False
+    try:
+        from curl_cffi import requests as _cffi
+
+        resp = _cffi.get(f"{origin}/robots.txt", impersonate="chrome", timeout=timeout)
+        if resp.status_code == 200:
+            parser = robotparser.RobotFileParser()
+            parser.parse(resp.text.splitlines())
+            allowed = parser.can_fetch("*", url)
+        elif resp.status_code in (404, 410):
+            # No robots file at all is the conventional "no restrictions".
+            allowed = True
+    except Exception as exc:
+        logger.info("Could not read robots.txt for %s (%s) — refusing retry.", origin, exc)
+        allowed = False
+
+    _ROBOTS_CACHE[origin] = allowed
+    return allowed
+
+
+def _browser_tls_get(url: str, timeout: int, max_bytes: int) -> tuple[bytes, str, str]:
+    """Retry a 403 with a browser's TLS/HTTP2 fingerprint.
+
+    Some government edges (fldoe.org sits behind Akamai) refuse any client whose
+    TLS handshake doesn't look like a browser's. It is not a User-Agent check —
+    a full Chrome header set is still refused — so no header spelling fixes it,
+    and the only alternatives are this or shipping Chromium in the image.
+
+    Used ONLY after a 403. The first request always goes out under the honest
+    AnansiAtlas User-Agent; this retry deliberately does not send it, because
+    Akamai refuses any UA carrying our identifier — appending it to a full
+    Chrome string is still 403, so "fetch it but stay identified" is not on the
+    menu. Marcus's call, 2026-08-11, on the basis that fldoe.org's robots.txt is
+    "Disallow:" (crawling explicitly permitted), this is one public grant page on
+    an annual cycle, and a headless Chromium would present identically for 400MB
+    more image. Reconsider if a site's robots.txt ever disallows us — that is a
+    stated policy and this must not be used to override one.
+
+    If curl_cffi isn't installed the caller keeps its 403 and the source goes
+    back to being reported as a known gap.
+    """
+    from curl_cffi import requests as _cffi  # optional dependency
+
+    if not _robots_allows(url, timeout):
+        logger.info("robots.txt disallows %s — not retrying.", url)
+        raise urllib.error.HTTPError(url, 403, "disallowed by robots.txt", None, None)
+
+    resp = _cffi.get(url, impersonate="chrome", timeout=timeout, allow_redirects=True)
+    if resp.status_code != 200:
+        raise urllib.error.HTTPError(url, resp.status_code, "blocked", None, None)
+    # The stdlib path restricts redirects to the original host; keep that promise.
+    if _host(str(resp.url)) != _host(url):
+        raise urllib.error.HTTPError(url, 403, "off-host redirect", None, None)
+    content_type = (resp.headers.get("Content-Type") or "").lower()
+    charset = resp.encoding or "utf-8"
+    return resp.content[:max_bytes], content_type, charset
+
+
 def _http_get(url: str, timeout: int, max_bytes: int) -> tuple[bytes, str, str]:
     """One GET. Returns (body, content_type, charset). Raises on any failure."""
     req = urllib.request.Request(url, headers={
@@ -79,11 +159,20 @@ def _http_get(url: str, timeout: int, max_bytes: int) -> tuple[bytes, str, str]:
         "Accept-Language": "en-US,en;q=0.9",
     })
     opener = urllib.request.build_opener(_SameHostRedirects())
-    with opener.open(req, timeout=timeout) as resp:
-        content_type = (resp.headers.get("Content-Type") or "").lower()
-        charset = resp.headers.get_content_charset() or "utf-8"
-        body = resp.read(max_bytes)
-    return body, content_type, charset
+    try:
+        with opener.open(req, timeout=timeout) as resp:
+            content_type = (resp.headers.get("Content-Type") or "").lower()
+            charset = resp.headers.get_content_charset() or "utf-8"
+            body = resp.read(max_bytes)
+        return body, content_type, charset
+    except urllib.error.HTTPError as exc:
+        if exc.code != 403:
+            raise
+        try:
+            return _browser_tls_get(url, timeout, max_bytes)
+        except ImportError:
+            logger.info("403 from %s and curl_cffi is not installed — leaving it blocked.", url)
+            raise exc from None
 
 
 class _TextExtractor(HTMLParser):

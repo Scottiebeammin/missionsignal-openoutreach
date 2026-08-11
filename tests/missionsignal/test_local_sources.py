@@ -64,21 +64,40 @@ def test_out_of_state_org_matches_nothing():
 # Blocked sources
 # --------------------------------------------------------------------------
 
-def test_blocked_sources_are_excluded_from_fetching_but_still_reported():
-    """FLDOE is unreachable, not nonexistent. It must never be silently dropped —
-    it's the most relevant state program for an after-school provider."""
+def _blocked_stub():
+    """A synthetic unreachable source. These tests cover the blocked-source
+    MECHANISM, which still matters for whatever we can't reach next; they used to
+    assert against FLDOE, which made them fail the moment it became reachable."""
+    return ls.LocalSource(
+        key="test-blocked", name="Test State Agency — Grants", level=ls.STATE,
+        url="https://blocked.example/grants", state="Florida",
+        focus="testing", blocked="synthetic block for tests",
+    )
+
+
+def test_no_source_is_currently_blocked():
+    """Nothing should be shipping as unreachable. If a source becomes blocked
+    again this fails, and the reason belongs in the registry entry."""
+    assert [s.key for s in ls.LOCAL_SOURCES if s.is_blocked] == []
+
+
+def test_blocked_sources_are_excluded_from_fetching_but_still_reported(monkeypatch):
+    """An unreachable source is not a nonexistent one. It must never be silently
+    dropped — a known gap the operator can see beats a quiet omission."""
+    monkeypatch.setattr(ls, "LOCAL_SOURCES", list(ls.LOCAL_SOURCES) + [_blocked_stub()])
     p = _project()
     assert all(not s.is_blocked for s in ls.sources_for_organization(p.organization))
     with_blocked = ls.sources_for_organization(p.organization, include_blocked=True)
-    assert any(s.key == "fl-doe-21cclc" and s.is_blocked for s in with_blocked)
+    assert any(s.key == "test-blocked" and s.is_blocked for s in with_blocked)
 
 
 def test_report_names_the_blocked_source_and_the_reason(monkeypatch):
+    monkeypatch.setattr(ls, "LOCAL_SOURCES", list(ls.LOCAL_SOURCES) + [_blocked_stub()])
     monkeypatch.setattr(ls, "fetch_page", lambda url: "Grant Funding page text")
     monkeypatch.setattr(ls, "extract_grant_programs",
                         lambda *a, **k: (_ for _ in ()).throw(WebDiscoveryLLMUnavailable("no key")))
     report = ls.discover_local_for_project(_project(), dry_run=True)
-    assert any("21st Century" in b and "403" in b for b in report.blocked)
+    assert any("Test State Agency" in b and "synthetic block" in b for b in report.blocked)
 
 
 # --------------------------------------------------------------------------

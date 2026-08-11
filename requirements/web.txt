@@ -13,3 +13,4 @@ django-unfold
 gunicorn
 psycopg[binary]
 whitenoise
+curl_cffi

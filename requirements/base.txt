@@ -20,3 +20,4 @@ questionary
 linkedin-agent-cli
 stripe
 django-unfold
+curl_cffi

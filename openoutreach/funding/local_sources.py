@@ -82,12 +82,11 @@ LOCAL_SOURCES: list[LocalSource] = [
         state="Florida",
         focus="after-school and out-of-school-time academic enrichment",
         # fldoe.org robots.txt is "Disallow:" — crawling is explicitly permitted —
-        # but the edge WAF returns 403 to every non-browser client regardless of
-        # User-Agent. Not a UA problem and not fixable from urllib; it needs a real
-        # browser engine in the ingest path. Registered anyway so the single most
-        # relevant state program for an after-school provider is visible as a known
-        # gap rather than quietly missing.
-        blocked="WAF returns 403 to all non-browser HTTP clients (robots.txt permits crawling)",
+        # but the Akamai edge refuses any client whose TLS handshake isn't a
+        # browser's. Full Chrome headers are still 403, so it was never a
+        # User-Agent problem. Unblocked once web_discovery gained a 403-only retry
+        # with a browser TLS fingerprint (curl_cffi); if that dependency is ever
+        # dropped the fetch fails closed and this reverts to a reported gap.
         notes="21st CCLC is the flagship out-of-school-time pass-through. 2026-27 RFP closed 2026-05-11.",
     ),
     # ---- Florida — Orange County --------------------------------------------
