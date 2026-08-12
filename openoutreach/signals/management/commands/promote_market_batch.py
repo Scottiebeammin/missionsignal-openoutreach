@@ -32,6 +32,7 @@ Preview by default — nothing is written unless you pass --commit.
 from __future__ import annotations
 
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 
 # Direct-service sectors — the organizations Anansi Atlas is actually for.
 # Deliberately excluded from the default: "Religion-related" and
@@ -145,8 +146,11 @@ class Command(BaseCommand):
     help = "Promote a sector-screened batch of FloridaOrg rows into the cold pipeline."
 
     def add_arguments(self, parser):
-        parser.add_argument("--county", default="ORANGE",
-                            help="County to draw from (default: ORANGE).")
+        parser.add_argument("--county", action="append", default=[],
+                            help="County to draw from. Repeatable. Use 'all' for statewide. "
+                                 "Default: ORANGE. Schools are thin in any single county — 5 in Broward, "
+                                 "6 in Orange — so a statewide or multi-county pull is usually the right "
+                                 "shape for that track.")
         parser.add_argument("--track", choices=["nonprofit", "schools"], default="nonprofit",
                             help="'nonprofit' = the direct-service ICP (default). 'schools' = charter and "
                                  "religious schools only, tagged so they can be worked as their own audience.")
@@ -182,13 +186,22 @@ class Command(BaseCommand):
         if options["include_unclassified"]:
             sectors.append(UNCLASSIFIED)
 
+        counties = [c.strip() for c in (options["county"] or ["ORANGE"])]
+        statewide = any(c.lower() == "all" for c in counties)
+        where = "FLORIDA (statewide)" if statewide else ", ".join(c.upper() for c in counties)
+
         qs = (
             FloridaOrg.objects
-            .filter(county__iexact=options["county"], ntee_sector__in=sectors)
+            .filter(ntee_sector__in=sectors)
             .filter(promoted_lead__isnull=True)  # never re-promote
             .filter(income_amount__gte=options["min_income"],
                     income_amount__lte=options["max_income"])
         )
+        if not statewide:
+            county_q = Q()
+            for c in counties:
+                county_q |= Q(county__iexact=c)
+            qs = qs.filter(county_q)
         if options["exclude"]:
             qs = qs.exclude(record_id__in=[r.strip().upper() for r in options["exclude"]])
         if not options["allow_no_email"]:
@@ -234,13 +247,13 @@ class Command(BaseCommand):
 
         if not candidates:
             self.stderr.write(self.style.ERROR(
-                f"Nothing to promote in {options['county']} for those sectors. "
+                f"Nothing to promote in {where} for those sectors. "
                 "Everything matching may already be promoted — or try --include-unclassified."
             ))
             return
 
         self.stdout.write(self.style.MIGRATE_HEADING(
-            f"\n{len(candidates)} {options['track']} org(s) in {options['county']} "
+            f"\n{len(candidates)} {options['track']} org(s) in {where} "
             f"{'to promote' if options['commit'] else '— PREVIEW, nothing written'}:\n"
         ))
         for org, kind in candidates:
