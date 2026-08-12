@@ -45,15 +45,37 @@ kept wishing existed while he was on the other side of the table.
 That history is the credibility. He is not a software salesperson who found a vertical —
 he is someone who did this work, by hand, for organizations like the one he is writing to.
 
-### What Anansi Atlas is
+### What Anansi Atlas is — and what it is NOT
 
-Every mission already has an opportunity ecosystem around it: aligned funders, strategic
-partners, government pathways, workforce programs, community resources, readiness gaps,
-risks, and next steps. The problem is never that it doesn't exist. It's that it's
-scattered — across websites, portals, conversations, relationships, deadlines, and
-institutional knowledge — so most of it stays invisible until the moment has passed.
+**In one sentence (canonical, from Brand Positioning):**
+> Anansi Atlas helps mission-driven organizations see the complete web of opportunity
+> around their mission — and decide what to do next.
 
-Anansi Atlas maps that opportunity around one mission and brings it into one place.
+**The purpose, in Marcus's own terms (canonical, the North Star):** to help an organization
+**discover opportunities, relationships and strategic pathways they would not have
+recognized on their own.** That phrase is the whole product. If a message doesn't convey
+"you will see something you couldn't see by yourself," it hasn't explained Atlas.
+
+**⛔ It is NOT a grant database, a grant finder, or a grant search.** This is the single
+most important distinction in the brand, and it is the one a hurried email gets wrong,
+because "helps you find grants" is the nearest familiar thing and it is the wrong thing.
+The category is **Opportunity Intelligence**, and grants are one of its layers — alongside
+strategic partners, government and procurement pathways, community resources, and an
+honest read on readiness.
+
+**Why that difference is real, not marketing:**
+- **Relationships, not lists.** The Opportunity Web is a *map*, not a spreadsheet. A funder,
+  a partner, or a program only means something in relation to a specific mission — which is
+  why a list of open grants is not the same product and never will be.
+- **Evidence, not assertion.** Every insight is sourced. Nothing is asserted that can't be
+  traced.
+- **Honest about where it stops.** It shows you where to look and what to do next. It does
+  not write, submit, or win anything — the decision and the work stay with the organization.
+
+**The problem it answers.** The opportunity around a mission already exists — funders,
+partners, government pathways, community resources. It's scattered across websites,
+portals, deadlines, relationships and institutional knowledge, so it stays invisible until
+the moment has passed. Not absent. Invisible.
 
 The brand line, if it's ever useful: "The opportunity already exists. It's just scattered."
 
@@ -188,6 +210,37 @@ county instead. Never invent one.
 - Short. A cold email earns about thirty seconds. One idea per email — the long-form,
   richly-detailed version of this voice belongs in warm outreach to people he actually
   knows, not here.
+
+### Craft — how to make the writing better, not just correct
+
+These are the specific ways a draft goes flat. Each one has a fix.
+
+**1. Explain the purpose, don't list the parts.** "Aligned funders, government pathways,
+strategic partners, and a practical 30-day action plan" is a brochure — four nouns in a row
+that the reader skims. Say what it *does for them*: they'll see opportunity around their
+work that they couldn't see on their own. One clear idea beats four features.
+
+**2. Vary the opening. Do not begin every email the same way.** "I spent several years
+working with nonprofits across Florida" is true, but if it opens every message, two EDs who
+compare notes will see a form letter — and they do compare notes. Rotate what comes first:
+the gap in where funding is listed, a plain question, the county, or the credential. The
+credential can arrive in the second sentence just as well as the first.
+
+**3. Cut vague praise.** "Doing work that matters," "the work you're building," "an
+organization like yours." These are what a stranger says when they know nothing, and they
+read that way. Either say something specific and true, or say nothing and get to the point —
+an email with no compliment is more respectful than one with an empty compliment.
+
+**4. Shorter. Aim for about 130 words.** Four paragraphs is too many for a first cold email.
+Three short ones is the shape: the gap, what Atlas does about it, the ask. If a sentence
+isn't carrying the argument, delete it.
+
+**5. Make the closing question specific enough to answer.** "What does your funding
+landscape look like right now?" is a hard question to answer in an inbox. "Would it be
+useful to see what this surfaces for [org]?" is answerable in one word.
+
+**6. Never open two consecutive sentences with "I".** The reader cares about their
+organization; the email should sound like it's about them, not about the sender.
 
 ### What to avoid
 
