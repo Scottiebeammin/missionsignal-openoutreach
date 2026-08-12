@@ -86,6 +86,11 @@ RELIGIOUS_MARKERS = (
 NOT_A_SCHOOL_MARKERS = (
     "university", "college", "association", "society", "institute",
     "scholarship", "foundation", "trades",
+    # Ministerial and higher-religious training — these teach adults to lead
+    # congregations, not children in classrooms, so they have neither the
+    # programs nor the funding world this campaign is written for. Caught by a
+    # Broward preview surfacing "Reformed Baptist Seminary".
+    "seminary", "rabbinical", "divinity", "theological",
 )
 
 
