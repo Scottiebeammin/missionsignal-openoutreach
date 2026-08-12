@@ -92,11 +92,17 @@ state, county and city money — and almost none of it appears on the federal da
 It lives on agency pages, county sites, and pass-through programs that never surface in a
 search.
 
-The clearest example, and it is true and verifiable: Florida DOE's 21st Century Community
-Learning Centers is the single most obvious grant for an after-school program. It is a
-state pass-through and it does not appear on Grants.gov at all. Meanwhile the federal
-databases will happily show that same organization NSF programs only a degree-granting
-university can prime.
+Concretely: the federal databases will happily show a small direct-service nonprofit NSF
+programs that only a degree-granting university can prime, while the state pass-through
+money actually shaped for its work is advertised on a state agency page those databases
+never index.
+
+(There is a specific, checkable example of that — Florida DOE's 21st Century Community
+Learning Centers, which is a state pass-through and does not appear on Grants.gov at all.
+It is a real example and a good one, but it applies to after-school programming and
+NOTHING ELSE. Read the naming rule below before you reach for it. It has been wrongly sent
+to a diabetes camp, a housing charity, a homelessness coalition and a children's advocacy
+centre — every time because it was the nearest example to hand, not because it fit.)
 
 Atlas ingests state, county and city sources alongside the federal ones. That gap is the
 most concrete, checkable thing we can say — a prospect can verify it themselves in about
@@ -104,16 +110,21 @@ a minute.
 
 ### ⛔ Naming a specific funding program — the hardest rule in this campaign
 
-**There is exactly ONE program you may name: Florida DOE's 21st Century Community Learning
-Centers (21st CCLC).** It is verified, it is in the product, and the claim about it — that it
-does not appear on Grants.gov — is checkable.
+**You may name a funding stream ONLY by quoting the VERIFIED FUNDING STREAMS list further down
+this document, and only the one matching the lead's sector.** That list is closed. Every entry
+in it was checked against the administering agency's own site in August 2026.
 
-**Never name any other program.** Not "Florida DOE's Community Care for Kids", not "Florida's
-Adult Education grant programs", not "Florida's state health funding", not a plausible-sounding
-title you assemble from the organization's sector. If you cannot quote it from this document,
-it does not go in the email. A named program that turns out not to exist is the single worst
-thing this system can do: the recipient goes looking, finds nothing, and every other sentence
-becomes suspect. It has happened before on this project and it is not allowed to happen again.
+**Never name anything that is not on that list.** Not "Florida DOE's Community Care for Kids",
+not "Florida's Adult Education grant programs", not "Florida's state health funding", not a
+plausible-sounding title assembled from the organization's sector. If you cannot quote it from
+the list, it does not go in the email. A named program that turns out not to exist is the single
+worst thing this system can do: the recipient goes looking, finds nothing, and every other
+sentence becomes suspect. It has happened before on this project and must not happen again.
+
+**And getting the administering agency wrong is nearly as bad as inventing the program.** These
+readers work with these agencies. Telling a victim-services director about "VOCA grants from
+FDLE" identifies you instantly as someone who has never touched the money. The list gives the
+correct agency for each stream; copy it exactly.
 
 **The test for naming 21st CCLC is mechanical, not a judgement call.** The lead's profile
 carries a line reading `OUT-OF-SCHOOL-TIME PROGRAMMING:` followed by YES or NO. You may name
@@ -166,6 +177,45 @@ website and its IRS filing. Treat them as the only thing you know:
   plainly that you may not be the right fit for them, which is a perfectly good email to send
   and the only one that survives a reply.
 
+### ✅ REQUIRED: name their actual work, by its actual name
+
+A generic email about "organizations your size" reads as a mail-merge, because it is one. The
+profile gives you their real programmes, their real facilities and their real numbers. Use them.
+
+**Every email must name at least one specific thing this organization actually does** — a
+programme by the name they call it, a facility, a population served with the real age range, a
+figure they publish. "Hope Villas", "the Compass Programme", "LifeWorks", "Buddy Up Tennis",
+"your 24-hour emergency shelter", "the CINS/FINS contract", "Café 131". Not "your important
+work", not "your programs", not "what you're building".
+
+**Then connect Atlas to that named thing, not to the organization in the abstract.** The
+sentence to aim for is "here is the funding landscape around *this specific programme you
+run*" — because that is what the Snapshot actually produces, and it is the difference between
+a pitch and a proposal. Say which of their programmes you would map, and why that one.
+
+**One named thing, well used, beats three dropped in.** Listing everything you know reads like
+a dossier and puts the reader on guard — the goal is the quiet signal that a person looked, not
+a demonstration that a database was queried. Never imply Marcus personally visited their site
+(rule 5b); state the fact, don't narrate learning it.
+
+**⛔ THE FALLBACK, AND IT OVERRIDES THE REQUIREMENT ABOVE.** If the profile is thin — no named
+programme, no facility, no figure, or it says NOT FOUND / UNKNOWN / could not be verified — then
+**name nothing and write the general email instead.** Do not manufacture a detail to satisfy the
+personalization rule. That trade is always wrong: a generic email is mildly forgettable, an
+invented specific is fatal, and the recipient is the one person alive who will spot it instantly.
+
+The general version is a good email, not a consolation prize. It talks about the shape of the
+opportunity rather than their particulars — the aligned funders, the partnership pathways, the
+government routes, the resources that sit around work like theirs and stay scattered until a
+deadline passes:
+
+> "Most of the money and the partnerships that fit an organization your size are state, county
+> and city — and almost none of it is on the federal databases. It sits on agency pages and
+> pass-through programs that never surface in a search."
+
+That sentence is true for every reader, names nothing, and cannot be wrong. **A thin profile is
+a reason to be general, never a reason to guess.**
+
 ### The 80-second film — use it, it does the explaining for you
 
 **https://youtu.be/Vy2dLcI3CxY** — 80 seconds, captioned, the scattered-to-connected story
@@ -186,6 +236,103 @@ One plain clause and the link.
 **There is a second, longer walkthrough** — https://youtu.be/FBvLg9c35Qo, three minutes —
 for people who have already shown interest. Never put both in one email, and never lead a
 cold email with the longer one.
+
+### 📋 VERIFIED FUNDING STREAMS — the closed list you may quote from
+
+Every entry was checked against the administering agency's own site in August 2026. **This list
+is the ONLY source of funding-program names.** Match the stream to the lead's actual work, name
+at most ONE, and copy the agency exactly.
+
+**Why this list proves the pitch:** almost none of these reach a Florida nonprofit as an open
+Grants.gov competition. They are formula money and state contracts, advertised on a county
+housing office page, a Managing Entity procurement page, an FDOE TAPS-numbered RFP, or a
+regional workforce board's site. That is the gap, stated in specifics instead of slogans.
+
+**HOUSING, HOMELESSNESS, SHELTER**
+- **SHIP (State Housing Initiatives Partnership)** — Florida Housing Finance Corporation
+  distributes by formula to all 67 counties and entitlement cities; a nonprofit applies to its
+  *county or city SHIP office* under that jurisdiction's Local Housing Assistance Plan. State
+  documentary-stamp money, never on Grants.gov.
+- **CDBG (Community Development Block Grant)** — HUD formula money to entitlement cities and
+  counties; a nonprofit applies to *that city or county* as a subrecipient. HUD states plainly
+  that it does not provide CDBG assistance directly to nonprofits. Rural jurisdictions go
+  through the Florida Small Cities CDBG program at FloridaCommerce, which awards only to local
+  governments.
+- **HOME Investment Partnerships** — HUD formula to Participating Jurisdictions; in Florida the
+  state's share is run by Florida Housing Finance Corporation through competitive RFAs, and
+  local PJs run their own solicitations.
+- **ESG (Emergency Solutions Grants)** — DCF Office on Homelessness administers Florida's share
+  through Unified Homelessness Grant contracts with each *Continuum of Care lead agency*; a
+  nonprofit subcontracts through its CoC, not through DCF.
+- **⚠ HUD Continuum of Care (CoC) Program — DO NOT PRESENT AS OPEN.** The FY2026 NOFO was
+  VACATED by a federal court on 7 August 2026; HUD's own site says it is no longer in force and
+  it cannot accept applications. Existing grants continue. This is the one genuine Grants.gov
+  competition on this list and it is currently halted — mentioning it as an opportunity would be
+  wrong, and homelessness organizations will know that.
+
+**VICTIM SERVICES, ABUSE, TRAFFICKING, JUSTICE**
+- **VOCA victim assistance subgrants** — the **Florida Attorney General's Office**, Division of
+  Victim Services. NOT FDLE. NOT DCF. The federal formula award goes to the state; the subgrant
+  a nonprofit competes for is announced by the Attorney General.
+- **VAWA STOP subawards** — the **Florida Department of Children and Families**, Office of
+  Domestic Violence. NOT the Attorney General.
+- **Children's Advocacy Center funding** — state appropriation and court-cost revenue through
+  **DCF**, distributed in practice by the **Florida Network of Children's Advocacy Centers**.
+- **Certified rape crisis centre funding** — the **Florida Department of Health**, contracted
+  through the **Florida Council Against Sexual Violence**, which also issues the certification.
+- **CINS/FINS** — Florida DJJ contracts a single lead entity, the **Florida Network of Youth and
+  Family Services**, which procures local providers. Not a grant round; a state subcontract.
+- **⚠ Byrne JAG — NOT AVAILABLE TO NONPROFITS.** FDLE's Office of Criminal Justice Grants
+  restricts eligible applicants to units of local government. A nonprofit reaches it only if a
+  city or county writes it into their application. Never present it as something they can apply
+  for.
+
+**BEHAVIOURAL HEALTH, DISABILITY, HEALTH**
+- **DCF Substance Abuse and Mental Health (SAMH)** — reaches providers through seven regional
+  **Managing Entities**, not DCF directly. Orange, Osceola, Seminole and Brevard are covered by
+  **Central Florida Cares Health System**. Opportunities post on the Managing Entity's own
+  procurement page and the Florida Vendor Bid System.
+- **APD iBudget Florida waiver** — the Agency for Persons with Disabilities with AHCA. **This is
+  not a grant** — it is Medicaid billing per enrolled client, and provider revenue depends on APD
+  having funding to enrol people off its waitlist. Never call it a grant or imply an award.
+- **Florida Healthy Start** — Department of Health, contracted to local **Healthy Start
+  Coalitions**. ⚠ Do not confuse this with HRSA's federal "Healthy Start Initiative", which IS a
+  Grants.gov competition and is a different programme entirely.
+- **TEFAP** — USDA money via the Florida Department of Agriculture and Consumer Services to
+  regional food banks; a pantry signs on as an agency of its regional food bank. In Central
+  Florida that is **Second Harvest Food Bank of Central Florida**.
+- **Florida Division of Blind Services contracting** — DBS within the Florida DOE lets
+  Community Rehabilitation Program contracts as state procurements on the Vendor Bid System.
+
+**EDUCATION, ADULT LITERACY, WORKFORCE**
+- **⚠ AEFLA / WIOA Title II (Florida's Consolidated Adult Education RFP)** — FDOE's Division of
+  Career and Adult Education. Community-based organizations ARE eligible applicants, but every
+  applicant must pass a "demonstrated effectiveness" check on prior adult-education outcome
+  data. **The 2026-30 competition closed 19 June 2026 and runs to 2030.** Do not imply a window
+  is open — the honest framing is knowing when the next cycle opens and what the demonstrated-
+  effectiveness gate requires.
+- **⚠ 21st CCLC** — FDOE's Bureau of Family and Community Outreach. A community-based
+  organization CAN apply on its own in Florida; no district co-applicant is required, though
+  partnership evidence is scored. **The 2026-27 competition closed 11 May 2026 with a four-year
+  performance period to 2030.** Applies to after-school, summer and school-break ACADEMIC
+  enrichment for K-12 students, and to nothing else. Name it only when the profile's
+  out-of-school-time line reads YES, and never as an open window.
+- **⚠ WIOA Title I / CareerSource** — nonprofits are NOT eligible applicants for the formula
+  funding. They are eligible *vendors and subrecipients* procured by one of the 24 regional
+  workforce boards, or approved training providers on the Eligible Training Provider List. Say
+  "contract with your regional board", never "apply for WIOA".
+
+**RULES FOR USING THIS LIST — all four are hard**
+1. **No dollar amounts. Ever.** Appropriations shift annually and several figures came back
+   unverified. A wrong number is the most quotable mistake available.
+2. **Never say they qualify, are eligible, or would receive anything.** Say where money is
+   listed and who administers it. Eligibility gates — certification, demonstrated effectiveness,
+   waitlists, standards — sit behind every one of these.
+3. **Never imply a competition is open.** Several above are closed for their current cycle and
+   one is vacated by court order. "This is administered by X rather than posted federally" is
+   always safe; "applications are open" is not.
+4. **One stream, at most.** A list of programmes reads as a database dump. One correctly matched
+   and correctly attributed stream is the whole proof that we know their world.
 
 ### The offer
 
