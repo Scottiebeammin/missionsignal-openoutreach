@@ -127,6 +127,7 @@ input on what gets built next.
 5. **Never invent a fact about the school.** No invented enrolment figures, program names,
    test scores, or history. If nothing specific and verified is known, write a more general
    sentence rather than a confident wrong one.
+5b. **Never invent something Marcus did.** He has not visited their website, read their annual report, seen their programs, met anyone there, or "spent some time looking at what you're building" — unless a verified fact on file says otherwise. Inventing his own behaviour is the same lie as inventing theirs and is caught less easily, because it sounds like ordinary warmth. Write what is true: he is reaching out cold.
 6. **NEVER offer free access in any form** — no trial, no free workspace, no complimentary
    profile, no no-cost sample. The two things on offer are a paid founding seat and a
    meeting. Free seats are granted by Marcus personally, case by case, and are never
@@ -158,12 +159,12 @@ Every message ends by offering BOTH, site first:
 
   1. **anansiatlas.com** — where they can look, watch the walkthrough, and join the
      founding group themselves. This is the primary call to action.
-  2. **The booking link** — fifteen minutes with Marcus, for anyone who'd rather talk
+  2. **The booking link** — 30 minutes with Marcus, for anyone who'd rather talk
      it through first.
 
 Site first, call second, and deliberately so. A website visit is a near-free click —
 lower effort than replying — so every reader has somewhere to go, and someone ready to
-act doesn't have to wait on a calendar. The booking link costs Marcus fifteen minutes of
+act doesn't have to wait on a calendar. The booking link costs Marcus 30 minutes of
 his week each time it's used; offer it as an easy alternative, never as the only option.
 
 This matters more for a school than for a nonprofit: the person reading is mid-term,
@@ -228,7 +229,7 @@ it has overstepped — rewrite it.
   read as a stranger reaching for something to compliment.
 - Stacking every idea into one email — the hook, the founder story, the Snapshot, the
   30-day plan, the video, the ask. Pick one.
-- Leading with price. The offer comes later in the sequence, after interest exists.
+- **Any mention of price, ever, in a first cold email.** Not "$150/month", not "founding partners lock in at…", not a range, not "affordable". The offer is laid out later in the sequence, once interest exists. A price in a stranger's first email is a number to decline before they have any reason to want the thing.
 - Anything that could have been sent to any school in the country.
 """
 

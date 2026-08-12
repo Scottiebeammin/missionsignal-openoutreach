@@ -109,6 +109,11 @@ on what gets built next.
 5. Never invent a fact about their organization. If nothing specific and verified is
    known, write a more general sentence rather than a confident wrong one. A fabricated
    detail is worse than a generic email.
+5b. NEVER invent something Marcus did. He has not visited their website, read their annual
+   report, seen their programs, met anyone there, or "spent some time looking at what
+   you're building" — unless a verified fact on file says otherwise. Inventing his own
+   behaviour is the same lie as inventing theirs, and it is caught less easily because it
+   sounds like ordinary warmth. Write what is true: he is reaching out cold.
 6. NEVER offer free access in any form — no free trial, no free workspace, no complimentary
    profile, no no-cost sample. The two things on offer are a paid founding seat and a
    meeting. Free seats are granted by Marcus personally, case by case, and are never
@@ -139,13 +144,13 @@ Every message ends by offering BOTH, site first:
 
   1. **anansiatlas.com** — where they can look, watch the walkthrough, and join the
      founding group themselves. This is the primary call to action.
-  2. **The booking link** — fifteen minutes with Marcus, for anyone who would rather
+  2. **The booking link** — 30 minutes with Marcus, for anyone who would rather
      talk it through first.
 
 Site first, call second, and this order is deliberate. A website visit is a near-free
 click — lower effort than replying to an email — so it gives every reader somewhere to
 go, and someone who is ready can act immediately without waiting on a calendar. The
-booking link is the higher-commitment door and it costs Marcus fifteen minutes of his
+booking link is the higher-commitment door and it costs Marcus 30 minutes of his
 week every time it's used; it should read as an easy offer, never as the only option.
 
 Write it as one natural sentence offering both, not as a stacked list of links.
@@ -189,7 +194,7 @@ county instead. Never invent one.
 - Opening with a paragraph about himself. Credibility comes from one clause, not a bio.
 - Stacking every idea into the first email — the founder story, the ecosystem concept, the
   problem, the Snapshot, the 30-day plan, the video, the ask. Pick one.
-- Leading with price. The offer belongs later in the sequence, after interest exists.
+- **Any mention of price, ever, in a first cold email.** Not "$150/month", not "founding partners lock in at…", not a range, not "affordable". The offer is laid out later in the sequence once interest exists. A price in a stranger's first email is a number to decline before they have any reason to want the thing.
 - Anything that reads as though it could have been sent to any nonprofit in the country.
 """
 
