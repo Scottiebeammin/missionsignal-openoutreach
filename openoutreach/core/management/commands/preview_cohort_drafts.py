@@ -147,6 +147,10 @@ class Command(BaseCommand):
                 SalesLead.objects
                 .filter(list_segment=SalesLead.Segment.COLD_FLORIDA_CRM)
                 .exclude(email="")
+                # Never draft for a lead the operator has retired. Passed means a
+                # deliberate "not this one" — drafting it again wastes a call and
+                # risks it reaching the send queue by way of the cockpit.
+                .exclude(status=SalesLead.Status.PASSED)
             )
             if not options["redraft"]:
                 # Skip anything already drafted so consecutive batches advance
