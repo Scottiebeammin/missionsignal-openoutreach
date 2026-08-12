@@ -57,20 +57,43 @@ def _score(email: str, site_domain: str) -> int:
     return score
 
 
+def _core_label(domain: str) -> str:
+    """The registrable name without its suffix — hiveprep.org -> 'hiveprep'.
+
+    Comparing whole domains treats hiveprep.com and hiveprep.org as different
+    organizations, which is wrong often enough to matter: plenty of nonprofits
+    run the .org and mail from the .com (or vice versa). Comparing the label
+    before the suffix keeps those together while still separating genuinely
+    different businesses.
+    """
+    parts = [p for p in domain.lower().split(".") if p]
+    if len(parts) < 2:
+        return domain.lower()
+    # Handle two-part public suffixes (co.uk, org.uk, com.au, k12.fl.us …) by
+    # stepping back past short suffix labels.
+    idx = -2
+    if len(parts) >= 3 and len(parts[-2]) <= 3 and len(parts[-1]) <= 3:
+        idx = -3
+    return parts[idx]
+
+
 def _is_foreign_domain(domain: str, site_domain: str) -> bool:
     """True if this address belongs to some *other* business.
 
     A page's contact email is either on the org's own domain or, for a small
     org, on a free provider. An address at a different business domain is
     almost always somebody else's — the web designer in the footer, the CMS
-    vendor, a partner logo's alt text. Emailing them instead of the school is a
-    wasted send that reads as sloppy. Caught by Homestead Christian Academy
-    (hcafl.com) yielding `contact@sansoxygen.com`.
+    vendor, a directory logo, a partner listed in the alt text. Emailing them
+    instead of the school is a wasted send that reads as sloppy. Caught by
+    Homestead Christian Academy (hcafl.com) yielding `contact@sansoxygen.com`,
+    and by a foundation on guidestar.org yielding `info@candid.org`.
     """
     if not site_domain:
         return False
     if domain.endswith(site_domain) or site_domain.endswith(domain):
         return False
+    if _core_label(domain) == _core_label(site_domain):
+        return False  # same organization, different TLD
     return domain not in FREE_PROVIDERS
 
 
