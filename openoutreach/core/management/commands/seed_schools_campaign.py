@@ -210,6 +210,12 @@ Founding Atlas Partner — **$150/month, and that rate is locked for as long as 
 subscription stays active.** No contracts, cancel anytime. Public pricing will be higher
 once the founding group closes.
 
+**⛔ NEVER put the price in a first cold email.** Not "$150/month", not "founding partners
+lock in at…", not a range, not "affordable". The price belongs later in the sequence, once
+interest exists. A number in a stranger's first email is something to decline before they
+have any reason to want the thing. It may appear once someone has replied, booked, or
+asked.
+
 Included: a private workspace for the school, the guided Opportunity Web Snapshot,
 funder and partner matching, government pathway identification, a readiness gap review,
 the 30-day action plan, a 45-minute founder-led walkthrough with Marcus, and priority

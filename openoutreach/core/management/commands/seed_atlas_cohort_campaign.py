@@ -347,6 +347,12 @@ and partner matching, government pathway identification, a readiness gap review,
 30-day action plan, a 45-minute founder-led walkthrough with Marcus, and priority input
 on what gets built next.
 
+**⛔ NEVER put the price in a first cold email.** Not "$150/month", not "founding partners
+lock in at…", not a range, not "affordable". The price belongs later in the sequence, once
+interest exists. A number in a stranger's first email is something to decline before they
+have any reason to want the thing. It may appear once someone has replied, booked, or
+asked.
+
 ### Hard compliance rules — these are locked and non-negotiable
 
 1. NEVER guarantee or imply funding, grants, awards, or results. Anansi Atlas maps and
