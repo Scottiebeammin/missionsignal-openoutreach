@@ -24,6 +24,8 @@ from __future__ import annotations
 
 from django.core.management.base import BaseCommand
 
+from openoutreach.core.outreach_style import writing_standard
+
 CAMPAIGN_NAME = "Anansi Atlas — Schools Cohort"
 BOOKING_LINK = "https://cal.com/marcus-scott-br7maf/30min"
 
@@ -310,62 +312,13 @@ explaining it back to them reads as a vendor performing expertise.
 about who can apply. If a message would leave the reader thinking "so I can get this,"
 it has overstepped — rewrite it.
 
-### Voice — Marcus's own
-
-- Warm, sincere, unhurried, peer-to-peer. Talking to someone doing a hard job with too
-  few people, not to a prospect.
-- Never salesy. No marketing adjectives, no "revolutionary," no exclamation marks.
-- Explain the PROBLEM before the PRODUCT. Always.
-- Plain and concrete over sweeping and visionary.
-- Spell out school names in full. Never abbreviate to initials.
-- Em-dashes are welcome; he mixes contractions with fuller forms.
-- Generous and low pressure. A "no" is fine, and he'll often offer to be passed along to
-  whoever handles funding.
-- Short. A cold email earns about thirty seconds. One idea per email.
-
-### Craft — how to make the writing better, not just correct
-
-These are the specific ways a draft goes flat. Each one has a fix.
-
-**1. Explain the purpose, don't list the parts.** "Aligned funders, government pathways,
-strategic partners, and a practical 30-day action plan" is a brochure — four nouns in a row
-that the reader skims. Say what it *does for them*: they'll see opportunity around their
-work that they couldn't see on their own. One clear idea beats four features.
-
-**2. Vary the opening. Do not begin every email the same way.** "I spent several years
-working with nonprofits across Florida" is true, but if it opens every message, two EDs who
-compare notes will see a form letter — and they do compare notes. Rotate what comes first:
-the gap in where funding is listed, a plain question, the county, or the credential. The
-credential can arrive in the second sentence just as well as the first.
-
-**3. Cut vague praise.** "Doing work that matters," "the work you're building," "an
-organization like yours." These are what a stranger says when they know nothing, and they
-read that way. Either say something specific and true, or say nothing and get to the point —
-an email with no compliment is more respectful than one with an empty compliment.
-
-**4. Shorter. Aim for about 130 words.** Four paragraphs is too many for a first cold email.
-Three short ones is the shape: the gap, what Atlas does about it, the ask. If a sentence
-isn't carrying the argument, delete it.
-
-**5. Make the closing question specific enough to answer.** "What does your funding
-landscape look like right now?" is a hard question to answer in an inbox. "Would it be
-useful to see what this surfaces for [org]?" is answerable in one word.
-
-**6. Never open two consecutive sentences with "I".** The reader cares about their
-organization; the email should sound like it's about them, not about the sender.
-
-### What to avoid
-
-- Opening with a paragraph about Marcus. Credibility comes from one clause, not a bio.
-- Education jargon and acronym soup — "ESSA," "Title IV-B," "LEA," "OST." A head of school
-  uses those words with the district, not with a stranger. Write in plain English.
-- Any sentence a school could read as "you qualify" or "you could get this."
-- Praising a religious school for its faith, or a charter school for "innovation." Both
-  read as a stranger reaching for something to compliment.
-- Stacking every idea into one email — the hook, the founder story, the Snapshot, the
-  30-day plan, the video, the ask. Pick one.
-- **Any mention of price, ever, in a first cold email.** Not "$150/month", not "founding partners lock in at…", not a range, not "affordable". The offer is laid out later in the sequence, once interest exists. A price in a stranger's first email is a number to decline before they have any reason to want the thing.
-- Anything that could have been sent to any school in the country.
+""" + writing_standard(
+    audience="school",
+    extra_avoid=(
+        "- Education jargon and acronym soup — \"ESSA\", \"Title IV-B\", \"LEA\", \"OST\". A head\n  of school uses those words with the district, not with a stranger. Plain English.\n"
+        "- Praising a religious school for its faith, or a charter school for \"innovation\".\n  Both read as a stranger reaching for something to compliment.\n"
+    ),
+) + """
 """
 
 

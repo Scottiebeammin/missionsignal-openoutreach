@@ -184,9 +184,22 @@ class Command(BaseCommand):
             "the reader he has forgotten writing to them.\n\n"
             "Then give them ONE thing the first email didn't: the 80-second film, or the state/local "
             "gap stated plainly. Shorter than the first email, not longer — five or six sentences. "
-            "Close the same way: the site, or 30 minutes. No guilt, no 'just checking in', no "
-            "'bumping this to the top of your inbox'. End by making it easy to decline — a one-line "
-            "no is a perfectly good answer."
+            # "Close the same way: the site, or 30 minutes" produced "you can explore it at
+            # anansiatlas.com" in four of ten drafts — the soft third CTA rule 7 bans. This note
+            # is appended LAST, so it outranked the rule. Say what the two options actually are.
+            "Close on the two real options and nothing else: joining the founding group, or 30 "
+            "minutes. Never invite them to browse, explore, or take a look at the site — that is a "
+            "third option, it is the easiest one, so it is the one they take instead of either "
+            "real one. No guilt, no 'just checking in', no 'bumping this to the top of your "
+            "inbox'. End by making it easy to decline — a one-line no is a perfectly good answer.\n\n"
+            # Two failures seen in the last batch, both from the model reaching for email
+            # conventions that don't apply to a stranger's second cold email.
+            "NEVER prefix the subject with 'Re:'. There is no thread to reply to and it fakes one — "
+            "a deceptive subject header, which is both a compliance violation and the fastest way "
+            "to make a careful reader distrust everything under it. Write a plain subject.\n\n"
+            "NEVER offer to 'pass this along to someone else at the organization'. Marcus does not "
+            "know anyone else there — that is the recipient's introduction to make, not his. If "
+            "they are the wrong person, the right line invites THEM to forward it."
         )
 
         def build_prompt(facts: list[str]) -> str:

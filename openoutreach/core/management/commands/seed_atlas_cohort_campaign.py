@@ -24,6 +24,8 @@ from __future__ import annotations
 
 from django.core.management.base import BaseCommand
 
+from openoutreach.core.outreach_style import writing_standard
+
 CAMPAIGN_NAME = "Anansi Atlas — Founding Cohort"
 
 # The 30-minute intro link the cold sequence uses as [BOOK A CALL]. Note there is
@@ -433,65 +435,12 @@ county, their stated work), not a flattering generality that would fit any nonpr
 If there is no verified specific fact available, write a sentence about their sector and
 county instead. Never invent one.
 
-### Voice — this is Marcus's own, learned from emails he rewrote himself
-
-- Warm, sincere, unhurried, peer-to-peer. He is talking to someone he respects who is
-  doing hard work, not to a prospect.
-- Never salesy. Never hype. No marketing adjectives, no "revolutionary," no "game-changing,"
-  no exclamation marks.
-- Explain the PROBLEM before the PRODUCT. The scattered-opportunity problem comes first;
-  what Atlas does comes second. This ordering is the single most consistent thing about
-  how he writes.
-- Plain and concrete over sweeping and visionary. "Florida DOE's 21st Century Community
-  Learning Centers doesn't appear on Grants.gov" beats a paragraph about ecosystems,
-  every time.
-- Spell out organization names in full. Never abbreviate an organization to initials.
-- Em-dashes are welcome. He mixes contractions with fuller forms — "they are," "you are
-  already advancing" — and that unhurried register is part of the voice.
-- Generous and respectful. Low pressure. He treats a "no" as fine and often offers to be
-  passed along to someone it would suit better.
-- Short. A cold email earns about thirty seconds. One idea per email — the long-form,
-  richly-detailed version of this voice belongs in warm outreach to people he actually
-  knows, not here.
-
-### Craft — how to make the writing better, not just correct
-
-These are the specific ways a draft goes flat. Each one has a fix.
-
-**1. Explain the purpose, don't list the parts.** "Aligned funders, government pathways,
-strategic partners, and a practical 30-day action plan" is a brochure — four nouns in a row
-that the reader skims. Say what it *does for them*: they'll see opportunity around their
-work that they couldn't see on their own. One clear idea beats four features.
-
-**2. Vary the opening. Do not begin every email the same way.** "I spent several years
-working with nonprofits across Florida" is true, but if it opens every message, two EDs who
-compare notes will see a form letter — and they do compare notes. Rotate what comes first:
-the gap in where funding is listed, a plain question, the county, or the credential. The
-credential can arrive in the second sentence just as well as the first.
-
-**3. Cut vague praise.** "Doing work that matters," "the work you're building," "an
-organization like yours." These are what a stranger says when they know nothing, and they
-read that way. Either say something specific and true, or say nothing and get to the point —
-an email with no compliment is more respectful than one with an empty compliment.
-
-**4. Shorter. Aim for about 130 words.** Four paragraphs is too many for a first cold email.
-Three short ones is the shape: the gap, what Atlas does about it, the ask. If a sentence
-isn't carrying the argument, delete it.
-
-**5. Make the closing question specific enough to answer.** "What does your funding
-landscape look like right now?" is a hard question to answer in an inbox. "Would it be
-useful to see what this surfaces for [org]?" is answerable in one word.
-
-**6. Never open two consecutive sentences with "I".** The reader cares about their
-organization; the email should sound like it's about them, not about the sender.
-
-### What to avoid
-
-- Opening with a paragraph about himself. Credibility comes from one clause, not a bio.
-- Stacking every idea into the first email — the founder story, the ecosystem concept, the
-  problem, the Snapshot, the 30-day plan, the video, the ask. Pick one.
-- **Any mention of price, ever, in a first cold email.** Not "$150/month", not "founding partners lock in at…", not a range, not "affordable". The offer is laid out later in the sequence once interest exists. A price in a stranger's first email is a number to decline before they have any reason to want the thing.
-- Anything that reads as though it could have been sent to any nonprofit in the country.
+""" + writing_standard(
+    audience="organization",
+    extra_avoid=(
+        "- Praising an organization for being \"innovative\" or \"impactful\" — a stranger\n  reaching for something to compliment.\n"
+    ),
+) + """
 """
 
 
