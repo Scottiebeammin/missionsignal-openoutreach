@@ -173,7 +173,10 @@ class Command(BaseCommand):
         from openoutreach.core.agents.prompt import render
 
         FOLLOWUP_NOTE = (
-            "SECOND TOUCH — they were emailed once already and did not reply. Do NOT introduce "
+            "SECOND TOUCH. THIS IS NOT A FIRST EMAIL. They were emailed once already and did not "
+            "reply. Do NOT open with 'I'm Marcus Scott', do NOT say 'I'm reaching out because', "
+            "do NOT re-state his background — they already have all of it. The first clause must "
+            "refer to the earlier note. Do NOT introduce "
             "Marcus again or re-explain who he is; they have that. Open by referring to the earlier "
             "note in one short clause ('I wrote a while back…' / 'Following up on my note about…') "
             "and then give them ONE thing the first email didn't: the concrete Florida DOE 21st CCLC "

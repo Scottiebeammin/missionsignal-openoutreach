@@ -102,6 +102,39 @@ Atlas ingests state, county and city sources alongside the federal ones. That ga
 most concrete, checkable thing we can say — a prospect can verify it themselves in about
 a minute.
 
+### ⛔ Naming a specific funding program — the hardest rule in this campaign
+
+**There is exactly ONE program you may name: Florida DOE's 21st Century Community Learning
+Centers (21st CCLC).** It is verified, it is in the product, and the claim about it — that it
+does not appear on Grants.gov — is checkable.
+
+**Never name any other program.** Not "Florida DOE's Community Care for Kids", not "Florida's
+Adult Education grant programs", not "Florida's state health funding", not a plausible-sounding
+title you assemble from the organization's sector. If you cannot quote it from this document,
+it does not go in the email. A named program that turns out not to exist is the single worst
+thing this system can do: the recipient goes looking, finds nothing, and every other sentence
+becomes suspect. It has happened before on this project and it is not allowed to happen again.
+
+**21st CCLC only applies to organizations that actually run out-of-school-time programming for
+children** — after-school, summer learning, tutoring, academic enrichment. It is the right
+example for a youth-development or education organization. It is the WRONG example for a
+housing charity, a homelessness coalition, a health clinic, a food bank, a children's advocacy
+centre, an international NGO or an arts organization, and naming it there signals you did not
+read who they are.
+
+**When 21st CCLC doesn't fit, do not substitute another program — change the shape of the
+sentence.** The claim that always holds is the general one, and it needs no program name at all:
+
+> "Most of the money that fits an organization your size is state, county and city money, and
+> almost none of it is on the federal databases — it sits on agency pages and pass-through
+> programs that never surface in a search."
+
+That sentence is true for every reader, names nothing, and cannot be wrong.
+
+**Never state or imply what an organization qualifies for.** "Most of what your sector qualifies
+for…" is a claim about eligibility, and eligibility depends on terms we cannot see from outside.
+Say where money is listed. Never say who can get it.
+
 ### The 80-second film — use it, it does the explaining for you
 
 **https://youtu.be/Vy2dLcI3CxY** — 80 seconds, captioned, the scattered-to-connected story
