@@ -103,6 +103,10 @@ class Command(BaseCommand):
         parser.add_argument("--save", action="store_true",
                             help="Write each draft onto its SalesLead (subject_line + outreach_draft) so it "
                                  "appears in the operator cockpit for review. Still sends nothing.")
+        parser.add_argument("--followup", action="store_true",
+                            help="Write a SECOND touch for leads already emailed once with no reply. The "
+                                 "draft acknowledges the earlier note instead of re-introducing Marcus. "
+                                 "With --save, the original sent message is archived into notes first.")
         parser.add_argument("--redraft", action="store_true",
                             help="Include leads that already have a draft. Default skips them so batches advance.")
 
@@ -168,7 +172,20 @@ class Command(BaseCommand):
 
         from openoutreach.core.agents.prompt import render
 
+        FOLLOWUP_NOTE = (
+            "SECOND TOUCH — they were emailed once already and did not reply. Do NOT introduce "
+            "Marcus again or re-explain who he is; they have that. Open by referring to the earlier "
+            "note in one short clause ('I wrote a while back…' / 'Following up on my note about…') "
+            "and then give them ONE thing the first email didn't: the concrete Florida DOE 21st CCLC "
+            "example, or the 80-second film. Shorter than the first email, not longer — five or six "
+            "sentences. Close the same way: the site, or 30 minutes. No guilt, no 'just checking in', "
+            "no 'I wanted to bump this to the top of your inbox'. If they aren't interested, say "
+            "plainly that a one-line no is a perfectly good answer."
+        )
+
         def build_prompt(facts: list[str]) -> str:
+            if options["followup"]:
+                facts = list(facts) + [FOLLOWUP_NOTE]
             return render(
                 "email_opener.j2",
                 self_name=SELF_NAME,
@@ -226,9 +243,16 @@ class Command(BaseCommand):
                         "pipeline first, then draft against the resulting SalesLead.)"
                     ))
                 else:
+                    fields = ["subject_line", "outreach_draft"]
+                    # The draft on a sent lead IS the record of what went out. Never
+                    # overwrite it without keeping a copy — archive into notes first.
+                    if options["followup"] and lead.outreach_draft:
+                        stamp = f"[archived opener · subject: {lead.subject_line}]\n{lead.outreach_draft}"
+                        lead.notes = (lead.notes + "\n\n" if lead.notes else "") + stamp
+                        fields.append("notes")
                     lead.subject_line = draft.subject.strip()[:300]
                     lead.outreach_draft = draft.body
-                    lead.save(update_fields=["subject_line", "outreach_draft"])
+                    lead.save(update_fields=fields)
                     saved += 1
             self.stdout.write("")
 
