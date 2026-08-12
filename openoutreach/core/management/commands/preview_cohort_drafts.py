@@ -97,7 +97,21 @@ def _angle_menu() -> str:
 
 
 def _lead_facts(lead) -> list[str]:
-    """Real, verified facts about a SalesLead — nothing inferred, nothing invented."""
+    """Verified facts about a SalesLead — nothing inferred, nothing invented.
+
+    This list is handed to the writer as recipient evidence, so only fields approved
+    for that reach it. Three that deliberately do NOT:
+
+    * ``notes`` — the legacy mixed field. It held researched profile, archived prior
+      emails and operator commentary at once, and was passed through here under a
+      "Notes:" heading, which let "probably short-staffed" come back as "with your
+      staffing challenges". Nothing here can distinguish which sentences in an old
+      blob were research, so none of it is trusted.
+    * ``operator_notes`` — workflow commentary by construction. "Call Marcus first"
+      is an instruction, not a fact about the organization.
+    * ``relationship_context`` — real, but a different authority level. It goes to the
+      writer through ``_relationship_block`` under its own heading instead.
+    """
     facts = []
     if lead.name:
         facts.append(f"Contact: {lead.name}" + (f", {lead.role}" if lead.role else ""))
@@ -109,9 +123,28 @@ def _lead_facts(lead) -> list[str]:
         facts.append(f"Region: {lead.region}")
     if lead.why_fit:
         facts.append(f"Why they're a fit: {lead.why_fit}")
-    if lead.notes:
-        facts.append(f"Notes: {lead.notes}")
+    if lead.research_profile:
+        facts.append(f"Researched profile: {lead.research_profile}")
     return facts
+
+
+def _relationship_block(lead) -> str:
+    """Approved relationship history, kept at arm's length from researched fact.
+
+    Warm outreach needs "Marcus worked with her at Aeras" — but that is a fact about
+    Marcus, not about the organization, and it must not be quotable as though the
+    research turned it up. Its own heading, its own authority level.
+    """
+    if lead is None or not getattr(lead, "relationship_context", ""):
+        return ""
+    return (
+        "\n\n## Relationship context — NOT researched fact\n"
+        f"{lead.relationship_context.strip()}\n\n"
+        "This is genuine shared history, and it may inform the tone and the reason for "
+        "writing now. It is not a finding about the organization: do not present it as "
+        "something the research surfaced, and do not extend it into claims it does not "
+        "make."
+    )
 
 
 def _org_facts(org) -> list[str]:
@@ -152,6 +185,10 @@ class Command(BaseCommand):
                             help="Write a SECOND touch for leads already emailed once with no reply. The "
                                  "draft acknowledges the earlier note instead of re-introducing Marcus. "
                                  "With --save, the original sent message is archived into notes first.")
+        parser.add_argument("--include-held", action="store_true",
+                            help="Draft even for leads held for review or disqualified. For "
+                                 "inspecting what would be written — the send path still refuses "
+                                 "them, so this cannot put mail in front of anyone.")
         parser.add_argument("--redraft", action="store_true",
                             help="Include leads that already have a draft. Default skips them so batches advance.")
 
@@ -181,6 +218,17 @@ class Command(BaseCommand):
             if lead is None:
                 self.stderr.write(self.style.WARNING(f"SalesLead {lead_id} not found — skipped."))
                 continue
+            # Defence in depth. The authoritative gate is in send_outreach_email, but
+            # spending a model call on a lead that can never be sent is waste, and a
+            # draft sitting in the cockpit for a disqualified org invites someone to
+            # wonder why it won't send.
+            block = lead.cold_outreach_block()
+            if block:
+                self.stderr.write(self.style.WARNING(
+                    f"SalesLead #{lead.pk} ({lead.organization or lead.name}) is {block} — skipped. "
+                    f"Pass --include-held to draft it anyway."))
+                if not options["include_held"]:
+                    continue
             targets.append((f"SalesLead #{lead.pk} · {lead.organization or lead.name}", _lead_facts(lead), lead))
 
         for record_id in options["org"]:
@@ -196,10 +244,12 @@ class Command(BaseCommand):
                 SalesLead.objects
                 .filter(list_segment=SalesLead.Segment.COLD_FLORIDA_CRM)
                 .exclude(email="")
-                # Never draft for a lead the operator has retired. Passed means a
-                # deliberate "not this one" — drafting it again wastes a call and
-                # risks it reaching the send queue by way of the cockpit.
+                # Never draft for a lead that cannot be sent to. `passed` is the
+                # operator's manual retirement; `disposition` is the research layer's
+                # verdict. Both belong here — but note this filter only ever guarded
+                # the sample path, so the real gate is in send_outreach_email.
                 .exclude(status=SalesLead.Status.PASSED)
+                .filter(disposition=SalesLead.DISPOSITION_ELIGIBLE)
             )
             if not options["redraft"]:
                 # Skip anything already drafted so consecutive batches advance
@@ -299,6 +349,7 @@ class Command(BaseCommand):
                 company_intel="",
             )
             prompt += "\n\n" + ANGLE_MENU
+            prompt += _relationship_block(lead)
             if options["followup"]:
                 # email_opener.j2 opens by asserting "writing a first cold outreach
                 # email ... You have never spoken before." A follow-up directive

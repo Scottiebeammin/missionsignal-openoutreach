@@ -116,6 +116,73 @@ class InterestSignup(models.Model):
         return f"{self.organization} — {self.email}"
 
 
+
+class DispositionReason(models.TextChoices):
+    """Why a prospect is under review or out of a campaign.
+
+    Split into two sets below (``AUTO_DISQUALIFY`` / everything else) because
+    negative evidence does not all mean the same thing. "The organization closed"
+    is a fact that settles the question; "sources disagree about who runs it" is a
+    reason for a human to look, not to reject. Turning uncertainty into rejection
+    quietly shrinks the list and nobody notices.
+    """
+
+    ORGANIZATION_CLOSED = "organization_closed", "Organization closed"
+    ORGANIZATION_INACTIVE = "organization_inactive", "Organization inactive"
+    WRONG_ORGANIZATION_TYPE = "wrong_organization_type", "Wrong organization type"
+    WRONG_GEOGRAPHY = "wrong_geography", "Outside campaign geography"
+    ALREADY_CUSTOMER = "already_customer", "Already a customer"
+    ALREADY_SUPPRESSED = "already_suppressed", "Suppressed / do-not-contact"
+    OUTSIDE_CAMPAIGN_CRITERIA = "outside_campaign_criteria", "Outside campaign criteria"
+
+    CONTACT_LEFT_ORGANIZATION = "contact_left_organization", "Contact left the organization"
+    CONTACT_ROLE_INAPPROPRIATE = "contact_role_inappropriate", "Contact role inappropriate"
+    DUPLICATE_EXISTING_RELATIONSHIP = "duplicate_existing_relationship", "Duplicate of an existing relationship"
+    INSUFFICIENT_RELEVANCE = "insufficient_relevance", "Campaign proposition not relevant"
+    CONFLICTING_RESEARCH = "conflicting_research", "Sources conflict"
+    STALE_RESEARCH = "stale_research", "Research too old to act on"
+    NEEDS_HUMAN_REVIEW = "needs_human_review", "Needs human review"
+
+
+#: Reasons that are a settled, present-tense fact about the organization and so may
+#: exclude it from a campaign without a human. Everything else routes to REVIEW.
+#: Note what is NOT here: contact problems (they belong to the contact, not the org),
+#: weak relevance (category-relevant outreach is legitimate), and anything derived from
+#: stale or conflicting sources.
+AUTO_DISQUALIFY_REASONS = frozenset({
+    DispositionReason.ORGANIZATION_CLOSED,
+    DispositionReason.ORGANIZATION_INACTIVE,
+    DispositionReason.WRONG_ORGANIZATION_TYPE,
+    DispositionReason.WRONG_GEOGRAPHY,
+    DispositionReason.ALREADY_CUSTOMER,
+    DispositionReason.ALREADY_SUPPRESSED,
+    DispositionReason.OUTSIDE_CAMPAIGN_CRITERIA,
+})
+
+#: Reasons that are about the person, not the institution. A departed ED does not
+#: close a charity — the organization stays reachable through someone else.
+CONTACT_SCOPED_REASONS = frozenset({
+    DispositionReason.CONTACT_LEFT_ORGANIZATION,
+    DispositionReason.CONTACT_ROLE_INAPPROPRIATE,
+})
+
+
+def disposition_for(reason: str, *, evidence_is_current: bool = True) -> tuple[str, str]:
+    """Map a reason code to (disposition, scope) — the deterministic half of gap 2.
+
+    ``evidence_is_current=False`` downgrades any would-be disqualification to review:
+    a historically accurate fact is not grounds for a present-tense exclusion, and an
+    organization wrongly dropped on stale evidence is never looked at again.
+    """
+    reason = (reason or "").strip().lower()
+    scope = ("contact" if reason in CONTACT_SCOPED_REASONS else "organization")
+    if reason in AUTO_DISQUALIFY_REASONS and evidence_is_current:
+        return "disqualified", scope
+    if not reason:
+        return "eligible", scope
+    return "review", scope
+
+
 class SalesLead(models.Model):
     class Source(models.TextChoices):
         WARM = "warm", "Warm"
@@ -173,7 +240,65 @@ class SalesLead(models.Model):
     # Reply/response tracking — set to AWAITING on send, then the operator logs
     # what came back. Blank until the lead is contacted.
     outreach_outcome = models.CharField(max_length=20, choices=Outcome.choices, blank=True, default="")
-    notes = models.TextField(blank=True, default="")
+    # ── Three kinds of text, three levels of authority ───────────────────────
+    # `notes` used to hold all of them at once — researched profile, archived
+    # prior emails, and whatever the operator typed — and `_lead_facts` handed the
+    # whole blob to the writer under "Notes:". So "probably short-staffed" could
+    # come back as "with your staffing challenges". These separate that.
+    #
+    # LEGACY. Operator notes from before the split, plus anything written by code
+    # that predates it. Never sent to the writer as fact. Kept, not migrated:
+    # guessing which sentences in an old mixed blob were research would be exactly
+    # the silent reinterpretation this split exists to prevent.
+    notes = models.TextField(
+        blank=True, default="",
+        help_text="Legacy mixed notes. Not used as writer evidence — see research_profile.")
+    # Verified, sourced research about the organization. The ONLY prose field that
+    # reaches the writer as fact.
+    research_profile = models.TextField(
+        blank=True, default="",
+        help_text="Verified research, approved for use as recipient evidence in copy.")
+    # Human workflow commentary: "call Marcus first", "website looked stale",
+    # "probably not a fit". Operational, not factual. Never reaches the writer.
+    operator_notes = models.TextField(
+        blank=True, default="",
+        help_text="Operator commentary. Workflow only — never treated as a fact about the org.")
+    # Genuine shared history, approved for warm outreach. Reaches the writer, but
+    # in its own labelled section so it is never mistaken for researched fact.
+    relationship_context = models.TextField(
+        blank=True, default="",
+        help_text="Approved relationship history for warm outreach — a separate authority "
+                  "level from research, passed to the writer under its own heading.")
+
+    # ── Campaign disposition ─────────────────────────────────────────────────
+    # Campaign-scoped, deliberately: "not a fit for this campaign" is not
+    # "never contact again". Global suppression stays in EmailOptOut.
+    DISPOSITION_ELIGIBLE = "eligible"
+    DISPOSITION_REVIEW = "review"
+    DISPOSITION_DISQUALIFIED = "disqualified"
+    DISPOSITION_CHOICES = [
+        (DISPOSITION_ELIGIBLE, "Eligible"),
+        (DISPOSITION_REVIEW, "Needs review"),
+        (DISPOSITION_DISQUALIFIED, "Disqualified from this campaign"),
+    ]
+    disposition = models.CharField(
+        max_length=20, choices=DISPOSITION_CHOICES, default=DISPOSITION_ELIGIBLE, db_index=True)
+    disposition_reason = models.CharField(
+        max_length=40, choices=DispositionReason.choices, blank=True, default="",
+        help_text="Machine-readable reason — queryable, so exclusions can be audited.")
+    disposition_detail = models.TextField(
+        blank=True, default="", help_text="Human-readable explanation and its evidence.")
+    disposition_scope = models.CharField(
+        max_length=20, blank=True, default="",
+        help_text="'organization' or 'contact'. A departed contact does not close the org.")
+    disposition_source = models.CharField(
+        max_length=20, blank=True, default="",
+        help_text="'automatic' or 'human' — whether a person confirmed this.")
+    disposition_at = models.DateTimeField(null=True, blank=True)
+    # When the evidence behind the disposition was gathered. A disqualification
+    # resting on old evidence is downgraded to review rather than trusted.
+    evidence_as_of = models.DateField(null=True, blank=True)
+
     outreach_draft = models.TextField(blank=True, default="")
     next_follow_up = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -184,6 +309,43 @@ class SalesLead(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.organization}"
+
+    def cold_outreach_block(self) -> str:
+        """Why cold outreach must not go to this lead right now, or "" if it may.
+
+        The single source of truth. Called from the send path — the one place every
+        send goes through — and again at drafting for defence in depth. Returning a
+        reason string rather than a bool so the caller can say what happened; a
+        silent skip is how a batch quietly shrinks and nobody asks why.
+        """
+        if self.disposition == self.DISPOSITION_DISQUALIFIED:
+            reason = self.get_disposition_reason_display() if self.disposition_reason else "no reason recorded"
+            return f"disqualified from this campaign ({reason})"
+        if self.disposition == self.DISPOSITION_REVIEW:
+            reason = self.get_disposition_reason_display() if self.disposition_reason else "no reason recorded"
+            return f"held for human review ({reason})"
+        if self.status == self.Status.PASSED:
+            return "retired by the operator (status: passed)"
+        return ""
+
+    def set_disposition(self, reason: str, *, detail: str = "", source: str = "automatic",
+                        evidence_as_of=None, evidence_is_current: bool = True):
+        """Apply a reason code through the deterministic mapping and stamp the audit trail.
+
+        Never decides for itself: ``disposition_for`` owns which reasons exclude and
+        which only flag, so the same reason cannot mean different things in different
+        callers.
+        """
+        disposition, scope = disposition_for(reason, evidence_is_current=evidence_is_current)
+        self.disposition = disposition
+        self.disposition_reason = reason
+        self.disposition_detail = detail
+        self.disposition_scope = scope
+        self.disposition_source = source
+        self.disposition_at = timezone.now()
+        if evidence_as_of is not None:
+            self.evidence_as_of = evidence_as_of
+        return self
 
 
 class FloridaOrg(models.Model):

@@ -681,7 +681,7 @@ class Command(BaseCommand):
                             help="Show what would change without saving.")
 
     def handle(self, *args, **options):
-        from openoutreach.signals.models import SalesLead
+        from openoutreach.signals.models import DispositionReason, SalesLead
 
         dry = options["dry_run"]
         written = dropped = missing = 0
@@ -695,9 +695,11 @@ class Command(BaseCommand):
                 missing += 1
                 continue
             if not dry:
-                lead.notes = notes
+                # research_profile, not notes: notes is the legacy mixed field and is
+                # no longer trusted as writer evidence.
+                lead.research_profile = notes
                 lead.why_fit = why_fit
-                lead.save(update_fields=["notes", "why_fit", "updated_at"])
+                lead.save(update_fields=["research_profile", "why_fit", "updated_at"])
             self.stdout.write(f"{'WOULD WRITE' if dry else 'profile written'} "
                               f"#{lead.pk} {lead.organization or lead.name}")
             written += 1
@@ -709,11 +711,17 @@ class Command(BaseCommand):
                 missing += 1
                 continue
             if not dry:
+                # Structured disposition, not a status flag plus a prose note. The
+                # reason code is queryable, the gate in send_outreach_email reads it,
+                # and the draft is preserved rather than wiped — history is not rewritten
+                # because a later decision went the other way.
+                lead.set_disposition(
+                    DispositionReason.OUTSIDE_CAMPAIGN_CRITERIA,
+                    detail=reason, source="human")
                 lead.status = SalesLead.Status.PASSED
-                # The reason goes on the lead too, so the cockpit shows why it was set aside.
-                lead.notes = f"REMOVED FROM SEND LIST: {reason}"
-                lead.outreach_draft = ""
-                lead.save(update_fields=["status", "notes", "outreach_draft", "updated_at"])
+                lead.save(update_fields=[
+                    "status", "disposition", "disposition_reason", "disposition_detail",
+                    "disposition_scope", "disposition_source", "disposition_at", "updated_at"])
             self.stdout.write(self.style.WARNING(
                 f"{'WOULD DROP' if dry else 'dropped'} #{lead.pk} {lead.organization or lead.name} — {reason[:70]}…"))
             dropped += 1

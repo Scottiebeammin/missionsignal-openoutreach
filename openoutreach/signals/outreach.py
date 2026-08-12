@@ -260,6 +260,18 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
             f"{lead.email} has opted out of outreach — not sending. "
             "Remove them from the batch; do not re-add the address."
         )
+    # The authoritative disposition gate. It lives here, next to the opt-out check,
+    # because this is the only function every send goes through — a gate in the
+    # drafting command is a gate one `--lead N` walks straight past, which is exactly
+    # what the previous mechanism did: `passed` was filtered in the sample query only,
+    # so a retired lead could still be drafted by id and still be sent from the cockpit.
+    block = lead.cold_outreach_block()
+    if block:
+        raise ValueError(
+            f"{lead.organization or lead.email} is {block} — not sending. "
+            "Resolve the disposition on the lead before sending, rather than routing "
+            "around this check."
+        )
     if not OUTREACH_MAILING_ADDRESS:
         raise ValueError(
             "OUTREACH_MAILING_ADDRESS is not set. CAN-SPAM requires a valid physical "
