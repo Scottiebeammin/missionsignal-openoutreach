@@ -29,6 +29,13 @@ CONTACT_HREF_RE = re.compile(r'href=["\']([^"\']*(?:contact|about|connect|reach)
 BAD_LOCAL = ("noreply", "no-reply", "donotreply", "example", "sentry", "wixpress", "godaddy")
 BAD_DOMAIN = ("example.", "sentry.", "wix.com", "godaddy.com", "squarespace.com", "wordpress.com",
               "png", "jpg", "jpeg", "gif", "webp", "svg")
+# Free providers a small org plausibly uses as its real inbox. Anything else that
+# isn't the site's own domain is somebody else's business — see _is_foreign_domain.
+FREE_PROVIDERS = (
+    "gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "aol.com", "icloud.com",
+    "msn.com", "comcast.net", "att.net", "bellsouth.net", "live.com", "me.com",
+    "protonmail.com", "mail.com", "verizon.net", "sbcglobal.net", "yahoo.co.uk",
+)
 PREFERRED_LOCAL = ("info", "contact", "office", "admin", "hello", "mail", "email")
 
 
@@ -50,6 +57,23 @@ def _score(email: str, site_domain: str) -> int:
     return score
 
 
+def _is_foreign_domain(domain: str, site_domain: str) -> bool:
+    """True if this address belongs to some *other* business.
+
+    A page's contact email is either on the org's own domain or, for a small
+    org, on a free provider. An address at a different business domain is
+    almost always somebody else's — the web designer in the footer, the CMS
+    vendor, a partner logo's alt text. Emailing them instead of the school is a
+    wasted send that reads as sloppy. Caught by Homestead Christian Academy
+    (hcafl.com) yielding `contact@sansoxygen.com`.
+    """
+    if not site_domain:
+        return False
+    if domain.endswith(site_domain) or site_domain.endswith(domain):
+        return False
+    return domain not in FREE_PROVIDERS
+
+
 def extract_email(html: str, site_domain: str) -> str:
     candidates = set()
     for m in EMAIL_RE.finditer(html):
@@ -58,6 +82,8 @@ def extract_email(html: str, site_domain: str) -> str:
         if any(b in local for b in BAD_LOCAL):
             continue
         if any(domain.endswith(b) or b in domain for b in BAD_DOMAIN):
+            continue
+        if _is_foreign_domain(domain, site_domain):
             continue
         if len(email) > 254:
             continue
