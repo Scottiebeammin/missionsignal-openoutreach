@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.db.models import Q
 
 from openoutreach.core.models import Organization, Project
@@ -599,3 +600,26 @@ class PartnerOrganization(models.Model):
 
     def __str__(self):
         return self.organization_name
+
+
+class EmailOptOut(models.Model):
+    """An address that has asked not to be contacted again.
+
+    Kept separate from SalesLead deliberately: an opt-out belongs to the *person*,
+    not to a row in one pipeline. The same address can appear on several leads, or
+    be re-imported later from a fresh market pull, and it must stay suppressed
+    through all of it. Checked in `send_outreach_email`, which every send goes
+    through.
+    """
+
+    email = models.EmailField(unique=True)
+    source = models.CharField(max_length=40, default="link",
+                              help_text="How it was recorded: link, reply, manual.")
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Email opt-out"
+
+    def __str__(self):
+        return self.email

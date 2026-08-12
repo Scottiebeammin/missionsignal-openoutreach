@@ -166,6 +166,11 @@ def compose_call_script(lead, contact_name: str = "") -> str:
 
 OUTREACH_BCC = os.getenv("OUTREACH_BCC_EMAIL", "marcus@anansiatlas.com")
 OUTREACH_WEBSITE = os.getenv("OUTREACH_WEBSITE", "anansiatlas.com")
+# CAN-SPAM requires a valid physical postal address on every commercial email.
+# Set OUTREACH_MAILING_ADDRESS in the Render environment (a USPS PO box, a
+# private mailbox, or the registered agent address all qualify). While it is
+# empty, send_outreach_email refuses to send rather than sending unlawfully.
+OUTREACH_MAILING_ADDRESS = os.getenv("OUTREACH_MAILING_ADDRESS", "").strip()
 OUTREACH_LINKEDIN = os.getenv("OUTREACH_LINKEDIN_URL", "linkedin.com/company/anansi-atlas")
 
 
@@ -217,6 +222,18 @@ def advance_to_contacted(lead) -> None:
         lead.status = SalesLead.Status.REACHED_OUT
 
 
+def compliance_footer(email: str) -> str:
+    """The CAN-SPAM block: who sent it, where they are, and how to stop it."""
+    from openoutreach.signals.unsubscribe import unsubscribe_url
+
+    return "\n".join([
+        "",
+        "—",
+        f"Anansi Atlas · Scott Foundry Group LLC · {OUTREACH_MAILING_ADDRESS}",
+        f"Prefer not to hear from me? Unsubscribe here: {unsubscribe_url(email)}",
+    ])
+
+
 def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
     """Send one outreach email to the lead (plus any CC), mark it sent, and
     advance its pipeline stage to Contacted. Sends from the main mailbox (see
@@ -225,6 +242,22 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
     too — the whole trail lives in one mailbox. Raises on SMTP failure so the
     caller can surface it — the lead is only marked sent on success.
     """
+    from openoutreach.signals.unsubscribe import is_opted_out
+
+    # A rule enforced at the only place mail leaves the system, so no future
+    # caller can route around it.
+    if is_opted_out(lead.email):
+        raise ValueError(
+            f"{lead.email} has opted out of outreach — not sending. "
+            "Remove them from the batch; do not re-add the address."
+        )
+    if not OUTREACH_MAILING_ADDRESS:
+        raise ValueError(
+            "OUTREACH_MAILING_ADDRESS is not set. CAN-SPAM requires a valid physical "
+            "postal address on commercial email — set it in the Render environment "
+            "(a USPS PO box or the registered agent address qualifies) before sending."
+        )
+    body = body.rstrip() + "\n" + compliance_footer(lead.email)
     cc_list = [a for a in parse_cc(cc) if a.lower() != (lead.email or "").lower()]
     bcc_list = [OUTREACH_BCC] if OUTREACH_BCC and OUTREACH_BCC.lower() != (lead.email or "").lower() else None
     message = EmailMessage(

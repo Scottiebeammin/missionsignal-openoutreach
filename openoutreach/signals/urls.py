@@ -1,12 +1,13 @@
 from django.urls import path
 
-from openoutreach.signals import pipeline_export
+from openoutreach.signals import unsubscribe as unsub_views, pipeline_export
 from openoutreach.signals import billing
 from openoutreach.signals import invites
 from openoutreach.signals import views
 from openoutreach.signals import operator_views
 
 urlpatterns = [
+    path("unsubscribe/<str:token>/", unsub_views.unsubscribe, name="email-unsubscribe"),
     path("operator/", operator_views.operator_dashboard, name="operator-dashboard"),
     path("operator/organizations/", operator_views.operator_organizations, name="operator-organizations"),
     path("operator/organizations/<int:pk>/", operator_views.operator_org_detail, name="operator-org-detail"),
