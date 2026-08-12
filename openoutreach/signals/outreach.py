@@ -164,7 +164,12 @@ def compose_call_script(lead, contact_name: str = "") -> str:
     ])
 
 
-OUTREACH_BCC = os.getenv("OUTREACH_BCC_EMAIL", "marcus@anansiatlas.com")
+OUTREACH_BCC = os.getenv("OUTREACH_BCC_EMAIL", "")
+# marcus@ rides on CC, not BCC, so the recipient can see him and reply-all
+# reaches him directly. Set OUTREACH_CC_EMAIL to "" to drop the visible copy and
+# OUTREACH_BCC_EMAIL to put it back on BCC instead — an address in both is only
+# CC'd, never doubled.
+OUTREACH_CC = os.getenv("OUTREACH_CC_EMAIL", "marcus@anansiatlas.com")
 OUTREACH_WEBSITE = os.getenv("OUTREACH_WEBSITE", "anansiatlas.com")
 # CAN-SPAM requires a valid physical postal address on every commercial email.
 # Set OUTREACH_MAILING_ADDRESS in the Render environment (a USPS PO box, a
@@ -176,10 +181,10 @@ OUTREACH_LINKEDIN = os.getenv("OUTREACH_LINKEDIN_URL", "linkedin.com/company/ana
 
 def from_address_for(lead) -> str:
     """All outreach sends from the main sending mailbox (DEFAULT_FROM_EMAIL, mail@,
-    DKIM-signed). Every send is BCC'd to marcus@ (a copy lands in Marcus's inbox)
-    and Reply-To is marcus@ (replies come back there), so marcus@ is the single
-    pane for the whole trail without being the send-from address. Env-override
-    OUTREACH_FROM_EMAIL."""
+    DKIM-signed), which keeps cold-send volume off marcus@'s sender reputation.
+    marcus@ is CC'd (visible to the recipient, and reply-all reaches him) and is
+    also the Reply-To, so marcus@ is the single pane for the whole trail without
+    being the send-from address. Env-override OUTREACH_FROM_EMAIL."""
     return os.getenv("OUTREACH_FROM_EMAIL", settings.DEFAULT_FROM_EMAIL)
 
 
@@ -237,10 +242,11 @@ def compliance_footer(email: str) -> str:
 def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
     """Send one outreach email to the lead (plus any CC), mark it sent, and
     advance its pipeline stage to Contacted. Sends from the main mailbox (see
-    from_address_for), BCC'd to marcus@ so a copy lands in Marcus's inbox, with
-    Reply-To (marcus@) stamped by the email backend so replies come back there
-    too — the whole trail lives in one mailbox. Raises on SMTP failure so the
-    caller can surface it — the lead is only marked sent on success.
+    from_address_for) with marcus@ CC'd, so a copy lands in Marcus's inbox and
+    the recipient can see him and reply-all to him. Reply-To (marcus@) is stamped
+    by the email backend so a plain reply comes back there too — the whole trail
+    lives in one mailbox. Raises on SMTP failure so the caller can surface it —
+    the lead is only marked sent on success.
     """
     from openoutreach.signals.unsubscribe import is_opted_out
 
@@ -257,12 +263,27 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
             "postal address on commercial email — set it in the Render environment "
             "(a USPS PO box or the registered agent address qualifies) before sending."
         )
-    body = body.rstrip() + "\n" + compliance_footer(lead.email)
-    cc_list = [a for a in parse_cc(cc) if a.lower() != (lead.email or "").lower()]
-    bcc_list = [OUTREACH_BCC] if OUTREACH_BCC and OUTREACH_BCC.lower() != (lead.email or "").lower() else None
+    # The footer is applied at send time and never stored back onto the lead.
+    # Storing it would mean the next draft/resend starts from a body that already
+    # ends in a footer, and appends a second one.
+    body = body.rstrip()
+    wire_body = body + "\n" + compliance_footer(lead.email)
+    # Per-lead CCs first, then the standing CC (marcus@). Dedupe case-insensitively
+    # and never CC the recipient themselves — a lead whose own address is also the
+    # standing CC would otherwise get the mail twice.
+    recipient = (lead.email or "").lower()
+    cc_list: list[str] = []
+    seen = {recipient}
+    for addr in parse_cc(cc) + parse_cc(OUTREACH_CC):
+        if addr.lower() not in seen:
+            seen.add(addr.lower())
+            cc_list.append(addr)
+    # Anything already visible on CC must not also be BCC'd — some clients show
+    # the duplicate, and it reads as a mistake.
+    bcc_list = [OUTREACH_BCC] if OUTREACH_BCC and OUTREACH_BCC.lower() not in seen else None
     message = EmailMessage(
         subject=subject.strip() or f"A note about {lead.organization or 'your work'}",
-        body=body,
+        body=wire_body,
         from_email=from_address_for(lead),
         to=[lead.email],
         cc=cc_list or None,

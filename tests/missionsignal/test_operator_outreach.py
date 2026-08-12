@@ -224,10 +224,12 @@ def test_send_emails_lead_marks_sent(client, staff, settings):
     assert lead.outreach_draft == "Edited body here."
 
 
-def test_outreach_sends_from_mail_bcc_marcus(client, staff, settings):
-    # Warm and cold both send from mail@ (main) and BCC marcus@ so a copy of the
-    # whole trail lands in Marcus's one inbox. Reply-To (marcus@) is stamped by
-    # the backend (covered in test_email_reply_to.py).
+def test_outreach_sends_from_mail_cc_marcus(client, staff, settings):
+    # Warm and cold both send from mail@ (main, DKIM-signed — which keeps cold
+    # volume off marcus@'s sender reputation) with marcus@ CC'd, so a copy of the
+    # whole trail lands in Marcus's one inbox AND the recipient can see him and
+    # reply-all to him. Reply-To (marcus@) is stamped by the backend
+    # (covered in test_email_reply_to.py).
     settings.DEFAULT_FROM_EMAIL = "mail@anansiatlas.com"
     warm = _lead(name="Pat Warm", organization="Warm Org", email="pat@warm.org",
                  list_segment="warm", warmth="hot")
@@ -241,7 +243,10 @@ def test_outreach_sends_from_mail_bcc_marcus(client, staff, settings):
     by_to = {m.to[0]: m for m in mail.outbox}
     for m in by_to.values():
         assert m.from_email == "mail@anansiatlas.com"
-        assert "marcus@anansiatlas.com" in m.bcc
+        assert "marcus@anansiatlas.com" in m.cc
+        # Visible on CC means it must not also be BCC'd — the duplicate shows up
+        # in some clients and reads as a mistake.
+        assert "marcus@anansiatlas.com" not in (m.bcc or [])
 
 
 def test_cc_adds_recipients_to_the_thread(client, staff):
@@ -251,9 +256,10 @@ def test_cc_adds_recipients_to_the_thread(client, staff):
                 {"subject": "hi", "body": "b", "cc": "board@brightpaths.org, ceo@brightpaths.org"})
     msg = mail.outbox[0]
     assert msg.to == ["dana@brightpaths.org"]
-    assert msg.cc == ["board@brightpaths.org", "ceo@brightpaths.org"]
+    # Per-lead CCs first, then the standing marcus@ CC.
+    assert msg.cc == ["board@brightpaths.org", "ceo@brightpaths.org", "marcus@anansiatlas.com"]
     lead.refresh_from_db()
-    assert lead.cc_emails == "board@brightpaths.org, ceo@brightpaths.org"
+    assert lead.cc_emails == "board@brightpaths.org, ceo@brightpaths.org, marcus@anansiatlas.com"
 
 
 def test_cc_dedupes_the_primary_recipient(client, staff):
@@ -262,7 +268,29 @@ def test_cc_dedupes_the_primary_recipient(client, staff):
     client.post(reverse("operator-outreach-send", kwargs={"pk": lead.pk}),
                 {"subject": "hi", "body": "b", "cc": "dana@brightpaths.org, board@brightpaths.org"})
     msg = mail.outbox[0]
-    assert msg.cc == ["board@brightpaths.org"]  # primary not CC'd twice
+    # Primary not CC'd twice; the standing CC is still appended.
+    assert msg.cc == ["board@brightpaths.org", "marcus@anansiatlas.com"]
+
+
+def test_standing_cc_not_duplicated_when_typed_in_by_the_operator(client, staff):
+    # Typing marcus@ into the CC box must not produce him twice, case aside.
+    lead = _lead(email="dana@brightpaths.org")
+    client.force_login(staff)
+    client.post(reverse("operator-outreach-send", kwargs={"pk": lead.pk}),
+                {"subject": "hi", "body": "b", "cc": "MARCUS@anansiatlas.com"})
+    msg = mail.outbox[0]
+    assert [a.lower() for a in msg.cc] == ["marcus@anansiatlas.com"]
+
+
+def test_lead_who_is_the_standing_cc_is_not_cc_d_to_themselves(client, staff):
+    # Emailing marcus@ as a lead would otherwise CC him on his own mail.
+    lead = _lead(email="marcus@anansiatlas.com")
+    client.force_login(staff)
+    client.post(reverse("operator-outreach-send", kwargs={"pk": lead.pk}),
+                {"subject": "hi", "body": "b"})
+    msg = mail.outbox[0]
+    assert msg.to == ["marcus@anansiatlas.com"]
+    assert not msg.cc
 
 
 def test_send_advances_pipeline_stage_to_reached_out(client, staff, settings):
