@@ -6,6 +6,7 @@ has a solid starting email the operator can edit before sending. Mirrors the
 retired n8n composer's warm/cold template — sales walkthrough video, offer, and
 a soft CTA — but lives on the server so review-edit-send happens in one place.
 """
+import logging
 import os
 import re
 
@@ -14,6 +15,8 @@ from django.core.mail import EmailMessage
 from django.utils import timezone
 
 from openoutreach.signals.models import SalesLead
+
+logger = logging.getLogger(__name__)
 
 _WARMTH_RANK = {"hot": 0, "warm": 1, "reconnect": 2, "cold": 3}
 
@@ -289,7 +292,10 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
         cc=cc_list or None,
         bcc=bcc_list,
     )
+    # Everything below this line runs only if the send actually succeeded — send()
+    # raises on failure, so there is no path where a lead is marked sent without one.
     message.send(fail_silently=False)
+    _mark_message_sent(lead, subject=subject, body=body)
     lead.subject_line = subject.strip()[:255]
     lead.outreach_draft = body
     lead.cc_emails = ", ".join(cc_list)[:500]
@@ -299,3 +305,32 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
     lead.updated_at = timezone.now()
     lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status",
                              "outreach_outcome", "status", "updated_at"])
+
+
+def _mark_message_sent(lead, *, subject: str, body: str) -> None:
+    """Record that this message went out, so a follow-up knows what was argued.
+
+    Prefers the drafted OutreachMessage the cockpit is sending, since that row carries
+    the angle the drafting agent chose. Falls back to creating a bare row for sends
+    that never went through the drafting command — those have no angle, and the
+    follow-up prompt says so rather than guessing.
+
+    Deliberately best-effort: a bookkeeping failure must never turn a delivered email
+    into an exception the caller reads as "not sent".
+    """
+    from openoutreach.signals.models import OutreachMessage
+
+    try:
+        msg = (OutreachMessage.objects
+               .filter(lead=lead, status=OutreachMessage.Status.DRAFTED)
+               .order_by("-created_at").first())
+        if msg is None:
+            msg = OutreachMessage(lead=lead, genre=OutreachMessage.Genre.COLD_OPENER,
+                                  sequence_position=1)
+        msg.subject = subject.strip()[:300]
+        msg.body = body
+        msg.status = OutreachMessage.Status.SENT
+        msg.sent_at = timezone.now()
+        msg.save()
+    except Exception:  # noqa: BLE001 — never fail a delivered send on bookkeeping
+        logger.exception("could not record OutreachMessage for lead %s", lead.pk)

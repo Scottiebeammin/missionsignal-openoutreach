@@ -51,6 +51,51 @@ DEFAULT_CAMPAIGN = "Anansi Atlas — Founding Cohort"
 SELF_NAME = "Marcus Scott"
 
 
+
+def _angle_menu() -> str:
+    """The angle taxonomy, grouped by value family, for the prompt.
+
+    Built from the model's own TextChoices so the prompt cannot drift from what the
+    database will accept — adding an angle in one place adds it in both.
+    """
+    from collections import defaultdict
+
+    from openoutreach.signals.models import ANGLE_FAMILY, OutreachAngle
+
+    by_family: dict[str, list[str]] = defaultdict(list)
+    for value, family in ANGLE_FAMILY.items():
+        by_family[family].append(value)
+
+    lines = [
+        "## Classify your own argument — required",
+        "",
+        "Along with the email, return `primary_angle`: the ONE reason this reader might "
+        "care, chosen from the list below. This is the reason, not the source — 'why they "
+        "should care', never 'which database it came from'.",
+        "",
+        "Also return `angle_detail`: the concrete argument in a few words "
+        "(e.g. 'CINS/FINS contract through 2026-06-30', 'county-provided technical "
+        "assistance program'). Leave it empty if the angle is category-level with no "
+        "specific behind it — do not invent one to fill the field.",
+        "",
+        "And `personalization`: 'personalized' only if a verified fact about THIS reader "
+        "materially changes the reasoning; otherwise 'category_relevant'. Category-relevant "
+        "is a legitimate email. Claiming personalized when the profile is thin is not.",
+        "",
+        "Atlas surfaces funding, partnerships, government pathways, free and low-cost "
+        "resources, technical assistance and readiness. Do not default to a funding angle "
+        "because funding is the most familiar — pick the reason the evidence best supports.",
+        "",
+    ]
+    for family in ("funding", "partnership", "resource", "readiness"):
+        values = sorted(by_family.get(family, []))
+        lines.append(f"**{family}:** " + ", ".join(f"`{v}`" for v in values))
+    lines.append("")
+    lines.append(f"If none fit, use `{OutreachAngle.CATEGORY_MECHANISM}`. "
+                 f"Use `{OutreachAngle.UNCLASSIFIED}` only if you genuinely cannot classify it.")
+    return "\n".join(lines)
+
+
 def _lead_facts(lead) -> list[str]:
     """Real, verified facts about a SalesLead — nothing inferred, nothing invented."""
     facts = []
@@ -191,7 +236,11 @@ class Command(BaseCommand):
             "minutes. Never invite them to browse, explore, or take a look at the site — that is a "
             "third option, it is the easiest one, so it is the one they take instead of either "
             "real one. No guilt, no 'just checking in', no 'bumping this to the top of your "
-            "inbox'. End by making it easy to decline — a one-line no is a perfectly good answer.\n\n"
+            # "a one-line no is a perfectly good answer" used to live here, and the
+            # house standard now bans it as a tic — it appeared in most of a batch and
+            # stopped reading as sincerity. A note appended last would have overruled
+            # the standard, which is this system's recurring failure.
+            "inbox'. Do not append reassurance out of habit; end on the two options.\n\n"
             # Two failures seen in the last batch, both from the model reaching for email
             # conventions that don't apply to a stranger's second cold email.
             "NEVER prefix the subject with 'Re:'. There is no thread to reply to and it fakes one — "
@@ -202,7 +251,43 @@ class Command(BaseCommand):
             "they are the wrong person, the right line invites THEM to forward it."
         )
 
-        def build_prompt(facts: list[str]) -> str:
+        ANGLE_MENU = _angle_menu()
+
+        def prior_angle_block(lead) -> str:
+            """Tell a follow-up what the opener already argued, if anything did.
+
+            Structured, not prose: the previous body is in the record too, but asking a
+            model to infer "have I already made this argument?" from prose is exactly the
+            judgement call that produced ten paraphrases of one idea. A stored angle makes
+            it a lookup.
+            """
+            if lead is None:
+                return ""
+            from openoutreach.signals.models import OutreachMessage, angle_family
+            prev = OutreachMessage.last_for(lead, sent_only=True) or OutreachMessage.last_for(lead)
+            if prev is None or not prev.primary_angle:
+                # No record of the opener's angle — say so rather than inventing one.
+                return ("\n\n## The previous touch\n"
+                        "No angle was recorded for the earlier email, so you cannot know what it "
+                        "argued. Pick the strongest angle the profile supports and do not attempt "
+                        "to reference the earlier message's content.")
+            detail = f" — {prev.angle_detail}" if prev.angle_detail else ""
+            return (
+                "\n\n## The previous touch — DO NOT REPEAT ITS ARGUMENT\n"
+                f"The earlier email to this reader argued: **{prev.primary_angle}**"
+                f" (value family: {angle_family(prev.primary_angle)}){detail}.\n\n"
+                "They did not reply to that argument. Repeating it in different words is the "
+                "single most common way a follow-up wastes its one remaining chance.\n\n"
+                "**Choose a different primary_angle**, and prefer one from a different value "
+                "family — funding, partnership, resource, readiness — because a shift between "
+                "families is a materially different reason to care, while two funding angles is "
+                "a small move. County funding → free technical assistance is a real change; "
+                "county funding → state funding is barely one.\n\n"
+                "Reuse the same angle ONLY if the profile carries genuinely new verified "
+                "information that materially changes it. Rewording is not new information."
+            )
+
+        def build_prompt(facts: list[str], lead=None) -> str:
             prompt = render(
                 "email_opener.j2",
                 self_name=SELF_NAME,
@@ -213,6 +298,7 @@ class Command(BaseCommand):
                 # SalesLead carries no scraped firmographics; the section collapses.
                 company_intel="",
             )
+            prompt += "\n\n" + ANGLE_MENU
             if options["followup"]:
                 # email_opener.j2 opens by asserting "writing a first cold outreach
                 # email ... You have never spoken before." A follow-up directive
@@ -227,12 +313,16 @@ class Command(BaseCommand):
                     "who did not reply. You have written to this person before.",
                 )
                 prompt += "\n\n## This email is a follow-up — read this last\n" + FOLLOWUP_NOTE
+                prompt += prior_angle_block(lead)
             return prompt
 
         if options["prompt_only"]:
-            label, facts, _lead = targets[0]
+            label, facts, lead = targets[0]
             self.stdout.write(self.style.MIGRATE_HEADING(f"System prompt for: {label}\n"))
-            self.stdout.write(build_prompt(facts))
+            # Pass the lead, not just its facts — otherwise the prior-angle block
+            # renders empty here while appearing in the real run, and --prompt-only
+            # stops being a preview of what the model actually receives.
+            self.stdout.write(build_prompt(facts, lead))
             self.stdout.write(self.style.SUCCESS(
                 f"\n\n({len(targets)} target(s) selected; showing the prompt for the first. "
                 "Drop --prompt-only to generate drafts.)"
@@ -261,12 +351,18 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING("  (no facts on file — the draft will be generic by necessity)"))
             agent = Agent(model, output_type=EmailDraft, model_settings={"temperature": 0.7, "timeout": 60})
             try:
-                draft = run_agent_sync(agent.run(build_prompt(facts))).output
+                draft = run_agent_sync(agent.run(build_prompt(facts, lead))).output
             except Exception as exc:  # noqa: BLE001 — one bad draft shouldn't kill the batch
                 self.stderr.write(self.style.ERROR(f"  draft failed: {exc}"))
                 continue
             self.stdout.write(f"\nSubject: {draft.subject}\n")
             self.stdout.write(draft.body)
+            if draft.primary_angle:
+                from openoutreach.signals.models import angle_family
+                detail = f" · {draft.angle_detail}" if draft.angle_detail else ""
+                self.stdout.write(self.style.HTTP_INFO(
+                    f"\n  [angle: {draft.primary_angle} ({angle_family(draft.primary_angle)})"
+                    f"{detail} · {draft.personalization or 'unclassified'}]"))
 
             if options["save"]:
                 if lead is None:
@@ -275,16 +371,31 @@ class Command(BaseCommand):
                         "pipeline first, then draft against the resulting SalesLead.)"
                     ))
                 else:
-                    fields = ["subject_line", "outreach_draft"]
-                    # The draft on a sent lead IS the record of what went out. Never
-                    # overwrite it without keeping a copy — archive into notes first.
-                    if options["followup"] and lead.outreach_draft:
-                        stamp = f"[archived opener · subject: {lead.subject_line}]\n{lead.outreach_draft}"
-                        lead.notes = (lead.notes + "\n\n" if lead.notes else "") + stamp
-                        fields.append("notes")
+                    from openoutreach.signals.models import OutreachMessage
+
+                    # The draft on a sent lead IS the record of what went out, and it
+                    # used to be preserved by appending it into `notes` — which then fed
+                    # back into the prompt as a "fact about the lead", sharing one field
+                    # with the researched profile and the operator's own notes. The
+                    # OutreachMessage row is that archive now, so notes is left alone.
+                    prior = OutreachMessage.last_for(lead)
+                    genre = (OutreachMessage.Genre.COLD_FOLLOWUP if options["followup"]
+                             else OutreachMessage.Genre.COLD_OPENER)
+                    OutreachMessage.objects.create(
+                        lead=lead,
+                        campaign=campaign,
+                        genre=genre,
+                        sequence_position=(prior.sequence_position + 1) if prior else 1,
+                        subject=draft.subject.strip()[:300],
+                        body=draft.body,
+                        primary_angle=(draft.primary_angle or "").strip().lower()[:40],
+                        angle_detail=(draft.angle_detail or "").strip()[:300],
+                        personalization=(draft.personalization or "").strip().lower()[:20],
+                        status=OutreachMessage.Status.DRAFTED,
+                    )
                     lead.subject_line = draft.subject.strip()[:300]
                     lead.outreach_draft = draft.body
-                    lead.save(update_fields=fields)
+                    lead.save(update_fields=["subject_line", "outreach_draft"])
                     saved += 1
             self.stdout.write("")
 

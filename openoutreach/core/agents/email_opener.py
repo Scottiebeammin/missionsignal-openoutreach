@@ -22,10 +22,40 @@ logger = logging.getLogger(__name__)
 
 
 class EmailDraft(BaseModel):
-    """Structured output from the email opener agent."""
+    """Structured output from the email opener agent.
+
+    ``primary_angle`` and ``angle_detail`` are optional and default to empty, so the
+    Layer-1 deal path is unaffected. The cohort path asks for them and persists them
+    on an ``OutreachMessage``, which is how a later follow-up can tell whether it is
+    raising a new reason to care or restating the opener.
+    """
 
     subject: str = Field(description="The email subject line — short, specific, like a real person wrote it; not salesy.")
     body: str = Field(description="The email body. A few short sentences; no signature, no placeholders.")
+    primary_angle: str = Field(
+        default="",
+        description=(
+            "The single reason THIS reader might care, as one snake_case value from the "
+            "angle list in the prompt. The reason, not the source database — 'why they "
+            "should care', not 'where we looked'. Empty only if no list was supplied."
+        ),
+    )
+    angle_detail: str = Field(
+        default="",
+        description=(
+            "The concrete argument behind primary_angle, in a few words, e.g. "
+            "'CINS/FINS contract through 2026-06-30' or 'county-provided technical "
+            "assistance program'. Empty if the angle is category-level with no specific."
+        ),
+    )
+    personalization: str = Field(
+        default="",
+        description=(
+            "Honest self-classification: 'personalized' only if a verified fact about "
+            "THIS reader materially changes the reasoning, otherwise 'category_relevant'. "
+            "Category-relevant is a legitimate email; do not claim personalized to look better."
+        ),
+    )
 
 
 def compose_opener_email(session, deal) -> EmailDraft:

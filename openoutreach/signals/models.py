@@ -623,3 +623,204 @@ class EmailOptOut(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class OutreachAngle(models.TextChoices):
+    """Why the recipient might care — the *reason*, not the source database.
+
+    Tracked so a follow-up can mechanically tell whether it is introducing a new
+    reason or paraphrasing the first touch. Before this existed the only record of
+    a previous message was its prose, archived into ``SalesLead.notes``, which made
+    "is this actually a new angle?" a judgement call nobody could audit.
+
+    Grouped into families (see ``ANGLE_FAMILY``) because a shift *between* families
+    — county funding to free technical assistance, contract expiry to readiness — is
+    a materially different reason to care, while two funding angles are a smaller
+    move. Atlas surfaces funding, partnerships, government pathways, free and
+    low-cost resources, technical assistance and readiness; the taxonomy has to be
+    wide enough to hold all of that or every email collapses back onto funding.
+
+    Not enforced by a DB constraint, so a new value costs no migration.
+    """
+
+    # ── Funding ──────────────────────────────────────────────────────────────
+    FEDERAL_FUNDING = "federal_funding", "Federal funding"
+    FEDERAL_PROGRAM_PATHWAY = "federal_program_pathway", "Federal program pathway"
+    GRANTS_GOV_MATCH = "grants_gov_match", "Grants.gov match"
+    STATE_FUNDING = "state_funding", "State funding"
+    COUNTY_FUNDING = "county_funding", "County funding"
+    CITY_FUNDING = "city_funding", "City funding"
+    AGENCY_PROGRAM = "agency_program", "Agency program"
+    CONTRACT_EXPIRATION = "contract_expiration", "Contract expiration"
+    INTERMEDIARY_STRUCTURE = "intermediary_structure", "Intermediary structure"
+    PROCUREMENT_PATHWAY = "procurement_pathway", "Procurement pathway"
+
+    # ── Partnerships and government pathways ─────────────────────────────────
+    PARTNERSHIP_PATHWAY = "partnership_pathway", "Partnership pathway"
+    COMMUNITY_PARTNER_RESOURCE = "community_partner_resource", "Community partner resource"
+    GOVERNMENT_REFERRAL_PATHWAY = "government_referral_pathway", "Government referral pathway"
+    AGENCY_RELATIONSHIP = "agency_relationship", "Agency relationship"
+    INSTITUTIONAL_PARTNER = "institutional_partner", "Institutional partner"
+
+    # ── Free / lower-cost resources ──────────────────────────────────────────
+    FREE_RESOURCE = "free_resource", "Free resource"
+    LOW_COST_RESOURCE = "low_cost_resource", "Low-cost resource"
+    TECHNICAL_ASSISTANCE = "technical_assistance", "Technical assistance"
+    CAPACITY_BUILDING_RESOURCE = "capacity_building_resource", "Capacity-building resource"
+    TRAINING_RESOURCE = "training_resource", "Training resource"
+    TECHNOLOGY_RESOURCE = "technology_resource", "Technology resource"
+    FACILITY_OR_SPACE_RESOURCE = "facility_or_space_resource", "Facility or space resource"
+    WORKFORCE_RESOURCE = "workforce_resource", "Workforce resource"
+    VOLUNTEER_RESOURCE = "volunteer_resource", "Volunteer resource"
+    IN_KIND_RESOURCE = "in_kind_resource", "In-kind resource"
+    DATA_OR_RESEARCH_RESOURCE = "data_or_research_resource", "Data or research resource"
+
+    # ── Readiness and operational value ──────────────────────────────────────
+    READINESS_GAP = "readiness_gap", "Readiness gap"
+    APPLICATION_READINESS = "application_readiness", "Application readiness"
+    COMPLIANCE_READINESS = "compliance_readiness", "Compliance readiness"
+    FRAGMENTED_RESEARCH = "fragmented_research", "Fragmented research"
+    CATEGORY_MECHANISM = "category_mechanism", "Category-level mechanism"
+    SCHOOL_SPECIFIC_RESOURCE = "school_specific_resource", "School-specific resource"
+
+    UNCLASSIFIED = "unclassified", "Unclassified"
+
+
+ANGLE_FAMILY: dict[str, str] = {
+    **{a: "funding" for a in (
+        OutreachAngle.FEDERAL_FUNDING, OutreachAngle.FEDERAL_PROGRAM_PATHWAY,
+        OutreachAngle.GRANTS_GOV_MATCH, OutreachAngle.STATE_FUNDING,
+        OutreachAngle.COUNTY_FUNDING, OutreachAngle.CITY_FUNDING,
+        OutreachAngle.AGENCY_PROGRAM, OutreachAngle.CONTRACT_EXPIRATION,
+        OutreachAngle.INTERMEDIARY_STRUCTURE, OutreachAngle.PROCUREMENT_PATHWAY,
+    )},
+    **{a: "partnership" for a in (
+        OutreachAngle.PARTNERSHIP_PATHWAY, OutreachAngle.COMMUNITY_PARTNER_RESOURCE,
+        OutreachAngle.GOVERNMENT_REFERRAL_PATHWAY, OutreachAngle.AGENCY_RELATIONSHIP,
+        OutreachAngle.INSTITUTIONAL_PARTNER,
+    )},
+    **{a: "resource" for a in (
+        OutreachAngle.FREE_RESOURCE, OutreachAngle.LOW_COST_RESOURCE,
+        OutreachAngle.TECHNICAL_ASSISTANCE, OutreachAngle.CAPACITY_BUILDING_RESOURCE,
+        OutreachAngle.TRAINING_RESOURCE, OutreachAngle.TECHNOLOGY_RESOURCE,
+        OutreachAngle.FACILITY_OR_SPACE_RESOURCE, OutreachAngle.WORKFORCE_RESOURCE,
+        OutreachAngle.VOLUNTEER_RESOURCE, OutreachAngle.IN_KIND_RESOURCE,
+        OutreachAngle.DATA_OR_RESEARCH_RESOURCE,
+    )},
+    **{a: "readiness" for a in (
+        OutreachAngle.READINESS_GAP, OutreachAngle.APPLICATION_READINESS,
+        OutreachAngle.COMPLIANCE_READINESS, OutreachAngle.FRAGMENTED_RESEARCH,
+        OutreachAngle.CATEGORY_MECHANISM, OutreachAngle.SCHOOL_SPECIFIC_RESOURCE,
+    )},
+}
+
+
+def angle_family(angle: str) -> str:
+    """The value family an angle belongs to; 'unknown' for anything unmapped."""
+    return ANGLE_FAMILY.get((angle or "").strip().lower(), "unknown")
+
+
+def angle_is_materially_new(previous: str, candidate: str) -> bool:
+    """Is ``candidate`` a genuinely different reason to care than ``previous``?
+
+    Same angle is never new — that is the paraphrase case this exists to catch. A
+    different angle is new, and a different *family* is the strongest kind of new
+    (county funding → free technical assistance rather than county → state funding).
+    An unrecorded previous angle can't be compared, so anything is allowed.
+    """
+    prev, cand = (previous or "").strip().lower(), (candidate or "").strip().lower()
+    if not prev or prev == OutreachAngle.UNCLASSIFIED:
+        return True
+    return prev != cand
+
+
+class OutreachMessage(models.Model):
+    """One outreach email — drafted, and possibly sent.
+
+    SalesLead carries a single ``subject_line``/``outreach_draft`` pair that every
+    redraft overwrites, so the system had no memory of what it had already said.
+    The follow-up path worked around that by appending the old body into
+    ``SalesLead.notes`` as free text — which then fed straight back into the prompt
+    as a "fact about the lead", alongside the researched profile and the operator's
+    own notes, all three sharing one field.
+
+    This is that missing record. It exists so a follow-up can look up the angle the
+    opener used instead of guessing from prose, and so outcomes can later be
+    compared by angle, genre and structure rather than by anecdote.
+    """
+
+    class Genre(models.TextChoices):
+        COLD_OPENER = "cold_opener", "Cold opener"
+        COLD_FOLLOWUP = "cold_followup", "Cold follow-up"
+        WARM = "warm", "Warm outreach"
+
+    class Status(models.TextChoices):
+        DRAFTED = "drafted", "Drafted"
+        SENT = "sent", "Sent"
+        SEND_FAILED = "send_failed", "Send failed"
+
+    class Personalization(models.TextChoices):
+        PERSONALIZED = "personalized", "Personalized"
+        CATEGORY_RELEVANT = "category_relevant", "Category-relevant"
+
+    lead = models.ForeignKey(SalesLead, on_delete=models.CASCADE, related_name="messages")
+    campaign = models.ForeignKey(
+        "core.Campaign", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="outreach_messages",
+    )
+    genre = models.CharField(max_length=20, choices=Genre.choices, default=Genre.COLD_OPENER)
+    sequence_position = models.PositiveSmallIntegerField(
+        default=1, help_text="1 = opener, 2 = first follow-up, and so on.")
+
+    subject = models.CharField(max_length=300, blank=True, default="")
+    body = models.TextField(blank=True, default="")
+
+    primary_angle = models.CharField(
+        max_length=40, choices=OutreachAngle.choices, blank=True, default="",
+        help_text="Why the reader might care — the reason, not the source.")
+    angle_detail = models.CharField(
+        max_length=300, blank=True, default="",
+        help_text="The concrete argument, e.g. 'CINS/FINS contract through 2026-06-30'.")
+    personalization = models.CharField(
+        max_length=20, choices=Personalization.choices, blank=True, default="",
+        help_text="Honest classification — category-relevant is legitimate, and must not "
+                  "be dressed up as research.")
+    evidence_ref = models.CharField(
+        max_length=200, blank=True, default="",
+        help_text="Where the recipient-specific claim came from, when the research layer "
+                  "exposes an identifier. Free-text until it does.")
+
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFTED)
+    # Set only when the send actually succeeds — never on draft, queue or attempt.
+    # This is the timestamp any follow-up cadence must count from.
+    sent_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    send_error = models.TextField(blank=True, default="")
+    # RFC-5322 Message-ID, so an inbound reply can be correlated back to this exact
+    # message once reply ingestion exists.
+    message_id = models.CharField(max_length=300, blank=True, default="")
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        indexes = [models.Index(fields=["lead", "-created_at"])]
+
+    def __str__(self):
+        return f"{self.lead_id} · {self.genre} · {self.primary_angle or 'unclassified'} [{self.status}]"
+
+    @property
+    def angle_family(self) -> str:
+        return angle_family(self.primary_angle)
+
+    @classmethod
+    def last_for(cls, lead, *, sent_only: bool = False):
+        """The most recent message for a lead, preferring what actually went out.
+
+        ``sent_only`` matters for follow-up logic: a draft that was never sent is not
+        something the recipient has seen, so it must not count as the previous touch.
+        """
+        qs = cls.objects.filter(lead=lead)
+        if sent_only:
+            qs = qs.filter(status=cls.Status.SENT)
+        return qs.order_by("-sent_at", "-created_at").first()
