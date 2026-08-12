@@ -31,6 +31,8 @@ Preview by default — nothing is written unless you pass --commit.
 """
 from __future__ import annotations
 
+import urllib.parse
+
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 
@@ -216,8 +218,11 @@ class Command(BaseCommand):
         # (org, school_kind_or_None). On the schools track the name classifier is a
         # filter, so scan further than `limit` rather than truncating first.
         candidates: list[tuple[object, str | None]] = []
+        from openoutreach.signals.management.commands.scrape_contact_emails import _is_foreign_domain
+
         known_names, known_emails = existing_lead_keys()
         skipped_known: list[str] = []
+        flagged_foreign: set[str] = set()
 
         # The two tracks are mutually exclusive: a charter school promoted on the
         # nonprofit track would be worked with the wrong message, and whichever
@@ -233,6 +238,19 @@ class Command(BaseCommand):
             if _norm(org.name) in known_names or (org.contact_email or "").lower().strip() in known_emails:
                 skipped_known.append(org.name)
                 continue
+            # Flag — don't drop — an email whose domain isn't the org's own. Some
+            # are genuinely somebody else's (a web designer, a font foundry's
+            # licence comment, usda.gov off a school-lunch page). But plenty are
+            # the same organization under a second domain:
+            # contact@victorychartertampa.org for victorychartertampa612.org is
+            # the same school. Name similarity can't reliably tell those apart, so
+            # the honest move is to surface it and let the preview do its job —
+            # silently discarding a real school is the worse error.
+            if org.contact_email and org.website and _is_foreign_domain(
+                org.contact_email.split("@")[-1].lower(),
+                urllib.parse.urlsplit(org.website).netloc.removeprefix("www.").lower(),
+            ):
+                flagged_foreign.add(org.record_id)
             candidates.append((org, kind if schools_track else None))
             if len(candidates) >= options["limit"]:
                 break
@@ -244,6 +262,8 @@ class Command(BaseCommand):
             ))
             for n in skipped_known[:15]:
                 self.stdout.write(f"    · {n}")
+
+
 
         if not candidates:
             self.stderr.write(self.style.ERROR(
@@ -262,8 +282,10 @@ class Command(BaseCommand):
             self.stdout.write(
                 f"  {org.record_id}  {org.name[:44]:<44}  {label[:22]:<22}  {income}"
             )
+            warn = "  ⚠ email is on a different domain — check it's the org's own" \
+                if org.record_id in flagged_foreign else ""
             self.stdout.write(
-                f"       {org.contact_email or '(no email)'}   {org.website or '(no website)'}"
+                f"       {org.contact_email or '(no email)'}   {org.website or '(no website)'}{warn}"
             )
 
         if not options["commit"]:
