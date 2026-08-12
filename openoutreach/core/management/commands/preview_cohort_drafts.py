@@ -190,9 +190,7 @@ class Command(BaseCommand):
         )
 
         def build_prompt(facts: list[str]) -> str:
-            if options["followup"]:
-                facts = list(facts) + [FOLLOWUP_NOTE]
-            return render(
+            prompt = render(
                 "email_opener.j2",
                 self_name=SELF_NAME,
                 product_docs=campaign.product_docs,
@@ -202,6 +200,21 @@ class Command(BaseCommand):
                 # SalesLead carries no scraped firmographics; the section collapses.
                 company_intel="",
             )
+            if options["followup"]:
+                # email_opener.j2 opens by asserting "writing a first cold outreach
+                # email ... You have never spoken before." A follow-up directive
+                # buried in the facts list loses to that every time — it reads as
+                # trivia about the recipient while the intro reads as identity. So
+                # rewrite the claim at source, and repeat the instruction last,
+                # where it isn't competing with anything.
+                prompt = prompt.replace(
+                    "writing a first cold outreach email to a lead you found through "
+                    "professional research. You have never spoken before.",
+                    "writing a FOLLOW-UP email to someone you already emailed once, weeks ago, "
+                    "who did not reply. You have written to this person before.",
+                )
+                prompt += "\n\n## This email is a follow-up — read this last\n" + FOLLOWUP_NOTE
+            return prompt
 
         if options["prompt_only"]:
             label, facts, _lead = targets[0]
