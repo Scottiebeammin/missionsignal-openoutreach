@@ -173,17 +173,20 @@ class Command(BaseCommand):
         from openoutreach.core.agents.prompt import render
 
         FOLLOWUP_NOTE = (
-            "SECOND TOUCH. THIS IS NOT A FIRST EMAIL. They were emailed once already and did not "
-            "reply. Do NOT open with 'I'm Marcus Scott', do NOT say 'I'm reaching out because', "
-            "do NOT re-state his background — they already have all of it. The first clause must "
-            "refer to the earlier note. Do NOT introduce "
-            "Marcus again or re-explain who he is; they have that. Open by referring to the earlier "
-            "note in one short clause ('I wrote a while back…' / 'Following up on my note about…') "
-            "and then give them ONE thing the first email didn't: the concrete Florida DOE 21st CCLC "
-            "example, or the 80-second film. Shorter than the first email, not longer — five or six "
-            "sentences. Close the same way: the site, or 30 minutes. No guilt, no 'just checking in', "
-            "no 'I wanted to bump this to the top of your inbox'. If they aren't interested, say "
-            "plainly that a one-line no is a perfectly good answer."
+            "SECOND TOUCH — a follow-up, not a first email.\n\n"
+            "THE FIRST SENTENCE MUST BEGIN BY REFERRING TO THE EARLIER EMAIL. One short clause, "
+            "then straight into the substance. Use one of these openings verbatim or close to it:\n"
+            "    'I wrote a while back about ...'\n"
+            "    'Following up on my note about ...'\n"
+            "    'I sent a note some weeks ago about ...'\n\n"
+            "They already know who Marcus is — he introduced himself in that first email — so "
+            "'I'm Marcus Scott' or 'I'm reaching out because' is the wrong opening here; it tells "
+            "the reader he has forgotten writing to them.\n\n"
+            "Then give them ONE thing the first email didn't: the 80-second film, or the state/local "
+            "gap stated plainly. Shorter than the first email, not longer — five or six sentences. "
+            "Close the same way: the site, or 30 minutes. No guilt, no 'just checking in', no "
+            "'bumping this to the top of your inbox'. End by making it easy to decline — a one-line "
+            "no is a perfectly good answer."
         )
 
         def build_prompt(facts: list[str]) -> str:
