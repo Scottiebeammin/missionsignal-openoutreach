@@ -84,6 +84,21 @@ RELIGIOUS_MARKERS = (
     "baptist", "lutheran", "adventist", "biblical", "yeshiva", "parochial",
     "sda ", "st. ", "saint ", "holy ", "trinity", "grace ", "faith ",
 )
+# A religious word alone does NOT make an organization a school — "Grace Medical
+# Home" is a free clinic, "Faith in Florida" is a community organizing group, and
+# both were being classified as religious schools and therefore silently dropped
+# from the nonprofit track. A religious school has to look like a school too, so
+# the religious branch requires one of these as well.
+#
+# "yeshiva", "torah" and "parochial" are exempt below: they name a school on their
+# own and often appear without an English school noun.
+SCHOOL_NOUNS = (
+    "school", "academy", "montessori", "preparatory", " prep ", " prep.", "day care",
+    "daycare", "learning center", "learning centre", "learning academy", "education center",
+    "classical", "collegiate", "elementary", "middle school", "high school", "k-8", "k-12",
+)
+# These name a school by themselves, no English school noun required.
+SELF_EVIDENT_SCHOOL_MARKERS = ("yeshiva", "torah", "parochial")
 # Higher ed, accreditors and professional societies also sit under Education and
 # are not schools in the sense that matters here.
 NOT_A_SCHOOL_MARKERS = (
@@ -133,13 +148,23 @@ def existing_lead_keys():
 
 
 def classify_school(name: str) -> str | None:
-    """Return 'Charter school', 'Religious school', or None if it isn't either."""
+    """Return 'Charter school', 'Religious school', or None if it isn't either.
+
+    A religious word is not on its own evidence of a school. "Grace Medical Home"
+    is a free clinic, "Faith in Florida" is a community organizing group, and
+    "Trinity Rescue Mission" is a shelter — all three matched RELIGIOUS_MARKERS and
+    were classified as religious schools, which silently dropped them from the
+    nonprofit track (the tracks are mutually exclusive) and would have put them in
+    front of the schools message. So the religious branch needs a school noun too.
+    """
     n = f" {name.lower()} "
     if any(m in n for m in NOT_A_SCHOOL_MARKERS):
         return None
     if any(m in n for m in CHARTER_MARKERS):
         return "Charter school"
-    if any(m in n for m in RELIGIOUS_MARKERS):
+    if any(m in n for m in SELF_EVIDENT_SCHOOL_MARKERS):
+        return "Religious school"
+    if any(m in n for m in RELIGIOUS_MARKERS) and any(s in n for s in SCHOOL_NOUNS):
         return "Religious school"
     return None
 
@@ -172,6 +197,12 @@ class Command(BaseCommand):
         parser.add_argument("--exclude", action="append", default=[], metavar="RECORD_ID",
                             help="Drop a specific org by record_id (e.g. NP-011991). Repeatable — this is how "
                                  "you strike names off the preview before committing.")
+        parser.add_argument("--only", action="append", default=[], metavar="RECORD_ID",
+                            help="Promote exactly these orgs by record_id, bypassing the county, sector and "
+                                 "income filters. Repeatable. Use it to commit a hand-screened shortlist: the "
+                                 "filters are how you FIND candidates, but once they have been researched and "
+                                 "screened one by one, re-deriving the set from filters can quietly return a "
+                                 "different set. The warm-collision and already-promoted guards still apply.")
         parser.add_argument("--commit", action="store_true",
                             help="Actually promote. Without this the command only prints what it would do.")
 
@@ -192,14 +223,25 @@ class Command(BaseCommand):
         statewide = any(c.lower() == "all" for c in counties)
         where = "FLORIDA (statewide)" if statewide else ", ".join(c.upper() for c in counties)
 
-        qs = (
-            FloridaOrg.objects
-            .filter(ntee_sector__in=sectors)
-            .filter(promoted_lead__isnull=True)  # never re-promote
-            .filter(income_amount__gte=options["min_income"],
-                    income_amount__lte=options["max_income"])
-        )
-        if not statewide:
+        only = [r.strip().upper() for r in options["only"]]
+        if only:
+            # A screened shortlist bypasses the discovery filters entirely, but NOT the
+            # never-re-promote guard — that one protects against creating a duplicate lead.
+            qs = FloridaOrg.objects.filter(record_id__in=only, promoted_lead__isnull=True)
+            found = set(qs.values_list("record_id", flat=True))
+            for missing in sorted(set(only) - found):
+                self.stderr.write(self.style.WARNING(
+                    f"{missing}: no unpromoted FloridaOrg with that record_id — it may already be a lead."))
+            where = f"{len(only)} hand-picked org(s)"
+        else:
+            qs = (
+                FloridaOrg.objects
+                .filter(ntee_sector__in=sectors)
+                .filter(promoted_lead__isnull=True)  # never re-promote
+                .filter(income_amount__gte=options["min_income"],
+                        income_amount__lte=options["max_income"])
+            )
+        if not only and not statewide:
             county_q = Q()
             for c in counties:
                 county_q |= Q(county__iexact=c)
@@ -210,6 +252,11 @@ class Command(BaseCommand):
             qs = qs.exclude(contact_email="")
             for fragment in JUNK_EMAIL_FRAGMENTS:
                 qs = qs.exclude(contact_email__icontains=fragment)
+
+        if only:
+            # --limit exists to cap a discovery pull. A shortlist is already the answer,
+            # so a stale default must not silently drop the tail of it.
+            options["limit"] = max(options["limit"], len(only))
 
         # Largest first *within the band* — a bigger budget in-band usually means
         # real programs and a real person reading the inbox.
