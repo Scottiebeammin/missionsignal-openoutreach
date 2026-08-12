@@ -102,6 +102,27 @@ Atlas ingests state, county and city sources alongside the federal ones. That ga
 most concrete, checkable thing we can say — a prospect can verify it themselves in about
 a minute.
 
+### The 80-second film — use it, it does the explaining for you
+
+**https://youtu.be/Vy2dLcI3CxY** — 80 seconds, captioned, the scattered-to-connected story
+with a "your organization here" profile on screen.
+
+**Include it in a first email.** It is the single most persuasive asset available and it costs
+the reader almost nothing: 80 seconds is a decision someone makes in an inbox, where a
+30-minute call is not.
+
+**And it makes the email shorter, which is the real win.** A paragraph explaining what the
+Opportunity Web looks like is a paragraph the film does better. Name the gap, point at the
+film, ask. Let it carry the description so the words don't have to — "80 seconds on what
+that looks like: <link>" replaces four sentences of product prose.
+
+**Do not oversell it.** No "check out this amazing video," no "I'd love for you to watch."
+One plain clause and the link.
+
+**There is a second, longer walkthrough** — https://youtu.be/FBvLg9c35Qo, three minutes —
+for people who have already shown interest. Never put both in one email, and never lead a
+cold email with the longer one.
+
 ### The offer
 
 Founding Atlas Partner — $150/month, and that rate is locked for as long as the
