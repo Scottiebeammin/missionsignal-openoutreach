@@ -128,6 +128,31 @@ def _lead_facts(lead) -> list[str]:
     return facts
 
 
+def research_gap(lead) -> str:
+    """Why this lead's research looks stranded rather than genuinely absent, or "".
+
+    There are two ways a lead can reach the writer with no researched profile, and
+    they must not be treated the same:
+
+    * **Genuinely thin** — nothing was ever researched. That is fine. The writing
+      standard degrades to a category-relevant email, which is a legitimate email.
+    * **Stranded** — research exists, but in the legacy ``notes`` field that the
+      writer no longer trusts. This looks identical to "thin" from inside the
+      prompt, and it is not: it is a deployment mistake, and it silently costs the
+      draft everything that was learned about the organization.
+
+    The second case is what this catches. It happens on exactly one boundary —
+    deploying the research/notes split before re-running the command that populates
+    ``research_profile`` — and on that boundary it would hit every lead at once.
+    """
+    if lead is None or getattr(lead, "research_profile", ""):
+        return ""
+    if (getattr(lead, "notes", "") or "").strip():
+        return ("has legacy notes but an empty research_profile — the research is probably "
+                "stranded in the old field. Re-run seed_lead_intel before drafting")
+    return ""
+
+
 def _relationship_block(lead) -> str:
     """Approved relationship history, kept at arm's length from researched fact.
 
@@ -185,6 +210,11 @@ class Command(BaseCommand):
                             help="Write a SECOND touch for leads already emailed once with no reply. The "
                                  "draft acknowledges the earlier note instead of re-introducing Marcus. "
                                  "With --save, the original sent message is archived into notes first.")
+        parser.add_argument("--allow-missing-research", action="store_true",
+                            help="Draft even when a lead's research looks stranded in the legacy "
+                                 "notes field. Held by default: a stranded profile is "
+                                 "indistinguishable from no profile once inside the prompt, and "
+                                 "silently costs the draft everything known about the org.")
         parser.add_argument("--include-held", action="store_true",
                             help="Draft even for leads held for review or disqualified. For "
                                  "inspecting what would be written — the send path still refuses "
@@ -396,8 +426,17 @@ class Command(BaseCommand):
             sys.exit(1)
 
         saved = 0
+        held_for_research = 0
         for label, facts, lead in targets:
             self.stdout.write(self.style.MIGRATE_HEADING(f"\n=== {label}"))
+            gap = research_gap(lead)
+            if gap:
+                self.stderr.write(self.style.ERROR(f"  HELD: {gap}."))
+                if not options["allow_missing_research"]:
+                    held_for_research += 1
+                    continue
+                self.stderr.write(self.style.WARNING(
+                    "  --allow-missing-research given; drafting without it anyway."))
             if not facts:
                 self.stdout.write(self.style.WARNING("  (no facts on file — the draft will be generic by necessity)"))
             agent = Agent(model, output_type=EmailDraft, model_settings={"temperature": 0.7, "timeout": 60})
@@ -450,6 +489,11 @@ class Command(BaseCommand):
                     saved += 1
             self.stdout.write("")
 
+        if held_for_research:
+            self.stderr.write(self.style.ERROR(
+                f"\n{held_for_research} lead(s) held: research is stranded in legacy notes. "
+                "Run `python manage.py check_research_readiness` to see which, then re-run "
+                "seed_lead_intel. Nothing was drafted for them."))
         if options["save"]:
             self.stdout.write(self.style.SUCCESS(
                 f"\n{saved} draft(s) saved to their leads — they're now in the operator cockpit for review. "

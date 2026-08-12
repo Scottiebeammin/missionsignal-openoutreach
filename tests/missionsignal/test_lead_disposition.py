@@ -283,3 +283,68 @@ def test_angle_tracking_still_works_through_the_gate(client, staff, settings):
     msg.refresh_from_db()
     assert msg.status == OutreachMessage.Status.SENT
     assert msg.primary_angle == OutreachAngle.FREE_RESOURCE
+
+
+# ── the stranded-research guard ─────────────────────────────────────────────
+
+def test_stranded_research_is_detected():
+    # Legacy notes present, research_profile empty — a deployment mistake, not a
+    # thin profile. From inside the prompt these look identical.
+    from openoutreach.core.management.commands.preview_cohort_drafts import research_gap
+
+    lead = _lead(notes="Runs a 24-hour shelter. Verified Aug 2026.", research_profile="")
+    assert "stranded" in research_gap(lead)
+
+
+def test_a_genuinely_thin_lead_is_not_flagged_as_stranded():
+    # Nothing was ever researched. That is fine — category-relevant outreach is
+    # legitimate, and holding it would block honest leads.
+    from openoutreach.core.management.commands.preview_cohort_drafts import research_gap
+
+    assert research_gap(_lead(notes="", research_profile="")) == ""
+
+
+def test_a_researched_lead_is_not_flagged():
+    from openoutreach.core.management.commands.preview_cohort_drafts import research_gap
+
+    lead = _lead(notes="old operator chatter", research_profile="Runs a shelter.")
+    assert research_gap(lead) == ""
+
+
+def test_readiness_check_reports_stranded_leads_and_refuses():
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    _lead(notes="stranded research", research_profile="")
+    out, err = StringIO(), StringIO()
+    call_command("check_research_readiness", stdout=out, stderr=err)
+    assert "stranded:     1" in out.getvalue()
+    assert "NOT READY" in err.getvalue()
+
+
+def test_readiness_check_passes_once_research_is_in_the_right_field():
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    _lead(notes="old chatter", research_profile="Runs a 24-hour shelter.")
+    out = StringIO()
+    call_command("check_research_readiness", stdout=out, stderr=StringIO())
+    assert "READY" in out.getvalue()
+
+
+def test_readiness_check_ignores_held_leads():
+    # A disqualified lead is a decision, not a readiness problem — counting it as
+    # stranded would make the check permanently red.
+    from io import StringIO
+
+    from django.core.management import call_command
+
+    lead = _lead(notes="stranded", research_profile="")
+    lead.set_disposition(DispositionReason.ORGANIZATION_CLOSED)
+    lead.save()
+    out = StringIO()
+    call_command("check_research_readiness", stdout=out, stderr=StringIO())
+    assert "stranded:     0" in out.getvalue()
+    assert "held:         1" in out.getvalue()
