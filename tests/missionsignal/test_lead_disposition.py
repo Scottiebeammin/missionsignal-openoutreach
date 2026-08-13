@@ -462,3 +462,43 @@ def test_final_checks_carry_the_rules_that_keep_losing():
     assert "silence is never mentioned" in FINAL_CHECKS
     assert "you didn't reply" in FINAL_CHECKS.lower()
     assert "Both links are actually in the body" in FINAL_CHECKS
+
+
+# ── subject length ──────────────────────────────────────────────────────────
+
+def test_a_long_subject_is_flagged():
+    # A phone truncates around 45 chars, so past that the words reach nobody.
+    from openoutreach.core.management.commands.preview_cohort_drafts import subject_problems
+
+    problems = subject_problems(
+        "VOCA funding through the Attorney General — and what else sits around it")
+    assert any("truncate" in p for p in problems)
+    assert any("trailing clause" in p for p in problems)
+
+
+def test_a_short_concrete_subject_passes():
+    from openoutreach.core.management.commands.preview_cohort_drafts import subject_problems
+
+    assert subject_problems("CINS/FINS after June 30") == []
+    assert subject_problems("Two counties, two funding landscapes") == []
+
+
+def test_the_dash_rule_does_not_fire_on_hyphenated_words():
+    # "Follow-up" and "30-minute" are not trailing clauses.
+    from openoutreach.core.management.commands.preview_cohort_drafts import subject_problems
+
+    assert subject_problems("Follow-up on the 30-minute walkthrough") == []
+
+
+def test_prior_touch_ignores_drafts_the_recipient_never_received():
+    # The bug the Sonnet canary caught: these leads were emailed before
+    # OutreachMessage existed, so they have no sent rows, and every redraft added a
+    # drafted one. The follow-up then avoided an argument nobody had read, which
+    # cost Arnette House its dated CINS/FINS cliff.
+    from openoutreach.signals.models import OutreachMessage
+
+    lead = _lead()
+    OutreachMessage.objects.create(
+        lead=lead, primary_angle=OutreachAngle.CONTRACT_EXPIRATION,
+        status=OutreachMessage.Status.DRAFTED)
+    assert OutreachMessage.last_for(lead, sent_only=True) is None

@@ -200,6 +200,23 @@ or the product's own name. **Never fake a thread with "Re:" or "Fwd:"** — it m
 a conversation that did not happen, and it is the fastest way to make a careful reader
 distrust everything beneath it.
 
+**Length is a hard constraint: aim for four to seven words, and never exceed about 45
+characters.** A phone truncates around there, so everything past it is written for
+nobody. The reader is deciding in a list view, against thirty other subjects, on the
+first three or four words alone.
+
+**One idea. No trailing clause.** The specific failure to avoid is a noun phrase, then a
+dash, then a second thought — it doubles the length and buries the half that mattered.
+
+✗ *VOCA funding through the Attorney General — and what else sits around it* (71)
+✗ *20,000 clients a month on state and county money that's not on Grants.gov* (73)
+✗ *The state/county money the databases don't index* (47, and abstract with it)
+✓ *CINS/FINS after June 30* (23)
+✓ *Two counties, two funding landscapes* (36)
+✓ *Orange County shelter funding* (29)
+
+If it will not fit, the subject is carrying an argument that belongs in the first line.
+
 ### Concreteness — nouns the reader can picture
 
 Prefer: contracts, agencies, departments, county programmes, intermediaries, procurement

@@ -98,10 +98,11 @@ def _angle_menu() -> str:
 
 
 FINAL_CHECKS = """\
-## Before you return the draft — check these four, in order
+## Before you return the draft — check every one of these
 
-Every rule this system has broken was correct and upstream of something that
-contradicted it. These are the four that keep breaking, placed last on purpose.
+Every rule this system has broken was correct and sat upstream of something that
+contradicted it. These are the ones that keep breaking, placed last on purpose,
+because last is the only position that has reliably won.
 
 1. **The close is exactly two options: the founding group, or 30 minutes.** Delete any
    invitation to "explore", "take a look at", "check out" or "see" the site. That is a
@@ -128,7 +129,11 @@ contradicted it. These are the four that keep breaking, placed last on purpose.
    is fair", no "I know you're busy", no claim about how the first note landed — there
    was no landing to observe. Naming the non-reply makes the reader responsible for it.
    They owe nothing. One clause referring back, then the new reason to care.
-9. **Both links are actually in the body.** An invitation to book with no booking URL is
+9. **The subject is under 45 characters.** Count them. A phone truncates around there,
+   so anything past it was written for nobody, and the reader decides in a list view on
+   the first few words. If it does not fit, cut the trailing clause after the dash — the
+   argument it carries belongs in the first line, not the subject.
+10. **Both links are actually in the body.** An invitation to book with no booking URL is
    a request the email does not let them act on, and it reads as complete, so nobody
    catches it. Paste both: the founding group and the 30-minute link.
 """
@@ -195,6 +200,21 @@ def _prohibitions_block(lead) -> str:
         "interesting fact available and the one that ends the conversation. Knowing them "
         "shapes how the email is pitched. Writing them down is the error."
     )
+
+
+#: A phone truncates the subject around here. Past it, the words are written for nobody.
+SUBJECT_MAX_CHARS = 45
+
+
+def subject_problems(subject: str) -> list[str]:
+    """Ways the subject will not survive a phone inbox. Empty list means it is fine."""
+    subject = (subject or "").strip()
+    problems = []
+    if len(subject) > SUBJECT_MAX_CHARS:
+        problems.append(f"{len(subject)} chars (max {SUBJECT_MAX_CHARS}) — will truncate on a phone")
+    if re.search(r"\s[—–-]\s", subject):
+        problems.append("trailing clause after a dash — one idea per subject")
+    return problems
 
 
 #: Words that promise the reader somewhere to go. If one appears and no link does,
@@ -542,7 +562,15 @@ class Command(BaseCommand):
             if lead is None:
                 return ""
             from openoutreach.signals.models import OutreachMessage, angle_family
-            prev = OutreachMessage.last_for(lead, sent_only=True) or OutreachMessage.last_for(lead)
+            # SENT only, with no fallback to drafts. The question this answers is "what
+            # has this person actually read?", and a draft is not that. The fallback was
+            # actively harmful: these leads were emailed before OutreachMessage existed,
+            # so they have no sent rows, and every redraft today added a drafted one —
+            # which made the follow-up avoid an argument the recipient never received.
+            # It cost Arnette House its June 30 CINS/FINS cliff, the strongest dated fact
+            # on the list, in favour of a generic angle the model then self-classified as
+            # category_relevant.
+            prev = OutreachMessage.last_for(lead, sent_only=True)
             if prev is None or not prev.primary_angle:
                 # No record of the opener's angle — say so rather than inventing one.
                 return ("\n\n## The previous touch\n"
@@ -651,6 +679,8 @@ class Command(BaseCommand):
                 continue
             self.stdout.write(f"\nSubject: {draft.subject}\n")
             self.stdout.write(draft.body)
+            for problem in subject_problems(draft.subject):
+                self.stderr.write(self.style.WARNING(f"  SUBJECT: {problem}"))
             cta_issues = cta_problems(draft.body, campaign.booking_link or "")
             for problem in cta_issues:
                 self.stderr.write(self.style.ERROR(f"  CTA: {problem}"))
