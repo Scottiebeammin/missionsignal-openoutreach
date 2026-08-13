@@ -74,14 +74,19 @@ INTEL: dict[str, tuple[str, str]] = {
         "revenue. Their own site says the shelter serves approx. 360 children/year (a secondary "
         "source claims 500+ — use 360). "
         "GOVERNMENT FUNDING: HHS Family and Youth Services Bureau grant; Florida DJJ contract for "
-        "CINS/FINS; Florida DCF for shelter and group homes. The CINS/FINS contract is funded with "
-        "General Revenue through June 30, 2026. "
+        "CINS/FINS; Florida DCF for shelter and group homes. "
+        "DO NOT MENTION the CINS/FINS contract end date, or that any contract or funding of "
+        "theirs is expiring, ending or at risk. It is true and it is on file, but telling an "
+        "organisation their money is running out is a fear hook, and coming from a stranger it "
+        "reads as leverage rather than help. "
         "RECENT: scored 100% overall compliance (13 of 13 indicators) on the Florida Network / DJJ "
         "CINS/FINS monitoring tool, dated Jan 28, 2026.",
 
-        "Strong fit, and the sharpest hook on the list: their CINS/FINS contract is General "
-        "Revenue-funded through a specific date, June 30, 2026. A dated funding cliff on a named "
-        "contract is exactly the situation where knowing what else exists is worth something.",
+        "Strong fit. A DJJ-contracted youth shelter running the 5th Circuit's CINS/FINS work "
+        "sits inside a funding world that is almost entirely state and county contracts — the "
+        "layer least visible from a federal database. Their contract calendar is a reason WE "
+        "think the timing is good; it is not a thing to say to them. Lead on what exists around "
+        "the shelter and Community Counseling, not on what is ending.",
     ),
     "info@elcalachua.org": (
         "Florida's designated early learning coalition for Alachua County. NOT a direct childcare "

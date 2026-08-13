@@ -75,7 +75,7 @@ def _angle_menu() -> str:
         "should care', never 'which database it came from'.",
         "",
         "Also return `angle_detail`: the concrete argument in a few words "
-        "(e.g. 'CINS/FINS contract through 2026-06-30', 'county-provided technical "
+        "(e.g. 'DJJ-contracted youth shelter across the 5th Circuit', 'county-provided technical "
         "assistance program'). Leave it empty if the angle is category-level with no "
         "specific behind it — do not invent one to fill the field.",
         "",
@@ -125,15 +125,19 @@ because last is the only position that has reliably won.
 7. **You are not told what they lack.** No "no visible government funding", no "without
    a grants team", no characterising their operation as under-resourced. That is an
    internal read, and as a sentence to a stranger it is an insult.
-8. **On a follow-up, the silence is never mentioned.** No "you didn't reply", no "which
+8. **Their money is never described as ending.** No contract expiry, no renewal date,
+   no "funding cliff", no "as budgets tighten", no competitor winning a contract in
+   their space. A dated contract shapes OUR timing; naming it to them is a fear hook,
+   and it reads as leverage. Argue from what exists, never from what is running out.
+9. **On a follow-up, the silence is never mentioned.** No "you didn't reply", no "which
    is fair", no "I know you're busy", no claim about how the first note landed — there
    was no landing to observe. Naming the non-reply makes the reader responsible for it.
    They owe nothing. One clause referring back, then the new reason to care.
-9. **The subject is under 45 characters.** Count them. A phone truncates around there,
+10. **The subject is under 45 characters.** Count them. A phone truncates around there,
    so anything past it was written for nobody, and the reader decides in a list view on
    the first few words. If it does not fit, cut the trailing clause after the dash — the
    argument it carries belongs in the first line, not the subject.
-10. **Both links are actually in the body.** An invitation to book with no booking URL is
+11. **Both links are actually in the body.** An invitation to book with no booking URL is
    a request the email does not let them act on, and it reads as complete, so nobody
    catches it. Paste both: the founding group and the 30-minute link.
 """

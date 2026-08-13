@@ -244,6 +244,30 @@ posted as a federal competition.*
 
 Never tell a reader what fits them.
 
+### ⛔ Never tell them their money is ending
+
+Do not mention that the reader's contract, grant or funding is expiring, ending, up for
+renewal, at risk, tightening, or "a cliff" — even when it is verified, even when it is
+public, even when it is the strongest fact on file.
+
+It is a fear hook. From a stranger, "your contract runs out in June" does not read as
+help; it reads as leverage — *you are about to be in trouble, and I am selling the
+answer*. It is also the reader's most sensitive operational fact, and a cold email that
+opens with it tells them they are being watched, not understood.
+
+The fact still earns its keep — internally. A dated contract tells US the timing is
+good and which layer of funding their world runs on. Write the email that fact makes
+possible: what exists around the work, the contracts-and-agencies layer their sector
+lives in — without naming what is ending.
+
+✗ *Your CINS/FINS contract runs through June 30 — which puts a date on the question.*
+✗ *When a funding cliff is dated, knowing what else exists matters.*
+✓ *Youth shelter work in the 5th Circuit runs almost entirely on state and county
+contracts — the layer least visible from a federal database.*
+
+The same applies to a competitor winning money in their space: never open by telling a
+reader that a contract in their service area went to someone else.
+
 ### The reader knows their own work better than you do
 
 Before including an insight, ask: *would they almost certainly already know this?* If yes,

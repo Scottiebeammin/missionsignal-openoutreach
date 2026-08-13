@@ -502,3 +502,25 @@ def test_prior_touch_ignores_drafts_the_recipient_never_received():
         lead=lead, primary_angle=OutreachAngle.CONTRACT_EXPIRATION,
         status=OutreachMessage.Status.DRAFTED)
     assert OutreachMessage.last_for(lead, sent_only=True) is None
+
+
+def test_the_fear_hook_ban_is_in_final_position():
+    # "Your contract runs out in June" is a fear hook — leverage, not help. The rule
+    # lives in FINAL_CHECKS because last position is the only one that reliably wins.
+    from openoutreach.core.management.commands.preview_cohort_drafts import FINAL_CHECKS
+    from openoutreach.core.outreach_style import writing_standard
+
+    assert "never described as ending" in FINAL_CHECKS
+    assert "Never tell them their money is ending" in writing_standard()
+
+
+def test_arnette_profile_marks_the_contract_date_do_not_mention():
+    # The June 30 CINS/FINS date was the profile's headline hook. It is now on the
+    # do-not list, which extract_prohibitions feeds into the prompt's last section.
+    from openoutreach.core.management.commands.preview_cohort_drafts import extract_prohibitions
+    from openoutreach.signals.management.commands.seed_lead_intel import INTEL
+
+    notes, why_fit = INTEL["info@arnettehouse.org"]
+    lead = _lead(research_profile=notes, why_fit=why_fit)
+    prohibitions = " ".join(extract_prohibitions(lead))
+    assert "CINS/FINS contract end date" in prohibitions

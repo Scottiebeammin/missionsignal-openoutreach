@@ -44,7 +44,7 @@ class EmailDraft(BaseModel):
         default="",
         description=(
             "The concrete argument behind primary_angle, in a few words, e.g. "
-            "'CINS/FINS contract through 2026-06-30' or 'county-provided technical "
+            "'DJJ-contracted youth shelter across the 5th Circuit' or 'county-provided technical "
             "assistance program'. Empty if the angle is category-level with no specific."
         ),
     )
