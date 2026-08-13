@@ -451,3 +451,14 @@ def test_why_fit_reaches_the_writer_labelled_as_internal():
     assert "INTERNAL ASSESSMENT" in joined
     assert "never quoted or paraphrased to the reader" in joined
     assert "No evidence of a grants team" in joined
+
+
+def test_final_checks_carry_the_rules_that_keep_losing():
+    # Both of these were written into FOLLOWUP_NOTE first and ignored, because
+    # FINAL_CHECKS is appended after it. Last position is the only one that has
+    # reliably won, so the fragile rules live there.
+    from openoutreach.core.management.commands.preview_cohort_drafts import FINAL_CHECKS
+
+    assert "silence is never mentioned" in FINAL_CHECKS
+    assert "you didn't reply" in FINAL_CHECKS.lower()
+    assert "Both links are actually in the body" in FINAL_CHECKS

@@ -110,7 +110,7 @@ def extract_facts(
 
     from pydantic_ai import Agent
 
-    from openoutreach.core.llm import get_llm_model, run_agent_sync
+    from openoutreach.core.llm import agent_settings, get_llm_model, run_agent_sync
 
     system = _FACT_EXTRACTION_PROMPT + _build_identity_binding(seller_name)
     if context:
@@ -120,7 +120,7 @@ def extract_facts(
         get_llm_model(),
         system_prompt=system,
         output_type=FactList,
-        model_settings={"temperature": 0.0, "timeout": 60},
+        model_settings=agent_settings(temperature=0.0),
     )
     result: FactList = run_agent_sync(agent.run(text)).output
     return list(result.facts)
@@ -265,7 +265,7 @@ def _request_memory_actions(
     """
     from pydantic_ai import Agent
 
-    from openoutreach.core.llm import get_llm_model, run_agent_sync
+    from openoutreach.core.llm import agent_settings, get_llm_model, run_agent_sync
 
     old_memory = [{"id": str(idx), "text": fact} for idx, fact in enumerate(existing)]
     base = get_update_memory_messages(old_memory, new_facts, None)
@@ -275,7 +275,7 @@ def _request_memory_actions(
         f"are contamination — issue a DELETE for them.\n\n{base}"
     )
 
-    agent = Agent(get_llm_model(), model_settings={"temperature": 0.0, "timeout": 60})
+    agent = Agent(get_llm_model(), model_settings=agent_settings(temperature=0.0))
     text = run_agent_sync(agent.run(prompt)).output
     return _ReconcileResponse.model_validate(_parse_memory_response(text)).memory
 

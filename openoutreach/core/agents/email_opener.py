@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 from pydantic_ai import Agent
 
 from openoutreach.core.agents.prompt import base_context, render
-from openoutreach.core.llm import get_llm_model, run_agent_sync
+from openoutreach.core.llm import agent_settings, get_llm_model, run_agent_sync
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ def compose_opener_email(session, deal) -> EmailDraft:
     agent = Agent(
         get_llm_model(),
         output_type=EmailDraft,
-        model_settings={"temperature": 0.7, "timeout": 60},
+        model_settings=agent_settings(temperature=0.7),
     )
     draft = run_agent_sync(agent.run(system_prompt)).output
     if draft is None:

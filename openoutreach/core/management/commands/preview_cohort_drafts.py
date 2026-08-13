@@ -124,6 +124,13 @@ contradicted it. These are the four that keep breaking, placed last on purpose.
 7. **You are not told what they lack.** No "no visible government funding", no "without
    a grants team", no characterising their operation as under-resourced. That is an
    internal read, and as a sentence to a stranger it is an insult.
+8. **On a follow-up, the silence is never mentioned.** No "you didn't reply", no "which
+   is fair", no "I know you're busy", no claim about how the first note landed — there
+   was no landing to observe. Naming the non-reply makes the reader responsible for it.
+   They owe nothing. One clause referring back, then the new reason to care.
+9. **Both links are actually in the body.** An invitation to book with no booking URL is
+   a request the email does not let them act on, and it reads as complete, so nobody
+   catches it. Paste both: the founding group and the 30-minute link.
 """
 
 def normalize_angle(raw: str) -> tuple[str, str]:
@@ -394,6 +401,9 @@ class Command(BaseCommand):
                             help="Write a SECOND touch for leads already emailed once with no reply. The "
                                  "draft acknowledges the earlier note instead of re-introducing Marcus. "
                                  "With --save, the original sent message is archived into notes first.")
+        parser.add_argument("--allow-broken-cta", action="store_true",
+                            help="Save drafts whose close is missing a link. Off by default: a "
+                                 "dead CTA reads as a finished sentence, so it survives review.")
         parser.add_argument("--allow-missing-research", action="store_true",
                             help="Draft even when a lead's research looks stranded in the legacy "
                                  "notes field. Held by default: a stranded profile is "
@@ -606,7 +616,7 @@ class Command(BaseCommand):
         from pydantic_ai import Agent
 
         from openoutreach.core.agents.email_opener import EmailDraft
-        from openoutreach.core.llm import get_llm_model, run_agent_sync
+        from openoutreach.core.llm import agent_settings, get_llm_model, run_agent_sync
 
         try:
             model = get_llm_model()
@@ -620,6 +630,7 @@ class Command(BaseCommand):
 
         saved = 0
         held_for_research = 0
+        broken_cta = 0
         for label, facts, lead in targets:
             self.stdout.write(self.style.MIGRATE_HEADING(f"\n=== {label}"))
             gap = research_gap(lead)
@@ -632,7 +643,7 @@ class Command(BaseCommand):
                     "  --allow-missing-research given; drafting without it anyway."))
             if not facts:
                 self.stdout.write(self.style.WARNING("  (no facts on file — the draft will be generic by necessity)"))
-            agent = Agent(model, output_type=EmailDraft, model_settings={"temperature": 0.7, "timeout": 60})
+            agent = Agent(model, output_type=EmailDraft, model_settings=agent_settings(temperature=0.7))
             try:
                 draft = run_agent_sync(agent.run(build_prompt(facts, lead))).output
             except Exception as exc:  # noqa: BLE001 — one bad draft shouldn't kill the batch
@@ -640,7 +651,8 @@ class Command(BaseCommand):
                 continue
             self.stdout.write(f"\nSubject: {draft.subject}\n")
             self.stdout.write(draft.body)
-            for problem in cta_problems(draft.body, campaign.booking_link or ""):
+            cta_issues = cta_problems(draft.body, campaign.booking_link or "")
+            for problem in cta_issues:
                 self.stderr.write(self.style.ERROR(f"  CTA: {problem}"))
             angle, angle_warning = normalize_angle(draft.primary_angle)
             if angle_warning:
@@ -652,7 +664,14 @@ class Command(BaseCommand):
                     f"\n  [angle: {angle} ({angle_family(angle)})"
                     f"{detail} · {draft.personalization or 'unclassified'}]"))
 
-            if options["save"]:
+            if options["save"] and cta_issues and not options["allow_broken_cta"]:
+                # Warning and saving anyway put five broken drafts in the cockpit, where
+                # they look finished. A defect this mechanical should not be a review task.
+                self.stderr.write(self.style.ERROR(
+                    "  NOT SAVED — the close is broken. Re-run to regenerate this one, "
+                    "or pass --allow-broken-cta to save it for inspection."))
+                broken_cta += 1
+            elif options["save"]:
                 if lead is None:
                     self.stdout.write(self.style.WARNING(
                         "  (not saved — a FloridaOrg is prospect universe, not a lead. Promote it to the "
@@ -687,6 +706,10 @@ class Command(BaseCommand):
                     saved += 1
             self.stdout.write("")
 
+        if broken_cta:
+            self.stderr.write(self.style.ERROR(
+                f"\n{broken_cta} draft(s) NOT saved — the close was missing a link. Re-run the "
+                "same --lead ids to regenerate them."))
         if held_for_research:
             self.stderr.write(self.style.ERROR(
                 f"\n{held_for_research} lead(s) held: research is stranded in legacy notes. "

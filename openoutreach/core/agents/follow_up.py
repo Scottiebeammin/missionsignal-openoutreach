@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field, model_validator
 from pydantic_ai import Agent
 
 from openoutreach.core.agents.prompt import _format_facts
-from openoutreach.core.llm import get_llm_model, run_agent_sync
+from openoutreach.core.llm import agent_settings, get_llm_model, run_agent_sync
 
 logger = logging.getLogger(__name__)
 
@@ -161,7 +161,7 @@ def run_follow_up_agent(session, deal) -> FollowUpDecision:
     agent = Agent(
         get_llm_model(),
         output_type=FollowUpDecision,
-        model_settings={"temperature": 0.7, "timeout": 60},
+        model_settings=agent_settings(temperature=0.7),
     )
     decision = run_agent_sync(agent.run(system_prompt)).output
     if decision is None:

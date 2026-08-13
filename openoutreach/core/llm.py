@@ -172,3 +172,37 @@ def get_llm_model():
     if builder is None:
         raise ValueError(f"Unknown LLM provider: {cfg.llm_provider!r}")
     return builder(cfg)
+
+
+#: Model families that reject a `temperature` parameter outright — the request fails
+#: with a 400 rather than ignoring it. Sending one turns a model switch into an
+#: outage, and the error surfaces per-draft rather than at configuration time.
+_NO_TEMPERATURE_PREFIXES = ("claude-opus-5", "claude-sonnet-5", "claude-fable-5")
+
+
+def agent_settings(*, temperature: float = 0.7, timeout: int = 60) -> dict:
+    """Model settings that survive changing the configured model.
+
+    `temperature` was hardcoded at five call sites. On Haiku 4.5 that is fine; on
+    Opus 5 or Sonnet 5 every call 400s. Switching model in SiteConfig — a
+    configuration change, made in an admin form — would have broken drafting
+    entirely, with the failure appearing once per draft instead of once up front.
+
+    So the caller states the temperature it wants, and this drops it when the model
+    in force cannot accept one.
+    """
+    settings: dict = {"timeout": timeout}
+    # Read the model name directly rather than through _validated_site_config, which
+    # also demands an API key. The key is irrelevant to whether a model accepts a
+    # temperature, and coupling them meant the lookup failed on any box without a key
+    # and fell back to INCLUDING temperature — the unsafe direction.
+    model_name = ""
+    try:
+        from openoutreach.core.models import SiteConfig
+        cfg = SiteConfig.objects.first()
+        model_name = ((cfg.ai_model if cfg else "") or "").strip().lower()
+    except Exception:  # noqa: BLE001 — never break a draft on a settings lookup
+        pass
+    if not any(model_name.startswith(p) for p in _NO_TEMPERATURE_PREFIXES):
+        settings["temperature"] = temperature
+    return settings
