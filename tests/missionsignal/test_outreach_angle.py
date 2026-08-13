@@ -227,3 +227,34 @@ def test_the_angle_menu_reaches_every_draft_prompt(campaign):
         assert f"**{family}:**" in prompt
     assert OutreachAngle.TECHNICAL_ASSISTANCE in prompt
     assert OutreachAngle.PARTNERSHIP_PATHWAY in prompt
+
+
+# ── invalid angle values must not silently poison the comparison ────────────
+
+def test_a_value_family_is_not_accepted_as_an_angle():
+    # The model returned "funding" — a family name. Stored verbatim it fails the
+    # family lookup and drops that message out of the follow-up comparison
+    # entirely, because angle_is_materially_new can only compare real angles.
+    from openoutreach.core.management.commands.preview_cohort_drafts import normalize_angle
+
+    angle, warning = normalize_angle("funding")
+    assert angle == OutreachAngle.UNCLASSIFIED
+    assert "not an angle" in warning
+
+
+def test_a_real_angle_passes_through_unchanged():
+    from openoutreach.core.management.commands.preview_cohort_drafts import normalize_angle
+
+    assert normalize_angle("County_Funding ") == (OutreachAngle.COUNTY_FUNDING, "")
+
+
+def test_an_empty_angle_stays_empty_rather_than_becoming_unclassified():
+    # "" means the model was not asked; unclassified means it was asked and failed.
+    from openoutreach.core.management.commands.preview_cohort_drafts import normalize_angle
+
+    assert normalize_angle("") == ("", "")
+
+
+def test_unclassified_never_blocks_a_follow_up():
+    # An unclassified previous angle is not a repeat of anything.
+    assert angle_is_materially_new(OutreachAngle.UNCLASSIFIED, OutreachAngle.FREE_RESOURCE)

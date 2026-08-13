@@ -148,6 +148,30 @@ A fact can be historically accurate and still wrong to state in the present tens
 freshness cannot be established, either drop it or frame it plainly as history. **Never
 convert an old researched fact into a present-tense claim.**
 
+### ⛔ Greeting by name — the rule that got two people's names wrong
+
+**Never greet by a personal name unless BOTH are true:**
+
+1. the address belongs to that one person (see the address section — a shared or role
+   inbox is never greeted by name), and
+2. the profile confirms they **currently** hold the role.
+
+Leadership is the single most perishable fact in any profile. A name that was right
+last year addresses someone who has left, which tells the reader — and their
+successor — that nothing here was checked.
+
+Read the profile for the transition before using any name. If it mentions a
+succession, an interim, a departure or a search, **the name is disqualified**: you
+cannot tell from a summary which side of the change you are on, and guessing wrong
+opens the email by naming the wrong person. If the profile instructs you not to
+address someone by name, that instruction wins over everything in this section.
+
+✗ *Mark,* — when the profile says a new CEO succeeded Mark in June
+✗ *Darius —* — when the profile records an interim appointed after him
+✓ open on the substance, with no name at all
+
+A missing greeting costs nothing. A wrong one is the first thing they read.
+
 ### First lines — sentence one must earn sentence two
 
 Open with a verified consequential fact, a real circumstance, a named mechanism, or a

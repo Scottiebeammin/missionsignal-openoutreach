@@ -348,3 +348,37 @@ def test_readiness_check_ignores_held_leads():
     call_command("check_research_readiness", stdout=out, stderr=StringIO())
     assert "stranded:     0" in out.getvalue()
     assert "held:         1" in out.getvalue()
+
+
+# ── who is actually behind the address ──────────────────────────────────────
+
+@pytest.mark.parametrize("email,expected", [
+    ("hello@gracemarketplace.org", "shared"),
+    ("info@arnettehouse.org", "shared"),
+    ("admin@projecthopeocala.org", "shared"),
+    ("llewis@habitatocala.org", "personal"),
+    ("jross@arcalachua.org", "personal"),
+    ("marketing@victimservicecenter.org", "role"),
+    ("", "shared"),
+])
+def test_address_kind(email, expected):
+    from openoutreach.core.management.commands.preview_cohort_drafts import address_kind
+    assert address_kind(email) == expected
+
+
+def test_a_shared_inbox_is_told_not_to_greet_by_name():
+    # 18 of the 20 cold leads are shared inboxes. Greeting one by a personal name is
+    # wrong twice over: the named person may not read it, and the name may be stale.
+    from openoutreach.core.management.commands.preview_cohort_drafts import _address_note
+
+    note = _address_note(_lead(email="info@arnettehouse.org"))
+    assert "DO NOT GREET BY NAME" in note
+    assert "survives being forwarded" in note
+
+
+def test_a_personal_address_permits_a_name_but_conditions_it():
+    from openoutreach.core.management.commands.preview_cohort_drafts import _address_note
+
+    note = _address_note(_lead(email="jross@arcalachua.org"))
+    assert "DO NOT GREET BY NAME" not in note
+    assert "currently holds the role" in note

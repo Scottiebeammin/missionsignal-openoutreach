@@ -41,6 +41,7 @@ the training signal for batch N+1. Small batches are what makes it improve.
 """
 from __future__ import annotations
 
+import re
 import sys
 
 from django.core.management.base import BaseCommand
@@ -96,6 +97,48 @@ def _angle_menu() -> str:
     return "\n".join(lines)
 
 
+FINAL_CHECKS = """\
+## Before you return the draft — check these four, in order
+
+Every rule this system has broken was correct and upstream of something that
+contradicted it. These are the four that keep breaking, placed last on purpose.
+
+1. **The close is exactly two options: the founding group, or 30 minutes.** Delete any
+   invitation to "explore", "take a look at", "check out" or "see" the site. That is a
+   third option, it is the easiest one on the page, and it is therefore the one they
+   take instead of either real one — while implying results already exist for an
+   organization that has no workspace.
+2. **No name in the greeting** unless the address is one person's mailbox AND the
+   profile confirms they currently hold the role. If the profile mentions a
+   succession, an interim or a departure, use no name.
+3. **You did not look anything up.** Delete "I saw", "I noticed", "I came across",
+   "I was reading". State the fact plainly instead — the fact is allowed, narrating
+   having found it is not.
+4. **Every specific traces to the profile.** Any programme, date, figure, funder or
+   role that is not in it comes out.
+"""
+
+def normalize_angle(raw: str) -> tuple[str, str]:
+    """Return (angle, warning). An unrecognised value is recorded as unclassified.
+
+    The model returned "funding" once — a value-family name, not an angle. Stored
+    verbatim it fails the family lookup and shows as "(unknown)", which silently
+    removes that message from the follow-up comparison: `angle_is_materially_new`
+    can only tell a repeat from a change if both sides are real angles. Better to
+    record honestly that it was not classified, and say so.
+    """
+    from openoutreach.signals.models import ANGLE_FAMILY, OutreachAngle
+
+    value = (raw or "").strip().lower()
+    if not value:
+        return "", ""
+    if value in ANGLE_FAMILY or value == OutreachAngle.UNCLASSIFIED:
+        return value, ""
+    return (OutreachAngle.UNCLASSIFIED,
+            f"model returned {raw!r}, which is not an angle "
+            f"(a value family is not an angle) — recorded as unclassified")
+
+
 def _lead_facts(lead) -> list[str]:
     """Verified facts about a SalesLead — nothing inferred, nothing invented.
 
@@ -126,6 +169,65 @@ def _lead_facts(lead) -> list[str]:
     if lead.research_profile:
         facts.append(f"Researched profile: {lead.research_profile}")
     return facts
+
+
+#: Local-parts that are a desk, not a person. A greeting by first name to one of
+#: these is wrong twice: the named person may not read it, and the name may be stale.
+_SHARED_LOCALPARTS = frozenset({
+    "info", "hello", "contact", "admin", "office", "mail", "general", "inquiries",
+    "information", "administration", "frontdesk", "frontoffice", "reception", "support",
+    "help", "team", "staff", "main", "service", "services", "school", "secretary",
+})
+#: A function rather than an inbox — a person may read it, but not necessarily the
+#: one named on the lead.
+_ROLE_LOCALPARTS = frozenset({
+    "marketing", "development", "recovery", "giving", "donate", "volunteer", "grants",
+    "outreach", "media", "press", "hr", "jobs", "enroll", "admissions", "registrar",
+    "principal", "director", "intake", "business", "askjp",
+})
+
+
+def address_kind(email: str) -> str:
+    """'personal', 'role' or 'shared' — who is actually behind this address.
+
+    Deterministic, because the alternative is the model inferring it from a name that
+    may be years out of date. Eighteen of the twenty cold leads are shared inboxes.
+    """
+    local = re.sub(r"[^a-z]", "", (email or "").split("@")[0].lower())
+    if not local:
+        return "shared"
+    if local in _SHARED_LOCALPARTS:
+        return "shared"
+    if local in _ROLE_LOCALPARTS or any(r in local for r in _ROLE_LOCALPARTS):
+        return "role"
+    return "personal"
+
+
+def _address_note(lead) -> str:
+    """Tell the writer what kind of address this is, and how to open because of it."""
+    if lead is None or not getattr(lead, "email", ""):
+        return ""
+    kind = address_kind(lead.email)
+    if kind == "personal":
+        return (
+            "\n\n## The address\n"
+            f"`{lead.email}` looks like one person's mailbox. A first-name greeting is "
+            "appropriate IF the profile confirms who currently holds the role — see the "
+            "greeting rule. If it does not, greet without a name."
+        )
+    what = "a shared inbox" if kind == "shared" else "a role or department address"
+    return (
+        "\n\n## The address — DO NOT GREET BY NAME\n"
+        f"`{lead.email}` is {what}, not one person's mailbox. Whoever opens it is often "
+        "an administrator rather than the leader, so:\n"
+        "- **Open without a personal name.** No 'Dana —', no 'Hi Dana'. Start with the "
+        "substance, or a plain 'Hello'.\n"
+        "- **Write so it survives being forwarded.** The first reader may not be the "
+        "decision-maker; the email has to make sense to a second reader with no context, "
+        "and give the first one an obvious reason to pass it on.\n"
+        "- The subject line carries more weight than usual, because the person who "
+        "decides whether to forward it may read nothing else."
+    )
 
 
 def research_gap(lead) -> str:
@@ -379,6 +481,7 @@ class Command(BaseCommand):
                 company_intel="",
             )
             prompt += "\n\n" + ANGLE_MENU
+            prompt += _address_note(lead)
             prompt += _relationship_block(lead)
             if options["followup"]:
                 # email_opener.j2 opens by asserting "writing a first cold outreach
@@ -395,6 +498,9 @@ class Command(BaseCommand):
                 )
                 prompt += "\n\n## This email is a follow-up — read this last\n" + FOLLOWUP_NOTE
                 prompt += prior_angle_block(lead)
+            # Last position, deliberately: this is the only slot that has reliably
+            # beaten a contradicting rule elsewhere in the prompt.
+            prompt += "\n\n" + FINAL_CHECKS
             return prompt
 
         if options["prompt_only"]:
@@ -447,11 +553,14 @@ class Command(BaseCommand):
                 continue
             self.stdout.write(f"\nSubject: {draft.subject}\n")
             self.stdout.write(draft.body)
-            if draft.primary_angle:
+            angle, angle_warning = normalize_angle(draft.primary_angle)
+            if angle_warning:
+                self.stderr.write(self.style.WARNING(f"  {angle_warning}"))
+            if angle:
                 from openoutreach.signals.models import angle_family
                 detail = f" · {draft.angle_detail}" if draft.angle_detail else ""
                 self.stdout.write(self.style.HTTP_INFO(
-                    f"\n  [angle: {draft.primary_angle} ({angle_family(draft.primary_angle)})"
+                    f"\n  [angle: {angle} ({angle_family(angle)})"
                     f"{detail} · {draft.personalization or 'unclassified'}]"))
 
             if options["save"]:
@@ -478,7 +587,7 @@ class Command(BaseCommand):
                         sequence_position=(prior.sequence_position + 1) if prior else 1,
                         subject=draft.subject.strip()[:300],
                         body=draft.body,
-                        primary_angle=(draft.primary_angle or "").strip().lower()[:40],
+                        primary_angle=angle[:40],
                         angle_detail=(draft.angle_detail or "").strip()[:300],
                         personalization=(draft.personalization or "").strip().lower()[:20],
                         status=OutreachMessage.Status.DRAFTED,
