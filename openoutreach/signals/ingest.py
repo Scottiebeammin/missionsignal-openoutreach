@@ -24,6 +24,7 @@ else is counted as skipped and never persisted.
 from __future__ import annotations
 
 import logging
+import os
 import re
 from dataclasses import dataclass, field
 
@@ -381,3 +382,88 @@ def ingest_mailbox(transport, *, mailbox: str, owner: str) -> IngestStats:
         cursor.last_error = "one or more messages failed to ingest — cursor held"
     cursor.save()
     return stats
+
+
+# ── mailbox freshness — the autonomous-send safety gate ─────────────────────
+
+#: Default ceiling on how old the last *successful* ingestion may be before
+#: autonomous sending must hold. Polling is every 30 minutes (render.yaml), so
+#: 75 minutes tolerates exactly one missed or failed cycle plus normal cron
+#: jitter; a second consecutive failure trips the gate. Blind sending is capped
+#: at roughly one and a quarter hours, never "the auth broke Friday night and it
+#: kept mailing all weekend". Override via OUTREACH_MAILBOX_MAX_STALENESS_MINUTES.
+DEFAULT_MAX_STALENESS_MINUTES = 75
+
+
+def max_staleness_minutes() -> int:
+    raw = os.getenv("OUTREACH_MAILBOX_MAX_STALENESS_MINUTES", "").strip()
+    try:
+        return int(raw) if raw else DEFAULT_MAX_STALENESS_MINUTES
+    except ValueError:
+        logger.warning("OUTREACH_MAILBOX_MAX_STALENESS_MINUTES=%r is not an integer — "
+                       "using the default %s", raw, DEFAULT_MAX_STALENESS_MINUTES)
+        return DEFAULT_MAX_STALENESS_MINUTES
+
+
+def mailbox_freshness_hold(now=None) -> str:
+    """Why AUTONOMOUS outbound sending must hold, or "" when it may proceed.
+
+    The invariant this encodes: the system's belief that a prospect has not
+    replied, bounced, or asked to stop is only as good as its last successful
+    look at the inbound mailbox(es). When that look is missing, stale, or
+    failing, autonomous sending FAILS CLOSED — it holds, it does not warn-and-
+    continue. A hold here is mailbox health, never evidence about any lead: it
+    must not disqualify anyone, create an EmailOptOut, or write lead state.
+
+    Holds when ANY of:
+
+    * no inbound mailbox is configured at all (no reply visibility exists);
+    * a required mailbox has never completed a successful ingestion;
+    * its last SUCCESSFUL ingestion (never merely the last attempt) is older
+      than the configured window;
+    * its most recent attempt failed (auth/config/cursor errors land in
+      ``last_error``, which a clean pass clears) — a known-broken pipe holds
+      immediately rather than coasting on a still-in-window old success.
+
+    Both configured mailboxes must pass; ``configured_mailboxes()`` already
+    collapses the alias case to one. Recovery is automatic: the next clean
+    ``ingest_outreach_mail`` run refreshes ``last_success_at`` and clears
+    ``last_error``, releasing the hold with no human step.
+
+    The future autonomous runner MUST call this after ingesting and before
+    evaluating a single send, in this order — ingest inbound mail → verify
+    freshness (this function) → evaluate suppression/reply/disposition gates →
+    atomically claim eligible messages → send → finalize. Never queue-first-
+    ingest-later, and never rely on cron ordering instead of this check: cron
+    ordering is convenience, this persistent state is the guarantee. Manual
+    cockpit sends are governed separately (a human may have read Gmail
+    themselves); any manual override of a stale-mailbox warning must be
+    explicit in the UI and must never leak into the autonomous path.
+
+    Carried forward for that runner, per the Gap 3A/3B conclusion — the send
+    itself should become: atomic SENDING claim (two workers cannot claim one
+    message) → commit → SMTP outside any long transaction → finalize
+    SENT/SEND_FAILED/AMBIGUOUS, with a stuck-claim sweep, no auto-retry of
+    AMBIGUOUS, and the pre-minted RFC Message-ID preserved across the whole
+    logical attempt. Not implemented here.
+    """
+    from openoutreach.signals.gmail_transport import configured_mailboxes
+    from openoutreach.signals.models import MailboxCursor
+
+    now = now or timezone.now()
+    boxes = configured_mailboxes()
+    if not boxes:
+        return ("no inbound mailbox configured — reply/bounce visibility does not "
+                "exist, autonomous sending would be blind")
+    window = timezone.timedelta(minutes=max_staleness_minutes())
+    for mailbox in boxes:
+        cursor = MailboxCursor.objects.filter(mailbox=mailbox).first()
+        if cursor is None or not cursor.last_success_at:
+            return f"{mailbox}: never successfully ingested"
+        if cursor.last_error:
+            return f"{mailbox}: most recent ingestion attempt failed ({cursor.last_error[:200]})"
+        age = now - cursor.last_success_at
+        if age > window:
+            return (f"{mailbox}: last successful ingestion is {int(age.total_seconds() // 60)} "
+                    f"minutes old (limit {max_staleness_minutes()})")
+    return ""
