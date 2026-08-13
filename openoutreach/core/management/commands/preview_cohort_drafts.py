@@ -116,6 +116,14 @@ contradicted it. These are the four that keep breaking, placed last on purpose.
    having found it is not.
 4. **Every specific traces to the profile.** Any programme, date, figure, funder or
    role that is not in it comes out.
+5. **At most ONE funding stream, named with its correct administering agency.** A list
+   reads as a database dump, and a stream from the wrong sector — housing money to a
+   food pantry — says you did not read what they do.
+6. **Nothing from the profile's do-not list appears.** Re-read that section. Each item
+   is the most quotable fact available, which is exactly why it is listed.
+7. **You are not told what they lack.** No "no visible government funding", no "without
+   a grants team", no characterising their operation as under-resourced. That is an
+   internal read, and as a sentence to a stranger it is an insult.
 """
 
 def normalize_angle(raw: str) -> tuple[str, str]:
@@ -137,6 +145,74 @@ def normalize_angle(raw: str) -> tuple[str, str]:
     return (OutreachAngle.UNCLASSIFIED,
             f"model returned {raw!r}, which is not an angle "
             f"(a value family is not an angle) — recorded as unclassified")
+
+
+#: Lines in a profile that are prohibitions rather than facts. They were being read
+#: as context and used as material — #248 opened by telling a trafficking-shelter
+#: provider that a county contract had gone to a competitor, which its own why_fit
+#: said in plain words not to say to them.
+_PROHIBITION_MARKERS = (
+    "do not mention", "do not say", "do not reference", "do not cite",
+    "never mention", "never name", "never say", "do not assert",
+    "handle with care", "do not quote", "do not present",
+)
+
+
+def extract_prohibitions(lead) -> list[str]:
+    """Pull the do-not lines out of the profile so they can be restated last.
+
+    Left inline they sit in the middle of a wall of context, competing with the very
+    fact they forbid — and the fact always wins, because the fact is interesting and
+    the prohibition is housekeeping. Restating them at the end is the same fix that
+    worked for every other rule this system kept breaking.
+    """
+    found: list[str] = []
+    for source in (getattr(lead, "research_profile", ""), getattr(lead, "why_fit", "")):
+        for sentence in re.split(r"(?<=[.!?])\s+|\n", source or ""):
+            clean = sentence.strip()
+            if clean and any(m in clean.lower() for m in _PROHIBITION_MARKERS):
+                found.append(clean)
+    return found
+
+
+def _prohibitions_block(lead) -> str:
+    """Restate the profile's prohibitions in last position, as prohibitions."""
+    items = extract_prohibitions(lead)
+    if not items:
+        return ""
+    lines = "\n".join(f"- {i}" for i in items)
+    return (
+        "\n\n## ⛔ Do not write these — from this reader's own profile\n"
+        f"{lines}\n\n"
+        "These are true, which is exactly why they are dangerous: each one is the most "
+        "interesting fact available and the one that ends the conversation. Knowing them "
+        "shapes how the email is pitched. Writing them down is the error."
+    )
+
+
+#: Words that promise the reader somewhere to go. If one appears and no link does,
+#: the email asks for an action it does not enable.
+_CTA_INTENT = ("30 minutes", "book ", "grab ", "walk through", "founding group", "join the")
+
+
+def cta_problems(body: str, booking_link: str, site: str = "anansiatlas.com") -> list[str]:
+    """Ways this draft's close is broken. Empty list means it is fine.
+
+    Three drafts closed with "book 30 minutes with me to walk through..." and simply
+    stopped — a call to action with nowhere to click. That is invisible in review
+    because the sentence reads complete.
+    """
+    text = (body or "").lower()
+    problems = []
+    invites = any(w in text for w in _CTA_INTENT)
+    if booking_link and booking_link.lower() not in text:
+        if invites:
+            problems.append("invites a meeting but the booking link is missing — dead CTA")
+        else:
+            problems.append("no booking link")
+    if site and site not in text:
+        problems.append(f"no {site} link — one of the two commercial options is absent")
+    return problems
 
 
 def _lead_facts(lead) -> list[str]:
@@ -165,7 +241,13 @@ def _lead_facts(lead) -> list[str]:
     if lead.region:
         facts.append(f"Region: {lead.region}")
     if lead.why_fit:
-        facts.append(f"Why they're a fit: {lead.why_fit}")
+        # Labelled as an internal read, not a fact about them. It contains judgements
+        # like "no evidence of a grants team" — accurate, useful for deciding how to
+        # pitch, and insulting if quoted back. #246 and #247 told two organizations
+        # their development operation was inadequate, in those words.
+        facts.append(
+            "INTERNAL ASSESSMENT — shapes the pitch, never quoted or paraphrased to the "
+            f"reader, and never stated as something we have concluded about them: {lead.why_fit}")
     if lead.research_profile:
         facts.append(f"Researched profile: {lead.research_profile}")
     return facts
@@ -430,7 +512,11 @@ class Command(BaseCommand):
             "to make a careful reader distrust everything under it. Write a plain subject.\n\n"
             "NEVER offer to 'pass this along to someone else at the organization'. Marcus does not "
             "know anyone else there — that is the recipient's introduction to make, not his. If "
-            "they are the wrong person, the right line invites THEM to forward it."
+            "they are the wrong person, the right line invites THEM to forward it.\n\n"
+            "NEVER characterise the silence. Not 'you didn't reply', not 'I know you're busy', "
+            "not 'that one landed differently than I expected' — there was no landing to observe, "
+            "and naming the non-reply makes the reader responsible for it. They owe nothing. "
+            "Open on the new reason to care and let the earlier note be a single clause."
         )
 
         ANGLE_MENU = _angle_menu()
@@ -483,6 +569,7 @@ class Command(BaseCommand):
             prompt += "\n\n" + ANGLE_MENU
             prompt += _address_note(lead)
             prompt += _relationship_block(lead)
+            prompt += _prohibitions_block(lead)
             if options["followup"]:
                 # email_opener.j2 opens by asserting "writing a first cold outreach
                 # email ... You have never spoken before." A follow-up directive
@@ -553,6 +640,8 @@ class Command(BaseCommand):
                 continue
             self.stdout.write(f"\nSubject: {draft.subject}\n")
             self.stdout.write(draft.body)
+            for problem in cta_problems(draft.body, campaign.booking_link or ""):
+                self.stderr.write(self.style.ERROR(f"  CTA: {problem}"))
             angle, angle_warning = normalize_angle(draft.primary_angle)
             if angle_warning:
                 self.stderr.write(self.style.WARNING(f"  {angle_warning}"))

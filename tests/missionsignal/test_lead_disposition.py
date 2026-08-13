@@ -382,3 +382,72 @@ def test_a_personal_address_permits_a_name_but_conditions_it():
     note = _address_note(_lead(email="jross@arcalachua.org"))
     assert "DO NOT GREET BY NAME" not in note
     assert "currently holds the role" in note
+
+
+# ── a CTA with nowhere to click ─────────────────────────────────────────────
+
+BOOKING = "https://cal.com/marcus-scott-br7maf/30min"
+
+
+def test_a_dead_cta_is_caught():
+    # Three drafts closed "book 30 minutes with me to walk through..." and stopped.
+    # Invisible in review, because the sentence reads complete.
+    from openoutreach.core.management.commands.preview_cohort_drafts import cta_problems
+
+    problems = cta_problems("book 30 minutes with me to walk through it.", BOOKING)
+    assert any("dead CTA" in p for p in problems)
+
+
+def test_a_complete_close_passes():
+    from openoutreach.core.management.commands.preview_cohort_drafts import cta_problems
+
+    body = f"You can join the founding group at anansiatlas.com, or {BOOKING}"
+    assert cta_problems(body, BOOKING) == []
+
+
+def test_a_missing_signup_option_is_caught():
+    # Rule 7: exactly two commercial destinations. One is not two.
+    from openoutreach.core.management.commands.preview_cohort_drafts import cta_problems
+
+    problems = cta_problems(f"grab 30 minutes: {BOOKING}", BOOKING)
+    assert any("anansiatlas.com" in p for p in problems)
+
+
+# ── prohibitions must survive to last position ──────────────────────────────
+
+def test_prohibitions_are_extracted_from_the_profile():
+    from openoutreach.core.management.commands.preview_cohort_drafts import extract_prohibitions
+
+    lead = _lead(
+        research_profile="Runs three homes. DO NOT MENTION: the county contract went elsewhere.",
+        why_fit="Strong fit. Do not say that to them.")
+    found = " ".join(extract_prohibitions(lead))
+    assert "county contract went elsewhere" in found
+    assert "Do not say that to them" in found
+
+
+def test_a_profile_without_prohibitions_adds_no_block():
+    from openoutreach.core.management.commands.preview_cohort_drafts import _prohibitions_block
+
+    assert _prohibitions_block(_lead(research_profile="Runs a shelter.", why_fit="Good fit.")) == ""
+
+
+def test_the_prohibitions_block_restates_them_as_prohibitions():
+    from openoutreach.core.management.commands.preview_cohort_drafts import _prohibitions_block
+
+    lead = _lead(why_fit="DO NOT MENTION the net loss.")
+    block = _prohibitions_block(lead)
+    assert "Do not write these" in block
+    assert "net loss" in block
+
+
+# ── why_fit is an internal read, not quotable copy ──────────────────────────
+
+def test_why_fit_reaches_the_writer_labelled_as_internal():
+    # It contains "no evidence of a grants team" — accurate, useful for pitching,
+    # and an insult if quoted back. Two drafts told organizations exactly that.
+    lead = _lead(why_fit="Strong fit. No evidence of a grants team.")
+    joined = " ".join(_lead_facts(lead))
+    assert "INTERNAL ASSESSMENT" in joined
+    assert "never quoted or paraphrased to the reader" in joined
+    assert "No evidence of a grants team" in joined
