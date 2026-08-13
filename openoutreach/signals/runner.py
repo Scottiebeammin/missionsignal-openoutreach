@@ -68,6 +68,15 @@ SKIP_OPTED_OUT = "SKIP_OPTED_OUT"
 NEEDS_DRAFT = "NEEDS_DRAFT"
 INVALID_DRAFT = "INVALID_DRAFT"
 
+#: Live-execution outcomes (mode="live" RunnerDecision rows). Shadow never
+#: emits these — they exist only past the point where a claim was attempted.
+LIVE_SENT = "LIVE_SENT"
+LIVE_SEND_FAILED = "LIVE_SEND_FAILED"
+LIVE_AMBIGUOUS = "LIVE_AMBIGUOUS"
+LIVE_BLOCKED_FINAL_GATE = "LIVE_BLOCKED_FINAL_GATE"
+SKIP_SPACING = "SKIP_SPACING"
+SKIP_BATCH_LIMIT = "SKIP_BATCH_LIMIT"
+
 CANDIDATE_CODES = (WOULD_SEND_FIRST_TOUCH, WOULD_SEND_FOLLOWUP)
 
 
@@ -153,15 +162,69 @@ def autosend_enabled() -> bool:
 
 # ── pacing ───────────────────────────────────────────────────────────────────
 
+#: Sends per cron invocation, deliberately 1: MIN_SECONDS_BETWEEN_SENDS is
+#: enforced from persisted state with no sleeps, so a second send in the same
+#: seconds-long invocation could never satisfy a 180s gap anyway. Volume comes
+#: from cron frequency (every 10–15 min → the 20/day cap is reached over a few
+#: hours), never from a long-running process. Raise this only together with a
+#: lower MIN_SECONDS.
+DEFAULT_MAX_SENDS_PER_RUN = 1
+
+
+def max_sends_per_run() -> int:
+    return _int_env("OUTREACH_MAX_SENDS_PER_RUN", DEFAULT_MAX_SENDS_PER_RUN)
+
+
 def sends_today(now=None) -> int:
-    """SENT messages since local midnight — the daily-cap ledger. Counted from
-    actual SENT rows only, so shadow runs consume no capacity."""
+    """SENT messages since local midnight. Shadow runs consume none."""
     from openoutreach.signals.models import OutreachMessage
 
     now = now or timezone.now()
     return OutreachMessage.objects.filter(
         status=OutreachMessage.Status.SENT,
         sent_at__date=timezone.localtime(now).date()).count()
+
+
+def capacity_consumed_today(now=None) -> int:
+    """The daily-cap ledger: confirmed sends PLUS ambiguous attempts.
+
+    An AMBIGUOUS failure may have been delivered — the recipient may be holding
+    that email — so it conservatively consumes capacity for the day. Definitive
+    failures (recipient refused, connection never opened) provably delivered
+    nothing and do not.
+    """
+    from openoutreach.signals.models import OutreachMessage
+
+    now = now or timezone.now()
+    today = timezone.localtime(now).date()
+    ambiguous = OutreachMessage.objects.filter(
+        status=OutreachMessage.Status.SEND_FAILED,
+        send_error__startswith="AMBIGUOUS",
+        updated_at__date=today).count()
+    return sends_today(now) + ambiguous
+
+
+def last_successful_send_at():
+    """When the most recent Atlas outreach send was accepted, or None. The
+    persisted spacing anchor — no in-process state, so it works across cron
+    invocations and worker restarts."""
+    from openoutreach.signals.models import OutreachMessage
+
+    latest = (OutreachMessage.objects.filter(status=OutreachMessage.Status.SENT)
+              .exclude(sent_at=None).order_by("-sent_at").first())
+    return latest.sent_at if latest else None
+
+
+def spacing_wait_seconds(now=None) -> float:
+    """Seconds until the minimum send spacing has elapsed; 0 = clear to send.
+    Never slept through — a run that finds spacing unmet stops and lets the
+    next cron invocation try."""
+    now = now or timezone.now()
+    last = last_successful_send_at()
+    if last is None:
+        return 0.0
+    elapsed = (now - last).total_seconds()
+    return max(0.0, min_seconds_between_sends() - elapsed)
 
 
 # ── deterministic draft validation ───────────────────────────────────────────
@@ -421,13 +484,14 @@ def evaluate_campaign(*, segment=None, now=None, assume_fresh=False) -> RunResul
                     key=lambda d: d.lead.pk)
     others = [d for d in decisions if d.code not in CANDIDATE_CODES]
 
-    remaining = max(0, daily_send_limit() - sends_today(now))
+    consumed = capacity_consumed_today(now)
+    remaining = max(0, daily_send_limit() - consumed)
     ordered_candidates = followups + firsts
     for i, d in enumerate(ordered_candidates):
         if i >= remaining:
             d.code = SKIP_CAP_REACHED
-            d.reason = (f"daily cap: {daily_send_limit()} allowed, {sends_today(now)} "
-                        f"already sent today, position {i + 1} in queue")
+            d.reason = (f"daily cap: {daily_send_limit()} allowed, {consumed} "
+                        f"consumed today (sent + ambiguous), position {i + 1} in queue")
 
     result.decisions = ordered_candidates + others
     return result
@@ -478,3 +542,107 @@ def hold_stuck_claims(*, now=None, max_age_minutes: int = STUCK_CLAIM_MINUTES) -
                                "(worker died mid-send?). Delivery state unknown: check "
                                "the sending mailbox's Sent folder before any retry; a "
                                "retry reuses the same Message-ID."))
+
+
+# ── the live delivery path (Gap 4B — built, tested, DISABLED in production) ──
+
+def final_presend_block(message, *, now=None) -> str:
+    """Why this claimed message may not go to SMTP after all, or "".
+
+    The deterministic recheck that closes the race between queue construction
+    and delivery: everything here is cheap (no AI, no network) and re-read from
+    the database at the last moment. An opt-out, reply, terminal outcome, or
+    disposition hold that landed after candidate selection stops the send here.
+    """
+    from openoutreach.signals import outreach
+    from openoutreach.signals.models import OutreachMessage
+    from openoutreach.signals.unsubscribe import is_opted_out
+
+    message.refresh_from_db()
+    if message.status != OutreachMessage.Status.SENDING:
+        return f"message is no longer claimed (status: {message.status})"
+    lead = message.lead
+    lead.refresh_from_db()
+    if not outreach.OUTREACH_MAILING_ADDRESS:
+        return "OUTREACH_MAILING_ADDRESS is not set — CAN-SPAM footer unavailable"
+    if is_opted_out(lead.email):
+        return f"{lead.email} opted out since selection"
+    block = lead.cold_outreach_block()
+    if block:
+        return block
+    hold = lead.followup_hold()
+    if hold:
+        return hold
+    if OutreachMessage.objects.filter(
+            lead=lead, subject=message.subject.strip()[:300], body=message.body.rstrip(),
+            status=OutreachMessage.Status.SENT).exists():
+        return "this exact message was already sent"
+    last_sent = (OutreachMessage.objects
+                 .filter(lead=lead, status=OutreachMessage.Status.SENT)
+                 .exclude(sent_at=None).order_by("-sent_at").first())
+    stale = stale_draft_reason(message, lead,
+                               last_sent_at=last_sent.sent_at if last_sent else None)
+    if stale:
+        return stale
+    return ""
+
+
+def autonomous_send(message, *, now=None) -> tuple[str, str]:
+    """Deliver one claimed-eligible message. Returns (outcome code, detail).
+
+    The Gap 3A carry-forward, realized: atomic SENDING claim → transaction
+    already committed (the claim is a bare conditional UPDATE) → SMTP with NO
+    database transaction held open → finalize. The manual cockpit path keeps
+    its own lead-locked semantics; both build the wire message through
+    ``outreach.build_outreach_email`` so SMTP behavior cannot drift.
+
+    * A final-gate block after the claim reverts the row to DRAFTED — safe,
+      because SMTP provably did not run.
+    * The RFC Message-ID is minted (if absent) and persisted before SMTP, so
+      the identity survives any failure and a later retry is the same logical
+      message on the wire.
+    * Failures reuse ``_bounded_send_error``: definitive → SEND_FAILED
+      (retryable by claim, does not consume capacity), ambiguous → SEND_FAILED
+      with the AMBIGUOUS prefix (unclaimable, consumes capacity, held for a
+      human — never auto-retried).
+    """
+    from django.db import transaction
+
+    from openoutreach.signals import outreach
+    from openoutreach.signals.models import OutreachMessage
+
+    if not claim_for_sending(message):
+        return (LIVE_BLOCKED_FINAL_GATE,
+                "could not claim — another worker owns it or it is unclaimable")
+    block = final_presend_block(message, now=now)
+    if block:
+        OutreachMessage.objects.filter(
+            pk=message.pk, status=OutreachMessage.Status.SENDING).update(
+            status=OutreachMessage.Status.DRAFTED)
+        return (LIVE_BLOCKED_FINAL_GATE, block)
+
+    lead = message.lead
+    if not message.message_id:
+        message.message_id = outreach._mint_message_id(outreach.from_address_for(lead))
+        message.save(update_fields=["message_id", "updated_at"])
+
+    body = message.body.rstrip()
+    subject = message.subject.strip()
+    email, cc_list = outreach.build_outreach_email(lead, subject, body, "", message.message_id)
+    # No transaction is open here: the SMTP call happens against a committed
+    # SENDING claim, so a worker death leaves a visible stuck claim (recovered
+    # by hold_stuck_claims), never an invisible rollback.
+    try:
+        email.send(fail_silently=False)
+    except Exception as exc:  # noqa: BLE001 — every failure must leave a record
+        err = outreach._bounded_send_error(exc)
+        message.status = OutreachMessage.Status.SEND_FAILED
+        message.send_error = err
+        message.sent_at = None
+        message.save(update_fields=["status", "send_error", "sent_at", "updated_at"])
+        if err.startswith("AMBIGUOUS"):
+            return (LIVE_AMBIGUOUS, err)
+        return (LIVE_SEND_FAILED, err)
+    with transaction.atomic():
+        outreach.record_successful_send(message, lead, subject, body, cc_list)
+    return (LIVE_SENT, "")

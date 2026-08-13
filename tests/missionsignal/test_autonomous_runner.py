@@ -484,11 +484,13 @@ def test_shadow_run_records_system_hold_when_mailbox_stale(monkeypatch, campaign
         runner.HOLD_MAILBOX_STALE]
 
 
-def test_live_mode_refuses_unconditionally(fresh_mailbox, campaign, monkeypatch):
+def test_live_mode_refuses_while_autosend_disabled(fresh_mailbox, campaign, monkeypatch):
+    # Missing flag = disabled; explicit false = disabled. (Flag-true live
+    # behavior is Gap 4B's suite — test_live_send.py.)
+    monkeypatch.delenv("OUTREACH_AUTOSEND_ENABLED", raising=False)
     with pytest.raises(CommandError, match="not enabled"):
         call_command("run_outreach_campaign", "--live")
-    # Even the future feature flag does not open it in this build.
-    monkeypatch.setenv("OUTREACH_AUTOSEND_ENABLED", "true")
+    monkeypatch.setenv("OUTREACH_AUTOSEND_ENABLED", "false")
     with pytest.raises(CommandError, match="not enabled"):
         call_command("run_outreach_campaign", "--live")
     assert len(mail.outbox) == 0

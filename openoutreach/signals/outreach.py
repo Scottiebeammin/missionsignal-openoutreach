@@ -320,6 +320,66 @@ def _claim_outreach_message(lead, subject: str, body: str):
     return msg
 
 
+def build_outreach_email(lead, subject: str, body: str, cc: str, message_id: str):
+    """(EmailMessage, cc_list) for one outreach send — the single place the wire
+    message is constructed, shared by the manual and autonomous paths so SMTP
+    behavior can never drift between them.
+
+    The footer is applied here, at send time, and never stored back onto the
+    lead — storing it would mean the next redraft appends a second one. CCs:
+    per-lead first, then the standing CC (marcus@), deduped case-insensitively,
+    never the recipient themselves; anything visible on CC is not also BCC'd.
+    The Message-ID header is set explicitly so Django does not substitute its
+    own (which anchors to the container hostname) — this exact value is what an
+    inbound reply's In-Reply-To/References will point back to.
+    """
+    wire_body = body + "\n" + compliance_footer(lead.email)
+    recipient = (lead.email or "").lower()
+    cc_list: list[str] = []
+    seen = {recipient}
+    for addr in parse_cc(cc) + parse_cc(OUTREACH_CC):
+        if addr.lower() not in seen:
+            seen.add(addr.lower())
+            cc_list.append(addr)
+    bcc_list = [OUTREACH_BCC] if OUTREACH_BCC and OUTREACH_BCC.lower() not in seen else None
+    message = EmailMessage(
+        subject=subject.strip() or f"A note about {lead.organization or 'your work'}",
+        body=wire_body,
+        from_email=from_address_for(lead),
+        to=[lead.email],
+        cc=cc_list or None,
+        bcc=bcc_list,
+        headers={"Message-ID": message_id},
+    )
+    return message, cc_list
+
+
+def record_successful_send(msg, lead, subject: str, body: str, cc_list: list) -> None:
+    """The bookkeeping for a confirmed SMTP acceptance — message and lead.
+
+    Runs only on confirmed acceptance; there is no marked-sent-but-unsent path.
+    The outcome moves through the ladder, not an unconditional write: a reply
+    ingested between drafting and this send must not be erased by the send's
+    own bookkeeping — AWAITING applies only from blank/awaiting.
+    """
+    from openoutreach.signals.models import OUTCOME_RANK, OutreachMessage
+
+    msg.status = OutreachMessage.Status.SENT
+    msg.sent_at = timezone.now()
+    msg.send_error = ""  # a later success clears the stale failure text
+    msg.save(update_fields=["status", "sent_at", "send_error", "updated_at"])
+    lead.subject_line = subject.strip()[:255]
+    lead.outreach_draft = body
+    lead.cc_emails = ", ".join(cc_list)[:500]
+    lead.email_status = "sent"
+    if OUTCOME_RANK.get(lead.outreach_outcome, 0) < OUTCOME_RANK[SalesLead.Outcome.AWAITING]:
+        lead.outreach_outcome = SalesLead.Outcome.AWAITING
+    advance_to_contacted(lead)
+    lead.updated_at = timezone.now()
+    lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status",
+                             "outreach_outcome", "status", "updated_at"])
+
+
 def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
     """Send one outreach email to the lead, record it, and advance the pipeline.
 
@@ -395,32 +455,7 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
             msg.message_id = _mint_message_id(from_address_for(lead))
         msg.save()
 
-        # The footer is applied at send time and never stored back onto the lead —
-        # storing it would mean the next redraft appends a second one.
-        wire_body = body + "\n" + compliance_footer(lead.email)
-        # Per-lead CCs first, then the standing CC (marcus@). Dedupe case-insensitively
-        # and never CC the recipient themselves.
-        recipient = (lead.email or "").lower()
-        cc_list: list[str] = []
-        seen = {recipient}
-        for addr in parse_cc(cc) + parse_cc(OUTREACH_CC):
-            if addr.lower() not in seen:
-                seen.add(addr.lower())
-                cc_list.append(addr)
-        # Anything already visible on CC must not also be BCC'd.
-        bcc_list = [OUTREACH_BCC] if OUTREACH_BCC and OUTREACH_BCC.lower() not in seen else None
-        message = EmailMessage(
-            subject=subject.strip() or f"A note about {lead.organization or 'your work'}",
-            body=wire_body,
-            from_email=from_address_for(lead),
-            to=[lead.email],
-            cc=cc_list or None,
-            bcc=bcc_list,
-            # The exact ID stored on msg.message_id, set explicitly so Django does not
-            # substitute its own (which anchors to the container hostname). This is
-            # what an inbound reply's In-Reply-To/References will point back to.
-            headers={"Message-ID": msg.message_id},
-        )
+        message, cc_list = build_outreach_email(lead, subject, body, cc, msg.message_id)
         try:
             message.send(fail_silently=False)
         except Exception as exc:  # noqa: BLE001 — every failure must leave a record
@@ -430,25 +465,7 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
             msg.save(update_fields=["status", "send_error", "sent_at", "updated_at"])
             send_exc = exc
         else:
-            # Runs only on confirmed acceptance — there is no marked-sent-but-unsent path.
-            msg.status = OutreachMessage.Status.SENT
-            msg.sent_at = timezone.now()
-            msg.send_error = ""  # a later success clears the stale failure text
-            msg.save(update_fields=["status", "sent_at", "send_error", "updated_at"])
-            lead.subject_line = subject.strip()[:255]
-            lead.outreach_draft = body
-            lead.cc_emails = ", ".join(cc_list)[:500]
-            lead.email_status = "sent"
-            # Through the outcome ladder, not an unconditional write: a reply
-            # ingested between drafting and this send must not be erased by the
-            # send's own bookkeeping. AWAITING applies only from blank/awaiting.
-            from openoutreach.signals.models import OUTCOME_RANK
-            if OUTCOME_RANK.get(lead.outreach_outcome, 0) < OUTCOME_RANK[SalesLead.Outcome.AWAITING]:
-                lead.outreach_outcome = SalesLead.Outcome.AWAITING
-            advance_to_contacted(lead)
-            lead.updated_at = timezone.now()
-            lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status",
-                                     "outreach_outcome", "status", "updated_at"])
+            record_successful_send(msg, lead, subject, body, cc_list)
     if send_exc is not None:
         raise send_exc
 
