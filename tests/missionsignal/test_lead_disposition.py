@@ -524,3 +524,28 @@ def test_arnette_profile_marks_the_contract_date_do_not_mention():
     lead = _lead(research_profile=notes, why_fit=why_fit)
     prohibitions = " ".join(extract_prohibitions(lead))
     assert "CINS/FINS contract end date" in prohibitions
+
+
+def test_first_person_rule_leads_the_final_checks():
+    # Seven of ten Orange County drafts closed "30 minutes with Marcus" — third
+    # person, from Marcus's own address, which reads as an assistant writing on his
+    # behalf. Cause: the campaign docs describe him in third person (they are notes
+    # ABOUT the sender) and the greeting rules pushed the model away from "I'm
+    # Marcus" — so it stopped claiming first person at all.
+    from openoutreach.core.management.commands.preview_cohort_drafts import FINAL_CHECKS
+
+    assert FINAL_CHECKS.index("You ARE Marcus") < FINAL_CHECKS.index("No name in the greeting")
+    assert "with Marcus" in FINAL_CHECKS  # named as the anti-pattern
+
+
+def test_vsc_profile_separates_its_two_funding_streams():
+    # The screening agent originally wrote that certified-centre status ties them to
+    # the AG — the exact agency swap the verified funding list calls a credibility
+    # killer, and the model copied its input faithfully. Cert funding is DOH→FCASV;
+    # the AG administers only the VOCA subgrant.
+    from openoutreach.signals.management.commands.seed_lead_intel import INTEL
+
+    notes, _ = INTEL["marketing@victimservicecenter.org"]
+    assert "DEPARTMENT OF HEALTH" in notes
+    assert "never blend" in notes
+    assert "the AG has nothing to do with that stream" in notes
