@@ -326,6 +326,36 @@ class SalesLead(models.Model):
             return f"held for human review ({reason})"
         if self.status == self.Status.PASSED:
             return "retired by the operator (status: passed)"
+        # Terminal outcomes: states that end the acquisition sequence. These are
+        # deliberately distinct from the concepts around them — opt-out is global
+        # suppression (EmailOptOut), disqualification is campaign fit; this is
+        # "the sequence reached its end, one way or the other". Before this,
+        # outreach_outcome controlled nothing: a lead who said no could be drafted
+        # and sent to again.
+        if self.outreach_outcome == self.Outcome.NOT_INTERESTED:
+            return "declined (outcome: not interested) — the acquisition sequence is over"
+        if self.outreach_outcome == self.Outcome.MEETING:
+            return ("in conversation (outcome: meeting booked) — acquisition outreach is done; "
+                    "anything further is relationship mail, not the cold sequence")
+        if self.outreach_outcome == self.Outcome.BOUNCED:
+            return "address bounced — do not resend to a dead address"
+        if self.status == self.Status.CLOSED:
+            return "closed-won — a customer, not an acquisition target"
+        return ""
+
+    def followup_hold(self) -> str:
+        """Why AUTOMATED follow-up drafting should pause, or "" if it may proceed.
+
+        Weaker than ``cold_outreach_block`` on purpose: a reply or expressed
+        interest means a live conversation, which a human (or a future
+        reply-classification layer) should resolve — an automated cold follow-up
+        into an open thread reads as nobody-home. But it is not suppression and
+        not disqualification, so a human may still write and send by hand; only
+        the automated drafting path holds.
+        """
+        if self.outreach_outcome in (self.Outcome.REPLIED, self.Outcome.INTERESTED):
+            return (f"conversation open (outcome: {self.get_outreach_outcome_display()}) — "
+                    "resolve the thread by hand rather than automating into it")
         return ""
 
     def set_disposition(self, reason: str, *, detail: str = "", source: str = "automatic",

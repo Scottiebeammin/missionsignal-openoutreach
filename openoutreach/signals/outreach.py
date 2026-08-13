@@ -9,9 +9,12 @@ a soft CTA — but lives on the server so review-edit-send happens in one place.
 import logging
 import os
 import re
+import smtplib
+from email.utils import make_msgid
 
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.db import transaction
 from django.utils import timezone
 
 from openoutreach.signals.models import SalesLead
@@ -242,107 +245,206 @@ def compliance_footer(email: str) -> str:
     ])
 
 
-def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
-    """Send one outreach email to the lead (plus any CC), mark it sent, and
-    advance its pipeline stage to Contacted. Sends from the main mailbox (see
-    from_address_for) with marcus@ CC'd, so a copy lands in Marcus's inbox and
-    the recipient can see him and reply-all to him. Reply-To (marcus@) is stamped
-    by the email backend so a plain reply comes back there too — the whole trail
-    lives in one mailbox. Raises on SMTP failure so the caller can surface it —
-    the lead is only marked sent on success.
+def _mint_message_id(from_address: str) -> str:
+    """A unique RFC-5322 Message-ID anchored to the sending domain.
+
+    Ported from the Deal world's ``emails/sender.py`` — the pattern, not the module,
+    since the two send paths stay separate. Anchoring to the From domain (rather than
+    ``make_msgid``'s default of the local hostname) keeps the ID aligned with the
+    sender instead of leaking the Render container hostname, and gives inbound reply
+    correlation a stable value to match ``In-Reply-To``/``References`` against.
     """
-    from openoutreach.signals.unsubscribe import is_opted_out
-
-    # A rule enforced at the only place mail leaves the system, so no future
-    # caller can route around it.
-    if is_opted_out(lead.email):
-        raise ValueError(
-            f"{lead.email} has opted out of outreach — not sending. "
-            "Remove them from the batch; do not re-add the address."
-        )
-    # The authoritative disposition gate. It lives here, next to the opt-out check,
-    # because this is the only function every send goes through — a gate in the
-    # drafting command is a gate one `--lead N` walks straight past, which is exactly
-    # what the previous mechanism did: `passed` was filtered in the sample query only,
-    # so a retired lead could still be drafted by id and still be sent from the cockpit.
-    block = lead.cold_outreach_block()
-    if block:
-        raise ValueError(
-            f"{lead.organization or lead.email} is {block} — not sending. "
-            "Resolve the disposition on the lead before sending, rather than routing "
-            "around this check."
-        )
-    if not OUTREACH_MAILING_ADDRESS:
-        raise ValueError(
-            "OUTREACH_MAILING_ADDRESS is not set. CAN-SPAM requires a valid physical "
-            "postal address on commercial email — set it in the Render environment "
-            "(a USPS PO box or the registered agent address qualifies) before sending."
-        )
-    # The footer is applied at send time and never stored back onto the lead.
-    # Storing it would mean the next draft/resend starts from a body that already
-    # ends in a footer, and appends a second one.
-    body = body.rstrip()
-    wire_body = body + "\n" + compliance_footer(lead.email)
-    # Per-lead CCs first, then the standing CC (marcus@). Dedupe case-insensitively
-    # and never CC the recipient themselves — a lead whose own address is also the
-    # standing CC would otherwise get the mail twice.
-    recipient = (lead.email or "").lower()
-    cc_list: list[str] = []
-    seen = {recipient}
-    for addr in parse_cc(cc) + parse_cc(OUTREACH_CC):
-        if addr.lower() not in seen:
-            seen.add(addr.lower())
-            cc_list.append(addr)
-    # Anything already visible on CC must not also be BCC'd — some clients show
-    # the duplicate, and it reads as a mistake.
-    bcc_list = [OUTREACH_BCC] if OUTREACH_BCC and OUTREACH_BCC.lower() not in seen else None
-    message = EmailMessage(
-        subject=subject.strip() or f"A note about {lead.organization or 'your work'}",
-        body=wire_body,
-        from_email=from_address_for(lead),
-        to=[lead.email],
-        cc=cc_list or None,
-        bcc=bcc_list,
-    )
-    # Everything below this line runs only if the send actually succeeded — send()
-    # raises on failure, so there is no path where a lead is marked sent without one.
-    message.send(fail_silently=False)
-    _mark_message_sent(lead, subject=subject, body=body)
-    lead.subject_line = subject.strip()[:255]
-    lead.outreach_draft = body
-    lead.cc_emails = ", ".join(cc_list)[:500]
-    lead.email_status = "sent"
-    lead.outreach_outcome = SalesLead.Outcome.AWAITING
-    advance_to_contacted(lead)
-    lead.updated_at = timezone.now()
-    lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status",
-                             "outreach_outcome", "status", "updated_at"])
+    domain = (from_address or "").rsplit("@", 1)[-1] or "anansiatlas.com"
+    return make_msgid(domain=domain)
 
 
-def _mark_message_sent(lead, *, subject: str, body: str) -> None:
-    """Record that this message went out, so a follow-up knows what was argued.
+#: Exception types after which the mail MAY have been delivered even though the
+#: call failed — the server can accept the DATA and the response still be lost.
+#: These are recorded distinctly so a human verifies before retrying.
+_AMBIGUOUS_SMTP_ERRORS = (TimeoutError, ConnectionError, smtplib.SMTPServerDisconnected)
 
-    Prefers the drafted OutreachMessage the cockpit is sending, since that row carries
-    the angle the drafting agent chose. Falls back to creating a bare row for sends
-    that never went through the drafting command — those have no angle, and the
-    follow-up prompt says so rather than guessing.
 
-    Deliberately best-effort: a bookkeeping failure must never turn a delivered email
-    into an exception the caller reads as "not sent".
+def _bounded_send_error(exc: Exception) -> str:
+    """A persisted description of a send failure: class + message, capped.
+
+    Capped so a chatty server can't bloat the row, and built only from the
+    exception itself — SMTP exceptions carry server replies, never our credentials.
+    Ambiguous-delivery failures are prefixed so the operator knows a retry might
+    double-deliver, and that the retry will reuse the same Message-ID.
+    """
+    text = f"{type(exc).__name__}: {exc}"[:400]
+    if isinstance(exc, _AMBIGUOUS_SMTP_ERRORS):
+        return ("AMBIGUOUS — the server may have accepted this before the connection "
+                "died, so it MAY have been delivered. Check the sending mailbox's Sent "
+                "folder before retrying; a retry reuses the same Message-ID. " + text)[:500]
+    return text[:500]
+
+
+def _claim_outreach_message(lead, subject: str, body: str):
+    """The OutreachMessage row this send attempt belongs to. Never returns None.
+
+    Claim order:
+    1. An existing row with this exact subject+body in DRAFTED or SEND_FAILED — the
+       retry case. Reusing it keeps the pre-minted Message-ID, so a retry after an
+       ambiguous timeout is the *same* logical message on the wire, not a new
+       identity for a mail the recipient may already have.
+    2. The most recent DRAFTED row — the normal case; the cockpit's edits to
+       subject/body are edits of that draft, so it is updated to what actually goes
+       out (the angle chosen at drafting time survives).
+    3. A new row — a hand-written cockpit send that never went through drafting.
+       Sequence position continues from the last SENT touch, so follow-up logic
+       still sees an ordered history; no angle is claimed because none was chosen.
     """
     from openoutreach.signals.models import OutreachMessage
 
-    try:
+    subject = subject.strip()[:300]
+    msg = (OutreachMessage.objects
+           .filter(lead=lead, subject=subject, body=body,
+                   status__in=[OutreachMessage.Status.DRAFTED, OutreachMessage.Status.SEND_FAILED])
+           .order_by("-created_at").first())
+    if msg is None:
         msg = (OutreachMessage.objects
                .filter(lead=lead, status=OutreachMessage.Status.DRAFTED)
                .order_by("-created_at").first())
-        if msg is None:
-            msg = OutreachMessage(lead=lead, genre=OutreachMessage.Genre.COLD_OPENER,
-                                  sequence_position=1)
-        msg.subject = subject.strip()[:300]
-        msg.body = body
-        msg.status = OutreachMessage.Status.SENT
-        msg.sent_at = timezone.now()
+    if msg is None:
+        prior = (OutreachMessage.objects
+                 .filter(lead=lead, status=OutreachMessage.Status.SENT)
+                 .order_by("-sent_at", "-created_at").first())
+        msg = OutreachMessage(
+            lead=lead,
+            genre=(OutreachMessage.Genre.COLD_FOLLOWUP if prior else OutreachMessage.Genre.COLD_OPENER),
+            sequence_position=(prior.sequence_position + 1) if prior else 1,
+        )
+    msg.subject = subject
+    msg.body = body
+    return msg
+
+
+def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
+    """Send one outreach email to the lead, record it, and advance the pipeline.
+
+    Sends from the main mailbox (see from_address_for) with marcus@ CC'd; Reply-To
+    (marcus@) is stamped by the email backend. Raises on failure so the caller can
+    surface it — the lead is marked sent only on success.
+
+    Concurrency: the whole attempt runs inside one transaction holding a
+    ``select_for_update`` lock on the **SalesLead row**. The lead is the right thing
+    to lock because every guard consulted here (email_status, disposition, outcome,
+    the duplicate check) lives on or hangs off the lead — locking only the
+    OutreachMessage would still let two workers each claim a different row and both
+    deliver. Serialization means holding the lock across the SMTP call (bounded by
+    EMAIL_TIMEOUT); at one lead per send that contention is confined to the one row
+    that must not race. The in-transaction duplicate check — an identical
+    subject+body already SENT — is what actually refuses the second of two
+    concurrent attempts once the first commits.
+
+    Failure: the SMTP exception is caught *inside* the transaction and re-raised
+    *after* it commits, so the SEND_FAILED status, the bounded ``send_error``, and
+    the pre-minted Message-ID all survive. Raising inside the atomic block would
+    roll them back — a failed send would leave no trace, and a retry would mint a
+    new identity for a message the recipient might already have (see
+    ``_bounded_send_error`` for the ambiguous-timeout case; there is deliberately
+    no auto-retry — an ambiguous failure holds for a human to verify).
+    """
+    from openoutreach.signals.models import OutreachMessage, SalesLead
+    from openoutreach.signals.unsubscribe import is_opted_out
+
+    send_exc: Exception | None = None
+    with transaction.atomic():
+        lead = SalesLead.objects.select_for_update().get(pk=lead.pk)
+
+        # A rule enforced at the only place mail leaves the system, so no future
+        # caller can route around it.
+        if is_opted_out(lead.email):
+            raise ValueError(
+                f"{lead.email} has opted out of outreach — not sending. "
+                "Remove them from the batch; do not re-add the address."
+            )
+        # The authoritative disposition/outcome gate. It lives here, next to the
+        # opt-out check, because this is the only function every send goes through —
+        # a gate in the drafting command is a gate one `--lead N` walks straight past.
+        block = lead.cold_outreach_block()
+        if block:
+            raise ValueError(
+                f"{lead.organization or lead.email} is {block} — not sending. "
+                "Resolve the disposition on the lead before sending, rather than routing "
+                "around this check."
+            )
+        if not OUTREACH_MAILING_ADDRESS:
+            raise ValueError(
+                "OUTREACH_MAILING_ADDRESS is not set. CAN-SPAM requires a valid physical "
+                "postal address on commercial email — set it in the Render environment "
+                "(a USPS PO box or the registered agent address qualifies) before sending."
+            )
+        body = body.rstrip()
+        # The concurrency backstop: if this exact message already went out, refuse.
+        # Under the lead lock this is what stops the second of two concurrent
+        # identical attempts — the first commits its SENT row, the second sees it.
+        if OutreachMessage.objects.filter(
+                lead=lead, subject=subject.strip()[:300], body=body,
+                status=OutreachMessage.Status.SENT).exists():
+            raise ValueError(
+                f"this exact message was already sent to {lead.email} — not sending it "
+                "twice. Draft a new touch if another email is intended."
+            )
+
+        # Claim the message row and mint its Message-ID BEFORE the SMTP call, so the
+        # identity is durable even if the connection dies mid-send.
+        msg = _claim_outreach_message(lead, subject, body)
+        if not msg.message_id:
+            msg.message_id = _mint_message_id(from_address_for(lead))
         msg.save()
-    except Exception:  # noqa: BLE001 — never fail a delivered send on bookkeeping
-        logger.exception("could not record OutreachMessage for lead %s", lead.pk)
+
+        # The footer is applied at send time and never stored back onto the lead —
+        # storing it would mean the next redraft appends a second one.
+        wire_body = body + "\n" + compliance_footer(lead.email)
+        # Per-lead CCs first, then the standing CC (marcus@). Dedupe case-insensitively
+        # and never CC the recipient themselves.
+        recipient = (lead.email or "").lower()
+        cc_list: list[str] = []
+        seen = {recipient}
+        for addr in parse_cc(cc) + parse_cc(OUTREACH_CC):
+            if addr.lower() not in seen:
+                seen.add(addr.lower())
+                cc_list.append(addr)
+        # Anything already visible on CC must not also be BCC'd.
+        bcc_list = [OUTREACH_BCC] if OUTREACH_BCC and OUTREACH_BCC.lower() not in seen else None
+        message = EmailMessage(
+            subject=subject.strip() or f"A note about {lead.organization or 'your work'}",
+            body=wire_body,
+            from_email=from_address_for(lead),
+            to=[lead.email],
+            cc=cc_list or None,
+            bcc=bcc_list,
+            # The exact ID stored on msg.message_id, set explicitly so Django does not
+            # substitute its own (which anchors to the container hostname). This is
+            # what an inbound reply's In-Reply-To/References will point back to.
+            headers={"Message-ID": msg.message_id},
+        )
+        try:
+            message.send(fail_silently=False)
+        except Exception as exc:  # noqa: BLE001 — every failure must leave a record
+            msg.status = OutreachMessage.Status.SEND_FAILED
+            msg.send_error = _bounded_send_error(exc)
+            msg.sent_at = None
+            msg.save(update_fields=["status", "send_error", "sent_at", "updated_at"])
+            send_exc = exc
+        else:
+            # Runs only on confirmed acceptance — there is no marked-sent-but-unsent path.
+            msg.status = OutreachMessage.Status.SENT
+            msg.sent_at = timezone.now()
+            msg.send_error = ""  # a later success clears the stale failure text
+            msg.save(update_fields=["status", "sent_at", "send_error", "updated_at"])
+            lead.subject_line = subject.strip()[:255]
+            lead.outreach_draft = body
+            lead.cc_emails = ", ".join(cc_list)[:500]
+            lead.email_status = "sent"
+            lead.outreach_outcome = SalesLead.Outcome.AWAITING
+            advance_to_contacted(lead)
+            lead.updated_at = timezone.now()
+            lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status",
+                                     "outreach_outcome", "status", "updated_at"])
+    if send_exc is not None:
+        raise send_exc
+
+

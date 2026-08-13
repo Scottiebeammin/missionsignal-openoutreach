@@ -483,6 +483,14 @@ class Command(BaseCommand):
                     f"Pass --include-held to draft it anyway."))
                 if not options["include_held"]:
                     continue
+            if options["followup"]:
+                hold = lead.followup_hold()
+                if hold:
+                    self.stderr.write(self.style.WARNING(
+                        f"SalesLead #{lead.pk} ({lead.organization or lead.name}): {hold} — skipped. "
+                        f"Pass --include-held to draft it anyway."))
+                    if not options["include_held"]:
+                        continue
             targets.append((f"SalesLead #{lead.pk} · {lead.organization or lead.name}", _lead_facts(lead), lead))
 
         for record_id in options["org"]:

@@ -676,9 +676,19 @@ def operator_outreach_send(request, pk):
     from openoutreach.signals.models import SalesLead
     from openoutreach.signals.outreach import send_outreach_email
 
+    from openoutreach.signals.models import OutreachMessage
+
     lead = get_object_or_404(SalesLead, pk=pk)
-    if lead.email_status == "sent":
-        messages.info(request, f"{lead.name} was already emailed.")
+    # "Already emailed" only blocks when there is no NEW touch waiting. Before this,
+    # the per-lead check made follow-ups unsendable from the cockpit entirely: the
+    # opener set email_status="sent" and every later touch bounced off this guard.
+    # A drafted (or previously failed) OutreachMessage is a new touch; the real
+    # double-send protection is per-message, inside send_outreach_email.
+    has_new_touch = OutreachMessage.objects.filter(
+        lead=lead, status__in=[OutreachMessage.Status.DRAFTED,
+                               OutreachMessage.Status.SEND_FAILED]).exists()
+    if lead.email_status == "sent" and not has_new_touch:
+        messages.info(request, f"{lead.name} was already emailed and no new draft is waiting.")
         return _outreach_redirect(request)
     if not lead.email:
         messages.error(request, f"{lead.name} has no email address.")
