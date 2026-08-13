@@ -23,6 +23,7 @@ urlpatterns = [
     path("operator/outreach/", operator_views.operator_outreach, name="operator-outreach"),
     path("operator/replies/", operator_views.operator_replies, name="operator-replies"),
     path("operator/replies/<int:pk>/handled/", operator_views.operator_reply_handled, name="operator-reply-handled"),
+    path("operator/runner/", operator_views.operator_runner, name="operator-runner"),
     path("operator/outreach/<int:pk>/save/", operator_views.operator_outreach_save, name="operator-outreach-save"),
     path("operator/outreach/<int:pk>/send/", operator_views.operator_outreach_send, name="operator-outreach-send"),
     path("operator/outreach/<int:pk>/contacted/", operator_views.operator_outreach_contacted, name="operator-outreach-contacted"),

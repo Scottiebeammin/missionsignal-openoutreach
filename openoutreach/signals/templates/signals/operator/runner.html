@@ -1,0 +1,70 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}Autonomous Runner{% endblock %}
+{% block page_title %}Autonomous Runner — Shadow Decisions{% endblock %}
+
+{% block content %}
+<style>
+  .rn-intro { color: var(--muted, #667789); margin-bottom: 16px; }
+  .rn-card { border: 1px solid var(--line, #d9e2e8); border-radius: 10px; background: white; padding: 14px 16px; margin-bottom: 12px; }
+  .rn-card.hold { border-left: 4px solid #dc2626; }
+  .rn-card.ok { border-left: 4px solid #059669; }
+  .rn-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .rn-stat { border: 1px solid var(--line, #d9e2e8); border-radius: 10px; background: white; padding: 10px 14px; min-width: 130px; }
+  .rn-stat b { display: block; font-size: 1.3rem; }
+  .rn-stat.warn b { color: #b45309; }
+  .rn-badge { padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 12px; background: #eef3f6; color: #557; }
+  .rn-badge.send { background: #ecfdf5; color: #047857; }
+  .rn-badge.hold { background: #fef2f2; color: #b91c1c; }
+  .rn-badge.skip { background: #f8fafc; color: #64748b; }
+  .rn-badge.draft { background: #fff7ed; color: #c2410c; }
+  .rn-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid #f1f5f9; }
+  .rn-org { font-weight: 700; }
+  .rn-reason { color: var(--muted, #667789); font-size: .9rem; }
+</style>
+
+<p class="rn-intro">
+  The runner decides what it <em>would</em> send and delivers nothing — live mode stays
+  disabled until its shadow decisions have been validated. Run it with
+  <code>python manage.py run_outreach_campaign</code>.
+</p>
+
+<div class="rn-card {% if freshness_hold %}hold{% else %}ok{% endif %}">
+  <strong>Mailbox freshness:</strong>
+  {% if freshness_hold %}
+    HOLDING — {{ freshness_hold }}
+  {% else %}
+    fresh — autonomous evaluation permitted.
+  {% endif %}
+  {% for c in cursors %}
+    <div class="rn-reason">{{ c.mailbox }} — last success
+      {% if c.last_success_at %}{{ c.last_success_at|timesince }} ago{% else %}never{% endif %}{% if c.last_error %} · last error: {{ c.last_error|truncatechars:120 }}{% endif %}</div>
+  {% empty %}
+    <div class="rn-reason">No mailbox has ever been polled.</div>
+  {% endfor %}
+</div>
+
+<h3>Held for a human</h3>
+<div class="rn-grid">
+  <div class="rn-stat {% if held.replies_needing_attention %}warn{% endif %}"><b>{{ held.replies_needing_attention }}</b> replies needing attention</div>
+  <div class="rn-stat {% if held.ambiguous_sends %}warn{% endif %}"><b>{{ held.ambiguous_sends }}</b> ambiguous sends</div>
+  <div class="rn-stat {% if held.stuck_sending %}warn{% endif %}"><b>{{ held.stuck_sending }}</b> stuck SENDING claims</div>
+  <div class="rn-stat {% if held.send_failures %}warn{% endif %}"><b>{{ held.send_failures }}</b> send failures</div>
+  <div class="rn-stat {% if held.dispositions_in_review %}warn{% endif %}"><b>{{ held.dispositions_in_review }}</b> dispositions in review</div>
+</div>
+
+{% if latest_run %}
+  <h3>Last run — {{ latest_run.run_id }} ({{ latest_run.mode }}), {{ latest_run.created_at|timesince }} ago</h3>
+  <div class="rn-card">
+    {% for d in decisions %}
+      <div class="rn-row">
+        <span class="rn-badge {% if 'WOULD_SEND' in d.code %}send{% elif 'HOLD' in d.code %}hold{% elif 'DRAFT' in d.code %}draft{% else %}skip{% endif %}">{{ d.code }}</span>
+        <span class="rn-org">{% if d.lead %}#{{ d.lead.pk }} {{ d.lead.organization|default:d.lead.name }}{% else %}(system){% endif %}</span>
+        {% if d.would_send_subject %}<span>“{{ d.would_send_subject }}”</span>{% endif %}
+        <span class="rn-reason">{{ d.reason }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="rn-intro">No runs recorded yet.</p>
+{% endif %}
+{% endblock %}

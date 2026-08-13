@@ -971,3 +971,49 @@ def operator_reply_handled(request, pk):
     record.save(update_fields=["needs_attention", "handled_at"])
     messages.success(request, "Marked handled.")
     return redirect("operator-replies")
+
+
+@_operator_required
+def operator_runner(request):
+    """The autonomous runner's review surface — Gap 4A shadow validation.
+
+    One page answering three questions: is the mailbox pipeline healthy, what
+    did the last shadow run decide, and what is held waiting on a human. Read-
+    only over existing records — the runner writes decisions, this displays
+    them.
+    """
+    from openoutreach.signals.ingest import mailbox_freshness_hold
+    from openoutreach.signals.models import (
+        InboundMessage,
+        MailboxCursor,
+        OutreachMessage,
+        RunnerDecision,
+        SalesLead,
+    )
+
+    latest = RunnerDecision.objects.order_by("-created_at").first()
+    decisions = []
+    if latest:
+        decisions = (RunnerDecision.objects.filter(run_id=latest.run_id)
+                     .select_related("lead", "outreach_message")
+                     .order_by("-code", "lead__pk"))
+    held = {
+        "replies_needing_attention": InboundMessage.objects.filter(needs_attention=True).count(),
+        "ambiguous_sends": OutreachMessage.objects.filter(
+            status=OutreachMessage.Status.SEND_FAILED,
+            send_error__startswith="AMBIGUOUS").count(),
+        "stuck_sending": OutreachMessage.objects.filter(
+            status=OutreachMessage.Status.SENDING).count(),
+        "send_failures": OutreachMessage.objects.filter(
+            status=OutreachMessage.Status.SEND_FAILED).exclude(
+            send_error__startswith="AMBIGUOUS").count(),
+        "dispositions_in_review": SalesLead.objects.filter(
+            disposition=SalesLead.DISPOSITION_REVIEW).count(),
+    }
+    return render(request, "signals/operator/runner.html", {
+        "freshness_hold": mailbox_freshness_hold(),
+        "cursors": MailboxCursor.objects.order_by("mailbox"),
+        "latest_run": latest,
+        "decisions": decisions,
+        "held": held,
+    })

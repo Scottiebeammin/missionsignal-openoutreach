@@ -948,6 +948,11 @@ class OutreachMessage(models.Model):
 
     class Status(models.TextChoices):
         DRAFTED = "drafted", "Drafted"
+        # Claimed by a send worker, network call in flight. Transient by design:
+        # a row stuck here means the worker died mid-send, and the recovery
+        # policy (runner.hold_stuck_claims) converts it to an AMBIGUOUS-marked
+        # SEND_FAILED — held for a human, never auto-retried.
+        SENDING = "sending", "Sending (claimed)"
         SENT = "sent", "Sent"
         SEND_FAILED = "send_failed", "Send failed"
 
@@ -1152,3 +1157,37 @@ class InboundMessage(models.Model):
 
     def __str__(self):
         return f"{self.direction} · {self.classification} · {self.from_address} [{self.correlation}]"
+
+
+class RunnerDecision(models.Model):
+    """One decision the autonomous runner made about one lead, in one run.
+
+    Why a model rather than logs alone: the entire point of the shadow phase is
+    that Marcus validates the runner's judgement against his own, and a Render
+    cron's stdout is ephemeral and unreadable from the cockpit. These rows are
+    the review surface — what was considered, what would have been sent, and
+    why everything else was held or skipped. They are decisions about sends,
+    never evidence of sends: nothing here sets SENT, sent_at, or lead state.
+    """
+
+    #: One label per invocation (the run's start time, ISO-ish) so a run's
+    #: decisions group together and consecutive runs can be compared.
+    run_id = models.CharField(max_length=40, db_index=True)
+    mode = models.CharField(max_length=10, default="shadow")
+    lead = models.ForeignKey(SalesLead, null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name="runner_decisions")
+    outreach_message = models.ForeignKey(OutreachMessage, null=True, blank=True,
+                                         on_delete=models.SET_NULL,
+                                         related_name="runner_decisions")
+    code = models.CharField(max_length=40, db_index=True)
+    reason = models.TextField(blank=True, default="")
+    #: For WOULD_SEND decisions: the subject that would have gone out, denormalized
+    #: so the review reads even if the draft is later edited or deleted.
+    would_send_subject = models.CharField(max_length=300, blank=True, default="")
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        return f"{self.run_id} · {self.code} · {self.lead_id or 'system'}"
