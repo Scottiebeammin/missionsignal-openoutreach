@@ -14,3 +14,6 @@ gunicorn
 psycopg[binary]
 whitenoise
 curl_cffi
+# Gap 3B inbound ingestion (read-only Gmail polling from the cron command)
+google-api-python-client
+google-auth

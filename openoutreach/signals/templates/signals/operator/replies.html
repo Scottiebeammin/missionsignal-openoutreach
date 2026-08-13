@@ -1,0 +1,60 @@
+{% extends "signals/operator/base.html" %}
+{% block title %}Replies{% endblock %}
+{% block page_title %}Replies &amp; Needs Attention{% endblock %}
+
+{% block content %}
+<style>
+  .rp-intro { color: var(--muted, #667789); margin-bottom: 16px; }
+  .rp-card { border: 1px solid var(--line, #d9e2e8); border-radius: 10px; background: white; padding: 14px 16px; margin-bottom: 12px; }
+  .rp-card.attn { border-left: 4px solid #d97706; }
+  .rp-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+  .rp-org { font-weight: 800; }
+  .rp-meta { color: var(--muted, #667789); font-size: .85rem; }
+  .rp-badge { padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 12px; background: #eef3f6; color: #557; }
+  .rp-badge.reply { background: #ecfdf5; color: #047857; }
+  .rp-badge.bounce { background: #fef2f2; color: #b91c1c; }
+  .rp-badge.auto { background: #f5f3ff; color: #6d28d9; }
+  .rp-badge.own { background: #eff6ff; color: #1d4ed8; }
+  .rp-badge.removal { background: #fff7ed; color: #c2410c; }
+  .rp-body { white-space: pre-wrap; background: #f8fafc; border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-size: .92rem; max-height: 220px; overflow-y: auto; }
+  .rp-actions { margin-top: 8px; }
+  .rp-actions button { padding: 6px 14px; border-radius: 7px; border: 1px solid var(--line, #d9e2e8); background: #0f766e; color: white; font-weight: 700; cursor: pointer; }
+</style>
+
+<p class="rp-intro">
+  {{ attention_count }} message{{ attention_count|pluralize }} need{{ attention_count|pluralize:"s," }} attention.
+  Gmail stays your inbox — this page is Atlas's view of the same conversations: who replied,
+  which touch they answered, and what's waiting on you. Reply from Gmail as normal, then mark handled here.
+</p>
+
+{% for m in inbound %}
+  <div class="rp-card {% if m.needs_attention %}attn{% endif %}">
+    <div class="rp-head">
+      <span class="rp-org">
+        {% if m.lead %}<a href="{% url 'operator-outreach' %}#lead-{{ m.lead.pk }}">{{ m.lead.organization|default:m.lead.name }}</a>
+        {% else %}<em>Unmatched sender</em>{% endif %}
+      </span>
+      <span class="rp-badge
+        {% if m.classification == 'human_reply_unclassified' %}reply{% elif m.classification == 'removal_request' %}removal{% elif 'bounce' in m.classification or m.classification == 'dsn_unresolved' %}bounce{% elif m.classification == 'autoresponder' %}auto{% elif m.classification == 'outbound_human' %}own{% endif %}">
+        {{ m.get_classification_display }}</span>
+      {% if m.outreach_message %}
+        <span class="rp-meta">answers touch #{{ m.outreach_message.sequence_position }}
+          ({{ m.outreach_message.get_genre_display }}{% if m.outreach_message.primary_angle %} · {{ m.outreach_message.primary_angle }}{% endif %})</span>
+      {% elif m.correlation == 'unresolved' %}
+        <span class="rp-meta">⚠ could not be matched to a sent message</span>
+      {% endif %}
+      <span class="rp-meta">{{ m.from_address }} · {{ m.header_date|default:m.ingested_at|date:"M j, Y g:i A" }}</span>
+    </div>
+    <div class="rp-meta" style="margin-top:4px;"><strong>{{ m.subject|default:"(no subject)" }}</strong></div>
+    {% if m.body_text %}<div class="rp-body">{{ m.body_text|truncatechars:2000 }}</div>{% endif %}
+    {% if m.needs_attention %}
+      <form class="rp-actions" method="post" action="{% url 'operator-reply-handled' m.pk %}">
+        {% csrf_token %}<button type="submit">Mark handled</button>
+      </form>
+    {% elif m.handled_at %}<div class="rp-meta">handled {{ m.handled_at|date:"M j, g:i A" }}</div>{% endif %}
+  </div>
+{% empty %}
+  <p class="rp-intro">No inbound messages ingested yet. Once the Google setup is done and the
+  <code>ingest_outreach_mail</code> cron runs, replies and bounces appear here automatically.</p>
+{% endfor %}
+{% endblock %}

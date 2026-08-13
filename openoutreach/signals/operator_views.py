@@ -936,3 +936,38 @@ def operator_waitlist(request):
 
     ctx = {"signups": signups, "nurture_counts": nurture_counts, "status_counts": status_counts}
     return render(request, "signals/operator/waitlist.html", ctx)
+
+
+@_operator_required
+def operator_replies(request):
+    """The 'Replies / Needs Attention' surface — Gap 3B's operator visibility.
+
+    Deliberately small: Workspace stays Marcus's mail client; this page is
+    operational state — who replied, which touch they answered, what needs him —
+    not a second Gmail. Newest first, needs-attention pinned to the top.
+    """
+    from openoutreach.signals.models import InboundMessage
+
+    messages_qs = (InboundMessage.objects
+                   .select_related("lead", "outreach_message")
+                   .order_by("-needs_attention", "-ingested_at")[:200])
+    return render(request, "signals/operator/replies.html", {
+        "inbound": messages_qs,
+        "attention_count": InboundMessage.objects.filter(needs_attention=True).count(),
+    })
+
+
+@_operator_required
+@require_POST
+def operator_reply_handled(request, pk):
+    """Marcus marks an inbound message dealt with. State-only — no mail is touched."""
+    from django.utils import timezone
+
+    from openoutreach.signals.models import InboundMessage
+
+    record = get_object_or_404(InboundMessage, pk=pk)
+    record.needs_attention = False
+    record.handled_at = timezone.now()
+    record.save(update_fields=["needs_attention", "handled_at"])
+    messages.success(request, "Marked handled.")
+    return redirect("operator-replies")

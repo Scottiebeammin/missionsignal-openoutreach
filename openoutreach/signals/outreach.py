@@ -439,7 +439,12 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
             lead.outreach_draft = body
             lead.cc_emails = ", ".join(cc_list)[:500]
             lead.email_status = "sent"
-            lead.outreach_outcome = SalesLead.Outcome.AWAITING
+            # Through the outcome ladder, not an unconditional write: a reply
+            # ingested between drafting and this send must not be erased by the
+            # send's own bookkeeping. AWAITING applies only from blank/awaiting.
+            from openoutreach.signals.models import OUTCOME_RANK
+            if OUTCOME_RANK.get(lead.outreach_outcome, 0) < OUTCOME_RANK[SalesLead.Outcome.AWAITING]:
+                lead.outreach_outcome = SalesLead.Outcome.AWAITING
             advance_to_contacted(lead)
             lead.updated_at = timezone.now()
             lead.save(update_fields=["subject_line", "outreach_draft", "cc_emails", "email_status",

@@ -79,6 +79,21 @@ services:
   # nobody opens (opening a project's pipeline page still sweeps that one project). On
   # 2026-08-05 that backlog was 28 rows across two live partners, oldest closed 13 days
   # earlier. Worth re-running whenever the digest goes out.
+  # Gap 3B: observe the outreach mailboxes (read-only). Ingests replies and
+  # bounces, correlates them to sent messages, pauses cold automation on a real
+  # human reply, and surfaces what needs Marcus in the cockpit. Sends NOTHING.
+  # Harmless before the Google setup is done: it exits cleanly when the
+  # OUTREACH_*_MAILBOX / GOOGLE_SERVICE_ACCOUNT_JSON env vars are unset.
+  - type: cron
+    name: anansi-ingest-outreach-mail
+    runtime: python
+    region: virginia
+    plan: starter
+    branch: main
+    buildCommand: "pip install -r requirements/web.txt"
+    startCommand: "python manage.py ingest_outreach_mail"
+    schedule: "*/30 * * * *"   # every 30 minutes
+
   - type: cron
     name: anansi-weekly-reminders
     runtime: python

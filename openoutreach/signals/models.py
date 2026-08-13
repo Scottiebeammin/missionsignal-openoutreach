@@ -1016,3 +1016,139 @@ class OutreachMessage(models.Model):
         if sent_only:
             qs = qs.filter(status=cls.Status.SENT)
         return qs.order_by("-sent_at", "-created_at").first()
+
+
+# ── Outcome precedence ───────────────────────────────────────────────────────
+# Every outcome has a rank; bookkeeping may only move a lead UP this ladder.
+# Before this, send_outreach_email unconditionally wrote AWAITING on success —
+# so a reply ingested between a follow-up's draft and its send would be erased
+# by the send's own bookkeeping, and the system would forget it ever heard back.
+# A human in the cockpit may still set anything (an operator override is a
+# decision, not bookkeeping); this ladder binds only automatic writers.
+OUTCOME_RANK: dict[str, int] = {
+    "": 0,
+    SalesLead.Outcome.AWAITING: 1,
+    SalesLead.Outcome.REPLIED: 2,
+    SalesLead.Outcome.INTERESTED: 3,
+    # Terminal states share the top rank: none of them may displace another
+    # automatically — meeting vs not_interested is a human judgement.
+    SalesLead.Outcome.MEETING: 4,
+    SalesLead.Outcome.NOT_INTERESTED: 4,
+    SalesLead.Outcome.BOUNCED: 4,
+}
+
+
+def upgrade_outcome(lead, candidate: str) -> bool:
+    """Move the lead's outcome up the ladder; never down. Returns True if changed.
+
+    Saves only the outcome fields, so it composes with callers holding a lock.
+    """
+    current = OUTCOME_RANK.get(lead.outreach_outcome, 0)
+    new = OUTCOME_RANK.get(candidate, 0)
+    if new > current:
+        lead.outreach_outcome = candidate
+        lead.save(update_fields=["outreach_outcome", "updated_at"])
+        return True
+    return False
+
+
+class MailboxCursor(models.Model):
+    """Where ingestion got to in one mailbox — the durable polling checkpoint.
+
+    ``history_id`` is Gmail's incremental cursor. It advances only after a run
+    fully processes what it fetched, so a failed run re-reads rather than skips —
+    idempotent ingestion (the unique gmail_id on InboundMessage) makes the
+    re-read free. Empty history_id means "never baselined": the next run does a
+    bounded initial sweep instead of a full-mailbox scan.
+    """
+
+    mailbox = models.EmailField(unique=True)
+    history_id = models.CharField(max_length=40, blank=True, default="")
+    last_run_at = models.DateTimeField(null=True, blank=True)
+    last_success_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.TextField(blank=True, default="")
+
+    def __str__(self):
+        return f"{self.mailbox} @ {self.history_id or 'unbaselined'}"
+
+
+class InboundMessage(models.Model):
+    """One mailbox event Atlas has observed — a reply, a bounce, an autoresponse,
+    or Marcus's own manual reply in the thread.
+
+    Purpose-built rather than reusing chat.ChatMessage, which is Deal-world and
+    LinkedIn-shaped (unique on (deal, linkedin_urn)). This model exists to answer:
+    which outbound Atlas message caused this event, and does a human need to act?
+
+    Scope: only messages plausibly related to Atlas outreach are stored — the
+    ingest filter (see signals/ingest.py) requires a threading match to a sent
+    OutreachMessage, a sender address matching a SalesLead, a DSN signature, or
+    (for outbound-human) the mailbox owner writing to a known lead. Marcus's
+    unrelated mail is never ingested.
+    """
+
+    class Direction(models.TextChoices):
+        INBOUND = "inbound", "Inbound"
+        OUTBOUND_HUMAN = "outbound_human", "Outbound (human, from Gmail)"
+
+    class Classification(models.TextChoices):
+        # Deterministic (Stage A). Semantic categories (pricing, anger, …) are a
+        # later layer; their absence must not weaken safety, so the default for
+        # any real human reply is "unclassified + needs a human".
+        HUMAN_REPLY_UNCLASSIFIED = "human_reply_unclassified", "Human reply (unclassified)"
+        REMOVAL_REQUEST = "removal_request", "Removal request"
+        AUTORESPONDER = "autoresponder", "Autoresponder / out-of-office"
+        BOUNCE_HARD = "bounce_hard", "Hard bounce"
+        BOUNCE_SOFT = "bounce_soft", "Soft / temporary delivery failure"
+        DSN_UNRESOLVED = "dsn_unresolved", "Delivery notification (unresolved)"
+        OUTBOUND_HUMAN = "outbound_human", "Marcus's own reply"
+
+    class Correlation(models.TextChoices):
+        IN_REPLY_TO = "in_reply_to", "Exact In-Reply-To"
+        REFERENCES = "references", "Exact References"
+        THREAD = "thread", "Provider thread"
+        ADDRESS_FALLBACK = "address_fallback", "Address + recency fallback"
+        UNRESOLVED = "unresolved", "Unresolved"
+
+    lead = models.ForeignKey(SalesLead, null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name="inbound_messages")
+    outreach_message = models.ForeignKey(
+        "OutreachMessage", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="responses",
+        help_text="The Atlas touch this event answers — per-message attribution.")
+
+    mailbox = models.EmailField(help_text="Which configured mailbox this was observed in.")
+    direction = models.CharField(max_length=20, choices=Direction.choices,
+                                 default=Direction.INBOUND)
+    classification = models.CharField(max_length=40, choices=Classification.choices)
+    correlation = models.CharField(max_length=20, choices=Correlation.choices,
+                                   default=Correlation.UNRESOLVED)
+
+    # Provider identifiers — additional to, never instead of, RFC identity.
+    gmail_id = models.CharField(max_length=64)
+    thread_id = models.CharField(max_length=64, blank=True, default="")
+    # RFC identity — what correlation actually runs on.
+    rfc_message_id = models.CharField(max_length=300, blank=True, default="")
+    in_reply_to = models.CharField(max_length=300, blank=True, default="")
+    references_header = models.TextField(blank=True, default="")
+
+    from_address = models.CharField(max_length=320, blank=True, default="")
+    to_addresses = models.CharField(max_length=500, blank=True, default="")
+    subject = models.CharField(max_length=500, blank=True, default="")
+    header_date = models.DateTimeField(null=True, blank=True)
+    body_text = models.TextField(blank=True, default="",
+                                 help_text="Normalized plain text, capped at ingest.")
+
+    needs_attention = models.BooleanField(default=False, db_index=True)
+    handled_at = models.DateTimeField(null=True, blank=True)
+    ingested_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        # The idempotency anchor: the same Gmail message in the same mailbox can
+        # exist exactly once, no matter how many times polling re-reads it.
+        constraints = [models.UniqueConstraint(fields=["mailbox", "gmail_id"],
+                                               name="uniq_inbound_mailbox_gmail_id")]
+        ordering = ("-ingested_at",)
+
+    def __str__(self):
+        return f"{self.direction} · {self.classification} · {self.from_address} [{self.correlation}]"
