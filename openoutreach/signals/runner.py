@@ -155,8 +155,10 @@ def followup_wait_days(touches_sent: int) -> int:
 
 
 def autosend_enabled() -> bool:
-    """The future live-mode flag. Default false; nothing in this build honors
-    it even when true — live delivery is a later, deliberate feature."""
+    """Half of the live-mode double gate (the other half is the explicit
+    ``--live`` flag — neither alone delivers anything). Missing = false =
+    autonomous SMTP delivery impossible. Production keeps this unset until the
+    controlled canary in docs/outreach-live-canary.md."""
     return os.getenv("OUTREACH_AUTOSEND_ENABLED", "").strip().lower() in ("1", "true", "yes")
 
 
