@@ -93,6 +93,32 @@ services:
     buildCommand: "pip install -r requirements/web.txt"
     startCommand: "python manage.py ingest_outreach_mail"
     schedule: "*/30 * * * *"   # every 30 minutes
+    # The freshness gate (mailbox_freshness_hold) counts on this job: without a
+    # recent successful ingestion, autonomous sending fails closed. This envVars
+    # block is load-bearing — the job first shipped without one and crash-looped
+    # every 30 minutes (no SECRET_KEY/DATABASE_URL, Django never booted) while
+    # "cron exists" read as "cron works". Gmail values are dashboard-managed
+    # (sync: false): the service-account JSON is a secret, and the mailbox pair
+    # lives beside it.
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: anansi-atlas-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: OUTREACH_REPLY_MAILBOX
+        sync: false
+      - key: OUTREACH_BOUNCE_MAILBOX
+        sync: false
 
   - type: cron
     name: anansi-weekly-reminders
