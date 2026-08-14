@@ -25,6 +25,19 @@ def scheduling_url() -> str:
 logger = logging.getLogger(__name__)
 
 
+def form_confirmations_enabled() -> bool:
+    """Auto-confirmations to public-form submitters are OFF by default.
+
+    Bots beat the honeypot for 11 straight days (Aug 3-13, 2026) and the app
+    dutifully confirmed every junk address they typed — 739 bounces that
+    trashed the domain's sending reputation and pushed the outreach engine's
+    mail into spam folders. Operator alerts still fire, so a human answers
+    real people. Set ATLAS_FORM_CONFIRMATIONS_ENABLED=true only once real bot
+    protection sits in front of the public forms.
+    """
+    return os.getenv("ATLAS_FORM_CONFIRMATIONS_ENABLED", "").strip().lower() == "true"
+
+
 def build_interest_signup_notification(signup: InterestSignup) -> str:
     return "\n".join(
         [
@@ -91,6 +104,9 @@ def build_interest_signup_confirmation(signup: InterestSignup) -> str:
 
 
 def send_interest_signup_confirmation(signup: InterestSignup) -> bool:
+    if not form_confirmations_enabled():
+        logger.info("Waitlist confirmation suppressed (disabled) for signup_id=%s", signup.pk)
+        return False
     from openoutreach.signals.email_renderer import render_email
     first_name = signup.name.split()[0] if signup.name.strip() else "there"
     try:
@@ -113,6 +129,9 @@ def send_interest_signup_confirmation(signup: InterestSignup) -> bool:
 
 def send_question_received_confirmation(signup: InterestSignup) -> bool:
     """Short confirmation to someone who submitted a question / info request."""
+    if not form_confirmations_enabled():
+        logger.info("Question confirmation suppressed (disabled) for signup_id=%s", signup.pk)
+        return False
     first_name = signup.name.split()[0] if signup.name.strip() else "there"
     body = "\n".join(
         [

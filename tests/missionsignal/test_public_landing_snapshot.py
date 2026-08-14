@@ -100,9 +100,10 @@ def test_interest_signup_form_submission_stores_local_record_and_sends_emails(cl
     assert pilot.contact_name == "Jordan Lee"
     assert pilot.email == "jordan@example.org"
     assert pilot.lifecycle_status == PilotProfile.LifecycleStatus.WAITLIST
-    # Operator notification + signer confirmation.
-    assert len(mail.outbox) == 2
-    notification, confirmation = mail.outbox
+    # Operator notification only — submitter confirmations are OFF by default
+    # after the Aug 2026 bounce storm (bots feeding junk addresses to the form).
+    assert len(mail.outbox) == 1
+    (notification,) = mail.outbox
     assert notification.to == ["info@anansiatlas.com", "marcus@anansiatlas.com"]
     assert notification.subject == "New Anansi Atlas interest signup"
     assert "Name: Jordan Lee" in notification.body
@@ -113,6 +114,26 @@ def test_interest_signup_form_submission_stores_local_record_and_sends_emails(cl
     assert "Interest Type: Join Founding Atlas Partners" in notification.body
     assert "Message: We want a snapshot." in notification.body
     assert "Created At:" in notification.body
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+def test_interest_signup_confirmation_sends_only_when_flag_enabled(client, monkeypatch):
+    monkeypatch.setenv("ATLAS_FORM_CONFIRMATIONS_ENABLED", "true")
+    mail.outbox = []
+    client.post(
+        reverse("anansi-atlas-landing"),
+        {
+            "name": "Jordan Lee",
+            "organization": "Mission Works",
+            "email": "jordan@example.org",
+            "role": "Executive Director",
+            "website": "https://mission.example.org",
+            "interest_type": InterestSignup.InterestType.FOUNDING_ATLAS_PARTNERS,
+            "message": "We want a snapshot.",
+        },
+    )
+    assert len(mail.outbox) == 2
+    confirmation = mail.outbox[1]
     assert confirmation.to == ["jordan@example.org"]
     assert confirmation.subject == "You're on the Anansi Atlas waitlist"
     assert "Hi Jordan," in confirmation.body
