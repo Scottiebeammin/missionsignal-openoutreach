@@ -409,6 +409,41 @@ def send_outreach_email(lead, subject: str, body: str, cc: str = "") -> None:
     from openoutreach.signals.models import OutreachMessage, SalesLead
     from openoutreach.signals.unsubscribe import is_opted_out
 
+    # The manual-vs-autonomous race guard, deliberately OUTSIDE the transaction:
+    # a SENDING row means the autonomous runner has claimed a message for this
+    # lead and SMTP may be in flight — a manual send started now would create a
+    # second logical message that the SENT-only duplicate check cannot see (the
+    # runner hasn't finalized yet), and both could deliver. The lead lock below
+    # would add nothing here (claim_for_sending never locks the lead), and the
+    # stale-claim conversion must survive the refusal — inside the atomic block
+    # the raise would roll it back. Recent claim = wait; stale claim = the
+    # worker died mid-send, delivery state unknown — route it through the
+    # standard stuck-claim policy (held AMBIGUOUS, human verifies the Sent
+    # folder) rather than sending fresh over the top of it.
+    from openoutreach.signals.models import OutreachMessage as _OM
+
+    in_flight = (_OM.objects
+                 .filter(lead=lead, status=_OM.Status.SENDING)
+                 .order_by("-updated_at").first())
+    if in_flight is not None:
+        from openoutreach.signals import runner
+
+        cutoff = timezone.now() - timezone.timedelta(minutes=runner.STUCK_CLAIM_MINUTES)
+        if in_flight.updated_at >= cutoff:
+            raise ValueError(
+                f"a send is already in flight for {lead.organization or lead.email} "
+                f"(touch #{in_flight.sequence_position} is claimed by the autonomous "
+                "runner) — not starting a second one. Wait for it to finalize, then "
+                "check the lead's message history."
+            )
+        runner.hold_stuck_claims()
+        raise ValueError(
+            f"a previous send claim for {lead.organization or lead.email} never "
+            "finalized and is now held as AMBIGUOUS — it may already have been "
+            "delivered. Check the sending mailbox's Sent folder; if it did not go "
+            "out, retry the held message (same Message-ID) rather than sending fresh."
+        )
+
     send_exc: Exception | None = None
     with transaction.atomic():
         lead = SalesLead.objects.select_for_update().get(pk=lead.pk)
