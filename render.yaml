@@ -116,9 +116,9 @@ services:
       - key: GOOGLE_SERVICE_ACCOUNT_JSON
         sync: false
       - key: OUTREACH_REPLY_MAILBOX
-        sync: false
+        value: "marcus@anansiatlas.com"
       - key: OUTREACH_BOUNCE_MAILBOX
-        sync: false
+        value: "mail@anansiatlas.com"
 
   - type: cron
     name: anansi-weekly-reminders
