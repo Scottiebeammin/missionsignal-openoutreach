@@ -332,7 +332,15 @@ def build_outreach_email(lead, subject: str, body: str, cc: str, message_id: str
     The Message-ID header is set explicitly so Django does not substitute its
     own (which anchors to the container hostname) — this exact value is what an
     inbound reply's In-Reply-To/References will point back to.
+
+    List-Unsubscribe/List-Unsubscribe-Post (RFC 2369, RFC 8058) ride alongside
+    the footer link so the recipient's client offers its own native unsubscribe
+    button, which POSTs. The footer link alone can only be followed by GET, and
+    a GET is what mail-security scanners issue — see the 2026-08-19 note in
+    signals/unsubscribe.py for why that distinction is load-bearing here.
     """
+    from openoutreach.signals.unsubscribe import list_unsubscribe_headers
+
     wire_body = body + "\n" + compliance_footer(lead.email)
     recipient = (lead.email or "").lower()
     cc_list: list[str] = []
@@ -349,7 +357,7 @@ def build_outreach_email(lead, subject: str, body: str, cc: str, message_id: str
         to=[lead.email],
         cc=cc_list or None,
         bcc=bcc_list,
-        headers={"Message-ID": message_id},
+        headers={"Message-ID": message_id, **list_unsubscribe_headers(lead.email)},
     )
     return message, cc_list
 
