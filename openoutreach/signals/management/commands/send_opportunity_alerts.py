@@ -12,10 +12,13 @@ Run after the data refresh, e.g.:
   python manage.py pull_grants_gov --all && python manage.py send_opportunity_alerts
   python manage.py send_opportunity_alerts --dry-run
   python manage.py send_opportunity_alerts --window 26   # hours for "new" (default 26)
+
+Exits non-zero when every attempted send failed, so a broken transport surfaces
+as a failed cron run rather than a green one.
 """
 from datetime import date, timedelta
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 _DEADLINE_MILESTONES = {14, 7, 3, 1}
@@ -48,6 +51,7 @@ class Command(BaseCommand):
         cutoff = timezone.now() - timedelta(hours=options["window"])
         dry = options["dry_run"]
         sent = 0
+        failed = 0
 
         for project in Project.objects.filter(active=True).select_related("organization"):
             owners = [u for u in project.users.all() if u.email]
@@ -80,12 +84,25 @@ class Command(BaseCommand):
             for owner in owners:
                 if dry:
                     self.stdout.write(f"  [dry] -> {owner.email} | {label}")
+                elif send_opportunity_alert(owner, project, new_matches, deadline_items):
+                    sent += 1
+                    self.stdout.write(self.style.SUCCESS(f"  sent -> {owner.email} | {label}"))
                 else:
-                    if send_opportunity_alert(owner, project, new_matches, deadline_items):
-                        sent += 1
-                        self.stdout.write(self.style.SUCCESS(f"  sent -> {owner.email} | {label}"))
+                    failed += 1
+                    self.stdout.write(self.style.ERROR(f"  FAILED -> {owner.email} | {label}"))
 
         if dry:
             self.stdout.write(self.style.WARNING("\nDry run — no emails sent."))
-        else:
-            self.stdout.write(self.style.SUCCESS(f"\nDone. {sent} alert email(s) sent."))
+            return
+
+        self.stdout.write(f"\nDone. Sent: {sent}  Failed: {failed}")
+        if failed and not sent:
+            raise CommandError(
+                f"Every alert send failed ({failed} attempted, 0 delivered). "
+                "This is a transport failure, not a data problem — check the EMAIL_* "
+                "environment variables on this service."
+            )
+        if failed:
+            self.stdout.write(self.style.WARNING(
+                f"{failed} send(s) failed but {sent} succeeded — see the log."
+            ))

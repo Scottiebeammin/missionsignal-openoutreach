@@ -309,6 +309,46 @@ the standalone CLI's `session open` launcher owns it for non-daemon use.
   see Profile State Machine), **`url_utils.py`** (`url_to_public_id`/`public_id_to_url`).
 
 
+## Outbound mail paths (Anansi Atlas)
+
+Four things send mail as the platform, and they do **not** share a send path. Any
+claim about suppression, capping or deliverability has to name which one it means.
+
+| Path | Entry point | Governed by |
+|---|---|---|
+| Cold outreach | `signals/outreach.py:send_outreach_email` (+ `runner.py` autonomous) | opt-out, disposition gate, daily cap, freshness gate, per-message `OutreachMessage` records |
+| Waitlist nurture | `signals/nurture.py:send_due_nurture_emails` (cron `anansi-daily-nurture`) | opt-out, 30-day age-out, `NURTURE_DAILY_LIMIT`, CAN-SPAM address required |
+| Tracked-opportunity reminders | `send_interest_reminders` (cron, weekly) | recipients are project owners only — no external list |
+| Deadline / new-match alerts | `send_opportunity_alerts` (cron, daily + monthly chain) | recipients are project owners only — no external list |
+
+**Nurture gating (`signals/nurture.py`).** `send_due_nurture_emails` returns a
+`NurtureRun` counting `sent / skipped / suppressed / failed / capped` — failures are
+counted separately from "not due yet", which is the distinction the original version
+lacked. Four gates, all in the one function that mails a signup: `EmailOptOut`
+suppression (shared with the outreach path); `_MAX_AGE_DAYS = 30`, which *retires* an
+aged-out signup (marks the sequence complete, creates no SalesLead) so a queue that
+sat still while sending was broken cannot discharge itself in one pass;
+`NURTURE_DAILY_LIMIT` (default 50) as a ceiling on attempted sends; and a refusal to
+send at all when `OUTREACH_MAILING_ADDRESS` is unset, checked lazily so a run with
+nothing due stays quiet. Every message carries the CAN-SPAM footer and RFC 8058
+`List-Unsubscribe` headers, so the opt-out gate has a way to be populated.
+
+**`manage.py retire_stale_signups`** takes queued signups out of the sequence without
+mailing them (`--before YYYY-MM-DD`, reports only unless `--confirm`). It is the
+drain step: run it *before* giving the nurture cron mail credentials, never after.
+
+**Crons fail loudly.** `send_nurture_emails`, `send_interest_reminders` and
+`send_opportunity_alerts` all raise `CommandError` when every attempted send failed
+and none succeeded. Before this, each swallowed per-recipient exceptions and exited 0,
+so a month of total failure (no `EMAIL_*` vars → `ConnectionRefusedError` → fall back
+to `localhost:25`) rendered as a month of green cron runs on Render. A run with
+nothing to send still exits 0 — absence of work is not failure.
+
+**Public-form intake.** `signals/views.py` drops a submission when the `company_website`
+honeypot is filled, and collapses a repeat of the same address on the same form within
+24h (`_repeat_submission`). The honeypot alone did not hold: the waitlist table reached
+4,132 rows across ~990 addresses from bots posting the form directly.
+
 ## Configuration
 
 - **`SiteConfig`** (DB singleton) — `llm_provider` (required, defaults to `openai`; choices: `openai`/`anthropic`/`google`/`groq`/`mistral`/`cohere`/`openai_compatible`), `llm_api_key` (required), `ai_model` (required), `llm_api_base` (required only for `openai_compatible`), `finder_api_key` (optional — BetterContact email-finder key; blank disables enrichment). Editable via Django Admin.

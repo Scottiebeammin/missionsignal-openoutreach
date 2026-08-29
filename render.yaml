@@ -63,6 +63,14 @@ services:
   # build (no daemon deps). Set the EMAIL_* vars on THIS service (same as the web
   # service) so reminders can send. Cron jobs are a paid Render feature.
   #
+  # STATUS (2026-08-29): this job has never worked. Like the nurture cron it was
+  # deployed with its EMAIL_* vars `sync: false` and unset, so every reminder since
+  # creation died on ConnectionRefusedError and the run still reported success.
+  # UNLIKE the nurture cron there is nothing dangerous behind it — the recipients
+  # are real project owners (WOTR, EGI, Tech Sassy Girlz), a handful of addresses,
+  # no bot queue. Setting the EMAIL_* vars in the dashboard is the whole fix, and
+  # it is safe to do immediately. The command now exits non-zero on total failure.
+  #
   # NOTE (2026-08-05): the refresh chain is NOT manual and is NOT only monthly, whatever
   # the comment above this one used to say. A dashboard-created cron "anansi-daily"
   # (crn-d92320gk1i2s738ihvmg, 0 9 * * *) runs it daily and is NOT described by this
@@ -161,7 +169,25 @@ services:
   # Sends the due step (day 1 / 3 / 7 after signup) of the 3-email nurture sequence
   # to NEW/REVIEWED waitlist signups, then feeds completed sequences into the
   # SalesLead pipeline as Inbound/Nurturing so no lead falls out of view.
+  #
+  # WARNING (2026-08-29): this job has NEVER sent an email. It ran daily from
+  # 2026-07-31 reporting "finished successfully" every time while every send died
+  # on ConnectionRefusedError — the EMAIL_* vars below are `sync: false` and were
+  # never given values, so Django fell back to localhost:25. The command now exits
+  # non-zero when every send fails, so that cannot recur silently.
+  #
+  # SETTING THE EMAIL_* VARS IS THE DETONATOR, NOT THE FIX. There are ~4,132
+  # InterestSignup rows queued behind this cron, overwhelmingly bot-generated, on a
+  # domain being reputation-warmed at a handful of sends a day. Required order:
+  #   1. deploy this code           (gates: opt-out, 30-day age-out, daily cap)
+  #   2. manage.py retire_stale_signups --confirm    (drain the historical queue)
+  #   3. THEN set the EMAIL_* vars + OUTREACH_MAILING_ADDRESS below
+  # Doing 3 before 2 mails thousands of harvested addresses in one pass.
+  #
   # Same EMAIL_* vars as the web service; SCHEDULING_URL optional (Cal.com link).
+  # OUTREACH_MAILING_ADDRESS is required — nurture refuses to send a commercial
+  # email without the CAN-SPAM postal address. NURTURE_DAILY_LIMIT caps attempted
+  # sends per run (default 50 when unset).
   - type: cron
     name: anansi-daily-nurture
     runtime: python
@@ -200,6 +226,10 @@ services:
         sync: false
       - key: SCHEDULING_URL
         sync: false
+      - key: OUTREACH_MAILING_ADDRESS
+        sync: false
+      - key: NURTURE_DAILY_LIMIT
+        value: "50"
 
   # ── Weekly link-health check ──
   # Probes every active ResourceProvider/Funder website and Opportunity source URL.

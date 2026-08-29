@@ -6,21 +6,86 @@ Three emails anchored to signup.created_at:
   Step 2 — 3 days after signup: "A real example of the Opportunity Web"
   Step 3 — 7 days after signup: "Your spot is still here — a personal note"
 
+This path is governed, because it is the one that can mail thousands of rows in a
+single pass. Four gates, all enforced here because this is the only function that
+mails a signup:
+
+  1. ``EmailOptOut``      — the same suppression list ``send_outreach_email`` honours.
+  2. ``_MAX_AGE_DAYS``    — a signup that has aged out is retired unsent, so a queue
+                            that sat still for weeks can never discharge itself at
+                            once when mail starts working.
+  3. ``NURTURE_DAILY_LIMIT`` — a per-run ceiling on *attempted* sends.
+  4. ``OUTREACH_MAILING_ADDRESS`` — no CAN-SPAM address, no send (matches outreach).
+
+Every message carries a real unsubscribe: the compliance footer in the body and
+RFC 8058 ``List-Unsubscribe`` headers, so gate 1 has a way to be populated.
+
 Public API:
-  send_due_nurture_emails(now, dry_run=False) -> (sent, skipped)
+  send_due_nurture_emails(now, dry_run=False) -> NurtureRun
 """
 from __future__ import annotations
 
 import logging
+import os
+from dataclasses import dataclass
 from datetime import timedelta
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 
 from openoutreach.signals.models import InterestSignup, SalesLead
 
 logger = logging.getLogger(__name__)
+
+# Days after signup when each step fires
+_STEP_DAYS = {1: 1, 2: 3, 3: 7}
+
+# Total steps in the sequence
+MAX_STEP = 3
+
+#: A signup this old never enters the sequence — it is retired unsent instead.
+#: The sequence is a 7-day arc; mailing "you signed up a week ago" to someone who
+#: signed up two months ago is wrong on its own terms. It is also the structural
+#: answer to a queue that accumulated while sending was broken: without it, the
+#: first run after mail is fixed discharges the whole backlog.
+_MAX_AGE_DAYS = 30
+
+#: Default ceiling on attempted sends per run. Deliberately low: this domain is
+#: being reputation-warmed, and an uncapped pass over the waitlist is exactly the
+#: shape of the bounce storm that burned it once already.
+_DEFAULT_DAILY_LIMIT = 50
+
+
+def _daily_limit() -> int:
+    return int(os.getenv("NURTURE_DAILY_LIMIT", str(_DEFAULT_DAILY_LIMIT)))
+
+
+@dataclass
+class NurtureRun:
+    """The outcome of one pass, with failures counted separately from non-events.
+
+    The distinction is the whole point. The previous version folded "send raised"
+    into the same counter as "not due yet" and returned 0, so a cron that failed
+    every single send for a month was indistinguishable from a quiet one and
+    Render reported success daily.
+    """
+
+    sent: int = 0
+    skipped: int = 0      # not due yet — normal, expected, uninteresting
+    suppressed: int = 0   # opted out or aged out — deliberately never sent
+    failed: int = 0       # the send raised
+    capped: int = 0       # due, but the daily limit was already reached
+
+    @property
+    def attempted(self) -> int:
+        return self.sent + self.failed
+
+    @property
+    def total_failure(self) -> bool:
+        """Every send this run raised. The signature of a broken transport rather
+        than a bad address, and the condition the command exits non-zero on."""
+        return self.failed > 0 and self.sent == 0
 
 
 def _ensure_pipeline_lead(signup: InterestSignup) -> None:
@@ -44,72 +109,114 @@ def _ensure_pipeline_lead(signup: InterestSignup) -> None:
     )
     logger.info("SalesLead created from nurtured signup %s", signup.email)
 
-# Days after signup when each step fires
-_STEP_DAYS = {1: 1, 2: 3, 3: 7}
 
-# Total steps in the sequence
-_MAX_STEP = 3
+def retire(signup: InterestSignup, reason: str) -> None:
+    """Take a signup out of the sequence without mailing it.
 
-
-def send_due_nurture_emails(now=None, dry_run: bool = False) -> tuple[int, int]:
+    Marks the sequence complete so the row is not re-examined every day, and
+    deliberately does NOT create a SalesLead — a retired signup did not complete
+    the sequence, it was excluded from it, and a bot address must never land in
+    the pipeline as an inbound lead.
     """
-    Send any nurture emails that are due.
+    signup.nurture_step = MAX_STEP
+    signup.save(update_fields=["nurture_step"])
+    logger.info("Nurture retired signup=%s (%s)", signup.pk, reason)
 
-    Returns (sent_count, skipped_count).
-    """
+
+def _send_step(signup: InterestSignup, step: int) -> None:
+    """Mail one step. Raises on failure — the caller counts it."""
+    from openoutreach.signals.email_renderer import render_email
+    from openoutreach.signals.outreach import compliance_footer
+    from openoutreach.signals.unsubscribe import list_unsubscribe_headers
+
+    subject, body = _build_email(signup, step)
+    first_name = signup.name.split()[0] if signup.name.strip() else "there"
+    html = render_email(f"nurture_{step}.html", {
+        "first_name": first_name,
+        "org_name": signup.organization or "your organization",
+    })
+    message = EmailMultiAlternatives(
+        subject=subject,
+        body=body + compliance_footer(signup.email),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[signup.email],
+        headers=list_unsubscribe_headers(signup.email),
+    )
+    message.attach_alternative(html, "text/html")
+    message.send(fail_silently=False)
+
+
+def send_due_nurture_emails(now=None, dry_run: bool = False) -> NurtureRun:
+    """Send any nurture emails that are due, subject to the four gates above."""
+    from openoutreach.signals.outreach import OUTREACH_MAILING_ADDRESS
+    from openoutreach.signals.unsubscribe import is_opted_out
+
     if now is None:
         now = timezone.now()
 
+    run = NurtureRun()
+    limit = _daily_limit()
+    age_cutoff = now - timedelta(days=_MAX_AGE_DAYS)
+
     signups = InterestSignup.objects.filter(
-        nurture_step__lt=_MAX_STEP,
+        nurture_step__lt=MAX_STEP,
         status__in=[InterestSignup.Status.NEW, InterestSignup.Status.REVIEWED],
-    )
+    ).order_by("created_at")
 
-    sent = 0
-    skipped = 0
-
-    for signup in signups:
+    for signup in signups.iterator(chunk_size=500):
         next_step = signup.nurture_step + 1
-        days_needed = _STEP_DAYS[next_step]
-        due_at = signup.created_at + timedelta(days=days_needed)
+        due_at = signup.created_at + timedelta(days=_STEP_DAYS[next_step])
 
         if now < due_at:
-            skipped += 1
+            run.skipped += 1
             continue
 
-        subject, body = _build_email(signup, next_step)
+        if signup.created_at < age_cutoff:
+            run.suppressed += 1
+            if not dry_run:
+                retire(signup, "aged out")
+            continue
+
+        if is_opted_out(signup.email):
+            run.suppressed += 1
+            if not dry_run:
+                retire(signup, "opted out")
+            continue
+
+        if run.attempted >= limit:
+            run.capped += 1
+            continue
+
+        # Checked here rather than up front so a run with nothing due stays quiet:
+        # the refusal should fire when a message would actually have gone out.
+        if not OUTREACH_MAILING_ADDRESS:
+            raise RuntimeError(
+                f"{signup.email} is due nurture step {next_step}, but "
+                "OUTREACH_MAILING_ADDRESS is unset — refusing to send a commercial "
+                "email without the CAN-SPAM postal address. Set it in the Render "
+                "environment for this service."
+            )
 
         if dry_run:
             logger.info("[DRY RUN] Would send step %s to %s", next_step, signup.email)
-            sent += 1
+            run.sent += 1
             continue
 
         try:
-            from openoutreach.signals.email_renderer import render_email
-            first_name = signup.name.split()[0] if signup.name.strip() else "there"
-            html = render_email(f"nurture_{next_step}.html", {
-                "first_name": first_name,
-                "org_name": signup.organization or "your organization",
-            })
-            send_mail(
-                subject=subject,
-                message=body,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[signup.email],
-                html_message=html,
-                fail_silently=False,
-            )
-            signup.nurture_step = next_step
-            signup.save(update_fields=["nurture_step"])
-            sent += 1
-            logger.info("Nurture step %s sent to %s", next_step, signup.email)
-            if next_step == _MAX_STEP:
-                _ensure_pipeline_lead(signup)
+            _send_step(signup, next_step)
         except Exception:
             logger.exception("Nurture email failed for signup=%s step=%s", signup.pk, next_step)
-            skipped += 1
+            run.failed += 1
+            continue
 
-    return sent, skipped
+        signup.nurture_step = next_step
+        signup.save(update_fields=["nurture_step"])
+        run.sent += 1
+        logger.info("Nurture step %s sent to %s", next_step, signup.email)
+        if next_step == MAX_STEP:
+            _ensure_pipeline_lead(signup)
+
+    return run
 
 
 def _build_email(signup: InterestSignup, step: int) -> tuple[str, str]:

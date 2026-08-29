@@ -1,11 +1,13 @@
 import os
 import time
+from datetime import timedelta
 
 import stripe
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from openoutreach.core.access import user_is_project_admin
@@ -129,6 +131,32 @@ def _honeypot_tripped(request) -> bool:
     return bool((request.POST.get("company_website") or "").strip())
 
 
+#: How long the same address submitting the same form counts as one submission.
+_REPEAT_WINDOW = timedelta(hours=24)
+
+
+def _repeat_submission(email: str, interest_type: str) -> bool:
+    """True when this exact address already submitted this exact form today.
+
+    The honeypot catches bots that fill every field; it does not catch the ones
+    that post the form directly, and those account for most of the waitlist table
+    (4,132 rows across ~990 addresses by 2026-08-29 — the same handful of
+    addresses submitting over and over). Collapsing repeats keeps one row per
+    address per form per day, which is all a real person would ever generate.
+
+    Deliberately scoped to the same interest_type: a person who asks a question
+    and later joins the waitlist has made two genuinely different submissions.
+    """
+    email = (email or "").strip().lower()
+    if not email:
+        return False
+    return InterestSignup.objects.filter(
+        email__iexact=email,
+        interest_type=interest_type,
+        created_at__gte=timezone.now() - _REPEAT_WINDOW,
+    ).exists()
+
+
 def public_landing_page(request):
     signup_failed = False
     if request.method == "POST":
@@ -137,6 +165,8 @@ def public_landing_page(request):
             return redirect("anansi-atlas-thanks")
         form = InterestSignupForm(request.POST)
         if form.is_valid():
+            if _repeat_submission(form.cleaned_data["email"], form.cleaned_data["interest_type"]):
+                return redirect("anansi-atlas-thanks")
             signup = form.save()
             create_pilot_profile_from_signup(signup)
             notify_interest_signup(signup)
@@ -173,6 +203,8 @@ def ask_question(request):
         return redirect("anansi-atlas-question-thanks")   # silently drop the bot
     form = QuestionForm(request.POST)
     if form.is_valid():
+        if _repeat_submission(form.cleaned_data["email"], InterestSignup.InterestType.QUESTION):
+            return redirect("anansi-atlas-question-thanks")
         signup = form.save(commit=False)
         signup.interest_type = InterestSignup.InterestType.QUESTION
         signup.save()
@@ -613,18 +645,26 @@ def project_funding_dashboard(request, pk):
     from datetime import date as _date
 
     from openoutreach.funding.relevance import (
-        eligibility_rank, eligibility_stance,
+        eligibility_rank, eligibility_stance, is_local_government_source,
         is_off_geography, is_research_grant, opportunity_relevance, org_keywords,
     )
+    from openoutreach.signals.local_money import build_local_overview
 
     project = client_project(request, pk)
     funding_criteria = getattr(project, "funding_criteria", None)
     readiness = build_funding_readiness(project, funding_criteria)
+    # State/county/city money gets its own section here too, for the same reason it
+    # does on the opportunities board: ranked on keyword overlap it loses to any
+    # federal notice with a descriptive title. This was the last screen where it
+    # still competed.
+    local_overview = build_local_overview(project)
     # Recommended grant pathways: same relevance ranking the Pathways page uses.
-    grants = list(
-        Opportunity.objects.filter(project=project, opportunity_type=Opportunity.OpportunityType.GRANT)
-        .exclude(status=Opportunity.Status.EXPIRED)
-    )
+    grants = [
+        o for o in Opportunity.objects.filter(
+            project=project, opportunity_type=Opportunity.OpportunityType.GRANT,
+        ).exclude(status=Opportunity.Status.EXPIRED)
+        if not is_local_government_source(o)
+    ]
     keywords = org_keywords(project.organization)
     for o in grants:
         o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords)
@@ -644,6 +684,7 @@ def project_funding_dashboard(request, pk):
             "funding_criteria": funding_criteria,
             "readiness": readiness,
             "recommended_grants": recommended_grants,
+            "local_overview": local_overview,
         },
     )
 
