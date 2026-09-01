@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from django.utils import timezone
+
 from openoutreach.funding.models import Opportunity, SourceOrganization
 from openoutreach.signals.celebrations import CelebrationOverview, build_celebration_overview
 from openoutreach.signals.documents import DocumentEvidenceHealth, build_document_evidence_health
@@ -88,7 +90,17 @@ class ExecutiveDashboard:
 
 def _relevant_upcoming_deadlines(project, limit=5):
     """Upcoming deadlines a client should actually act on — relevant to the org and
-    US-eligible (same filters as the Opportunities page, so the dashboard matches)."""
+    US-eligible (same filters as the Opportunities page, so the dashboard matches).
+
+    The date filter is the load-bearing one. Excluding EXPIRED/ARCHIVED is not enough by
+    itself: a row only becomes EXPIRED when a sweep runs, and `expire_opportunities` is
+    manual. The pipeline board self-heals because its view calls the sweep on load
+    (views.py), but nothing sweeps on the dashboard's behalf. Between 2026-08-05 and
+    2026-08-31 that left 11 past-deadline rows still `active` on a founding partner's
+    board — and because this list sorts by deadline ascending, the *deadest* grants
+    sorted to the top of a panel headed UPCOMING DEADLINES. Filtering on the date means
+    a client can never be shown a closed grant, swept or not.
+    """
     from openoutreach.funding.relevance import (
         org_keywords, opportunity_relevance, is_off_geography, is_research_grant,
     )
@@ -98,6 +110,7 @@ def _relevant_upcoming_deadlines(project, limit=5):
     qs = (
         Opportunity.objects.filter(project=project)
         .exclude(deadline__isnull=True)
+        .filter(deadline__gte=timezone.localdate())
         .exclude(status__in=[Opportunity.Status.EXPIRED, Opportunity.Status.ARCHIVED])
         .order_by("deadline", "name")
     )
