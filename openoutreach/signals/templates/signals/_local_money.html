@@ -57,7 +57,20 @@ to do something. See signals/local_money.py.
               <h3>{{ o.name }}</h3>
               <p>
                 <span class="score-badge" style="background:#1f7a8c;color:#fff;">{{ jurisdiction.label }}</span>
-                <span class="score-badge" style="background:#a9761d;color:#fff;" title="Fetched from the funder's own page — open it and confirm the details">⚠ Verify first</span>
+                {% comment %}
+                Local rows arrive fetched-but-unconfirmed, so verify-first is the right
+                default — but it used to be UNCONDITIONAL, which meant an operator could
+                read a county's own page, confirm the programme and its deadline, mark the
+                row verified, and the client would still be told to verify it. Human
+                verification was invisible on the one section where local money lives.
+                Same test the rest of the product uses: is_confirmed = human-verified AND
+                backed by a real source link.
+                {% endcomment %}
+                {% if o.is_confirmed %}
+                  <span class="score-badge" style="background:#0b8a4b;color:#fff;" title="Human-verified against the funder's own page — safe to act on">✓ Verified</span>
+                {% else %}
+                  <span class="score-badge" style="background:#a9761d;color:#fff;" title="Fetched from the funder's own page — open it and confirm the details">⚠ Verify first</span>
+                {% endif %}
                 {% if o.deadline %}<span class="score-badge score-low">Due {{ o.deadline }}</span>
                 {% else %}<span class="score-badge" title="This page doesn't state a deadline. We don't guess one.">No stated deadline</span>{% endif %}
               </p>
