@@ -105,7 +105,7 @@ def _relevant_upcoming_deadlines(project, limit=5):
         org_keywords, opportunity_relevance, is_off_geography, is_research_grant,
     )
 
-    keywords = org_keywords(project.organization)
+    keywords = org_keywords(project.organization, project)
     out, seen_names = [], set()
     qs = (
         Opportunity.objects.filter(project=project)

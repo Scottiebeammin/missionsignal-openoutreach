@@ -57,7 +57,7 @@ class Command(BaseCommand):
             owners = [u for u in project.users.all() if u.email]
             if not owners:
                 continue
-            keywords = org_keywords(project.organization)
+            keywords = org_keywords(project.organization, project)
             opps = list(Opportunity.objects.filter(project=project))
 
             deadline_items, new_matches = [], []

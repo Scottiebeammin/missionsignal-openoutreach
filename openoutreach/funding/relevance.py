@@ -176,12 +176,34 @@ def _tokens(text: str) -> set[str]:
     return {w for w in words if len(w) >= 3 and w not in _STOPWORDS}
 
 
-def org_keywords(organization) -> set[str]:
-    """The org's relevance vocabulary — what it does + who it serves + its mission."""
+def org_keywords(organization, project=None) -> set[str]:
+    """The org's relevance vocabulary — what it does + who it serves + its mission,
+    plus the programmes it actually runs when a project is supplied.
+
+    `project.programs` is the most on-point text this product holds — the organisation's
+    own description of what it runs — and until 2026-09-01 the matcher never read it.
+    Women on the Rise is why that mattered. Their mission field is their real
+    73-character tagline ("Inspiring societies where equality exists in all facets of
+    women's lives"), so they scored 26 keywords against 37–43 for the other two founding
+    partners, and the thinness read like an unfilled profile. It was not: their
+    programmes — Career Development Cohort, Educated & Broke Financial Empowerment
+    Series, Entrepreneurship Showcase, RISE Executive Roundtable — had been recorded all
+    along and simply never reached the matcher. Including them takes WOTR from 26 to 43
+    keywords and 41 to 48 relevant rows, in the client's own words rather than ours.
+
+    Deliberately preferred over rewriting the mission field: a mission is the
+    organisation's own statement, and inventing prose for a real client is the failure
+    mode this codebase has already been burned by twice.
+
+    `project` is optional so existing call sites keep working unchanged; pass it wherever
+    a project is in scope.
+    """
     kw: set[str] = set()
     for term in list(organization.focus_areas or []) + list(organization.beneficiaries or []):
         kw |= _tokens(str(term))
     kw |= _tokens(getattr(organization, "mission", "") or "")
+    if project is not None:
+        kw |= _tokens(getattr(project, "programs", "") or "")
     return kw
 
 

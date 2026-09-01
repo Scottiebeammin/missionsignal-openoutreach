@@ -359,7 +359,7 @@ def rank_for_client(opportunities, project) -> tuple[list, int]:
     )
 
     organization = project.organization
-    keywords = org_keywords(organization)
+    keywords = org_keywords(organization, project)
     keep, dropped = [], 0
     for opportunity in opportunities:
         if is_not_applicable(opportunity, organization):

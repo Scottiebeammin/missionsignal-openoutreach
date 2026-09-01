@@ -665,7 +665,7 @@ def project_funding_dashboard(request, pk):
         ).exclude(status=Opportunity.Status.EXPIRED)
         if not is_local_government_source(o)
     ]
-    keywords = org_keywords(project.organization)
+    keywords = org_keywords(project.organization, project)
     for o in grants:
         o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords)
         # A notice that closes itself to nonprofits sinks below every one that
@@ -1092,7 +1092,7 @@ def project_opportunities_workspace(request, pk):
     ]
     # Score each opportunity against what THIS org does + who it serves, so only
     # relevant ones rise to the top (off-topic grants score 0 and drop out).
-    keywords = org_keywords(project.organization)
+    keywords = org_keywords(project.organization, project)
     for o in ranked:
         o.relevance = opportunity_relevance(o, keywords)
         # Trust tier: confirmed = human-verified AND backed by a real source link.
