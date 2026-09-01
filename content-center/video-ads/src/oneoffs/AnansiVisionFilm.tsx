@@ -101,9 +101,9 @@ const H = 1080;
 const SILENT_LEAD = 150; // Sc01, music only
 
 /** Frames of silence before each scene's narration begins — the room breathes first. */
-const LEAD = [60, 60, 70, 60, 70, 40, 60, 30, 80, 70, 40, 60, 70, 90, 90, 70, 60];
+const LEAD = [60, 60, 70, 60, 70, 40, 60, 30, 80, 70, 40, 70, 60, 70, 90, 90, 70, 60];
 /** Frames of silence after it ends — how long each beat is allowed to hang. */
-const TAIL = [114, 107, 108, 94, 113, 148, 72, 214, 188, 116, 84, 73, 131, 132, 128, 107, 231];
+const TAIL = [114, 107, 108, 94, 113, 148, 72, 214, 188, 116, 84, 120, 73, 131, 132, 128, 107, 231];
 
 const ACT_LABELS = ["II · DISCOVERY", "III · REALIZATION", "IV · VISION", "V · PARTNERSHIP"];
 
@@ -119,6 +119,8 @@ const SHOT = {
   oppsDefault: "screenshots/hd-opps-default.png",
   oppsPeer: "screenshots/hd-opps-peersize.png",
   card: "screenshots/hd-ecosystem.png",
+  // State & Local Funding, grouped by issuing government (Sc13, added 2026-09-01).
+  local: "screenshots/hd-local-money.png",
 };
 
 /**
@@ -162,12 +164,16 @@ const LINE: [number, number][] = [
   [3253, 3808],  // S10 The platform
   [3811, 4348],  // S11 Nothing was invented
   [4359, 4954],  // S12 Sort by peer size
-  [4955, 5229],  // S13 Where to look + "That's Anansi Atlas."
-  [5234, 5507],  // S14 Unbuilt from here
-  [5519, 5963],  // S15 Funder-side: lifecycle, communication, data hub
-  [5974, 6552],  // S16 A whole sector
-  [6560, 7023],  // S17 Empowered Girls Inc.
-  [7031, 7821],  // S18 The invitation + CTA
+  // S13 State & Local — NOT a slice of the master. See LINE_SRC: this line was
+  // generated on its own (scripts/gen-vo-line.mjs) so the other sixteen takes stay
+  // byte-identical. [0, 313] are frames into ITS OWN file, not the master.
+  [0, 313],
+  [4955, 5229],  // S14 Where to look + "That's Anansi Atlas."
+  [5234, 5507],  // S15 Unbuilt from here
+  [5519, 5963],  // S16 Funder-side: lifecycle, communication, data hub
+  [5974, 6552],  // S17 A whole sector
+  [6560, 7023],  // S18 Empowered Girls Inc.
+  [7031, 7821],  // S19 The invitation + CTA
 ];
 
 /**
@@ -198,12 +204,35 @@ const MASTER_FRAMES = 7821;
 const VO_PAD = 5;
 const VO_FADE = 4;
 
+/**
+ * Which lines come from their OWN file instead of the master.
+ *
+ * Adding Sc13 to a finished film could have meant regenerating the whole VO master —
+ * but ElevenLabs is nondeterministic, so every existing take would change and the
+ * approved performance would be gone (the July 29 note calls this "a full VO
+ * regeneration plus a re-derivation of every timing"). Generating one line on its own
+ * keeps the other sixteen byte-identical; only the new scene is new audio.
+ *
+ * null = a slice of the master. A string = that line's own file in public/.
+ */
+const LINE_SRC: (string | null)[] = [
+  null, null, null, null, null, null, null, null, null, null, null,
+  "anansi-vision-film-local-vo.mp3", // S13 State & Local
+  null, null, null, null, null, null,
+];
+
 const SLICE = LINE.map(([from, to], i) => {
-  const prevEnd = i > 0 ? LINE[i - 1][1] : -Infinity;
-  const nextStart = i < LINE.length - 1 ? LINE[i + 1][0] : Infinity;
+  // A line with its own file needs no padding: it is not cut out of a continuous
+  // take, so there is no neighbouring sentence to bleed in and nothing to clamp
+  // against. The VO_FADE ramp below still guarantees it starts and ends at zero.
+  // Padding here would also be wrong twice over — the neighbours in LINE are frame
+  // offsets into the MASTER, and MASTER_FRAMES is not this file's length.
+  if (LINE_SRC[i]) return { from, to, padIn: 0, src: LINE_SRC[i] as string };
+  const prevEnd = i > 0 && !LINE_SRC[i - 1] ? LINE[i - 1][1] : -Infinity;
+  const nextStart = i < LINE.length - 1 && !LINE_SRC[i + 1] ? LINE[i + 1][0] : Infinity;
   const padIn = Math.max(0, Math.min(VO_PAD, Math.floor((from - prevEnd) / 2), from));
   const padOut = Math.max(0, Math.min(VO_PAD, Math.floor((nextStart - to) / 2), MASTER_FRAMES - to));
-  return { from: from - padIn, to: to + padOut, padIn };
+  return { from: from - padIn, to: to + padOut, padIn, src: null as string | null };
 });
 
 /** Scene N's span = LEAD + spoken line + TAIL. Sc01 is the silent lead. */
@@ -212,12 +241,12 @@ const B = LINE.reduce<number[]>(
   [0, SILENT_LEAD],
 );
 
-export const VISION_TOTAL = B[18]; // 11,343f = 6:18 @ 30fps
+export const VISION_TOTAL = B[19]; // 19 scenes since Sc13 (State & Local) was added
 
 /** Act boundaries — the connection web draws THROUGH these cuts. */
-const ACT_CUTS = [B[4], B[8], B[13], B[16]];
+const ACT_CUTS = [B[4], B[8], B[14], B[17]];
 /** Everything else gets the quieter dip. DISJOINT from ACT_CUTS — never both. */
-const SCENE_CUTS = [B[1], B[2], B[3], B[5], B[6], B[7], B[9], B[10], B[11], B[12], B[14], B[15], B[17]];
+const SCENE_CUTS = [B[1], B[2], B[3], B[5], B[6], B[7], B[9], B[10], B[11], B[12], B[13], B[15], B[16], B[18]];
 
 /** Where line i lands in the composition. Scene components use these for visual sync. */
 const VO_AT = LINE.map((_, i) => B[i + 1] + LEAD[i]);
@@ -698,6 +727,80 @@ const S12: React.FC = () => {
   );
 };
 
+/**
+ * 13 · State & Local — 503f. The layer under the federal one.
+ *
+ * Added 2026-09-01 for the OCFL cut: the film showed federal discovery and the peer-size
+ * sort, but never the State & Local section shipped on 2026-08-11 — which for a room of
+ * county officials is the most directly relevant thing the product does. It groups money
+ * by the government that issues it, so a county programme stops competing with a federal
+ * notice on keyword overlap, a contest it structurally loses.
+ *
+ * This is SHIPPED product, so it sits in Act III with a real screenshot — not in Act IV's
+ * concept register. The capture is Empowered Girls' own board: FLORIDA · state, ORANGE
+ * COUNTY · county, ORLANDO · city.
+ *
+ * Measured (lead 70): "State" 142 · "county" 156 · "city" 172 · "grouped" 204. The three
+ * jurisdiction words illuminate on the frames the voice says them — the sync-to-voice rule
+ * in Motion Language, same idiom as Sc09's six node words.
+ */
+const S12B: React.FC = () => {
+  const frame = useCurrentFrame();
+  const shot = React.useContext(ShotCtx);
+  const tiers: [string, number][] = [["STATE", 142], ["COUNTY", 156], ["CITY", 172]];
+  return (
+    <AbsoluteFill>
+      <NavyBG w={W} h={H} threads={0.45} />
+      <GradientMesh opacity={0.2} />
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+        <ScreenshotPanel
+          src={staticFile(shot.local)}
+          width={1240}
+          zoomFrom={1.0}
+          zoomTo={1.04}
+          durationInFrames={503}
+        />
+      </AbsoluteFill>
+      {/* The three tiers, lit on the spoken word.
+          ANCHORED TOP, not bottom. Bottom is the caption band: in the captioned cut the
+          subtitle card sat directly on this row and swallowed the word COUNTY. The master
+          cut looked fine, which is exactly why this only showed up on a frame check of the
+          OTHER composition. Nothing else in Act III puts type in the lower third — this
+          scene was the first, and the collision is invisible until it renders. */}
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 46 }}>
+        <div style={{ display: "flex", gap: 30, alignItems: "center" }}>
+          {tiers.map(([word, at], i) => {
+            const up = interpolate(frame, [at, at + 16], [0, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            });
+            return (
+              <React.Fragment key={word}>
+                {i > 0 ? (
+                  <span style={{ color: BRAND.gold, opacity: up * 0.5, fontSize: 20 }}>·</span>
+                ) : null}
+                <span
+                  style={{
+                    fontFamily: SANS,
+                    fontSize: 26,
+                    letterSpacing: 4,
+                    fontWeight: 600,
+                    color: BRAND.white,
+                    opacity: up,
+                    transform: `translateY(${(1 - up) * 10}px)`,
+                  }}
+                >
+                  {word}
+                </span>
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
 /** 13 · Where to Look — 420f. The honesty line, at full weight. */
 const S13: React.FC = () => {
   const frame = useCurrentFrame();
@@ -1008,19 +1111,21 @@ const CAPTIONS: Caption[] = [
   cap(9, "The platform holds it in one shape, so one person can see all of it.", 260),
   cap(10, "Sort by peer size.", 0, 252),
   cap(10, "The top stops being a $1.2M university research grant and becomes $25,000 peer grants.", 252),
-  cap(11, "We map what is already there — and we show you where to look.", 0, 228),
-  cap(11, "That's Anansi Atlas.", 228),
-  cap(12, "Everything after this line is unbuilt. Not a beta. Not a roadmap promise."),
-  cap(13, "Imagine a funder could see the same map — the full lifecycle of every managed grant.", 0, 210),
-  cap(13, "One place for communication. A central hub for your grant data. Seen at once.", 210),
-  cap(14, "What if a county could see an entire sector at once?", 0, 300),
-  cap(14, "None of that exists today. We're showing it in wireframe, on purpose.", 300),
-  cap(15, "Empowered Girls works with girls ages 9–18, right here in Orange County.", 0, 249),
-  cap(15, "Live in production today — our first founding partner.", 249),
-  cap(16, "We're not here to sell you software. We're here to ask a question.", 0, 300),
-  cap(16, "Whether the organizations doing the work deserve to see the whole field.", 300, 168),
-  cap(16, "Reveal. Connect. Clarify. Empower. Act. See the whole web.", 468, 208),
-  cap(16, "Call us, or visit anansiatlas.com, to learn more.", 676),
+  cap(11, "State, county and city funding — grouped by who issues it.", 0, 200),
+  cap(11, "So smaller, more winnable opportunities don't get buried.", 200),
+  cap(12, "We map what is already there — and we show you where to look.", 0, 228),
+  cap(12, "That's Anansi Atlas.", 228),
+  cap(13, "Everything after this line is unbuilt. Not a beta. Not a roadmap promise."),
+  cap(14, "Imagine a funder could see the same map — the full lifecycle of every managed grant.", 0, 210),
+  cap(14, "One place for communication. A central hub for your grant data. Seen at once.", 210),
+  cap(15, "What if a county could see an entire sector at once?", 0, 300),
+  cap(15, "None of that exists today. We're showing it in wireframe, on purpose.", 300),
+  cap(16, "Empowered Girls works with girls ages 9–18, right here in Orange County.", 0, 249),
+  cap(16, "Live in production today — our first founding partner.", 249),
+  cap(17, "We're not here to sell you software. We're here to ask a question.", 0, 300),
+  cap(17, "Whether the organizations doing the work deserve to see the whole field.", 300, 168),
+  cap(17, "Reveal. Connect. Clarify. Empower. Act. See the whole web.", 468, 208),
+  cap(17, "Call us, or visit anansiatlas.com, to learn more.", 676),
 ];
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1034,7 +1139,9 @@ export const AnansiVisionFilm: React.FC<{
   /** Per-audience screenshot overrides for the Act III walkthrough. See ShotCtx. */
   shots?: Partial<typeof SHOT>;
 }> = ({ audioSrc = null, captions = false, music = true, shots }) => {
-  const scenes = [S01, S02, S03, S04, S05, S06, S07, S08, S09, S10, S11, S12, S13, S14, S15, S16, S17, S18];
+    // S12B is Sc13; the components after it keep their original names so this stayed a
+  // one-line insertion rather than renaming six of them.
+  const scenes = [S01, S02, S03, S04, S05, S06, S07, S08, S09, S10, S11, S12, S12B, S13, S14, S15, S16, S17, S18];
   // Memoised so the context value is referentially stable frame to frame.
   const shotValue = React.useMemo(() => ({ ...SHOT, ...shots }), [shots]);
 
@@ -1066,9 +1173,16 @@ export const AnansiVisionFilm: React.FC<{
           {/*
             Crossfade centers sit INSIDE the measured speech gaps, not on the act
             cuts themselves: S08 ends at 4201 and S09 begins at 4303, so A->B
-            hands off at 4207-4297; S13's "That's Anansi Atlas." ends at 7360 and
-            Act IV's first line begins at 7503, so B->C hands off at 7386-7476.
-            On the raw boundaries both fades clipped the edges of speech.
+            hands off at 4207-4297. B->C hands off at 7889-7979, in the gap after
+            "That's Anansi Atlas." and before Act IV's first line. On the raw
+            boundaries both fades clipped the edges of speech.
+
+            A->B is UNCHANGED by Sc13: it sits in Act II, before the insertion.
+            B->C moved 7386 -> 7889 (+503f) and stem-build was regenerated 110s ->
+            130s, because Act III is 503 frames longer than it was. stem-minimal and
+            stem-resolve are the SAME takes as the approved cut — music generation is
+            nondeterministic, so only the stem whose act changed length was replaced
+            (`node scripts/gen-music-stems.mjs stem-build`).
           */}
           <Sequence key="score-a" from={0} durationInFrames={4297}>
             <Audio
@@ -1082,19 +1196,19 @@ export const AnansiVisionFilm: React.FC<{
               }
             />
           </Sequence>
-          <Sequence key="score-b" from={4207} durationInFrames={3269}>
+          <Sequence key="score-b" from={4207} durationInFrames={3772}>
             <Audio
               src={staticFile("music/stem-build.mp3")}
-              endAt={3269}
+              endAt={3772}
               volume={(f) =>
-                interpolate(f, [0, 90, 3179, 3269], [0, 0.34, 0.34, 0], {
+                interpolate(f, [0, 90, 3682, 3772], [0, 0.34, 0.34, 0], {
                   extrapolateLeft: "clamp",
                   extrapolateRight: "clamp",
                 })
               }
             />
           </Sequence>
-          <Sequence key="score-c" from={7386} durationInFrames={3704}>
+          <Sequence key="score-c" from={7889} durationInFrames={3704}>
             <Audio
               src={staticFile("music/stem-resolve.mp3")}
               endAt={3737}
@@ -1119,12 +1233,12 @@ export const AnansiVisionFilm: React.FC<{
         passage the film is built around.
       */}
       {audioSrc
-        ? SLICE.map(({ from, to, padIn }, i) => {
+        ? SLICE.map(({ from, to, padIn, src }, i) => {
             const dur = to - from;
             return (
               <Sequence key={`vo${i}`} from={VO_AT[i] - padIn} durationInFrames={dur}>
                 <Audio
-                  src={staticFile(audioSrc)}
+                  src={staticFile(src ?? audioSrc)}
                   startFrom={from}
                   endAt={to}
                   volume={(f) =>

@@ -39,7 +39,10 @@ const STEMS = [
   },
   {
     name: "stem-build",
-    ms: 110_000,
+    // 130s, was 110s. Act III grew by 503f (16.8s) when Sc13 (State & Local) was
+    // added on 2026-09-01, so this stem now has to cover 4207 -> 7979 = 3772f =
+    // 125.7s. Generated with headroom; the composition truncates with endAt.
+    ms: 130_000,
     prompt:
       "Building cinematic underscore for a premium technology brand film. Warm piano motif over " +
       "swelling strings, soft pulsing synth bass, light rhythmic momentum entering midway — felt, " +
@@ -59,7 +62,17 @@ const STEMS = [
   },
 ];
 
-for (const s of STEMS) {
+// Optional filter: `node scripts/gen-music-stems.mjs stem-build` regenerates one stem.
+// Without it every stem is replaced — and since generation is nondeterministic, that
+// silently changes parts of the score that were already approved. Only regenerate the
+// stem whose act actually changed length.
+const only = process.argv[2];
+const selected = only ? STEMS.filter((s) => s.name === only) : STEMS;
+if (only && selected.length === 0) {
+  console.error(`No stem named "${only}". Known: ${STEMS.map((s) => s.name).join(", ")}`);
+  process.exit(1);
+}
+for (const s of selected) {
   process.stdout.write(`${s.name} (${s.ms / 1000}s)… `);
   const r = await fetch("https://api.elevenlabs.io/v1/music?output_format=mp3_44100_192", {
     method: "POST",
