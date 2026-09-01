@@ -64,6 +64,11 @@ _RESEARCH_MARKERS = (
     "national defense education", "u24", "u54", "r21", "p20", "p30", "k23",
     "phase ii clinical", "phase iii clinical", "data coordinating center",
     "informatics and resource", "translational research", "basic research",
+    # Career-stage and investigator markers. DoW/DoD cancer "academy" awards were
+    # reaching a youth nonprofit's board: "Scholar Award" never matched the
+    # "scholarship" marker, and "Kidney Cancer Investigators" never matched
+    # "principal investigator". Caught on EGI's live dashboard, 2026-08-31.
+    "scholar award", "early-career", "investigators",
 )
 
 
