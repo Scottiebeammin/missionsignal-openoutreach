@@ -133,8 +133,14 @@
           </article>
         {% empty %}
           <div class="empty-state">
-            <strong>No opportunities yet</strong>
-            These populate as federal (Grants.gov) and research pulls run for your organization.
+            {% if opportunity_total %}
+              <strong>Nothing here matches your organization yet</strong>
+              We found {{ opportunity_total }} opportunit{{ opportunity_total|pluralize:"y,ies" }} you're eligible for, but none of them match what your organization actually does — so we're not going to pad this list with them. That usually means the profile is thin. The more specific your programs, who you serve, and your service area, the better the matching gets.
+              <a href="{% url 'project-organization' project.pk %}">Complete your organization profile →</a>
+            {% else %}
+              <strong>No opportunities yet</strong>
+              These populate as federal (Grants.gov) and research pulls run for your organization.
+            {% endif %}
           </div>
         {% endfor %}
       </div>

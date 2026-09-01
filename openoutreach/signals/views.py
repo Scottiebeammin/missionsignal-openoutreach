@@ -1062,7 +1062,7 @@ def project_opportunities_workspace(request, pk):
     from datetime import date as _date
     from openoutreach.funding.models import Opportunity
     from openoutreach.funding.relevance import (
-        org_keywords, opportunity_relevance, is_off_geography, is_research_grant,
+        org_keywords, opportunity_relevance, is_not_applicable,
         eligibility_rank, eligibility_stance, is_local_government_source,
     )
     from openoutreach.signals.local_money import build_local_overview
@@ -1076,19 +1076,25 @@ def project_opportunities_workspace(request, pk):
     # to any federal notice with a descriptive title, which is what the relevance
     # floor was patching over. It doesn't compete now, so it can't lose.
     local_overview = build_local_overview(project)
+    # Disqualified rows leave the board entirely (Scott, 2026-09-01) — they are not
+    # ranked last, they are not here at all. Scoring them 0 and keeping them meant
+    # roughly half of every client's board was grants they could never apply for:
+    # 102 of 224 for Empowered Girls, 112 of 229 for Tech Sassy Girlz, 102 of 199 for
+    # Women on the Rise — measured on production. Those rows also inflated the
+    # "N total found" headline, so the count a client read was mostly padding.
+    # `is_not_applicable` is the shared definition already used by discovery.py and
+    # lifecycle.py; this view was the last one scoring instead of excluding.
     ranked = [
         o for o in Opportunity.objects.filter(project=project).exclude(
             status__in=[Opportunity.Status.EXPIRED, Opportunity.Status.ARCHIVED]
         )
-        if not is_local_government_source(o)
+        if not is_local_government_source(o) and not is_not_applicable(o, project.organization)
     ]
     # Score each opportunity against what THIS org does + who it serves, so only
     # relevant ones rise to the top (off-topic grants score 0 and drop out).
     keywords = org_keywords(project.organization)
     for o in ranked:
-        # Foreign/overseas grants are disqualified outright (relevance 0), even if the
-        # topic overlaps — a Central Florida nonprofit can't use a "...in Brazil" grant.
-        o.relevance = 0 if (is_off_geography(o, project.organization) or is_research_grant(o)) else opportunity_relevance(o, keywords)
+        o.relevance = opportunity_relevance(o, keywords)
         # Trust tier: confirmed = human-verified AND backed by a real source link.
         o.confirmed = o.is_confirmed
         o.source_url = o.real_source_url()
@@ -1105,11 +1111,15 @@ def project_opportunities_workspace(request, pk):
     feedback_map = not_a_fit_map(project)
     flag_opportunities(ranked, feedback_map)
 
-    # Top 10 = most relevant matches only (relevance > 0). Off-topic ones still live
-    # in "see all" but never masquerade as recommendations.
+    # Top 10 = relevant matches only, and there is deliberately NO fallback.
+    # This used to read `[...relevant...] or [...ranked...]`, so a client with nothing
+    # relevant got the shelf backfilled with whatever was left — the weakest possible
+    # recommendations shown to the client least able to absorb them, which is the exact
+    # opposite of what the surrounding code promised. An empty shelf is now allowed:
+    # it means the profile has not been filled in well enough to match on, and the
+    # empty state says that rather than hiding it behind filler.
     relevant = [o for o in ranked if o.relevance > 0]
-    top_pool = [o for o in relevant if not o.not_a_fit] or [o for o in ranked if not o.not_a_fit]
-    top = top_pool[:10]
+    top = [o for o in relevant if not o.not_a_fit][:10]
 
     return render(
         request,
