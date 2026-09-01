@@ -366,3 +366,73 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false
+
+  # ── Daily deadline + new-match alerts to project owners ──
+  # ⚠️ DECLARED LATE (2026-09-01). This cron has existed on production since at
+  # least July, running daily at 09:00 UTC, but was created in the dashboard and
+  # was NOT in this Blueprint — so `render.yaml` described 7 crons while prod ran
+  # 9. Anything reasoning about "all the send paths" from this file alone was
+  # reasoning from an incomplete list, including the 2026-08-22 audit.
+  #
+  # It has never been able to send: like the other mail crons it has no EMAIL_*
+  # values, so every send dies on ConnectionRefusedError. Since the Aug 29 fix it
+  # at least fails loudly instead of exiting 0 — its 2026-09-01 run went red with
+  # "Every alert send failed (1 attempted, 0 delivered)".
+  #
+  # Declaring it does NOT set those secrets (sync: false keeps them dashboard-only);
+  # it makes the job visible to anyone reading this file, and puts it on the same
+  # commit as everything else.
+  #
+  # Overlaps `anansi-monthly-grants`, which also ends in send_opportunity_alerts.
+  # Whether both should exist is an open question — see the vault note.
+  - type: cron
+    name: anansi-daily
+    runtime: python
+    region: virginia
+    plan: starter
+    branch: main
+    schedule: "0 9 * * *"   # daily 09:00 UTC
+    buildCommand: "pip install -r requirements/web.txt"
+    startCommand: "python manage.py send_opportunity_alerts"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: anansi-atlas-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,anansiatlas.com,www.anansiatlas.com"
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        sync: false
+      - key: EMAIL_USE_TLS
+        sync: false
+      - key: EMAIL_USE_SSL
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+
+  # ── NOT DECLARED ON PURPOSE: anansi-atlas-nurture (crn-d90s9s77f7vs73ctjc90) ──
+  # A NINTH cron exists on production that is deliberately absent from this file.
+  # It is a second nurture job (09:00 UTC daily), it is SUSPENDED, and it has not
+  # been touched since 2026-08-06.
+  #
+  # It is not declared here because declaring a suspended service invites the
+  # Blueprint to recreate/resume it, and this one sits on the nurture path — the
+  # path that, with EMAIL_* set and the queue undrained, mails thousands of
+  # harvested addresses. Waking it by accident is the worst outcome available.
+  #
+  # Resolve it deliberately, one of two ways, and then delete this comment:
+  #   1. It is redundant with anansi-daily-nurture -> delete it in the dashboard.
+  #   2. It is wanted -> drain/verify the queue first, then declare it properly.
+  # Until then it stays suspended and visible here rather than invisible everywhere.
