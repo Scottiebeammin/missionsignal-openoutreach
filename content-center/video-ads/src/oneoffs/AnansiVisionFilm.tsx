@@ -535,7 +535,14 @@ const S08: React.FC = () => (
         durationInFrames={450}
       />
     </AbsoluteFill>
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-end", paddingBottom: 92, flexDirection: "column", gap: 26 }}>
+    {/* ANCHORED TOP (2026-09-01). This block used to sit at paddingBottom 92, which put
+        it inside the caption band: in the captioned cut the subtitle card covered both
+        chips and the whole source-URL line — the exact beat where the film makes its
+        strongest claim about data discipline, illegible in the cut most likely to be
+        watched with sound off. The bug shipped in the approved 2026-07-31 cut and was
+        found by diffing that file against this one at the same timestamp.
+        The panel occupies y≈183-807, so the space above it is free. */}
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: 44, flexDirection: "column", gap: 22 }}>
       <div style={{ display: "flex", gap: 22 }}>
         <Rise delay={90}>
           <Chip text="✓ Verified" tone="gold" />
