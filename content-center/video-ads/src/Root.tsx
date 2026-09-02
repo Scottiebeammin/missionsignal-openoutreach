@@ -448,7 +448,11 @@ export const RemotionRoot: React.FC = () => {
         }}
       />
 
-      {/* Same film, baked captions — for autoplay-muted feeds. */}
+      {/* Same film, baked captions, NO VOICE — for autoplay-muted feeds, where the
+          captions replace the narration because nobody is listening. This is NOT an
+          accessible version of the film: sent to someone who does play it, it is a
+          six-minute silent film with subtitles. Use AnansiVisionFilmAccessible below
+          for anything emailed to a person. */}
       <Composition
         id="AnansiVisionFilmCaptioned"
         component={AnansiVisionFilm}
@@ -457,6 +461,26 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={{ audioSrc: null as string | null, captions: true, music: true }}
+      />
+
+      {/* ACCESSIBLE CUT (2026-09-02) — narration AND captions together.
+          Added because the two existing cuts each drop half of what a government
+          audience needs: the master has the voice but no subtitles, the captioned cut
+          has subtitles but is silent. Neither is the thing you attach to an email to a
+          public body, which has to work for someone who plays it AND someone who
+          cannot hear it. Identical to the master in every other respect. */}
+      <Composition
+        id="AnansiVisionFilmAccessible"
+        component={AnansiVisionFilm}
+        durationInFrames={VISION_TOTAL}
+        fps={FPS}
+        width={1920}
+        height={1080}
+        defaultProps={{
+          audioSrc: "anansi-vision-film-vo.mp3" as string | null,
+          captions: true,
+          music: true,
+        }}
       />
 
       {/*
