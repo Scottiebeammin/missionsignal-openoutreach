@@ -78,7 +78,13 @@ export const ADS = [
     // software." So this partially breaks the every-ad checklist in BRAND-TEMPLATE.md §5
     // beat 6 — invitation, not conversion. See the BRAND-DEVIATION note in the film file.
     //
-    // The partner line says "Empowered Girls" (no "Inc.") — TTS reads "Inc." as "ink",
+    // ⚠️ The partner is UNNAMED as of 2026-09-01 (Scott). This script text is kept in
+    // sync with the standalone take in public/anansi-vision-film-partner-vo.mp3, which
+    // is what the film actually plays — LINE_SRC points S18 at that file, not at the
+    // master. Keeping the old named line here would have been a trap: regenerating the
+    // master from this config would have quietly put the client's name back into a film
+    // that no longer names them anywhere else.
+    // Historical note on the old take: it said "Empowered Girls" (no "Inc.") — TTS reads "Inc." as "ink",
     // and the spoken-out "Incorporated" sounded stiff. On screen it renders the full
     // legal "Empowered Girls Inc." Facts drawn from seed_egi.py: 501(c)(3), Orlando,
     // girls ages 9-18. Their impact figures (43 girls, $11k scholarships, 5,000
@@ -105,7 +111,7 @@ export const ADS = [
       "Now — everything after this line is unbuilt. Not a beta. Not a roadmap promise. It's a question we'd like to ask out loud, in a room like this one.",
       "Imagine a funder could see the same map. Not just who applied this cycle — the full lifecycle of every managed grant. One place for communication with every award winner. A central hub for your grant data. Every grant, and every awardee, seen at once.",
       "What if a county could look at one sector — youth development, housing, workforce — and see the entire field at once? Where the dollars land. Where they don't. Who is carrying weight without support. None of that exists today. We're showing it to you in wireframe, on purpose, because whether it should exist isn't ours to decide alone.",
-      "What does exist is this. Empowered Girls, right here in Orange County, works with girls ages nine to eighteen — and today they are live in production as our first founding partner. One organization is not a movement. It is, however, a beginning.",
+      "What does exist is this. One of our founding partners, right here in Orange County, works with girls ages nine to eighteen — and today they are live in production. One organization is not a movement. It is, however, a beginning.",
       "So we're not here to sell you software. We're here to ask a question. Whether the way this county sees its own nonprofit sector could be clearer than it is today. Whether the organizations already doing the work deserve to see the whole field they're standing in. We think they do. Reveal. Connect. Clarify. Empower. Act. Anansi Atlas. See the whole web. Call us, or visit anansiatlas.com, to learn more.",
     ],
   },

@@ -172,7 +172,12 @@ const LINE: [number, number][] = [
   [5234, 5507],  // S15 Unbuilt from here
   [5519, 5963],  // S16 Funder-side: lifecycle, communication, data hub
   [5974, 6552],  // S17 A whole sector
-  [6560, 7023],  // S18 Empowered Girls Inc.
+  // S18 the founding partner — NOT a slice of the master. Re-voiced standalone
+  // (2026-09-01) to drop the client's name: "one of our founding partners" replaces
+  // "Empowered Girls". Same facts — Orange County, girls 9-18, live in production.
+  // [0, 446] are frames into ITS OWN file. 446 vs the original 463, so the film
+  // shortens by 17f and the other sixteen takes are untouched.
+  [0, 446],
   [7031, 7821],  // S19 The invitation + CTA
 ];
 
@@ -218,7 +223,9 @@ const VO_FADE = 4;
 const LINE_SRC: (string | null)[] = [
   null, null, null, null, null, null, null, null, null, null, null,
   "anansi-vision-film-local-vo.mp3", // S13 State & Local
-  null, null, null, null, null, null,
+  null, null, null, null,
+  "anansi-vision-film-partner-vo.mp3", // S18 the founding partner, unnamed
+  null,
 ];
 
 const SLICE = LINE.map(([from, to], i) => {
@@ -932,14 +939,16 @@ const S16: React.FC = () => {
  * 17 · One, So Far — 630f. A single node lights on a wide empty field.
  * Restraint is the point: one organization is not a movement.
  *
- * Partner is Empowered Girls Inc. (Scott, 2026-07-29) — seeded by `manage.py seed_egi`,
- * two founding seats via `setup_egi_seats`, and based in Orlando, ORANGE COUNTY. That
- * last fact is why the narration says "right here in Orange County": for an OCFL room,
- * a local partner lands harder than a national one.
+ * The partner is UNNAMED as of 2026-09-01 (Scott). It is Empowered Girls Inc. — seeded
+ * by `manage.py seed_egi`, two founding seats via `setup_egi_seats`, Orlando, ORANGE
+ * COUNTY — and every fact the narration states about them is still true. Only the name
+ * is gone, from the voice, this card, and the Act III screenshots.
  *
- * ⚠️ STILL NEEDS WRITTEN CONSENT before this screens to OCFL or named grantmakers.
- * Without it, drop the name and the sub-label reads "Founding partner · live in
- * production" alone — the scene works unnamed.
+ * This resolves the old consent note rather than relying on the July 30 waiver: the
+ * scene no longer identifies a client to a room of their potential funders, so no
+ * permission is being leaned on. "right here in Orange County" stays — for an OCFL
+ * room, a local partner lands harder than a national one, and a county is not an
+ * identity.
  */
 const S17: React.FC = () => (
   <AbsoluteFill>
@@ -947,16 +956,19 @@ const S17: React.FC = () => (
     <GradientMesh opacity={0.28} />
     <NodeField w={W} h={H} count={11} opacity={0.12} highlight={[4]} at={0} fadeIn={60} />
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 22 }}>
-      {/* 133 = measured frame the voice says "Empowered Girls" */}
+      {/* 133 = LEAD 70 + 63, the measured frame the voice says "One of our founding
+          partners". The old take said "Empowered Girls" at exactly the same frame, so
+          the card still rises on the words — that coincidence is luck, not design; it
+          was re-measured from the new alignment, not carried over. */}
       <Rise delay={133}>
         <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 62, color: BRAND.white, textAlign: "center" }}>
-          Empowered Girls Inc.
+          One of our founding partners.
         </div>
       </Rise>
-      {/* 314 = "live in production" — the sub-label lands on the words */}
-      <Rise delay={319}>
+      {/* 349 = LEAD 70 + 279, "live in production" — was 319 against the old take. */}
+      <Rise delay={349}>
         <Label size={22} color={BRAND.goldLight}>
-          Founding partner · Orlando, Orange County · live in production
+          Orlando, Orange County · live in production
         </Label>
       </Rise>
     </AbsoluteFill>
@@ -1120,8 +1132,8 @@ const CAPTIONS: Caption[] = [
   cap(14, "One place for communication. A central hub for your grant data. Seen at once.", 210),
   cap(15, "What if a county could see an entire sector at once?", 0, 300),
   cap(15, "None of that exists today. We're showing it in wireframe, on purpose.", 300),
-  cap(16, "Empowered Girls works with girls ages 9–18, right here in Orange County.", 0, 249),
-  cap(16, "Live in production today — our first founding partner.", 249),
+  cap(16, "One of our founding partners works with girls ages 9–18, right here in Orange County.", 0, 279),
+  cap(16, "Live in production today.", 279),
   cap(17, "We're not here to sell you software. We're here to ask a question.", 0, 300),
   cap(17, "Whether the organizations doing the work deserve to see the whole field.", 300, 168),
   cap(17, "Reveal. Connect. Clarify. Empower. Act. See the whole web.", 468, 208),
@@ -1208,16 +1220,21 @@ export const AnansiVisionFilm: React.FC<{
               }
             />
           </Sequence>
-          <Sequence key="score-c" from={7889} durationInFrames={3704}>
+          {/* 3687, not 3704: re-voicing S18 without the client's name made that line
+              17f shorter, so the film ends at 11,576 rather than 11,593. The fade below
+              is measured in SEQUENCE frames, so leaving it at 3704 would have cut the
+              music at ~0.10 volume on the final frame instead of reaching silence — an
+              audible stop, on the last thing the room hears. The warm point at 1983 is
+              unchanged: it is the START of S18, and the shortening happens inside that
+              scene, not before it. */}
+          <Sequence key="score-c" from={7889} durationInFrames={3687}>
             <Audio
               src={staticFile("music/stem-resolve.mp3")}
-              endAt={3737}
+              endAt={3720}
               volume={(f) =>
                 interpolate(
                   f,
-                  // low under Act IV's concept register; warm from S17 (EGI, film
-                  // frame 9369 = seq 1983); fade with the film's own closing fade.
-                  [0, 90, 1983, 2103, 3644, 3704],
+                  [0, 90, 1983, 2103, 3627, 3687],
                   [0, 0.26, 0.26, 0.36, 0.36, 0],
                   { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
                 )
