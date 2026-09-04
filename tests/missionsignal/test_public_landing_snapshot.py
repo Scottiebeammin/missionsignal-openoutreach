@@ -32,12 +32,16 @@ def test_public_landing_page_renders_without_login(client):
     assert "Your mission deserves a map." in content
     assert "Not a mountain of research." in content
     assert "Opportunity Web Snapshot" in content
-    assert "Apply for a Founding Seat" in content
+    assert "Apply Now" in content
     assert "$150/mo" in content
     assert "$150/month" in content
     assert "locked for life" in content
-    assert "Sign up today" in content
-    assert "20 founding seats" in content
+    assert "sign up today" in content.lower()
+    assert "Limited-time offer" in content
+    # The founding-cohort framing is retired: no seat caps or cohort copy.
+    assert "founding cohort" not in content.lower()
+    assert "founding seat" not in content.lower()
+    assert "20 seats" not in content.lower()
     assert "Scott Foundry Group LLC" in content
     assert "anansiatlas.com" in content
     # Pricing copy rule: the Snapshot is never marketed as free.
@@ -69,7 +73,7 @@ def test_public_landing_page_renders_waitlist_form_fields(client):
     assert 'name="role"' in content
     assert 'name="interest_type" value="founding_atlas_partners"' in content
     assert 'name="message"' in content  # ask-a-question form
-    assert "Apply for a Founding Seat" in content
+    assert "Apply Now" in content
 
 
 @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
@@ -197,7 +201,7 @@ def test_interest_signup_confirmation_page(client):
     assert response.status_code == 200
     assert "Thank you" in content
     assert "Opportunity Web Snapshot" in content
-    assert "Founding Atlas Partners" in content
+    assert "limited-time $150/month offer" in content
 
 
 def test_pilot_onboarding_route_renders_without_login(client):
@@ -205,9 +209,9 @@ def test_pilot_onboarding_route_renders_without_login(client):
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert "Founding Atlas Partners" in content
-    assert "Become a Founding Atlas Partner." in content
-    assert "Limited founding cohort" in content
+    assert "Limited-Time Offer" in content
+    assert "Become an Atlas Partner." in content
+    assert "Limited-time offer" in content
     assert "Request pilot access" in content
     # What's included
     assert "Opportunity Web Snapshot" in content
@@ -217,7 +221,7 @@ def test_pilot_onboarding_route_renders_without_login(client):
     assert "Founder-Led Walkthrough" in content
     assert "30-Day Action Plan" in content
     assert "30 Days Platform Access" in content
-    assert "Founding Partner Recognition" in content
+    assert "Early Partner Recognition" in content
     # How it works
     assert "Submit interest" in content
     assert "Organization intake" in content

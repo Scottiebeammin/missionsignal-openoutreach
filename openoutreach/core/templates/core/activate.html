@@ -2,12 +2,12 @@
 {% block title %}Activate your seat — Anansi Atlas{% endblock %}
 {% block content %}
   <h1>Almost there, {{ request.user.first_name|default:"friend" }}</h1>
-  <p class="subtitle">Your account is created — one step left to open your Opportunity Web: claim your Founding Atlas Partner seat.</p>
+  <p class="subtitle">Your account is created — one step left to open your Opportunity Web: lock in your Pro access.</p>
 
   <div style="border:1.5px solid rgba(212,160,23,0.45); border-radius:12px; padding:18px 20px; margin:18px 0;">
-    <p style="margin:0 0 6px; font-weight:700;">Founding Atlas Partner — $150/month, locked for life</p>
+    <p style="margin:0 0 6px; font-weight:700;">Limited-time offer — $150/month, locked for life</p>
     <p style="margin:0 0 14px; font-size:0.9rem; opacity:0.8;">Full platform access, your Opportunity Web Snapshot, and a 45-minute walkthrough call. Cancel anytime. Standard pricing will be $299/month.</p>
-    <a class="btn-primary" style="display:block; text-align:center; text-decoration:none;" href="{{ stripe_url }}">Claim your founding seat →</a>
+    <a class="btn-primary" style="display:block; text-align:center; text-decoration:none;" href="{{ stripe_url }}">Lock in $150/month →</a>
     {% if annual_url %}<p style="text-align:center; margin:10px 0 0; font-size:0.85rem;"><a href="{{ annual_url }}">Prefer annual? $1,440/year — save 20% →</a></p>{% endif %}
   </div>
 

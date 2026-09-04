@@ -19,7 +19,7 @@ def test_signup_creates_account_and_routes_to_paywall():
     r = c.post("/accounts/signup/", SIGNUP, HTTP_HOST="localhost", follow=True)
     assert r.redirect_chain[-1][0].endswith("/activate/")
     body = r.content.decode()
-    assert "Claim your founding seat" in body
+    assert "Lock in $150/month" in body
     assert "buy.stripe.com" in body
     assert "Message support" in body
     assert get_user_model().objects.filter(email="rae@neworg.org").exists()
